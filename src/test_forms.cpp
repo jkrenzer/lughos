@@ -1,7 +1,7 @@
 #include <iostream>
 #include "basicTypes.hpp"
 #include "io.hpp"
-#include "guiForms.hpp"
+#include "transformations.hpp"
 
 using namespace lughos;
 
@@ -12,16 +12,10 @@ int main(int argc, char **argv) {
     std::cout << "Testing form output" << std::endl;
     int zahl = 7;
     exposedPtr<int>* test = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine Zahl"));
-    renderValue<consoleContext,int> r(*test);
-    testRenderer* rendr = new testRenderer() ;
-    r.output();
-    r.setRenderer(rendr);
-    r.output();
-    
-    form <consoleContext> f;
-    formElements fe(*test);
-    f.addChild(fe);
-    f.render();
+    transformation< std::string > t;
+    exposedValue<std::string>* test2 = new exposedValue<std::string>(std::string("String"),std::string("Irgendein String"));
+    test2->setValue(std::string(""));
+    std::cout << t(*test) << t(*test2);
     
   }
   catch(lughos::exception e)

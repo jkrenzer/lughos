@@ -115,6 +115,17 @@ protected:
   T value;
   
 public:
+  
+  exposedValueTemplate<T>(T value, std::string name, std::string description = "")
+    {
+      this->value = value;
+      this->valueIsSet = true;
+    }
+    
+    exposedValueTemplate<T>(std::string name, std::string description = "")
+    {
+      this->valueIsSet = false;
+    }
      
   virtual void setValue(T value)
   {
@@ -131,43 +142,29 @@ public:
    BOOST_THROW_EXCEPTION( exception() << errorName("invalid_value_supplied") << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
   }
   
-  virtual T getValue()
+  virtual T getValue() const
   {
     return this->value;
   }
   
-  virtual bool verify(T value) = 0;
+  virtual bool verify(T value)
+  {
+    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
+  }
   
   bool verify()
   {
     return this->verify(this->value);
   }
-  
-  virtual T stringToType(std::string) = 0;
    
 };
 
-template <class T> class exposedValue : public exposedValueTemplate<T>//, public exposedValueImpl
+template <class T> class exposedValue : public exposedValueTemplate<T>, public exposedType<T>
 {
 };
 
-template <class T> class exposedVar : public exposedValue<T>, public exposedType<T>
-{
-public:
-    exposedVar(T value, std::string name, std::string description = "")
-    {
-      this->value = value;
-      this->valueIsSet = true;
-    }
-    
-    exposedVar(std::string name, std::string description = "")
-    {
-      this->valueIsSet = false;
-    }
 
-};
-
-template <class T> class exposedPtr : public exposedValue<T>, public exposedType<T>
+template <class T> class exposedPtr : public exposedValue<T> 
 {
 protected:
   T* ptr;
@@ -209,34 +206,6 @@ public:
   {
     return this->ptr;
   }
-  
-};
-
-template <class T> class exposedArgument : public exposedType<T>
-{
-protected:
-  T defaultValue;
-  bool hasDefaultValue;
-public:
- 
-  exposedArgument(T value, T defaultValue, std::string name, std::string description = "") : exposedVar<T>(value,name,description)
-    {
-      this->defaultValue = defaultValue;
-      this->hasDefaultValue = true;
-    }
-  
-  void setDefaultValue(T value)
-  {
-    this->defaultValue = value;
-    T t;
-    if(value == t)
-      this->defaultValue = false;
-  }
-  
-  T getDefaultValue()
-  {
-    return this->defaultValue;
-  }  
   
 };
 
