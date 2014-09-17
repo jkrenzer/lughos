@@ -11,7 +11,7 @@
 #include <boost/concept_check.hpp>
 #include "errorHandling.hpp"
 
-namespace exposer
+namespace lughos
 {
 
 class exposedObject
@@ -20,6 +20,10 @@ protected:
   std::string name;
   std::string description;
 public:
+  
+  exposedObject() : name("N/A"), description("N/A")
+  {
+  }
   
   exposedObject(std::string name, std::string description = "")
   {
@@ -53,12 +57,14 @@ public:
   
 };
   
-template <class T> class exposedTreeObject
+//TODO How should we proceed with our trees? --> wrong renderer-invocation of children. Ord should renderers even be object-specific? but how should this go into modules?
+// Will wrapping the children help?
+class exposedTreeObject : public exposedObject
 {
 protected:
   
-  T* parent;
-  std::vector<T*> children;
+  exposedTreeObject* parent;
+  std::vector<exposedTreeObject*> children;
   std::vector<std::string> childrenNames;
   
     
@@ -68,12 +74,22 @@ public:
   {
   }
   
-  T* getParent()
+  exposedTreeObject* getParent()
   {
     return this->parent;
   }
   
-  void setParent(T* objectPtr = NULL)
+  int countChildren()
+  {
+    return this->children.size();
+  }
+  
+  template <class T> const std::vector<T*> getChildren()
+  {
+    return std::vector<T*>( (T*) this->children);
+  }
+  
+  void setParent(exposedTreeObject* objectPtr = NULL)
   {
     if (this->parent != objectPtr && objectPtr != NULL)
     {
@@ -87,22 +103,22 @@ public:
     }
   }
   
-  void addChild(T* objectPtr)
+  void addChild(exposedTreeObject* objectPtr)
   {
     if(!isChild(objectPtr))
     {
       this->children.push_back(objectPtr);
-      this->childrenNames.push_back(objectPtr->name);
+      this->childrenNames.push_back(objectPtr->getName());
       objectPtr->setParent(this);
     }
   }
   
-  void removeChild(T* objectPtr)
+  void removeChild(exposedTreeObject* objectPtr)
   {
     if(isChild(objectPtr))
     {
       this->children.erase(std::find(this->children.begin(), this->children.end(), objectPtr));
-      this->childrenNames.erase(std::find(this->childrenNames.begin(), this->childrenNames.end(), objectPtr->name));
+      this->childrenNames.erase(std::find(this->childrenNames.begin(), this->childrenNames.end(), objectPtr->getName()));
       objectPtr->setParent();
       
     }
@@ -113,12 +129,12 @@ public:
     return getChild(name) != NULL;
   }
   
-  bool isChild(T* objectPtr)
+  bool isChild(exposedTreeObject* objectPtr)
   {
     return getChildName(objectPtr) != std::string("");
   }
   
-  T* getChild(std::string name)
+  exposedTreeObject* getChild(std::string name)
   {
     typename std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
     if (it != this->childrenNames.end())
@@ -127,9 +143,9 @@ public:
       return NULL;
   }
   
-  std::string getChildName(T* objectPtr)
+  std::string getChildName(exposedTreeObject* objectPtr)
   {
-    typename std::vector<T*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
+    typename std::vector<exposedTreeObject*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
     if (it != this->children.end())
       return this->childrenNames[it-this->children.begin()];
     else
@@ -178,11 +194,11 @@ public:
   
 };
 
-template <class T> class exposedType : public exposedTypeTemplate<T>, public exposedTypeImpl
+template <class T> class exposedType : public exposedTypeTemplate<T>//, public exposedTypeImpl
 {
 };
 
-class exposedValueImpl
+class exposedValueImpl  : public exposedTreeObject
 {
 protected:
   bool valueIsSet;
@@ -237,7 +253,7 @@ public:
    
 };
 
-template <class T> class exposedValue : public exposedValueTemplate<T>, public exposedValueImpl
+template <class T> class exposedValue : public exposedValueTemplate<T>//, public exposedValueImpl
 {
 };
 
@@ -330,12 +346,20 @@ public:
   
 };
 
-template <class R> class exposedFunction : public exposedObject, public exposedTreeObject<exposedValueImpl>
+template <class R> class exposedFunction : public exposedObject, public exposedTreeObject
 {
 
 public:
   
-  template <class T> T getValue(exposedValueImpl* childPtr)
+    exposedFunction(std::string name, std::string description = "") : exposedObject(name,description)
+    {
+    }
+    
+    ~exposedFunction()
+    {
+    }
+  
+  template <class T> T getValue(exposedTreeObject* childPtr)
   {
     exposedValue<T>* child = (exposedValue<T>*) childPtr;
     return child->getValue();
@@ -356,10 +380,10 @@ public:
     if(this->runable())
       return this->exec();
     else
-      BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_not_runnable") << errorTitle("An exposed function was called but it is not executable") << errorDescription("This error occurs, when a exposed function is called but runable-state-verification-method reports an inexecutable state of the function object. This can be the case when arguments are missing or of wrong type." << errorSeverity(severity::ShouldNot)) );
+      BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_not_runnable") << errorTitle("An exposed function was called but it is not executable") << errorDescription("This error occurs, when a exposed function is called but runable-state-verification-method reports an inexecutable state of the function object. This can be the case when arguments are missing or of wrong type.") << errorSeverity(severity::ShouldNot) );
   }
   
 };
 
-} //namespace exposer
+} //namespace lughos
 #endif

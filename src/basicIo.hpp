@@ -4,7 +4,7 @@
 #include<string>
 #include "io.hpp"
 
-namespace exposer
+namespace lughos
 {
 
 class consoleContext : public ioContext
@@ -22,5 +22,5 @@ public:
   
 };
 
-}//namespace exposer
+}//namespace lughos
 #endif

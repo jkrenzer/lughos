@@ -1,0 +1,17 @@
+TODO-List
+
+All contributers please update this file AND the issues at https://github.com/jmankiewicz/lughos/issues !!!
+
+Format:
+
+[ ] <Name> (Issue #<issue Number>)
+
+-= Version 0.0.1 =-
+Due: 2014-10-02
+
+[ ] Change all pointers of heap-objects to Boost smartpointers (Issue #1)
+[ ] Integrate TCP connections (Issue #2)
+[ ] Write Dictonary: Keithly Integra Series (Issue #3)
+[ ] Test serial sync and async operations (Issue #4)
+[ ] Implement form-display classes (Issue #5)
+[ ] Implement basic GUI-classes (Issue #6)

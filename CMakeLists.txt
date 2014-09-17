@@ -1,7 +1,7 @@
 project(lugos)
 cmake_minimum_required(VERSION 2.8)
 set(EXT_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalLibraries) #Path relative to build-dir!
-set(PROJECT_NAME exposer)
+set(PROJECT_NAME lughos)
 set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interfaces")
 #set(PROJECT_LOGO)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
@@ -12,7 +12,52 @@ set(GENERATOR "Eclipse CDT4 - Unix Makefiles")
 list( APPEND CMAKE_CXX_FLAGS "-std=c++11")
 include(ExternalProject)
 
-# Generate Version-Information from git tag and commit-information
+### Find needed Packages
+
+find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+find_package(Doxygen)
+
+
+
+### Taget for generating Doxygen documentation (if Doygen is found)
+
+if(DOXYGEN_FOUND)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doxygen.conf ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+ add_custom_target(doc
+ ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+ #COMMAND ${CMAKE_MAKE_PROGRAM} -C ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/proc/
+ #COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/proc/refman.pdf ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/manual.pdf
+ WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+ COMMENT "Generating API documentation with Doxygen" VERBATIM
+ )
+endif(DOXYGEN_FOUND)
+
+### Download and compile missing external libraries
+
+if(LIBARU_FOUND)
+add_custom_target(libharu COMMENT "libharu was sucessfully found. Skipping build.")
+else()
+ExternalProject_Add(
+      libharu
+      PREFIX ${EXT_LIB_DIR}
+      GIT_REPOSITORY https://github.com/libharu/libharu.git #Comment-out when cmake keeps buggin you with rebuilds
+      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCONFIGDIR:STRING=<INSTALL_DIR>/etc 
+  )
+endif()
+
+if(WT_FOUND)
+add_custom_target(libharu COMMENT "Wt was sucessfully found. Skipping build.")
+else()
+ExternalProject_Add(
+    wt
+    PREFIX ${EXT_LIB_DIR}
+    GIT_REPOSITORY https://github.com/kdeforche/wt.git #Comment-out when cmake keeps buggin you with rebuilds
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCONFIGDIR:STRING=<INSTALL_DIR>/etc  -DCONNECTOR_FCGI=OFF
+ )
+endif()
+
+### Generate Version-Information from git tag and commit-information
+
 if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
   find_package(Git)
   if(GIT_FOUND)
@@ -29,7 +74,18 @@ if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 endif( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 # Generate full custom version-string
 set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}")
-#find_package(Boost REQUIRED)
-add_executable(exposer src/test_exposer.cpp)
 
-install(TARGETS exposer RUNTIME DESTINATION bin)
+### Set executables and dependencies
+
+#Test for exposer
+add_executable(test_exposer src/test_exposer.cpp)
+
+#Test for forms
+add_executable(test_forms src/test_forms.cpp)
+
+#Test of connections
+add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+target_link_libraries( test_connections ${Boost_LIBRARIES} )
+
+#Installation directives
+#install(TARGETS lughos RUNTIME DESTINATION bin)

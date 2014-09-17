@@ -7,7 +7,7 @@
 #include "io.hpp"
 #include "basicIo.hpp"
 
-namespace exposer
+namespace lughos
 {
 
 template <> class exposedType<int> : public exposedTypeTemplate<int>
@@ -44,23 +44,36 @@ public:
   
 };
 
-template <> class ioValueRenderer<int,consoleContext>
+template <> class ioValueRenderer<consoleContext,int>
 {
 public:
-  
-  static void output(exposedValue< int > &value, consoleContext context)
-  {
-    std::cout << "Value (int) is: " << value.getValue() << std::endl;
-  }
-  
-  static void input(exposedValue< int > &value, consoleContext context)
+  void input(exposedValue< int > &value, consoleContext context)
   {
     std::cout << "Enter value (int): ";
     std::string input;
     std::cin >> input;
     value.setValue(value.stringToType(input));
   }
+
+ void output(exposedValue< int > &value, consoleContext context)
+  {
+    std::cout << "Value (int) is: " << value.getValue() << std::endl;
+  }
 };
 
-} //namespace exposer
+template <> class ioValueRenderer<consoleContext,exposedTreeObject >
+{
+public:
+  void input(exposedTreeObject &value, consoleContext context)
+  {
+  }
+
+ void output(exposedTreeObject &value, consoleContext context)
+  {
+//     std::cout << "Name is: " << value.getName() << std::endl;
+  }
+};
+ 
+
+} //namespace lughos
 #endif

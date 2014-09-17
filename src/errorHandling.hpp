@@ -4,7 +4,7 @@
 #include <sstream>
 #include <boost/exception/all.hpp>
 
-namespace exposer
+namespace lughos
 {
 
 enum severity { Neglectable, Informative, ShouldNot, MustNot, Fatal, Catastrophic };
@@ -65,5 +65,5 @@ std::string makeErrorReport(exception& e)
 }
 
 
-} //namespace exposer
+} //namespace lughos
 #endif
