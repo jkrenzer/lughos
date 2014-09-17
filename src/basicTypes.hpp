@@ -3,9 +3,10 @@
 #include <cstdlib>
 #include <climits>
 
-#include "expose.hpp"
+#include "exposedValues.hpp"
 #include "io.hpp"
 #include "basicIo.hpp"
+#include "treeObj.hpp"
 
 namespace lughos
 {
@@ -47,30 +48,49 @@ public:
 template <> class ioValueRenderer<consoleContext,int>
 {
 public:
-  void input(exposedValue< int > &value, consoleContext context)
+  virtual void input(exposedValue<int> &value, consoleContext context)
   {
-    std::cout << "Enter value (int): ";
+    std::cout << "Enter value (int): OLD ";
     std::string input;
     std::cin >> input;
     value.setValue(value.stringToType(input));
   }
 
- void output(exposedValue< int > &value, consoleContext context)
+ virtual void output(exposedValue<int> &value, consoleContext context)
   {
-    std::cout << "Value (int) is: " << value.getValue() << std::endl;
+    std::cout << "Value (int) is: OLD " << value.getValue() << std::endl;
   }
 };
 
-template <> class ioValueRenderer<consoleContext,exposedTreeObject >
+class testRenderer : public ioValueRenderer< consoleContext, int >
 {
-public:
-  void input(exposedTreeObject &value, consoleContext context)
+  
+  void input(exposedValue<int> &value, consoleContext context)
   {
+    std::cout << "Enter value (int) LALA!: ";
+    std::string input;
+    std::cin >> input;
+    value.setValue(value.stringToType(input));
   }
 
- void output(exposedTreeObject &value, consoleContext context)
+  void output(exposedValue<int> &value, consoleContext context)
   {
-//     std::cout << "Name is: " << value.getName() << std::endl;
+    std::cout << "Value (int) is: LALA! " << value.getValue() << std::endl;
+  }
+};
+
+
+template <> class ioValueRenderer<consoleContext, exposedObject>
+{
+public:
+  void input(exposedObject &value, consoleContext context)
+  {
+    std::cout << "Name is: " << value.getName() << std::endl;
+  }
+
+ void output(exposedObject &value, consoleContext context)
+  {
+     std::cout << "Name is: " << value.getName() << std::endl;
   }
 };
  

@@ -3,8 +3,9 @@
 #include<iostream>
 #include<string>
 #include<typeinfo>
+#include<boost/smart_ptr/shared_ptr.hpp>
 
-#include "expose.hpp"
+#include "exposedValues.hpp"
 #include "errorHandling.hpp"
 
 namespace lughos
@@ -27,63 +28,91 @@ class rendererImpl
   virtual void input() = 0;
 };
 
+
+
 template <class C, class T> class ioValueRendererImpl
 {
 public:
   //TODO Lateron we might relax these strong constraints to handle runtime-included objects.
   virtual void output(T &value, C &context) =0;
     
-  virtual void input(T &value, C &context) =0;
+  virtual T& input(T &value, C &context) =0;
   
 };
 
 template <class C, class T> class ioValueRenderer : public ioValueRendererImpl<C,T>
 {};
 
-template <class C> class ioRenderer
+class renderValueInterface
+{
+public:
+  
+  virtual void input() = 0;
+  
+  virtual void output() = 0;
+  
+  
+};
+
+template <class C, class T> class renderValue : public renderValueInterface, public exposedValue<T>
 {
 protected:
-  
-  C context;
+  ioValueRenderer<C,T>* renderer;
   
 public:
   
-  ioRenderer() : context()
+  renderValue<C,T>() : renderer()
   {
-    
+    this->renderer = NULL;
   }
   
-  ioRenderer(C context) : context(context)
+  renderValue<C,T>(const exposedValue<T> &c) : exposedValue<T>(c), renderer()
   {
-    
+    this->renderer = NULL;
   }
   
-  
-  template <class T> void output(T &value)
+  void setRenderer(ioValueRenderer<C,T>* r)
   {
-    ioValueRenderer<C,T> renderer;
-    renderer.output(value,this->context);
+    this->renderer=r;
   }
   
-  template <template <class> class W, class T > void output(W<T> &value)
+  ioValueRenderer<C,T>* getRenderer()
   {
-    ioValueRenderer<C,T> renderer;
-    renderer.output(value,this->context);
+    return this->renderer;
   }
   
-  
-  template <class T> void input(T &value)
+  void input()
   {
-    ioValueRenderer<C,T> renderer;
-    renderer.input(value,this->context);
+    if(this->renderer)
+      this->renderer->input(*this,C() );
   }
   
-  template <template <class> class W, class T > void input(W<T> &value)
+  void input(C context)
   {
-    ioValueRenderer<C,T> renderer;
-    renderer.input(value,this->context);
+    if(this->renderer)
+      this->renderer->input(*this,context );
   }
   
+  void output()
+  {
+    if(this->renderer)
+      this->renderer->output(*this,C() );
+  }
+  
+  void output(C context)
+  {
+    if(this->renderer)
+      this->renderer->output(*this,context );
+  }
+  
+};
+
+template <class K> class formField
+{
+  template <class C, class T> void render(renderValue<C,T> obj)
+  {
+    std::cout << "No formfield for this type defined." << std::endl;
+  }
 };
 
 } //namespace lughos

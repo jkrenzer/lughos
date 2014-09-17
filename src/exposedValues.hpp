@@ -57,112 +57,6 @@ public:
   
 };
   
-//TODO How should we proceed with our trees? --> wrong renderer-invocation of children. Ord should renderers even be object-specific? but how should this go into modules?
-// Will wrapping the children help?
-class exposedTreeObject : public exposedObject
-{
-protected:
-  
-  exposedTreeObject* parent;
-  std::vector<exposedTreeObject*> children;
-  std::vector<std::string> childrenNames;
-  
-    
-public:
-  
-  exposedTreeObject() : parent(NULL)
-  {
-  }
-  
-  exposedTreeObject* getParent()
-  {
-    return this->parent;
-  }
-  
-  int countChildren()
-  {
-    return this->children.size();
-  }
-  
-  template <class T> const std::vector<T*> getChildren()
-  {
-    return std::vector<T*>( (T*) this->children);
-  }
-  
-  void setParent(exposedTreeObject* objectPtr = NULL)
-  {
-    if (this->parent != objectPtr && objectPtr != NULL)
-    {
-      this->parent = objectPtr;
-      objectPtr->addChild(this);
-    }
-    else if (this->parent != objectPtr && objectPtr == NULL)
-    {
-      this->parent = NULL;
-      objectPtr->removeChild(this);
-    }
-  }
-  
-  void addChild(exposedTreeObject* objectPtr)
-  {
-    if(!isChild(objectPtr))
-    {
-      this->children.push_back(objectPtr);
-      this->childrenNames.push_back(objectPtr->getName());
-      objectPtr->setParent(this);
-    }
-  }
-  
-  void removeChild(exposedTreeObject* objectPtr)
-  {
-    if(isChild(objectPtr))
-    {
-      this->children.erase(std::find(this->children.begin(), this->children.end(), objectPtr));
-      this->childrenNames.erase(std::find(this->childrenNames.begin(), this->childrenNames.end(), objectPtr->getName()));
-      objectPtr->setParent();
-      
-    }
-  }
-  
-  bool isChild(std::string name)
-  {
-    return getChild(name) != NULL;
-  }
-  
-  bool isChild(exposedTreeObject* objectPtr)
-  {
-    return getChildName(objectPtr) != std::string("");
-  }
-  
-  exposedTreeObject* getChild(std::string name)
-  {
-    typename std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
-    if (it != this->childrenNames.end())
-      return this->children[it-this->childrenNames.begin()];
-    else
-      return NULL;
-  }
-  
-  std::string getChildName(exposedTreeObject* objectPtr)
-  {
-    typename std::vector<exposedTreeObject*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
-    if (it != this->children.end())
-      return this->childrenNames[it-this->children.begin()];
-    else
-      return std::string("");
-  }
-  
-  std::vector<std::string> path()
-  {
-    std::vector<std::string> path;
-    if (this->parent != NULL)
-      path = this->parent->path();
-    path.push_back(this->name);
-      
-  }
-  
-};
-
 class exposedTypeImpl
 {
   
@@ -178,14 +72,14 @@ public:
     virtual std::string getTypeDescription() = 0;
         
     virtual std::type_index getLocalTypeInfo() = 0;
+    
+    
   
 };
 
 template <class T> class exposedTypeTemplate : public exposedTypeImpl
 {
 public:
-  
-  typedef T type;
   
   std::type_index getLocalTypeInfo()
   {
@@ -198,7 +92,7 @@ template <class T> class exposedType : public exposedTypeTemplate<T>//, public e
 {
 };
 
-class exposedValueImpl  : public exposedTreeObject
+class exposedValueImpl
 {
 protected:
   bool valueIsSet;
@@ -343,45 +237,6 @@ public:
   {
     return this->defaultValue;
   }  
-  
-};
-
-template <class R> class exposedFunction : public exposedObject, public exposedTreeObject
-{
-
-public:
-  
-    exposedFunction(std::string name, std::string description = "") : exposedObject(name,description)
-    {
-    }
-    
-    ~exposedFunction()
-    {
-    }
-  
-  template <class T> T getValue(exposedTreeObject* childPtr)
-  {
-    exposedValue<T>* child = (exposedValue<T>*) childPtr;
-    return child->getValue();
-  }
-  
-  template <class T> T getValue(std::string childName)
-  {
-    exposedValue<T>* child = (exposedValue<T>*) this->getChild(childName);
-    return child->getValue();
-  }
-  
-  virtual R exec() = 0;
-  
-  virtual bool runable() = 0;
-  
-  R run()
-  {
-    if(this->runable())
-      return this->exec();
-    else
-      BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_not_runnable") << errorTitle("An exposed function was called but it is not executable") << errorDescription("This error occurs, when a exposed function is called but runable-state-verification-method reports an inexecutable state of the function object. This can be the case when arguments are missing or of wrong type.") << errorSeverity(severity::ShouldNot) );
-  }
   
 };
 
