@@ -21,88 +21,94 @@ public:
   
 };
 
-class rendererImpl
-{
-  virtual void output() = 0;
-  
-  virtual void input() = 0;
-};
-
-
-
-template <class C, class T> class ioValueRendererImpl
+class ioRendererInterface
 {
 public:
-  //TODO Lateron we might relax these strong constraints to handle runtime-included objects.
-  virtual void output(T &value, C &context) =0;
+    enum Options {READONLY = 1, READWRITE = 2} options;
     
-  virtual T& input(T &value, C &context) =0;
+};
+
+template <class C, class T> class ioRendererImplementation : public ioRendererInterface
+{
+protected: 
+  T& rObj;
+public:
+  //TODO Lateron we might relax these strong constraints to handle runtime-included objects.
+  using ioRendererInterface::Options;
+  
+  ioRendererImplementation<C,T>() : rObj()
+  {
+    
+  }
+  
+  ioRendererImplementation<C,T>(T& rObj) : rObj(rObj)
+  {
+    
+  }
+  
+  T& getRenderObject()
+  {
+    return this->rObj;
+  }
+  
+  void setRenderObject(T& t)
+  {
+    this->rObj = t;
+  }
+
+  virtual void render(Options o) = 0;
   
 };
 
-template <class C, class T> class ioValueRenderer : public ioValueRendererImpl<C,T>
+template <class C, class T> class ioRenderer : public ioRendererImplementation<C,T>
 {};
 
 class renderValueInterface
 {
 public:
   
-  virtual void input() = 0;
+  ioRendererInterface::Options options;
   
-  virtual void output() = 0;
-  
+  void render(ioRendererInterface::Options o);
   
 };
 
 template <class C, class T> class renderValue : public renderValueInterface, public exposedValue<T>
 {
 protected:
-  ioValueRenderer<C,T>* renderer;
+  typedef ioRenderer<C,exposedValue<T> > Renderer;
+  Renderer* renderer;
   
 public:
   
-  renderValue<C,T>() : renderer()
+  renderValue<C,T>()
   {
-    this->renderer = NULL;
+    this->renderer = new Renderer();
+    this->renderer->setRenderObject(*this);
   }
   
-  renderValue<C,T>(const exposedValue<T> &c) : exposedValue<T>(c), renderer()
+  renderValue<C,T>(const exposedValue<T> &c) : exposedValue<T>(c)
   {
-    this->renderer = NULL;
+    this->renderer = new Renderer();
   }
   
-  void setRenderer(ioValueRenderer<C,T>* r)
+  void setRenderer(ioRenderer<C,T>* r)
   {
     this->renderer=r;
+    this->renderer->setRenderObject(*this);
   }
   
-  ioValueRenderer<C,T>* getRenderer()
+  Renderer& getRenderer()
   {
-    return this->renderer;
+    return *(this->renderer);
   }
   
-  void input()
-  {
-    if(this->renderer)
-      this->renderer->input(*this,C() );
-  }
-  
-  void input(C context)
+  void render(ioRendererInterface::Options o = ioRendererInterface::Options::READONLY)
   {
     if(this->renderer)
-      this->renderer->input(*this,context );
-  }
-  
-  void output()
-  {
-    if(this->renderer)
-      this->renderer->output(*this,C() );
-  }
-  
-  void output(C context)
-  {
-    if(this->renderer)
-      this->renderer->output(*this,context );
+    {
+      this->renderer->render(o);
+    }
   }
   
 };

@@ -57,49 +57,6 @@ public:
   
 };
   
-class exposedTypeInterface
-{
-  
-public:
-  
-    exposedTypeInterface() 
-    {
-      
-    }
-        
-    virtual std::string getGlobalTypeName() = 0;
-        
-    virtual std::string getTypeDescription() = 0;
-        
-    virtual std::type_index getLocalTypeInfo() = 0;
-  
-};
-
-template <class T> class exposedTypeImplementation : public exposedTypeInterface
-{
-public:
-  
-  std::type_index getLocalTypeInfo()
-  {
-    return std::type_index(typeid(T));
-  }
-  
-  virtual bool verify(T value)
-  {
-    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
-  }
-  
-  virtual bool verify()
-  {
-    return this->verify(this->value);
-  }
-  
-};
-
-template <class T> class exposedType : public exposedTypeImplementation<T>
-{
-};
-
 class exposedValueInterface
 {
 protected:
@@ -110,6 +67,8 @@ public:
   {
   }
   
+     
+  
    bool isSet()
   {
     return this->valueIsSet;
@@ -117,27 +76,59 @@ public:
   
 };
 
-template <class T> class exposedValueImplementation : public exposedValueInterface
+template <class T> class valueDeclaration
+{
+  bool verify(T value)
+  {
+    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
+    return false;
+  }
+  
+  virtual std::string getGlobalTypeName() = 0;
+        
+  virtual std::string getTypeDescription() = 0;
+        
+  virtual std::type_index getLocalTypeInfo() = 0;
+  
+};
+
+template <class T> class exposedValue : public exposedValueInterface
 {
 protected:
+  
   T value;
+  valueDeclaration<T> declaration;
   
 public:
   
-  exposedValueImplementation<T>(T value, std::string name, std::string description = "")
+  exposedValue<T>()
+  {
+  }
+  
+  exposedValue<T>(T value)
+  {
+    this->setValue(value);
+  }
+  
+  exposedValue<T>(T value, std::string name, std::string description = "")
     {
       this->value = value;
       this->valueIsSet = true;
     }
     
-    exposedValueImplementation<T>(std::string name, std::string description = "")
+    exposedValue<T>(std::string name, std::string description = "")
     {
       this->valueIsSet = false;
     }
+    
+//   operator T() const
+//   {
+//     return this->getValue();
+//   }
      
   void setValue(T value)
   {
-    if(this->verify(value))
+    if(this->declaration.verify(value))
     {
       this->value = value;
       T t;
@@ -154,11 +145,19 @@ public:
   {
     return this->value;
   }
-     
-};
-
-template <class T> class exposedValue : public exposedValueImplementation<T>, public exposedType<T>
-{
+  
+  virtual bool verify()
+  {
+    return this->declaration.verify(this->value);
+  }
+  
+  std::type_index getLocalTypeInfo()
+  {
+    return std::type_index(typeid(T));
+  }
+  
+  
+  
 };
 
 
@@ -176,7 +175,7 @@ public:
   
   void setValue(T value)
   {
-    if(this->verify(value))
+    if(this->declaration.verify(value))
     {
       *this->ptr = value;
       T t;

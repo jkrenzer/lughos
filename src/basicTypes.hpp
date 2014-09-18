@@ -13,7 +13,7 @@
 namespace lughos
 {
 
-template <> class exposedValue<int> : public exposedTypeTemplate<int>
+template <> class valueDeclaration<int>
 {
 public:
   std::string getGlobalTypeName()
@@ -26,9 +26,14 @@ public:
     return std::string("Simple, standard integer value.");
   }
   
+  bool verify(int value)
+  {
+    true;
+  }
+  
 };
 
-template <> class exposedValue<std::string> : public exposedTypeTemplate<std::string>
+template <> class valueDeclaration<std::string>
 {
 public:
   std::string getGlobalTypeName()
@@ -41,8 +46,30 @@ public:
     return std::string("Simple, standard string value.");
   }
   
+  bool verify(int value)
+  {
+    true;
+  }
+    
 };
 
+template <class T> class ioRenderer<consoleContext,renderValue<consoleContext,T> > : ioRendererImplementation<consoleContext,T>
+{
+public:
+   
+  void render(ioRendererInterface::Options o)
+  { 
+    std::cout << "Rendering " << this->getRenderObject().getName() << std::endl;
+    if (o == ioRendererInterface::READWRITE)
+    {
+      T t;
+      std::cout << "New value: ";
+      std::cin >> t;
+      this->getRenderObject().setValue(t);
+    }
+  }
+  
+};
 
 template <> class transformation<std::string>
 {
@@ -65,6 +92,11 @@ public:
     return s;
   }
     
+};
+
+template <class T> class transformation<exposedValue<T> >
+{
+  
 };
 
 

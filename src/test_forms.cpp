@@ -12,10 +12,11 @@ int main(int argc, char **argv) {
     std::cout << "Testing form output" << std::endl;
     int zahl = 7;
     exposedPtr<int>* test = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine Zahl"));
-    transformation< std::string > t;
-    exposedValue<std::string>* test2 = new exposedValue<std::string>();
-    test2->get;
-    std::cout << t(*test) << t(*test2);
+    transformation< std::string > t; 
+    std::cout << t(*test);
+    
+    renderValue<consoleContext,int> r(*test);
+    r.render();
     
   }
   catch(lughos::exception e)
