@@ -57,12 +57,12 @@ public:
   
 };
   
-class exposedTypeImpl
+class exposedTypeInterface
 {
   
 public:
   
-    exposedTypeImpl() 
+    exposedTypeInterface() 
     {
       
     }
@@ -72,12 +72,10 @@ public:
     virtual std::string getTypeDescription() = 0;
         
     virtual std::type_index getLocalTypeInfo() = 0;
-    
-    
   
 };
 
-template <class T> class exposedTypeTemplate : public exposedTypeImpl
+template <class T> class exposedTypeImplementation : public exposedTypeInterface
 {
 public:
   
@@ -86,19 +84,29 @@ public:
     return std::type_index(typeid(T));
   }
   
+  virtual bool verify(T value)
+  {
+    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
+  }
+  
+  virtual bool verify()
+  {
+    return this->verify(this->value);
+  }
+  
 };
 
-template <class T> class exposedType : public exposedTypeTemplate<T>//, public exposedTypeImpl
+template <class T> class exposedType : public exposedTypeImplementation<T>
 {
 };
 
-class exposedValueImpl
+class exposedValueInterface
 {
 protected:
   bool valueIsSet;
 public:
   
-  exposedValueImpl() : valueIsSet(false)
+  exposedValueInterface() : valueIsSet(false)
   {
   }
   
@@ -109,25 +117,25 @@ public:
   
 };
 
-template <class T> class exposedValueTemplate : public exposedValueImpl
+template <class T> class exposedValueImplementation : public exposedValueInterface
 {
 protected:
   T value;
   
 public:
   
-  exposedValueTemplate<T>(T value, std::string name, std::string description = "")
+  exposedValueImplementation<T>(T value, std::string name, std::string description = "")
     {
       this->value = value;
       this->valueIsSet = true;
     }
     
-    exposedValueTemplate<T>(std::string name, std::string description = "")
+    exposedValueImplementation<T>(std::string name, std::string description = "")
     {
       this->valueIsSet = false;
     }
      
-  virtual void setValue(T value)
+  void setValue(T value)
   {
     if(this->verify(value))
     {
@@ -142,24 +150,14 @@ public:
    BOOST_THROW_EXCEPTION( exception() << errorName("invalid_value_supplied") << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
   }
   
-  virtual T getValue() const
+  T getValue() const
   {
     return this->value;
   }
-  
-  virtual bool verify(T value)
-  {
-    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
-  }
-  
-  bool verify()
-  {
-    return this->verify(this->value);
-  }
-   
+     
 };
 
-template <class T> class exposedValue : public exposedValueTemplate<T>, public exposedType<T>
+template <class T> class exposedValue : public exposedValueImplementation<T>, public exposedType<T>
 {
 };
 
