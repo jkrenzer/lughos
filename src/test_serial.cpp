@@ -19,13 +19,12 @@ int main(int argc, char **argv) {
     c->context.RTS = false; 
     c->context.DTR = true;
  
-    	rv = c->start(name.c_str(), 600); /*115200*/	
-//    c->reset();
+    	rv = c->start(name.c_str()); /*115200*/	
+	//    c->reset();
 // 	    	  std::cout << "rv="<< rv<< std::endl;
 	if (rv == false) {
 		return -1;
 	}
-   c->end_of_line_char(0x0d);
     
 
     	  std::cout << "Write="<< c->write("D")<< std::endl;
