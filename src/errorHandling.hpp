@@ -11,7 +11,7 @@ enum severity { Neglectable, Informative, ShouldNot, MustNot, Fatal, Catastrophi
 
 
   
-std::string severityToString(severity s)
+extern std::string severityToString(severity s)
 {
     switch (s)
     {
@@ -39,7 +39,7 @@ typedef boost::error_info<struct errorSeverityStruct,severity> errorSeverity;
 
 struct exception: virtual boost::exception, virtual std::exception { };
 
-std::string makeErrorReport(exception& e)
+extern std::string makeErrorReport(exception& e)
 {
   std::stringstream s;
   s << std::endl << std::endl;

@@ -77,6 +77,8 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 
 ### Set executables and dependencies
 
+add_executable(experiment_generictype src/experiment_generictype.cpp)
+
 #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
 

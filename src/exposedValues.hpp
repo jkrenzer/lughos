@@ -10,6 +10,7 @@
 #include <typeindex>
 #include <boost/concept_check.hpp>
 #include "errorHandling.hpp"
+#include "transformations.hpp"
 
 namespace lughos
 {
@@ -67,12 +68,25 @@ public:
   {
   }
   
-     
+  virtual ~exposedValueInterface()
+  {
+    
+  }
   
-   bool isSet()
+  bool isSet()
   {
     return this->valueIsSet;
   }
+  
+};
+
+class valueDeclarationInterface
+{
+  virtual bool verify() = 0;
+  
+  virtual std::string getGlobalTypeName() = 0;
+        
+  virtual std::string getTypeDescription() = 0;
   
 };
 
@@ -84,25 +98,55 @@ template <class T> class valueDeclaration
     return false;
   }
   
-  virtual std::string getGlobalTypeName() = 0;
-        
-  virtual std::string getTypeDescription() = 0;
-        
-  virtual std::type_index getLocalTypeInfo() = 0;
-  
 };
 
-template <class T> class exposedValue : public exposedValueInterface
+template <class T> class exposedValueImplimentation : public exposedValueInterface, public exposedObject, public valueDeclaration<T>
 {
 protected:
   
   T value;
-  valueDeclaration<T> declaration;
   
 public:
+
+    
+//   operator T() const
+//   {
+//     return this->getValue();
+//   }
+     
+  void setValue(T value)
+  {
+    if(this->verify(value))
+    {
+      this->value = value;
+      T t;
+      if (value == t)
+	this->valueIsSet = false;
+      else
+	this->valueIsSet = true;
+    }
+    else
+   BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
+  }
   
+  T getValue() const
+  {
+    return this->value;
+  }
+  
+};
+
+template <class T> class exposedValue : public exposedValueImplimentation<T>
+{
+public:
+    
   exposedValue<T>()
   {
+  }
+  
+  template <class E> exposedValue<T>(exposedValue<E> &e)
+  {
+    this->value = transformation<T>(e.getValue());
   }
   
   exposedValue<T>(T value)
@@ -120,46 +164,7 @@ public:
     {
       this->valueIsSet = false;
     }
-    
-//   operator T() const
-//   {
-//     return this->getValue();
-//   }
-     
-  void setValue(T value)
-  {
-    if(this->declaration.verify(value))
-    {
-      this->value = value;
-      T t;
-      if (value == t)
-	this->valueIsSet = false;
-      else
-	this->valueIsSet = true;
-    }
-    else
-   BOOST_THROW_EXCEPTION( exception() << errorName("invalid_value_supplied") << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
-  }
-  
-  T getValue() const
-  {
-    return this->value;
-  }
-  
-  virtual bool verify()
-  {
-    return this->declaration.verify(this->value);
-  }
-  
-  std::type_index getLocalTypeInfo()
-  {
-    return std::type_index(typeid(T));
-  }
-  
-  
-  
 };
-
 
 template <class T> class exposedPtr : public exposedValue<T> 
 {
@@ -175,7 +180,7 @@ public:
   
   void setValue(T value)
   {
-    if(this->declaration.verify(value))
+    if(this->verify(value))
     {
       *this->ptr = value;
       T t;

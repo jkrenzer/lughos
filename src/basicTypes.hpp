@@ -46,63 +46,33 @@ public:
     return std::string("Simple, standard string value.");
   }
   
-  bool verify(int value)
+  bool verify(std::string value)
   {
     true;
   }
     
 };
 
-template <class T> class ioRenderer<consoleContext,renderValue<consoleContext,T> > : ioRendererImplementation<consoleContext,T>
+template <> class valueDeclaration<double>
 {
 public:
-   
-  void render(ioRendererInterface::Options o)
-  { 
-    std::cout << "Rendering " << this->getRenderObject().getName() << std::endl;
-    if (o == ioRendererInterface::READWRITE)
-    {
-      T t;
-      std::cout << "New value: ";
-      std::cin >> t;
-      this->getRenderObject().setValue(t);
-    }
+  std::string getGlobalTypeName()
+  {
+    return std::string("double");
   }
   
-};
-
-template <> class transformation<std::string>
-{
-public:
-  
-  template <class T> const std::string operator()(const exposedValue<T> &e)
+  std::string getTypeDescription()
   {
-    return this->operator()(e.getValue());
+    return std::string("Simple, standard double value.");
   }
   
-  const std::string operator()(const int &i)
+  bool verify(double value)
   {
-    std::stringstream ss;
-    ss << "Integer: " << i;
-    return ss.str();
-  }
-  
-  const std::string operator()(const std::string &s)
-  {
-    return s;
+    true;
   }
     
 };
 
-template <class T> class transformation<exposedValue<T> >
-{
-  
-};
-
-
-
-
- 
 
 } //namespace lughos
 #endif

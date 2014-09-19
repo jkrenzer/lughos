@@ -4,17 +4,21 @@
 namespace lughos
 {
 
-template <class P> class transformationTemplate
+template <class P> P transformation()
 {
-public:
- 
-  virtual const P& operator()() = 0;
-     
-};
+  P p;
+  return p;
+}
 
-template <class P> class transformation : public transformationTemplate<P>
+template <class T, class E> T transformation(E e) 
 {
-};
+  return (T) e;
+}
+
+template <class T> std::string transformation(T &e)
+{
+  return std::string(e);
+}
 
 } //namespace lughos
 #endif
