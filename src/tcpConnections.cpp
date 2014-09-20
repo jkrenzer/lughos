@@ -14,6 +14,7 @@ connection<tcpContext>::connection(void) :io_service_(), socket(io_service_), so
 connection<tcpContext>::~connection(void)
 {
   if (this->query) delete this->query;
+
 	stop();
 }
 
@@ -58,63 +59,28 @@ int connection<tcpContext>::write(const std::string &buf)
     // server will close the socket after transmitting the response. This will
     // allow us to treat all data up until the EOF as the content.
   
+    boost::system::error_code error = boost::asio::error::host_not_found;
+     
     connection<tcpContext>::compose_request_stream(buf);
   
-//     boost::asio::streambuf request;
-//     std::ostream request_stream(&request);
-    boost::system::error_code error = boost::asio::error::host_not_found;
-// //     std::string port_name = "192.168.178.40";
-//     std::string host_path = "/scpi_response.html?cmd=";
-//     
-//       
-// 
-//     request_stream << "GET " << host_path.c_str()<<buf << " HTTP/1.0\r\n";
-//     request_stream << "Host: " << this->server<< "\r\n";
-//     request_stream << "Accept: */*\r\n";
-//     request_stream << "Connection: close\r\n\r\n";
+
 
     boost::asio::write(socket, request_);
 
     // Read the response status line.
-    boost::asio::streambuf response;
-    boost::asio::read_until(socket, response, "\r\n");
+    boost::asio::read_until(socket, response_, "\r\n");
 
-    // Check that response is OK.
-    std::istream response_stream(&response);
-    std::string http_version;
-    response_stream >> http_version;
-    unsigned int status_code;
-    response_stream >> status_code;
-    std::string status_message;
-    std::getline(response_stream, status_message);
-    if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-    {
-      std::cout << "Invalid response\n";
-      return 1;
-    }
-    if (status_code != 200)
-    {
-      std::cout << "Response returned with status code " << status_code << "\n";
-      return 1;
-    }
-
+      connection<tcpContext>::handle_read_check_response(error);
     // Read the response headers, which are terminated by a blank line.
-    boost::asio::read_until(socket, response, "\r\n\r\n");
+    boost::asio::read_until(socket, response_, "\r\n\r\n");
 
-    // Process the response headers.
-    std::string header;
-    while (std::getline(response_stream, header) && header != "\r")
-      std::cout << header << "\n";
-    std::cout << "\n";
-
-    // Write whatever content we already have to output.
-    if (response.size() > 0)
-      std::cout << &response;
+    connection<tcpContext>::handle_read_headers_process();
 
     // Read until EOF, writing data to output as we go.
-    while (boost::asio::read(socket, response,
+    while (boost::asio::read(socket, response_,
           boost::asio::transfer_at_least(1), error))
-      std::cout << &response;
+      std::cout << &response_;
+    
     if (error != boost::asio::error::eof)
       throw boost::system::system_error(error);
   
@@ -137,16 +103,20 @@ int connection<tcpContext>::write_async(const std::string &buf)
 
 void connection<tcpContext>::compose_request_stream(const std::string &buf)
 {
-    std::ostream request_stream(&request_);
-    
-    
-    std::string port_name = this->server;
-    std::string host_path = "/LICENSE_1_0.txt";
-   
-    request_stream << "GET " << host_path.c_str()<<buf.c_str()<< " HTTP/1.0\r\n";
-    request_stream << "Host: " << this->server<< "\r\n";
-    request_stream << "Accept: */*\r\n";
-    request_stream << "Connection: close\r\n\r\n";
+    httpDict* http =new httpDict();
+    http->compose_request(this->server, buf, &request_);
+    if (http) delete http;
+  
+//   std::ostream request_stream(&request_);
+//     
+//     
+//     std::string port_name = this->server;
+//      std::string host_path = "/LICENSE_1_0.txt";
+// //      std::string host_path = "/scpi_response.html?cmd=";
+//     request_stream << "GET " << host_path.c_str()<<buf.c_str()<< " HTTP/1.0\r\n";
+//     request_stream << "Host: " << this->server<< "\r\n";
+//     request_stream << "Accept: */*\r\n";
+//     request_stream << "Connection: close\r\n\r\n";
   
 }
 
@@ -213,31 +183,39 @@ void connection<tcpContext>::handle_write_request(const boost::system::error_cod
       std::cout << "Error: " << err.message() << "\n";
     }
   }
+  
+   void connection<tcpContext>::handle_read_check_response(const boost::system::error_code& err)
+  {
+    httpDict* http =new httpDict();
+    http->check_response(&response_);
+    if (http) delete http;
+//          // Check that response is OK.
+//       std::istream response_stream(&response_);
+//       std::string http_version;
+//       response_stream >> http_version;
+//       unsigned int status_code;
+//       response_stream >> status_code;
+//       std::string status_message;
+//       std::getline(response_stream, status_message);
+//       if (!response_stream || http_version.substr(0, 5) != "HTTP/")
+//       {
+//         std::cout << "Invalid response\n";
+//         return;
+//       }
+//       if (status_code != 200)
+//       {
+//         std::cout << "Response returned with status code ";
+//         std::cout << status_code << "\n";
+//         return;
+//       }
+    
+  }
 
   void connection<tcpContext>::handle_read_status_line(const boost::system::error_code& err)
   {
     if (!err)
     {
-      // Check that response is OK.
-      std::istream response_stream(&response_);
-      std::string http_version;
-      response_stream >> http_version;
-      unsigned int status_code;
-      response_stream >> status_code;
-      std::string status_message;
-      std::getline(response_stream, status_message);
-      if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-      {
-        std::cout << "Invalid response\n";
-        return;
-      }
-      if (status_code != 200)
-      {
-        std::cout << "Response returned with status code ";
-        std::cout << status_code << "\n";
-        return;
-      }
-
+      connection<tcpContext>::handle_read_check_response(err);
       // Read the response headers, which are terminated by a blank line.
       boost::asio::async_read_until(socket_async, response_, "\r\n\r\n",
           boost::bind(&connection<tcpContext>::handle_read_headers, this,
@@ -253,16 +231,7 @@ void connection<tcpContext>::handle_write_request(const boost::system::error_cod
   {
     if (!err)
     {
-      // Process the response headers.
-      std::istream response_stream(&response_);
-      std::string header;
-      while (std::getline(response_stream, header) && header != "\r")
-        std::cout << header << "\n";
-      std::cout << "\n";
-
-      // Write whatever content we already have to output.
-      if (response_.size() > 0)
-        std::cout << &response_;
+      connection<tcpContext>::handle_read_headers_process();
 
       // Start reading remaining data until EOF.
       boost::asio::async_read(socket_async, response_,
@@ -275,6 +244,20 @@ void connection<tcpContext>::handle_write_request(const boost::system::error_cod
       std::cout << "Error: " << err << "\n";
     }
   }
+
+void connection<tcpContext>::handle_read_headers_process()
+{
+        // Process the response headers.
+      std::istream response_stream(&response_);
+      std::string header;
+      while (std::getline(response_stream, header) && header != "\r")
+        std::cout << header << "\n";
+      std::cout << "\n";
+
+      // Write whatever content we already have to output.
+      if (response_.size() > 0)
+        std::cout << &response_;
+}
 
 void connection<tcpContext>::handle_read_content(const boost::system::error_code& err)
   {

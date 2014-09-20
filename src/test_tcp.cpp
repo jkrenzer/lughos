@@ -9,7 +9,8 @@ int main(int argc, char **argv) {
 //   http://1cckg5nsjmakrwwa.myfritz.net:6666/
   	bool rv;
 // 	std::string port_name = "192.168.178.40";
-	std::string port_name ="www.boost.org";
+// 	std::string port_name ="1cckg5nsjmakrwwa.myfritz.net:6666";
+		std::string port_name ="www.boost.org";
 	std::string name = port_name;
 
   
