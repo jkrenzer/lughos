@@ -54,11 +54,13 @@ template <> class connection<tcpContext>: public connectionTemplate<tcpContext>
 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
 	void handle_write_request(const boost::system::error_code& err);
 	void handle_read_status_line(const boost::system::error_code& err);
+	void handle_read_check_response(const boost::system::error_code& err);
 	void handle_read_headers(const boost::system::error_code& err);
+	void handle_read_headers_process();
 	void handle_read_content(const boost::system::error_code& err);
 
-	boost::asio::streambuf request_;
-	boost::asio::streambuf response_;
+	
+
 	
 	void compose_request_stream(const std::string &buf);
 	
@@ -76,8 +78,21 @@ template <> class connection<tcpContext>: public connectionTemplate<tcpContext>
 
 	int write(const std::string &buf);
 	int write_async(const std::string &buf);
+	boost::asio::streambuf response_;
+	boost::asio::streambuf request_;
 	void reset();
   
+};
+
+class httpDict
+{
+  public:                              // öffentlich
+    httpDict();                      // der Default-Konstruktor
+    ~httpDict();                     // der Destruktor
+ 
+    void check_response(boost::asio::streambuf* response);  
+    void compose_request(std::string server, const std::string &buf, boost::asio::streambuf* request);       
+
 };
 
 
