@@ -106,18 +106,6 @@ void connection<tcpContext>::compose_request_stream(const std::string &buf)
     httpDict* http =new httpDict();
     http->compose_request(this->server, buf, &request_);
     if (http) delete http;
-  
-//   std::ostream request_stream(&request_);
-//     
-//     
-//     std::string port_name = this->server;
-//      std::string host_path = "/LICENSE_1_0.txt";
-// //      std::string host_path = "/scpi_response.html?cmd=";
-//     request_stream << "GET " << host_path.c_str()<<buf.c_str()<< " HTTP/1.0\r\n";
-//     request_stream << "Host: " << this->server<< "\r\n";
-//     request_stream << "Accept: */*\r\n";
-//     request_stream << "Connection: close\r\n\r\n";
-  
 }
 
 void connection<tcpContext>::set_port()
@@ -189,26 +177,7 @@ void connection<tcpContext>::handle_write_request(const boost::system::error_cod
     httpDict* http =new httpDict();
     http->check_response(&response_);
     if (http) delete http;
-//          // Check that response is OK.
-//       std::istream response_stream(&response_);
-//       std::string http_version;
-//       response_stream >> http_version;
-//       unsigned int status_code;
-//       response_stream >> status_code;
-//       std::string status_message;
-//       std::getline(response_stream, status_message);
-//       if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-//       {
-//         std::cout << "Invalid response\n";
-//         return;
-//       }
-//       if (status_code != 200)
-//       {
-//         std::cout << "Response returned with status code ";
-//         std::cout << status_code << "\n";
-//         return;
-//       }
-    
+   
   }
 
   void connection<tcpContext>::handle_read_status_line(const boost::system::error_code& err)
@@ -276,7 +245,4 @@ void connection<tcpContext>::handle_read_content(const boost::system::error_code
     {
       std::cout << "Error: " << err << "\n";
     }
-  }
-
-
-    
+  }   
