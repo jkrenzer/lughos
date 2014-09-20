@@ -30,13 +30,13 @@ template <> class ioWrapper<consoleContext>
   
 };
 
-template <> class textBox<consoleContext> : public ioWrapper<consoleContext>
+template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
   {
   protected:
     std::string text;
     exposedValueInterface* object;
     
-    template <class T> void callbackTemplate(textBox<consoleContext>* objPtr)
+    template <class T> void callbackTemplate(textLine<consoleContext>* objPtr)
     {
       std::cout << "Interpreting string \"" << this->text << "\" to type " << typeid(T).name() << std::endl;
       exposedValue<T>* e = dynamic_cast<exposedValue<T>*>(objPtr->object);
@@ -56,15 +56,15 @@ template <> class textBox<consoleContext> : public ioWrapper<consoleContext>
       
     }
     
-    void (textBox<consoleContext>::*callback)(textBox<consoleContext>*);
+    void (textLine<consoleContext>::*callback)(textLine<consoleContext>*);
     
   public:
-    template <class T> textBox(exposedValue<T> &e)
+    template <class T> textLine(exposedValue<T> &e)
     {
       
       this->text = boost::lexical_cast<std::string>(e.getValue());
       this->object = dynamic_cast<exposedValueInterface*>(&e);
-      this->callback = &textBox< consoleContext >::callbackTemplate<T>;
+      this->callback = &textLine< consoleContext >::callbackTemplate<T>;
     }
     
     std::string output()

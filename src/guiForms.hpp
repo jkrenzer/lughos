@@ -38,14 +38,5 @@ public:
   
 };
 
-class textNode : public formNode
-{
-  virtual void render()
-  {
-  }
-};
-
-
-
 }//namespace lughos
 #endif

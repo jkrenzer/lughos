@@ -30,7 +30,7 @@ namespace lughos
     
   };
   
-  template <class C> class textBox : public ioWrapper<C>
+  template <class C> class textLine : public ioWrapper<C>
   {
     
   };

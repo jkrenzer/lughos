@@ -77,17 +77,19 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 
 ### Set executables and dependencies
 
-add_executable(experiment_generictype src/experiment_generictype.cpp)
-
 #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
 
 #Test for forms
 add_executable(test_forms src/test_forms.cpp)
+add_dependencies(test_forms wt)
+include_directories(${EXT_LIB_DIR}/include/)
+link_directories(${EXT_LIB_DIR}/lib/)
+target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
 #Test of connections
 add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
-target_link_libraries( test_connections ${Boost_LIBRARIES} )
+target_link_libraries(test_connections ${Boost_LIBRARIES} )
 
 #Installation directives
 #install(TARGETS lughos RUNTIME DESTINATION bin)
