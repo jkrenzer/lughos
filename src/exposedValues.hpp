@@ -12,13 +12,18 @@
 #include "errorHandling.hpp"
 #include "transformations.hpp"
 
+#define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& _ ## name (name<T> &d) { return d; }
+
 namespace lughos
 {
 
+  
+  
 class exposedObject
 {
 protected:
   std::string name;
+  std::string shortDescription;
   std::string description;
 public:
   
@@ -45,6 +50,16 @@ public:
   {
     this->name = name;
   }
+  
+  std::string getShortDescription()
+  {
+    return this->description;
+  }
+  
+  void setShortDescription(std::string description)
+  {
+    this->description = description;
+  }
     
   std::string getDescription()
   {
@@ -60,11 +75,9 @@ public:
   
 class exposedValueInterface
 {
-protected:
-  bool valueIsSet;
 public:
   
-  exposedValueInterface() : valueIsSet(false)
+  exposedValueInterface()
   {
   }
   
@@ -73,20 +86,33 @@ public:
     
   }
   
-  bool isSet()
-  {
-    return this->valueIsSet;
-  }
-  
+   
 };
 
 class valueDeclarationInterface
 {
+public:
   virtual bool verify() = 0;
   
-  virtual std::string getGlobalTypeName() = 0;
+  virtual std::string getTypeName() = 0;
+  
+  virtual std::string getTypeShortDescription() = 0;
         
   virtual std::string getTypeDescription() = 0;
+  
+  virtual auto getTypeSample() = 0;
+  
+};
+
+template <class T> class valueDeclarationImplementation
+{
+public:
+  
+  auto getTypeSample()
+  {
+    T t;
+    return t;
+  }
   
 };
 
@@ -104,35 +130,48 @@ template <class T> class exposedValueImplimentation : public exposedValueInterfa
 {
 protected:
   
-  T value;
+  T* value;
   
 public:
 
     
-//   operator T() const
-//   {
-//     return this->getValue();
-//   }
+ exposedValueImplimentation()
+ {
+   this->value = new T;
+ }
+ 
+  ~exposedValueImplimentation()
+  {
+    if(value)
+    {
+      delete value;
+    }
+  }
      
-  void setValue(T value)
+  virtual void setValue(T value)
   {
     if(this->verify(value))
     {
-      this->value = value;
-      T t;
-      if (value == t)
-	this->valueIsSet = false;
-      else
-	this->valueIsSet = true;
+      this->value = new T(value);
     }
     else
    BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
   }
   
-  T getValue() const
+  virtual T getValue() const
   {
-    return this->value;
+    return *this->value;
   }
+  
+//   template <class E> E getValue()
+//   {
+//     return (E) this->getValue();
+//   }
+//   
+//   template <class E> void setValue(E e)
+//   {
+//     this->setValue((T) e);
+//   }
   
 };
 
@@ -168,48 +207,28 @@ public:
 
 template <class T> class exposedPtr : public exposedValue<T> 
 {
-protected:
-  T* ptr;
-  
 public:
   
     exposedPtr(T* ptr, std::string name, std::string description = "")
     {
-      this->ptr = ptr;
+      this->value = ptr;
     }
-  
-  void setValue(T value)
-  {
-    if(this->verify(value))
-    {
-      *this->ptr = value;
-      T t;
-      if (*this->ptr == t)
-	this->valueIsSet = false;
-      else
-	this->valueIsSet = true;
-    }
-    else
-      true;
-    //TODO Exception
-  }
-  
-  T getValue()
-  {
-    return *this->ptr;
-  }
   
   void setPtr(T* ptr)
   {
-    this->ptr = ptr;
+    this->value = ptr;
   }
   
   T* getPtr()
   {
-    return this->ptr;
+    return this->value;
   }
   
 };
+
+REGISTER_CLASS_FAMILY(valueDeclaration)
+
+REGISTER_CLASS_FAMILY(exposedValue)
 
 } //namespace lughos
 #endif

@@ -2,6 +2,7 @@
 #define WT_IO_HPP
 #include "basicIo.hpp"
 #include <Wt/WLineEdit>
+#include <Wt/WTemplate>
 
 namespace lughos 
 {
@@ -24,16 +25,18 @@ public:
   
 template <> class ioWrapper<wtContext>
 {
-  
-  virtual Wt::WWidget* output(Wt::WContainerWidget* parent) = 0;
+  public:
+    virtual Wt::WWidget* output() = 0;
   
 };
 
 template <> class textLine<wtContext> : public ioWrapper<wtContext>
   {
   protected:
-    std::string text;
+    static Wt::WString templateString;
+    Wt::WTemplate* formTemplate;
     Wt::WLineEdit* lineEdit;
+    Wt::WText* label;
     exposedValueInterface* object;
     
     template <class T> void callbackTemplate(textLine<wtContext>* objPtr)
@@ -43,7 +46,6 @@ template <> class textLine<wtContext> : public ioWrapper<wtContext>
       {
 	std::string s = objPtr->lineEdit->text().toUTF8();
 	T value = boost::lexical_cast<T>(s);
-	std::cout << "Got value " << value << " of type " << typeid(value).name() << std::endl;
 	e->setValue(value);
       }
       else
@@ -54,20 +56,22 @@ template <> class textLine<wtContext> : public ioWrapper<wtContext>
     void (textLine<wtContext>::*callback)(textLine<wtContext>*);
     
   public:
-    template <class T> textLine(exposedValue<T> &e) 
+    template <class T> textLine(exposedValue<T> &e)
     {
-      this->lineEdit = NULL;
-      this->text = boost::lexical_cast<std::string>(e.getValue());
+      this->formTemplate = new Wt::WTemplate(textLine< wtContext >::templateString);
+      this->lineEdit = new Wt::WLineEdit;
+      this->label = new Wt::WText;
+      this->lineEdit->setText(boost::lexical_cast<std::string>(e.getValue()));
+      this->label->setText(e.getName());
       this->object = dynamic_cast<exposedValueInterface*>(&e);
       this->callback = &textLine< wtContext >::callbackTemplate<T>;
+      this->formTemplate->bindWidget("label",this->label);
+      this->formTemplate->bindWidget("field",this->lineEdit);      
     }
     
-    Wt::WWidget* output(Wt::WContainerWidget* parent)
+    Wt::WWidget* output()
     {
-      if(this->lineEdit == NULL)
-	this->lineEdit = new Wt::WLineEdit(parent);
-      this->lineEdit->setText(this->text);
-      return this->lineEdit;
+      return this->formTemplate;
     }
     
     void input(std::string s)
@@ -76,5 +80,21 @@ template <> class textLine<wtContext> : public ioWrapper<wtContext>
     }
     
   };
+  
+  /**
+   * @brief HTML-template for textLine objects.
+   * 
+   */
+  Wt::WString textLine<wtContext>::templateString(
+    "\
+    <div class=\"form-inline\">\
+      <div class=\"form-group\">\
+	${label}\
+      </div>\
+      <div class=\"form-group\">\
+	${field}\
+      </div>\
+    </div>");
+  
 } //namespace lughos
 #endif

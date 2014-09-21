@@ -26,12 +26,24 @@ testApplication::testApplication(const WEnvironment& env) : WApplication(env)
   exposedPtr<int>* p = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine ,sZahl"));
   exposedValue<int> i(7);
   exposedValue<double> d(13.7);
-  textLine<wtContext> box1(i);
+  i.setName("Inge Integer");
+  d.setName("Dorothea Double");
+  p->setName("Peter Pointer");
+  textLine<wtContext> box1(*p);
   textLine<wtContext> box2(d);
-  WWidget* w1 = box1.output(root());
-  WWidget* w2 = box2.output(root());
+  WWidget* w1 = box1.output();
+  WWidget* w2 = box2.output();
+  WWidget* w3 = new WText("Test of formdisplay");
+  WWidget* w4 = new WText("yay!");
+  WTemplate* t1 = new WTemplate("<div style=\"color:red;\">${text1}</div><div style=\"color:green;\">${text2}</div>");
+  t1->bindWidget("text1",w3);
+  t1->bindWidget("text2",w4);
+  WWidget* w5 = t1;
+//   root()->addWidget(t1);
+  root()->addWidget(w5);
   root()->addWidget(w1);
   root()->addWidget(w2);
+  
 }
 
 

@@ -1,29 +1,24 @@
 #include <iostream>
+#include <typeinfo>
+#include <type_traits>
+#include <map>
 #include "basicTypes.hpp"
 
 using namespace lughos;
 
-int multiply(int x, int y)
-{
-  return x * y;
-}
 
-class multiplyW : public exposedFunction<int>
-{
-public:
-  multiplyW(std::string name, std::string description = "") : exposedFunction< int >(name,description)
-  {}
-  
-  bool runable()
-  {
-    return true;
-  }
-  
-  int exec()
-  {
-    return multiply(this->getValue<int>(children[0]),this->getValue<int>(children[1]));
-  }
-};
+
+
+
+// template <class T> valueDeclaration<T>& _valueDeclaration(valueDeclaration<T> &d)
+// {
+//   return d;
+// }
+// 
+// template <class T> exposedValue<T>& _getExposedValue(exposedValue<T> &d)
+// {
+//   return d;
+// }
 
 int main(int argc, char **argv) {
   try 
@@ -32,19 +27,18 @@ int main(int argc, char **argv) {
     std::cout << "Testing exposed pointers" << std::endl;
     int zahl = 7;
     exposedPtr<int>* test = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine Zahl"));
-    ioRenderer<consoleContext> renderer;
-    renderer.output(*test);
-    renderer.input(*test);
-    renderer.output(*test);
-    test->getValue();
-    //Test exposition of function
-    std::cout << "Testing exposed functions" << std::endl;
-    multiplyW m("Testfunction","Function for a test");
-    exposedVar<int>* z1 = new exposedVar<int>(4,"Zahl1","");
-    exposedVar<int>* z2 = new exposedVar<int>(5,"Zahl2","");
-    m.addChild(z1);
-    m.addChild(z2);
-    std::cout << "Multiplication result of 4x5 is " << m.run() << std::endl;
+    std::cout << _valueDeclaration(*test).getTypeName() << std::endl;
+    exposedObject* o = test;
+    std::cout << _valueDeclaration(*test).getTypeName() << std::endl;
+  
+    
+    
+    
+    
+    
+     
+    
+
   }
   catch(lughos::exception e)
   {

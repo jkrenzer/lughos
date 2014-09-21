@@ -12,6 +12,12 @@ class configurableObject
 public:
   ptree config;  
 };
+
+class typeRegistry
+{
+protected:
+  
+};
   
 }//namespace lughos
 #endif

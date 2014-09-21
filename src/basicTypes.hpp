@@ -16,9 +16,14 @@ namespace lughos
 template <> class valueDeclaration<int>
 {
 public:
-  std::string getGlobalTypeName()
+  std::string getTypeName()
   {
     return std::string("int");
+  }
+  
+  std::string getTypeShortDescription()
+  {
+    return std::string("Simple, standard integer value.");
   }
   
   std::string getTypeDescription()
@@ -36,9 +41,14 @@ public:
 template <> class valueDeclaration<std::string>
 {
 public:
-  std::string getGlobalTypeName()
+  std::string getTypeName()
   {
     return std::string("string");
+  }
+  
+  std::string getTypeShortDescription()
+  {
+    return std::string("Simple, standard string value.");
   }
   
   std::string getTypeDescription()
@@ -56,9 +66,14 @@ public:
 template <> class valueDeclaration<double>
 {
 public:
-  std::string getGlobalTypeName()
+  std::string getTypeName()
   {
     return std::string("double");
+  }
+  
+  std::string getTypeShortDescription()
+  {
+    return std::string("Simple, standard double value.");
   }
   
   std::string getTypeDescription()
