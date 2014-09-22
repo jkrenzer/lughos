@@ -34,12 +34,12 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
   {
   protected:
     std::string text;
-    exposedValueInterface* object;
+    valueInterface* object;
     
     template <class T> void callbackTemplate(textLine<consoleContext>* objPtr)
     {
       std::cout << "Interpreting string \"" << this->text << "\" to type " << typeid(T).name() << std::endl;
-      exposedValue<T>* e = dynamic_cast<exposedValue<T>*>(objPtr->object);
+      Value<T>* e = dynamic_cast<Value<T>*>(objPtr->object);
       if (e)
       {
 	T value = boost::lexical_cast<T>(objPtr->text);
@@ -59,11 +59,11 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
     void (textLine<consoleContext>::*callback)(textLine<consoleContext>*);
     
   public:
-    template <class T> textLine(exposedValue<T> &e)
+    template <class T> textLine(Value<T> &e)
     {
       
       this->text = boost::lexical_cast<std::string>(e.getValue());
-      this->object = dynamic_cast<exposedValueInterface*>(&e);
+      this->object = dynamic_cast<valueInterface*>(&e);
       this->callback = &textLine< consoleContext >::callbackTemplate<T>;
     }
     
@@ -80,7 +80,7 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
     
 //     template <class T> void input(T t)
 //     {
-//       exposedValue<T>* e = dynamic_cast<exposedValue<T>*>(this->object);
+//       Value<T>* e = dynamic_cast<Value<T>*>(this->object);
 //       if(e)
 //       {
 // 	e->setValue(boost::lexical_cast<T>(t));

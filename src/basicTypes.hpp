@@ -4,7 +4,7 @@
 #include <sstream>
 #include <climits>
 
-#include "exposedValues.hpp"
+#include "rawValues.hpp"
 #include "io.hpp"
 #include "basicIo.hpp"
 #include "treeObj.hpp"
@@ -33,7 +33,7 @@ public:
   
   bool verify(int value)
   {
-    true;
+    return true;
   }
   
 };
@@ -58,7 +58,7 @@ public:
   
   bool verify(std::string value)
   {
-    true;
+    return true;
   }
     
 };
@@ -83,7 +83,7 @@ public:
   
   bool verify(double value)
   {
-    true;
+    return true;
   }
     
 };

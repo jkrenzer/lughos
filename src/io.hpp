@@ -5,7 +5,7 @@
 #include<typeinfo>
 #include<boost/smart_ptr/shared_ptr.hpp>
 
-#include "exposedValues.hpp"
+#include "rawValues.hpp"
 #include "errorHandling.hpp"
 
 namespace lughos
@@ -41,7 +41,7 @@ namespace lughos
   template <class C> class ioRenderer
   {
   public:
-    template <class T> void output(exposedValue<T>& t)
+    template <class T> void output(Value<T>& t)
     {
       std::cout << t.getValue() << std::endl;
     }

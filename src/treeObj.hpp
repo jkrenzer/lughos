@@ -1,9 +1,7 @@
 #ifndef TREE_OBJ_HPP
 #define TREE_OBJ_HPP
 
-#include <map>
-
-#include "exposedValues.hpp"
+#include "basicObject.hpp"
 #include "errorHandling.hpp"
 
 //TODO How should we proceed with our trees? --> wrong renderer-invocation of children. Ord should renderers even be object-specific? but how should this go into modules?
@@ -12,140 +10,94 @@
 namespace lughos
 {
 
-template <class T> class treeChild : public exposedObject
+class treeNode : public basicObject
 {
 protected:
-    T* parent;
+    treeNode* parent;
+    
+    std::vector<treeNode*> children;
+  std::vector<std::string> childrenNames;
+  
+  void _setParent(treeNode* objectPtr = NULL);
+  
+  void _unsetParent(treeNode* objectPtr = NULL);
+    
+    void _setChild(treeNode* objectPtr = NULL);
+    
+    void _unsetChild(treeNode* objectPtr = NULL);
+    
 public:
   
-  T* getParent()
-  {
-    return this->parent;
-  }
+  template <class T> T* getParent();
   
-  void setParent(T* objectPtr = NULL)
-  {
-    if (this->parent != objectPtr && objectPtr != NULL)
-    {
-      this->parent = objectPtr;
-      objectPtr->addChild(this);
-    }
-    else if (this->parent != objectPtr && objectPtr == NULL)
+  void setParent(treeNode* objectPtr = NULL, bool callback = true);
+  
+    treeNode()
     {
       this->parent = NULL;
-      objectPtr->removeChild(this);
     }
-  }
-
-};
-
-template <class T> class treeParent
-{
-protected:
-  std::vector<T*> children;
-  std::vector<std::string> childrenNames;
-public:
-  int countChildren()
-  {
-    return this->children.size();
-  }
   
-  std::vector<T*> getChildren()
+  virtual ~treeNode()
   {
-    return std::vector<T*>(this->children);
-  }
-  
-  void addChild(T* objectPtr)
-  {
-    if(!isChild(objectPtr) && objectPtr != NULL)
+    if (this->parent != NULL)
+      this->parent->removeChild(this,true);
+    for(std::vector<treeNode*>::iterator i = this->children.begin(); i < this->children.end(); i++)
     {
-      this->children.push_back(objectPtr);
-      this->childrenNames.push_back(objectPtr->getName());
-      objectPtr->setParent(this);
+      (*i)->setParent(NULL,false);
     }
   }
   
-  template <class V> void addChild(V* objectPtr)
+  int countChildren();
+  
+  std::vector<treeNode*> getChildren();
+  
+  void addChild(treeNode* objectPtr);
+  
+//   template <class V> void addChild(V* objectPtr)
+//   {
+//     this->addChild<T>(new T(objectPtr));
+//   }
+  
+  
+  
+  void removeChild(treeNode* objectPtr,bool callback = true);
+  
+  bool isChild(std::string name);
+  
+  bool isChild(treeNode* objectPtr);
+  
+  treeNode* get(std::string name)
   {
-    this->addChild<T>(new T(objectPtr));
-  }
-  
-  
-  
-  void removeChild(T* objectPtr)
-  {
-    if(isChild(objectPtr))
-    {
-      this->children.erase(std::find(this->children.begin(), this->children.end(), objectPtr));
-      this->childrenNames.erase(std::find(this->childrenNames.begin(), this->childrenNames.end(), objectPtr->getName()));
-      objectPtr->setParent();
-      
-    }
-  }
-  
-  bool isChild(std::string name)
-  {
-    return getChild(name) != NULL;
-  }
-  
-  bool isChild(T* objectPtr)
-  {
-    return getChildName(objectPtr) != std::string("");
-  }
-  
-  T* getChild(std::string name)
-  {
-    typename std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
+    std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
     if (it != this->childrenNames.end())
       return this->children[it-this->childrenNames.begin()];
     else
       return NULL;
   }
   
-  std::string getChildName(T* objectPtr)
+  treeNode* get(unsigned long int number)
   {
-    typename std::vector<T*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
-    if (it != this->children.end())
-      return this->childrenNames[it-this->children.begin()];
+    if (number < this->children.size())
+      return this->children[number];
     else
-      return std::string("");
+      return this->children[children.size()-1];
   }
   
-  std::vector<std::string> path()
+  template <class T> T* getAs(std::string name);
+  
+  template <class T> T* getAs(unsigned long int number)
   {
-    std::vector<std::string> path;
-    if (this->parent != NULL)
-      path = this->parent->path();
-    path.push_back(this->name);
-      
+    return dynamic_cast<T*>(this->get(number));
   }
+  
+  std::string getNameOf(treeNode* objectPtr);
+  
+  std::vector<std::string> path();
   
 };
-
-
-
-template <class T> class treeObject : public treeChild<treeObject<T> >, public treeParent<treeObject<T> >
-{
-protected:
-  
-  T* value;
-      
-public:
-  
-  treeObject(T& value)
-  {
-    this->value = value;
-    this->parent = NULL;
-  }
-  
-  treeObject()
-  {
-    this->parent = NULL;
-  }
-  
-};
-
 
 } // namespace lughos
+
+#include "treeObj.cpp"
 
 #endif
