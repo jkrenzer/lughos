@@ -1,20 +1,20 @@
 #include "treeObj.hpp"
 
 namespace lughos {
-void treeNode::_setChild(treeNode* objectPtr)
+void TreeNode::_setChild(TreeNode* objectPtr)
 {
     objectPtr->addChild(this);
 }
 
-void treeNode::_unsetChild(treeNode* objectPtr)
+void TreeNode::_unsetChild(TreeNode* objectPtr)
 {
     objectPtr->removeChild(this);
 }
-template <class T> T* treeNode::getParent()
+template <class T> T* TreeNode::getParent()
 {
     return (T*)this->parent;
 }
-void treeNode::setParent(treeNode* objectPtr,bool callback)
+void TreeNode::setParent(TreeNode* objectPtr,bool callback)
 {
     if (this->parent != objectPtr && objectPtr != NULL)
     {
@@ -31,23 +31,23 @@ void treeNode::setParent(treeNode* objectPtr,bool callback)
     }
 }
 
- void treeNode::_setParent(treeNode* objectPtr)
+ void TreeNode::_setParent(TreeNode* objectPtr)
 {
     objectPtr->setParent(this);
 }
- void treeNode::_unsetParent(treeNode* objectPtr)
+ void TreeNode::_unsetParent(TreeNode* objectPtr)
 {
     objectPtr->setParent(NULL);
 }
-int treeNode::countChildren()
+int TreeNode::countChildren()
 {
     return this->children.size();
 }
-std::vector< treeNode* > treeNode::getChildren()
+std::vector< TreeNode* > TreeNode::getChildren()
 {
-    return std::vector<treeNode*>(this->children);
+    return std::vector<TreeNode*>(this->children);
 }
-void treeNode::addChild(treeNode* objectPtr)
+void TreeNode::addChild(TreeNode* objectPtr)
 {
     if(!isChild(objectPtr) && objectPtr != NULL)
     {
@@ -56,7 +56,7 @@ void treeNode::addChild(treeNode* objectPtr)
         this->_setParent(objectPtr);
     }
 }
-void treeNode::removeChild(treeNode* objectPtr,bool callback)
+void TreeNode::removeChild(TreeNode* objectPtr,bool callback)
 {
     if(isChild(objectPtr))
     {
@@ -67,27 +67,27 @@ void treeNode::removeChild(treeNode* objectPtr,bool callback)
 
     }
 }
-bool treeNode::isChild(std::string name)
+bool TreeNode::isChild(std::string name)
 {
     return std::find(this->childrenNames.begin(), this->childrenNames.end(), name) != this->childrenNames.end();
 }
-bool treeNode::isChild(treeNode* objectPtr)
+bool TreeNode::isChild(TreeNode* objectPtr)
 {
     return std::find(this->children.begin(), this->children.end(), objectPtr) != this->children.end();
 }
-template <class T> T* treeNode::getAs(std::string name)
+template <class T> T* TreeNode::getAs(std::string name)
 {
   return dynamic_cast<T*>(get(name));
 }
-std::string treeNode::getNameOf(treeNode* objectPtr)
+std::string TreeNode::getNameOf(TreeNode* objectPtr)
 {
-    std::vector<treeNode*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
+    std::vector<TreeNode*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
     if (it != this->children.end())
         return this->childrenNames[it-this->children.begin()];
     else
         return std::string("");
 }
-std::vector<std::string> treeNode::path()
+std::vector<std::string> TreeNode::path()
 {
     std::vector<std::string> path;
     if (this->parent != NULL)

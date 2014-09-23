@@ -12,25 +12,25 @@
 #include "transformations.hpp"
 #include "treeObj.hpp"
 
-#define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& _ ## name (name<T> &d) { return d; }
+#define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& get ## name (name<T> &d) { return d; }
 
 namespace lughos
 {
 
-class data : public treeNode
+class data : public TreeNode
 {
   
 };
   
-class valueInterface : public data
+class ValueInterface : public data
 {
 public:
   
-  valueInterface()
+  ValueInterface()
   {
   }
   
-  virtual ~valueInterface()
+  virtual ~ValueInterface()
   {
     
   }
@@ -41,7 +41,7 @@ public:
    
 };
 
-class valueDeclarationInterface
+class ValueDeclarationInterface
 {
 public:
   virtual bool verify() = 0;
@@ -56,19 +56,13 @@ public:
   
 };
 
-template <class T> class valueDeclarationImplementation
+template <class T> class ValueDeclarationImplementation
 {
 public:
   
-  auto getTypeSample()
-  {
-    T t;
-    return t;
-  }
-  
 };
 
-template <class T> class valueDeclaration
+template <class T> class ValueDeclaration
 {
   bool verify(T value)
   {
@@ -78,7 +72,7 @@ template <class T> class valueDeclaration
   
 };
 
-template <class T> class valueImplimentation : public valueInterface, public valueDeclaration<T>
+template <class T> class ValueImplementation : public ValueInterface, public ValueDeclaration<T>
 {
 protected:
   
@@ -87,12 +81,12 @@ protected:
 public:
 
     
- valueImplimentation()
+ ValueImplementation()
  {
    this->value = new T;
  }
  
-  ~valueImplimentation()
+  ~ValueImplementation()
   {
     if(value)
     {
@@ -127,7 +121,7 @@ public:
   
 };
 
-template <class T> class Value : public valueImplimentation<T>
+template <class T> class Value : public ValueImplementation<T>
 {
 public:
   
@@ -184,9 +178,9 @@ public:
   
 };
 
-typedef valueInterface Values;
+typedef ValueInterface Values;
 
-REGISTER_CLASS_FAMILY(valueDeclaration)
+REGISTER_CLASS_FAMILY(ValueDeclaration)
 
 REGISTER_CLASS_FAMILY(Value)
 

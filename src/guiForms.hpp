@@ -2,7 +2,7 @@
 #define GUI_FORMS_HPP
 #include "lughosObjects.hpp"
 #include "io.hpp"
-#include "exposedValues.hpp"
+#include "Values.hpp"
 #include "treeObj.hpp"
 
 namespace lughos

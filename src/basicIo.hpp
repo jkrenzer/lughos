@@ -34,7 +34,7 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
   {
   protected:
     std::string text;
-    valueInterface* object;
+    ValueInterface* object;
     
     template <class T> void callbackTemplate(textLine<consoleContext>* objPtr)
     {
@@ -63,7 +63,7 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
     {
       
       this->text = boost::lexical_cast<std::string>(e.getValue());
-      this->object = dynamic_cast<valueInterface*>(&e);
+      this->object = dynamic_cast<ValueInterface*>(&e);
       this->callback = &textLine< consoleContext >::callbackTemplate<T>;
     }
     

@@ -13,7 +13,7 @@
 namespace lughos
 {
 
-template <> class valueDeclaration<int>
+template <> class ValueDeclaration<int>
 {
 public:
   std::string getTypeName()
@@ -38,7 +38,7 @@ public:
   
 };
 
-template <> class valueDeclaration<std::string>
+template <> class ValueDeclaration<std::string>
 {
 public:
   std::string getTypeName()
@@ -63,7 +63,7 @@ public:
     
 };
 
-template <> class valueDeclaration<double>
+template <> class ValueDeclaration<double>
 {
 public:
   std::string getTypeName()

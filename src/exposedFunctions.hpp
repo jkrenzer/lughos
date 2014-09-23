@@ -1,8 +1,8 @@
 #ifndef EXPOSED_FUNCTIONS_HPP
 #define EXPOSED_FUNCTIONS_HPP
-#include "exposedValues.hpp"
+#include "Values.hpp"
 
-template <class R> class exposedFunction : public exposedObject
+template <class R> class ExposedFunction : public ExposedObject
 {
 
 public:
@@ -15,15 +15,15 @@ public:
     {
     }
   
-  template <class T> T getValue(treeObject& childRef)
+  template <class T> T getValue(TreeObject& childRef)
   {
-    exposedValue<T>* child = (exposedValue<T>*) childRef;
+    Value<T>* child = (Value<T>*) childRef;
     return child->getValue();
   }
   
   template <class T> T getValue(std::string childName)
   {
-    exposedValue<T>* child = (exposedValue<T>*) this->getChild(childName);
+    Value<T>* child = (Value<T>*) this->getChild(childName);
     return child->getValue();
   }
   

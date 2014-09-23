@@ -10,38 +10,38 @@
 namespace lughos
 {
 
-class treeNode : public basicObject
+class TreeNode : public basicObject
 {
 protected:
-    treeNode* parent;
+    TreeNode* parent;
     
-    std::vector<treeNode*> children;
+    std::vector<TreeNode*> children;
   std::vector<std::string> childrenNames;
   
-  void _setParent(treeNode* objectPtr = NULL);
+  void _setParent(TreeNode* objectPtr = NULL);
   
-  void _unsetParent(treeNode* objectPtr = NULL);
+  void _unsetParent(TreeNode* objectPtr = NULL);
     
-    void _setChild(treeNode* objectPtr = NULL);
+    void _setChild(TreeNode* objectPtr = NULL);
     
-    void _unsetChild(treeNode* objectPtr = NULL);
+    void _unsetChild(TreeNode* objectPtr = NULL);
     
 public:
   
   template <class T> T* getParent();
   
-  void setParent(treeNode* objectPtr = NULL, bool callback = true);
+  void setParent(TreeNode* objectPtr = NULL, bool callback = true);
   
-    treeNode()
+    TreeNode()
     {
       this->parent = NULL;
     }
   
-  virtual ~treeNode()
+  virtual ~TreeNode()
   {
     if (this->parent != NULL)
       this->parent->removeChild(this,true);
-    for(std::vector<treeNode*>::iterator i = this->children.begin(); i < this->children.end(); i++)
+    for(std::vector<TreeNode*>::iterator i = this->children.begin(); i < this->children.end(); i++)
     {
       (*i)->setParent(NULL,false);
     }
@@ -49,9 +49,9 @@ public:
   
   int countChildren();
   
-  std::vector<treeNode*> getChildren();
+  std::vector<TreeNode*> getChildren();
   
-  void addChild(treeNode* objectPtr);
+  void addChild(TreeNode* objectPtr);
   
 //   template <class V> void addChild(V* objectPtr)
 //   {
@@ -60,13 +60,13 @@ public:
   
   
   
-  void removeChild(treeNode* objectPtr,bool callback = true);
+  void removeChild(TreeNode* objectPtr,bool callback = true);
   
   bool isChild(std::string name);
   
-  bool isChild(treeNode* objectPtr);
+  bool isChild(TreeNode* objectPtr);
   
-  treeNode* get(std::string name)
+  TreeNode* get(std::string name)
   {
     std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
     if (it != this->childrenNames.end())
@@ -75,7 +75,7 @@ public:
       return NULL;
   }
   
-  treeNode* get(unsigned long int number)
+  TreeNode* get(unsigned long int number)
   {
     if (number < this->children.size())
       return this->children[number];
@@ -90,7 +90,7 @@ public:
     return dynamic_cast<T*>(this->get(number));
   }
   
-  std::string getNameOf(treeNode* objectPtr);
+  std::string getNameOf(TreeNode* objectPtr);
   
   std::vector<std::string> path();
   

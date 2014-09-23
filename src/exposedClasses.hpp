@@ -1,17 +1,17 @@
 #ifndef EXPOSED_CLASSES_HPP
 #define EXPOSED_CLASSES_HPP
-#include "exposedValues.hpp"
+#include "Values.hpp"
 #include "treeObj.hpp"
 
 namespace lughos
 {
 
-class exposedClassInterface : public treeNode
+class ExposedClassInterface : public TreeNode
 {
   
 };
 
-template <class C> class exposedClassImplementation : public exposedClassInterface
+template <class C> class ExposedClassImplementation : public ExposedClassInterface
 {
 public:
   
@@ -19,7 +19,7 @@ public:
   
 };
 
-template <class C> class exposedClass : exposedClassImplementation<C>
+template <class C> class ExposedClass : ExposedClassImplementation<C>
 {
   
 };

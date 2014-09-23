@@ -23,9 +23,9 @@ testApplication::testApplication(const WEnvironment& env) : WApplication(env)
 {
   setTitle("Form Test");
   int zahl = 7;
-  exposedPtr<int>* p = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine ,sZahl"));
-  exposedValue<int> i(7);
-  exposedValue<double> d(13.7);
+  Pointer<int>* p = new Pointer<int>(&zahl,std::string("Zahl"));
+  Value<int> i(7);
+  Value<double> d(13.7);
   i.setName("Inge Integer");
   d.setName("Dorothea Double");
   p->setName("Peter Pointer");

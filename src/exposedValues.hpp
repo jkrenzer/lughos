@@ -3,10 +3,10 @@
 #include "rawValues.hpp"
 namespace lughos
 {
-  class exposedObject : public treeNode
+  class ExposedObject : public TreeNode
   {
   public:
-    exposedObject()
+    ExposedObject()
     {
       this->addChild(new Pointer<std::string>(&this->name,"name"));
       this->addChild(new Value<std::string>("N/A","description"));
