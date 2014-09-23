@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     std::cout << "Testing raw pointers" << std::endl;
     int zahl = 7;
     ExposedPointer<int>* test = new ExposedPointer<int>(&zahl,std::string("Zahl"));
-    std::cout << test->getAs<Value<int>>("value")->getTypeName() << std::endl;
+    std::cout << test->getAs<Value<int> >("value")->getTypeName() << std::endl;
     A a(12345,std::string("Test der Klasse"));
     ExposedClass< A > eA(a);
     std::cout << eA.getAs<ValueInterface>(0)->getValueAsString() << std::endl;
@@ -74,11 +74,12 @@ int main(int argc, char **argv) {
     eO.removeChild(eO.get(2));
     eO.addChild(new Value<int>(54321,"Ne andere Zahl"));
     std::cout << eO.getAs<Values>(2)->getName() << " " << eO.getAs<Values>(2)->getValueAsString() << std::endl;
-    
+    delete test;
   }
   catch(lughos::exception e)
   {
     std::cerr << lughos::makeErrorReport(e);
   }
+  
     return 0;
 }

@@ -9,7 +9,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(DOCUMENTATION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 set(GENERATOR "Eclipse CDT4 - Unix Makefiles")
-list( APPEND CMAKE_CXX_FLAGS "-std=c++11")
+list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
+#list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
 include(ExternalProject)
 
 ### Find needed Packages

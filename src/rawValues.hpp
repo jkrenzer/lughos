@@ -78,29 +78,35 @@ protected:
   T* value;
   bool isOwner;
 
+  void clearOldValue()
+  {
+    if(this->value != NULL && isOwner)
+    {
+      delete this->value;
+    }
+  }
   
 public:
 
     
  ValueImplementation()
  {
-   this->value = new T;
+   this->value = NULL;
    this->isOwner = true;
  }
  
   ~ValueImplementation()
   {
-    if(value && isOwner)
-    {
-      delete value;
-    }
+    this->clearOldValue();
   }
      
   virtual void setValue(T value)
   {
     if(this->verify(value))
     {
+      this->clearOldValue();
       this->value = new T(value);
+      this->isOwner = true;
     }
     else
    BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
@@ -135,7 +141,7 @@ public:
   
   template <class E> Value<T>(Value<E> &e)
   {
-    this->value = transformTo<T>::from(e.getValue());
+    this->setValue(transformTo<T>::from(e.getValue()));
   }
   
   Value<T>(T value)
