@@ -4,6 +4,7 @@
 #include <map>
 #include "basicTypes.hpp"
 #include "exposedClasses.hpp"
+#include "exposedValues.hpp"
 
 using namespace lughos;
 
@@ -29,7 +30,7 @@ template <> class ExposedClass<A> : public ExposedClassImplementation<A>
 {
 public:
   
-  exposedClass(A c)
+  ExposedClass(A c)
   {this->exposeClass(c);}
   
   void exposeClass(A c)
@@ -58,16 +59,14 @@ int main(int argc, char **argv) {
     //Test exposition of variable via pointer
     std::cout << "Testing raw pointers" << std::endl;
     int zahl = 7;
-    Pointer<int>* test = new Pointer<int>(&zahl,std::string("Zahl"));
-    std::cout << getValueDeclaration(*test).getTypeName() << std::endl;
-    data* o = test;
-    std::cout << getValueDeclaration(*test).getTypeName() << std::endl;
+    ExposedPointer<int>* test = new ExposedPointer<int>(&zahl,std::string("Zahl"));
+    std::cout << test->getAs<Value<int>>("value")->getTypeName() << std::endl;
     A a(12345,std::string("Test der Klasse"));
-    exposedClass< A > eA(a);
+    ExposedClass< A > eA(a);
     std::cout << eA.getAs<ValueInterface>(0)->getValueAsString() << std::endl;
     std::cout << eA.getAs<ValueInterface>(1)->getValueAsString() << std::endl;
-    std::cout << "Testing exposed objects" << std::endl;
-    exposedObject eO;
+    std::cout << "Testing Exposed objects" << std::endl;
+    ExposedObject eO;
     eO.setName("Testobject");
     std::cout << "Name of the object: " << eO.getAs<Values>("name")->getValueAsString() << std::endl;
     eO.addChild(new Value<int>(12345,"Ne Zahl"));

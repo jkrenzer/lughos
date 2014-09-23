@@ -8,6 +8,7 @@ class basicObject
 {
 protected:
   std::string name;
+  
 
   
 public:

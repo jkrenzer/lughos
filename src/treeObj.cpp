@@ -1,5 +1,6 @@
 #include "treeObj.hpp"
 
+
 namespace lughos {
 void TreeNode::_setChild(TreeNode* objectPtr)
 {
@@ -12,7 +13,7 @@ void TreeNode::_unsetChild(TreeNode* objectPtr)
 }
 template <class T> T* TreeNode::getParent()
 {
-    return (T*)this->parent;
+    return boost::dynamic_pointer_cast<T>(this->parent);
 }
 void TreeNode::setParent(TreeNode* objectPtr,bool callback)
 {
@@ -43,19 +44,22 @@ int TreeNode::countChildren()
 {
     return this->children.size();
 }
-std::vector< TreeNode* > TreeNode::getChildren()
+std::vector<TreeNode*> TreeNode::getChildren()
 {
     return std::vector<TreeNode*>(this->children);
 }
+
 void TreeNode::addChild(TreeNode* objectPtr)
 {
-    if(!isChild(objectPtr) && objectPtr != NULL)
+    if(!this->isChild(objectPtr) && objectPtr != NULL)
     {
         this->children.push_back(objectPtr);
         this->childrenNames.push_back(objectPtr->getName());
         this->_setParent(objectPtr);
     }
 }
+
+
 void TreeNode::removeChild(TreeNode* objectPtr,bool callback)
 {
     if(isChild(objectPtr))
@@ -77,7 +81,7 @@ bool TreeNode::isChild(TreeNode* objectPtr)
 }
 template <class T> T* TreeNode::getAs(std::string name)
 {
-  return dynamic_cast<T*>(get(name));
+  return dynamic_cast<T*>(this->get(name));
 }
 std::string TreeNode::getNameOf(TreeNode* objectPtr)
 {

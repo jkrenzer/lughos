@@ -24,6 +24,7 @@ class data : public TreeNode
   
 class ValueInterface : public data
 {
+protected:
 public:
   
   ValueInterface()
@@ -51,9 +52,7 @@ public:
   virtual std::string getTypeShortDescription() = 0;
         
   virtual std::string getTypeDescription() = 0;
-  
-  virtual auto getTypeSample() = 0;
-  
+
 };
 
 template <class T> class ValueDeclarationImplementation
@@ -77,6 +76,8 @@ template <class T> class ValueImplementation : public ValueInterface, public Val
 protected:
   
   T* value;
+  bool isOwner;
+
   
 public:
 
@@ -84,11 +85,12 @@ public:
  ValueImplementation()
  {
    this->value = new T;
+   this->isOwner = true;
  }
  
   ~ValueImplementation()
   {
-    if(value)
+    if(value && isOwner)
     {
       delete value;
     }
@@ -158,17 +160,20 @@ public:
   Pointer(T* ptr)
   {
     this->setPtr(ptr);
+    this->isOwner = false;
   }
   
   Pointer(T* ptr, std::string name)
   {
     this->setPtr(ptr);
     this->setName(name);
+    this->isOwner = false;
   }
   
-  void setPtr(T* ptr)
+  void setPtr(T* ptr, bool isOwner = false)
   {
     this->value = ptr;
+    this->isOwner = isOwner;
   }
   
   T* getPtr()

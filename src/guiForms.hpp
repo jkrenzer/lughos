@@ -1,8 +1,8 @@
 #ifndef GUI_FORMS_HPP
 #define GUI_FORMS_HPP
-#include "lughosObjects.hpp"
+#include "basicObject.hpp"
 #include "io.hpp"
-#include "Values.hpp"
+#include "exposedValues.hpp"
 #include "treeObj.hpp"
 
 namespace lughos
@@ -12,7 +12,7 @@ class wtContext
 {
 };
 
-class formNode : public treeChild<formNode>, public treeParent<formNode>
+class formNode : public TreeNode
 {
 public:
   
@@ -37,6 +37,10 @@ public:
   }
   
 };
+
+template <class T> FormNode formCreator(ExposedObject object)
+{
+}
 
 }//namespace lughos
 #endif
