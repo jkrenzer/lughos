@@ -2,6 +2,7 @@
 #define GUI_FORMS_HPP
 #include "basicObject.hpp"
 #include "io.hpp"
+#include "basicIo.hpp"
 #include "exposedValues.hpp"
 #include "treeObj.hpp"
 
@@ -11,6 +12,7 @@ namespace lughos
 class wtContext
 {
 };
+
 
 class formNode : public TreeNode
 {
@@ -22,9 +24,26 @@ protected:
   
   permissions perm;
   
+  ioContext context;
+  
+  ioWrapperInterface wrapper;
+  
+  template <class C, class T> void renderTemplate()
+  {
+    
+  }
+  
 public:
   
-  virtual void render() = 0;
+  formNode(basicObject* obj)
+  {
+    this->setName(obj->getName());
+  }
+  
+  template <class C, class T> void getWrapper()
+  {
+    
+  }
   
   void setPermissions(permissions p)
   {

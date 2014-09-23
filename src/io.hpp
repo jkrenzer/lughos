@@ -6,6 +6,7 @@
 #include<boost/smart_ptr/shared_ptr.hpp>
 
 #include "rawValues.hpp"
+#include "exposedValues.hpp"
 #include "errorHandling.hpp"
 
 namespace lughos
@@ -36,7 +37,8 @@ namespace lughos
   };
   
   
-  
+  template <class C, class T> class defaultWrapper : textLine<C>
+  {};
   
   template <class C> class ioRenderer
   {
@@ -44,9 +46,19 @@ namespace lughos
     template <class T> void output(Value<T>& t)
     {
       std::cout << t.getValue() << std::endl;
-    }
+    }    
     
+    template <class T> void output(ExposedValue<T>& eV)
+    {
+      std::cout << "-= Object " << eV.getName() << "=-" << std::endl;
+      for (int i = 0; i < eV.countChildren(); i++)
+      {
+	std::cout << eV.getAs<ValueInterface>(i)->getName() << " - " << eV.getAs<ValueInterface>(i)->getValueAsString() << std::endl;
+      }
+    }
   };
+  
+  
 
 } //namespace lughos
 #endif

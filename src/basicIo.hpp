@@ -23,9 +23,15 @@ public:
   
 };
 
-template <> class ioWrapper<consoleContext>
+class IoWrapperInterface
 {
+public:
   
+};
+
+template <> class ioWrapper<consoleContext> : public IoWrapperInterface
+{
+public:
   virtual std::string output() = 0;
   
 };
@@ -48,11 +54,6 @@ template <> class textLine<consoleContext> : public ioWrapper<consoleContext>
       }
       else
 	std::cout << "Could not cast. :/" << std::endl;
-      
-    }
-    
-    void test()
-    {
       
     }
     

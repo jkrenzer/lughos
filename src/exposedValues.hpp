@@ -4,6 +4,7 @@
 #include "rawValues.hpp"
 #include "treeObj.hpp"
 #include <boost/concept_check.hpp>
+
 namespace lughos
 {
   class ExposedObject : public TreeNode

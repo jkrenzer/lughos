@@ -63,6 +63,7 @@ public:
 
 template <class T> class ValueDeclaration
 {
+public:
   bool verify(T value)
   {
     BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
