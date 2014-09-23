@@ -13,61 +13,75 @@
 
 namespace lughos
 {
+  
+  struct null_deleter
+{
+    void operator()(void const *) const
+    {
+    }
+};
 
-class TreeNode : public basicObject
+class TreeNode : public basicObject, public boost::enable_shared_from_this<TreeNode>
 {
 protected:
-    TreeNode* parent;
+    boost::shared_ptr<TreeNode> _this;
+    boost::shared_ptr<TreeNode> parent;
     
-    std::vector<TreeNode*> children;
+    std::vector<boost::shared_ptr<TreeNode> > children;
     std::vector<std::string> childrenNames;
   
-  void _setParent(TreeNode* objectPtr = NULL);
+  void _setParent(boost::shared_ptr<TreeNode> objectPtr = NULL);
   
-  void _unsetParent(TreeNode* objectPtr = NULL);
+  void _unsetParent(boost::shared_ptr<TreeNode> objectPtr = NULL);
     
-    void _setChild(TreeNode* objectPtr = NULL);
+    void _setChild(boost::shared_ptr<TreeNode> objectPtr = NULL);
     
-    void _unsetChild(TreeNode* objectPtr = NULL);
+    void _unsetChild(boost::shared_ptr<TreeNode> objectPtr = NULL);
     
 public:
   
-  template <class T> T* getParent();
+  template <class T> boost::shared_ptr<T> getParent();
   
-  void setParent(TreeNode* objectPtr = NULL, bool callback = true);
+  void setParent(boost::shared_ptr<TreeNode> objectPtr = NULL, bool callback = true);
   
-    TreeNode() : parent(NULL)
+    TreeNode() : parent(NULL), _this(this, null_deleter())
     {
     }
   
   virtual ~TreeNode()
   {
-    if (this->parent)
-    {
-      TreeNode* parent(this->parent);
-      this->parent = NULL;
-      parent->removeChild(this,false);
-    }
-    for(std::vector<TreeNode*>::iterator i = this->children.begin(); i < this->children.end(); i++)
-    {
-      delete *i;
-    }
+    std::cout << "Destructor: " << this->getName() << std::endl;
   }
   
   int countChildren();
   
-  std::vector<TreeNode*> getChildren();
+  std::vector<boost::shared_ptr<TreeNode> > getChildren();
   
-  void addChild(TreeNode* objectPtr);
+  void addChild(boost::shared_ptr<TreeNode> objectPtr);
   
-  void removeChild(TreeNode* objectPtr,bool callback = true);
+  void addChild(TreeNode* objectPtr)
+  {
+    this->addChild(boost::shared_ptr<TreeNode>(objectPtr));
+  }
+  
+  void removeChild(boost::shared_ptr<TreeNode> objectPtr,bool callback = true);
+  
+  void removeChild(TreeNode* objectPtr,bool callback = true)
+  {
+    this->removeChild(boost::shared_ptr<TreeNode>(objectPtr),callback);
+  }
   
   bool isChild(std::string name);
   
-  bool isChild(TreeNode* objectPtr);
+  bool isChild(boost::shared_ptr<TreeNode> objectPtr);
+  
+  bool isChild(TreeNode* objectPtr)
+  {
+    return this->isChild(boost::shared_ptr<TreeNode>(objectPtr));
+  }
   
  
-  TreeNode* get(std::string name)
+  boost::shared_ptr<TreeNode> get(std::string name)
   {
     std::vector<std::string>::iterator it = std::find(this->childrenNames.begin(), this->childrenNames.end(), name);
     if (it != this->childrenNames.end())
@@ -76,7 +90,7 @@ public:
       return NULL;
   }
   
-  TreeNode* get(unsigned long int number)
+  boost::shared_ptr<TreeNode> get(unsigned long int number)
   {
     if (number < this->children.size())
       return this->children[number];
@@ -84,14 +98,19 @@ public:
       return this->children[children.size()-1];
   }
   
-  template <class T> T* getAs(std::string name);
+  template <class T> boost::shared_ptr<T> getAs(std::string name);
   
-  template <class T> T* getAs(unsigned long int number)
+  template <class T> boost::shared_ptr<T> getAs(unsigned long int number)
   {
-    return dynamic_cast<T*>(this->get(number));
+    return boost::dynamic_pointer_cast<T>(this->get(number));
   }
   
-  std::string getNameOf(TreeNode* objectPtr);
+  std::string getNameOf(boost::shared_ptr<TreeNode> objectPtr);
+  
+  std::string getNameOf(TreeNode* objectPtr)
+  {
+    return this->getNameOf(boost::shared_ptr<TreeNode>(objectPtr));
+  }
   
   std::vector<std::string> path();
   

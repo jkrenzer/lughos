@@ -2,20 +2,20 @@
 
 
 namespace lughos {
-void TreeNode::_setChild(TreeNode* objectPtr)
+void TreeNode::_setChild(boost::shared_ptr<TreeNode> objectPtr)
 {
-    objectPtr->addChild(this);
+    objectPtr->addChild(shared_from_this());
 }
 
-void TreeNode::_unsetChild(TreeNode* objectPtr)
+void TreeNode::_unsetChild(boost::shared_ptr<TreeNode> objectPtr)
 {
-    objectPtr->removeChild(this);
+    objectPtr->removeChild(shared_from_this());
 }
-template <class T> T* TreeNode::getParent()
+template <class T> boost::shared_ptr<T> TreeNode::getParent()
 {
     return boost::dynamic_pointer_cast<T>(this->parent);
 }
-void TreeNode::setParent(TreeNode* objectPtr,bool callback)
+void TreeNode::setParent(boost::shared_ptr<TreeNode> objectPtr,bool callback)
 {
     if (this->parent != objectPtr && objectPtr != NULL)
     {
@@ -32,11 +32,11 @@ void TreeNode::setParent(TreeNode* objectPtr,bool callback)
     }
 }
 
- void TreeNode::_setParent(TreeNode* objectPtr)
+ void TreeNode::_setParent(boost::shared_ptr<TreeNode> objectPtr)
 {
-    objectPtr->setParent(this);
+    objectPtr->setParent(shared_from_this());
 }
- void TreeNode::_unsetParent(TreeNode* objectPtr)
+ void TreeNode::_unsetParent(boost::shared_ptr<TreeNode> objectPtr)
 {
     objectPtr->setParent(NULL);
 }
@@ -44,12 +44,12 @@ int TreeNode::countChildren()
 {
     return this->children.size();
 }
-std::vector<TreeNode*> TreeNode::getChildren()
+std::vector<boost::shared_ptr<TreeNode>> TreeNode::getChildren()
 {
-    return std::vector<TreeNode*>(this->children);
+    return std::vector<boost::shared_ptr<TreeNode>>(this->children);
 }
 
-void TreeNode::addChild(TreeNode* objectPtr)
+void TreeNode::addChild(boost::shared_ptr<TreeNode> objectPtr)
 {
     if(!this->isChild(objectPtr) && objectPtr != NULL)
     {
@@ -60,7 +60,7 @@ void TreeNode::addChild(TreeNode* objectPtr)
 }
 
 
-void TreeNode::removeChild(TreeNode* objectPtr,bool callback)
+void TreeNode::removeChild(boost::shared_ptr<TreeNode> objectPtr,bool callback)
 {
     if(isChild(objectPtr))
     {
@@ -75,17 +75,17 @@ bool TreeNode::isChild(std::string name)
 {
     return std::find(this->childrenNames.begin(), this->childrenNames.end(), name) != this->childrenNames.end();
 }
-bool TreeNode::isChild(TreeNode* objectPtr)
+bool TreeNode::isChild(boost::shared_ptr<TreeNode> objectPtr)
 {
     return std::find(this->children.begin(), this->children.end(), objectPtr) != this->children.end();
 }
-template <class T> T* TreeNode::getAs(std::string name)
+template <class T> boost::shared_ptr<T> TreeNode::getAs(std::string name)
 {
-  return dynamic_cast<T*>(this->get(name));
+  return boost::dynamic_pointer_cast<T>(this->get(name));
 }
-std::string TreeNode::getNameOf(TreeNode* objectPtr)
+std::string TreeNode::getNameOf(boost::shared_ptr<TreeNode> objectPtr)
 {
-    std::vector<TreeNode*>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
+    std::vector<boost::shared_ptr<TreeNode>>::iterator it = std::find(this->children.begin(), this->children.end(), objectPtr);
     if (it != this->children.end())
         return this->childrenNames[it-this->children.begin()];
     else
