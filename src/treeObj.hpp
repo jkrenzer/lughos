@@ -21,6 +21,11 @@ namespace lughos
     }
 };
 
+class TreeNodeImplementation
+{
+  
+};
+
 class TreeNode : public basicObject, public boost::enable_shared_from_this<TreeNode>
 {
 protected:
