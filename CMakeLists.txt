@@ -81,6 +81,10 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
 
+#Test for wt
+add_executable(test_wtdbo src/test_wtdbo.cpp)
+target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
+
 #Test for forms
 add_executable(test_forms src/test_forms.cpp)
 add_dependencies(test_forms wt)

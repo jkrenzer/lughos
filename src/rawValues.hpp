@@ -66,8 +66,8 @@ template <class T> class ValueDeclaration
 public:
   bool verify(T value)
   {
-    BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
-    return false;
+//     BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
+    return true;
   }
   
 };
@@ -79,6 +79,8 @@ protected:
   T* value;
   bool isOwner;
 
+//TODO Add callback-functionality on change
+
   void clearOldValue()
   {
     if(this->value != NULL && isOwner)
@@ -88,7 +90,6 @@ protected:
   }
   
 public:
-
     
  ValueImplementation()
  {
@@ -103,7 +104,7 @@ public:
      
   virtual void setValue(T value)
   {
-    if(this->verify(value))
+    if(this->verify((T) value))
     {
       this->clearOldValue();
       this->value = new T(value);
@@ -132,6 +133,8 @@ public:
 
 template <class T> class Value : public ValueImplementation<T>
 {
+protected:
+  
 public:
   
   typedef T type;

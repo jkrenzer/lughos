@@ -19,7 +19,7 @@ namespace lughos
     virtual void init()
     { 
       this->addChild(new Pointer<std::string>(&this->name,"name"));
-      this->addChild(new Value<std::string>("N/A","description"));
+      this->addChild(new Value<std::string>(std::string("N/A"),"description"));
     }
     
   };
