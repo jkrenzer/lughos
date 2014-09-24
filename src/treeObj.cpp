@@ -23,13 +23,13 @@ void TreeNode::setParent(boost::shared_ptr<TreeNode> objectPtr,bool callback)
 	if(callback)
 	  _setChild(objectPtr);
     }
-    else if (this->parent != objectPtr && objectPtr == NULL)
-    {
-	if(callback)
-	  _unsetChild(this->parent);
-        this->parent = NULL;
+}
 
-    }
+void TreeNode::setParent(bool callback)
+{
+  if(callback)
+    _unsetChild(this->parent);
+  this->parent.reset();
 }
 
  void TreeNode::_setParent(boost::shared_ptr<TreeNode> objectPtr)
@@ -38,7 +38,7 @@ void TreeNode::setParent(boost::shared_ptr<TreeNode> objectPtr,bool callback)
 }
  void TreeNode::_unsetParent(boost::shared_ptr<TreeNode> objectPtr)
 {
-    objectPtr->setParent(NULL);
+    objectPtr->setParent();
 }
 int TreeNode::countChildren()
 {
@@ -46,7 +46,7 @@ int TreeNode::countChildren()
 }
 std::vector<boost::shared_ptr<TreeNode>> TreeNode::getChildren()
 {
-    return std::vector<boost::shared_ptr<TreeNode>>(this->children);
+    return this->children;
 }
 
 void TreeNode::addChild(boost::shared_ptr<TreeNode> objectPtr)
@@ -67,7 +67,7 @@ void TreeNode::removeChild(boost::shared_ptr<TreeNode> objectPtr,bool callback)
         this->children.erase(std::find(this->children.begin(), this->children.end(), objectPtr));
         this->childrenNames.erase(std::find(this->childrenNames.begin(), this->childrenNames.end(), objectPtr->getName()));
 	if(callback)
-	  objectPtr->setParent(NULL);
+	  objectPtr->setParent();
 
     }
 }

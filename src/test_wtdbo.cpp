@@ -15,7 +15,8 @@ int main()
   typedef dbo::collection< dbo::ptr<lughos::PersistantRawValue> > Values;
   dbo::Transaction transaction1(session);
   Values values = session.find<PersistantRawValue>();
-  cout << "Value " << values.front().get()->name << endl;
+  if (values.size() > 0)
+    cout << "Value " << values.front()->name << endl;
   transaction1.commit();
   
   cout << "We have " << values.size() << "values in the db." << std::endl;

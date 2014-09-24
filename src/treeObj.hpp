@@ -35,21 +35,23 @@ protected:
     std::vector<boost::shared_ptr<TreeNode> > children;
     std::vector<std::string> childrenNames;
   
-  void _setParent(boost::shared_ptr<TreeNode> objectPtr = NULL);
+  void _setParent(boost::shared_ptr<TreeNode> objectPtr);
   
-  void _unsetParent(boost::shared_ptr<TreeNode> objectPtr = NULL);
+  void _unsetParent(boost::shared_ptr<TreeNode> objectPtr);
     
-    void _setChild(boost::shared_ptr<TreeNode> objectPtr = NULL);
+    void _setChild(boost::shared_ptr<TreeNode> objectPtr);
     
-    void _unsetChild(boost::shared_ptr<TreeNode> objectPtr = NULL);
+    void _unsetChild(boost::shared_ptr<TreeNode> objectPtr);
     
 public:
   
   template <class T> boost::shared_ptr<T> getParent();
   
-  void setParent(boost::shared_ptr<TreeNode> objectPtr = NULL, bool callback = true);
+  void setParent(boost::shared_ptr<TreeNode> objectPtr, bool callback = true);
   
-    TreeNode() : parent(NULL), _this(this, null_deleter())
+  void setParent(bool callback = true);
+  
+    TreeNode() : parent(), _this(this, null_deleter())
     {
     }
   
@@ -92,7 +94,7 @@ public:
     if (it != this->childrenNames.end())
       return this->children[it-this->childrenNames.begin()];
     else
-      return NULL;
+      return boost::shared_ptr<TreeNode>();
   }
   
   boost::shared_ptr<TreeNode> get(unsigned long int number)
