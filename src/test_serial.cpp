@@ -16,21 +16,29 @@ int main(int argc, char **argv) {
   
     connection<serialContext>* c = new connection<serialContext>();
 
-    c->context.RTS = false; 
-    c->context.DTR = true;
+//     c->context.RTS = false; 
+//     c->context.DTR = true;
  
     	rv = c->start(name.c_str()); /*115200*/	
 	//    c->reset();
-// 	    	  std::cout << "rv="<< rv<< std::endl;
+	    	  std::cout << "rv="<< rv<< std::endl;
 	if (rv == false) {
 		return -1;
 	}
-    
-
-    	  std::cout << "Write="<< c->write("D")<< std::endl;
-	  
-	  	sleep(5);
-
+//      std::cout << "Write="<< c->write("*IDN?\r")<< std::endl;
+//           std::cout << "Write="<< c->write("*IDN?\r")<< std::endl;
+//    	  std::cout << "Write="<< c->write("*RST\r")<< std::endl;
+//     	  std::cout << "Write="<< c->write("READ?\r")<< std::endl;
+/*    	  std::cout << "Write="<< c->write("PR1\r")<< std::endl;
+	  	  	sleep(0.1);
+    	  std::cout << "Write="<< c->write("\x05")<< std::endl;*/	  
+//  std::cout << "Write="<< c->write("\x02")<< std::endl;
+//   std::cout << "Write="<< c->write("\x02""SYS""1\r")<< std::endl;
+//   	  	  	sleep(1);
+//  std::cout << "Write="<< c->write("\x02""SYS""0\r")<< std::endl;
+ std::cout << "Write="<< c->write("\x03")<< std::endl;
+ std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
+   	  	  	sleep(1);
 		
 	return 0;
 }
