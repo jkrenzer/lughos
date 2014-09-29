@@ -3,10 +3,11 @@
 // #include <Setupapi.h>
 // #pragma comment(lib, "Setupapi.lib")
 
-#include "basicConnections.hpp"
+#include "serialConnections.hpp"
+// #include "Dict.hpp"
+// #include "httpDict.hpp"
 
-
-connection<serialContext>::connection(void) : end_of_line_char_('\n')
+connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
 {
 
 }
@@ -26,14 +27,11 @@ void connection<serialContext>::end_of_line_char(const char &c)
   this->end_of_line_char_ = c;
 }
 
+
 bool connection<serialContext>::start(const char *com_port_name)
 {
-  return this->start(com_port_name, 9600);
-}
-
-bool connection<serialContext>::start(const char *com_port_name, int baud_rate)
-{
-  end_of_line_char(0x0d);
+      
+    this->end_of_line_char(end_of_line_char_);
 	boost::system::error_code ec;
 
 	if (port_) {
@@ -52,22 +50,27 @@ bool connection<serialContext>::start(const char *com_port_name, int baud_rate)
 	this->reset();
 	// option settings...
 	port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
-	port_->set_option(boost::asio::serial_port_base::character_size(8));
+	port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
 	port_->set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 	port_->set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
-	port_->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware));
+// // 	port_->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware));
+	port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));
+
 
 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
 
-	async_read_some_();
+
 	
 	return true;
-
+    
+    
 }
 
+
+
 void connection<serialContext>::reset()
-    {
-      
+{
+    
       int pid = port_->native();
       // play with RTS & DTR
       int iFlags=0;
@@ -139,7 +142,8 @@ void connection<serialContext>::reset()
 	ioctl(pid, TIOCMBIC, &iFlags);
       }
  
-    }
+  
+}
 
 
 void connection<serialContext>::stop()
@@ -155,87 +159,40 @@ void connection<serialContext>::stop()
 	io_service_.reset();
 }
 
-int connection<serialContext>::write(const std::string &buf)
+
+
+void connection<serialContext>::compose_request(const std::string &buf)
 {
-	return write_some(buf.c_str(), buf.size());
+//   	                std::cout<<"wrong compose"<<std::endl;
 }
-
-int connection<serialContext>::write_async(const std::string &buf)
-{
-	return 0;
-}
-
-int connection<serialContext>::write_some(const char *buf, const int &size)
-{
-	boost::system::error_code ec;
-
-	if (!port_) return -1;
-	if (size == 0) return 0;
-
-	return port_->write_some(boost::asio::buffer(buf, size), ec);
-}
-
-
 
 void connection<serialContext>::set_port()
 {
 
 }
-    
 
 
-
-void connection<serialContext>::async_read_some_()
-{
-	if (port_.get() == NULL || !port_->is_open()) return;
-
-	port_->async_read_some( 
-		boost::asio::buffer(read_buf_raw_, SERIAL_PORT_READ_BUF_SIZE),
-		boost::bind(
-			&connection<serialContext>::on_receive_,
-			this, boost::asio::placeholders::error, 
-			boost::asio::placeholders::bytes_transferred));
-}
-
-void connection<serialContext>::on_receive_(const boost::system::error_code& ec, size_t bytes_transferred)
-{
-	
-	boost::mutex::scoped_lock look(mutex_);
-
-	if (port_.get() == NULL || !port_->is_open()) return;
-	if (ec) {
-		async_read_some_();
-		return;
-	}
-
-	for (unsigned int i = 0; i < bytes_transferred; ++i) {
-		char c = read_buf_raw_[i];
-		if (c == end_of_line_char_) {
-			this->on_receive_(read_buf_str_);
-			read_buf_str_.clear();
-		}
-		else {
-			read_buf_str_ += c;
-		}
-	}
-
-	async_read_some_();
-}
-
-void connection<serialContext>::on_receive_(const std::string &data)
-{
-	std::cout << "connection::on_receive_() : " << data << std::endl;
-}
-
-
-  void connection<serialContext>::wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error)
+  
+   void connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
   {
-    //std::cout << " Calling wait-handler.";
-    if (error)
-    {
-      // Data was read and this timeout was canceled
-      return;
-    }
-    //std::cout << " Timed out.";
-    port_.cancel();  // will cause read_callback to fire with an error
-  } 
+  
+  }
+
+
+void connection<serialContext>::handle_read_headers_process()
+{
+        // Process the response headers.
+//       std::istream response_stream(&response_);
+//       std::string header;
+//       while (std::getline(response_stream, header) && header != "\r");
+// 	std::cout << header << "\n";
+//       std::cout << "\n";
+      
+     // Write whatever content we already have to output.
+//       if (response_.size() > 0) //response_string_stream<<&response_;
+//         std::cout << &response_;
+//       response_string_stream
+      
+
+}
+

@@ -15,7 +15,11 @@ include(ExternalProject)
 
 ### Find needed Packages
 
-find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread)
+if(!BOOST_FOUND)
+set(Boost_INCLUDE_DIR /usr/include/)
+set(Boost_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
+endif(!BOOST_FOUND)
 find_package(Doxygen)
 
 
@@ -100,5 +104,12 @@ target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/
 add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
 target_link_libraries(test_connections ${Boost_LIBRARIES} )
 
+#Test of TCP
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES} )
+
+
+
 #Installation directives
 #install(TARGETS lughos RUNTIME DESTINATION bin)
+#install(TARGETS connectionimpl RUNTIME DESTINATION bin)
