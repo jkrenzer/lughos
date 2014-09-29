@@ -1,41 +1,85 @@
 #include <iostream>
-#include <boost/concept_check.hpp>
+#include <typeinfo>
+#include <type_traits>
+#include <map>
 #include "basicTypes.hpp"
+#include "exposedClasses.hpp"
+#include "exposedValues.hpp"
 
-using namespace exposer;
+using namespace lughos;
 
-int multiply(int x, int y)
+
+class A
 {
-  return x * y;
-}
-
-class multiplyW : exposedFunction<int>
-{
-  bool runable()
+public:
+  int zahl;
+  std::string str;
+  
+  A(int i, std::string s)
   {
-    return true;
+    this->zahl = i;
+    this->str = s;
   }
   
-  int exec()
-  {
-    return multiply(this->getValue<int>(children[0]),this->getValue<int>(children[0]));
-  }
 };
+
+namespace lughos
+{
+
+template <> class ExposedClass<A> : public ExposedClassImplementation<A>
+{
+public:
+  
+  ExposedClass(A c)
+  {this->exposeClass(c);}
+  
+  void exposeClass(A c)
+  {
+    this->addChild(new Value<int>(c.zahl));
+    this->addChild(new Value<std::string>(c.str));
+  }
+    
+};
+
+}//namespace lughos
+
+// template <class T> ValueDeclaration<T>& _ValueDeclaration(ValueDeclaration<T> &d)
+// {
+//   return d;
+// }
+// 
+// template <class T> Value<T>& _getExposedValue(Value<T> &d)
+// {
+//   return d;
+// }
 
 int main(int argc, char **argv) {
   try 
   {
+    //Test exposition of variable via pointer
+    std::cout << "Testing raw pointers" << std::endl;
     int zahl = 7;
-    exposedPtr<int>* test = new exposedPtr<int>(&zahl,std::string("Zahl"),std::string("Irgendeine Zahl"));
-    ioRenderer<consoleContext> renderer;
-    renderer.output<int>(*test);
-    renderer.input<int>(*test);
-    renderer.output<int>(*test);
-    test->getValue();
+    ExposedPointer<int>* test = new ExposedPointer<int>(&zahl,std::string("Zahl"));
+    std::cout << test->getAs<Value<int> >("value")->getTypeName() << std::endl;
+    A a(12345,std::string("Test der Klasse"));
+    ExposedClass< A > eA(a);
+    std::cout << eA.getAs<ValueInterface>(0)->getValueAsString() << std::endl;
+    std::cout << eA.getAs<ValueInterface>(1)->getValueAsString() << std::endl;
+    std::cout << "Testing Exposed objects" << std::endl;
+    ExposedObject eO;
+    eO.setName("Testobject");
+    std::cout << "Name of the object: " << eO.getAs<Values>("name")->getValueAsString() << std::endl;
+    eO.addChild(new Value<int>(12345,"Ne Zahl"));
+    std::cout << eO.getAs<Values>(2)->getName() << " " << eO.getAs<Values>(2)->getValueAsString() << std::endl;
+    eO.removeChild(eO.get(2));
+    eO.addChild(new Value<int>(54321,"Ne andere Zahl"));
+    std::cout << eO.getAs<Values>(2)->getName() << " " << eO.getAs<Values>(2)->getValueAsString() << std::endl;
+    delete test;
   }
-  catch(exposer::exception e)
+  catch(lughos::exception e)
   {
-    std::cerr << exposer::makeErrorReport(e);
+    std::cerr << lughos::makeErrorReport(e);
   }
+  
     return 0;
 }

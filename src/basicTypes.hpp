@@ -1,21 +1,29 @@
 #ifndef BASIC_TYPES_HPP
 #define BASIC_TYPES_HPP
 #include <cstdlib>
+#include <sstream>
 #include <climits>
 
-#include "expose.hpp"
+#include "rawValues.hpp"
 #include "io.hpp"
 #include "basicIo.hpp"
+#include "treeObj.hpp"
+#include "transformations.hpp"
 
-namespace exposer
+namespace lughos
 {
 
-template <> class exposedType<int> : public exposedTypeTemplate<int>
+template <> class ValueDeclaration<int>
 {
 public:
-  std::string getGlobalTypeName()
+  std::string getTypeName()
   {
     return std::string("int");
+  }
+  
+  std::string getTypeShortDescription()
+  {
+    return std::string("Simple, standard integer value.");
   }
   
   std::string getTypeDescription()
@@ -23,44 +31,63 @@ public:
     return std::string("Simple, standard integer value.");
   }
   
-};
-
-template <> class exposedValue<int> : public exposedValueTemplate<int>
-{
-public:
   bool verify(int value)
   {
     return true;
   }
   
-  int stringToType(std::string input)
-  {
-    long int result = std::strtol(input.c_str(),NULL,0);
-    if (result != 0L && result < INT_MAX && result > INT_MIN)
-      return (int) result;
-    else
-      BOOST_THROW_EXCEPTION( exception() << errorName("invalid_value_supplied") << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
-  }
-  
 };
 
-template <> class ioValueRenderer<int,consoleContext>
+template <> class ValueDeclaration<std::string>
 {
 public:
-  
-  static void output(exposedValue< int > &value, consoleContext context)
+  std::string getTypeName()
   {
-    std::cout << "Value (int) is: " << value.getValue() << std::endl;
+    return std::string("string");
   }
   
-  static void input(exposedValue< int > &value, consoleContext context)
+  std::string getTypeShortDescription()
   {
-    std::cout << "Enter value (int): ";
-    std::string input;
-    std::cin >> input;
-    value.setValue(value.stringToType(input));
+    return std::string("Simple, standard string value.");
   }
+  
+  std::string getTypeDescription()
+  {
+    return std::string("Simple, standard string value.");
+  }
+  
+  bool verify(std::string value)
+  {
+    return true;
+  }
+    
 };
 
-} //namespace exposer
+template <> class ValueDeclaration<double>
+{
+public:
+  std::string getTypeName()
+  {
+    return std::string("double");
+  }
+  
+  std::string getTypeShortDescription()
+  {
+    return std::string("Simple, standard double value.");
+  }
+  
+  std::string getTypeDescription()
+  {
+    return std::string("Simple, standard double value.");
+  }
+  
+  bool verify(double value)
+  {
+    return true;
+  }
+    
+};
+
+
+} //namespace lughos
 #endif
