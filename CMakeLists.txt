@@ -81,9 +81,13 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
 
-#Test for wt
+#Test for wt-dbo
 add_executable(test_wtdbo src/test_wtdbo.cpp)
 target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
+
+#Test for wt
+add_executable(test_gui src/test_gui.cpp)
+target_link_libraries(test_gui ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
 #Test for forms
 add_executable(test_forms src/test_forms.cpp)
