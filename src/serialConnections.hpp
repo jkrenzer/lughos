@@ -63,7 +63,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	
 	
 
-	std::ostringstream response_string_stream;
+	std::stringstream response_string_stream;
 // 	const char end_of_line;
 
 private:

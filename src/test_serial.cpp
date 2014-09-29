@@ -1,22 +1,22 @@
 #include <iostream>
 
-// #include "kithleighSerial.hpp"
+#include "kithleighSerial.hpp"
 // #include "connectionImpl.hpp"
-#include "basicConnections.hpp"
+// #include "basicConnections.hpp"
 #include <pthread.h>
 
 int main(int argc, char **argv) {
 
   
   	bool rv;
-	std::string port_name = "/dev/ttyUSB0";
+	std::string port_name = "/dev/ttyUSB1";
 // 	SerialPort::print_devices();
 // 	std::string name = SerialPort::get_port_name(0);
 	std::string name = port_name;
 
   
-//     kithleighSerial* c = new kithleighSerial;
-	connection<serialContext>* c = new connection<serialContext>();
+    kithleighSerial* c = new kithleighSerial;
+// 	connection<serialContext>* c = new connection<serialContext>();
 
 //     c->context.RTS = false; 
 //     c->context.DTR = true;
@@ -28,11 +28,11 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 //      std::cout << "Write="<< c->write("*IDN?")<< std::endl;
-//    	  std::cout << "Write="<< c->write("*RST\r")<< std::endl;
+//    	  std::cout << "Write="<< c->write("*RST")<< std::endl;
 //     	  std::cout << "Write="<< c->write("READ?\r")<< std::endl;
 // 	 std::cout << "Write="<< c->write(":TRAC:FEED:CONT NEVER")<< std::endl;
 // 	 std::cout << "Write="<< c->write(":TRAC:CLE")<< std::endl;
-	 std::cout << "Write="<< c->write("*IDN?\r")<< std::endl;
+	 std::cout << "Write="<< c->write("*IDN?")<< std::endl;
 /*    	  std::cout << "Write="<< c->write("PR1\r")<< std::endl;
 	  	  	sleep(0.1);
     	  std::cout << "Write="<< c->write("\x05")<< std::endl;*/	  

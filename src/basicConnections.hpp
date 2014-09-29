@@ -55,6 +55,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	char end_of_line_char() const;
 	void end_of_line_char(const char &c);
 	bool start(const char *port_name, int baud_rate);
+	boost::thread t;
 
 	
   public:

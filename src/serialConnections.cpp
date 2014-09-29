@@ -47,7 +47,7 @@ bool connection<serialContext>::start(const char *com_port_name)
 		return false;
 	}
 	
-	this->reset();
+// 	this->reset();
 	// option settings...
 	port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
 	port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
@@ -57,8 +57,8 @@ bool connection<serialContext>::start(const char *com_port_name)
 	port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));
 
 
-	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
-
+// 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
+	io_service_.run();
 
 	
 	return true;
