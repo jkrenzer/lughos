@@ -1,0 +1,6 @@
+/home/irina/projects/lughos/build/CMakeFiles/libharu.dir
+/home/irina/projects/lughos/build/CMakeFiles/test_connections.dir
+/home/irina/projects/lughos/build/CMakeFiles/test_exposer.dir
+/home/irina/projects/lughos/build/CMakeFiles/test_forms.dir
+/home/irina/projects/lughos/build/CMakeFiles/test_wtdbo.dir
+/home/irina/projects/lughos/build/CMakeFiles/wt.dir
