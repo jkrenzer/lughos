@@ -59,6 +59,8 @@ template <> class connection<tcpContext>: public connectionTemplate<tcpContext>
 	boost::asio::streambuf request_;
 	std::ostringstream response_string_stream;
 	std::string server;
+	
+	std::string read();
 
 
 	
@@ -69,8 +71,6 @@ template <> class connection<tcpContext>: public connectionTemplate<tcpContext>
 	bool start(const char *server_name);
 	void stop();
 	void set_port();
-	std::string response_string;
-
 	void reset();
   
 };

@@ -15,7 +15,7 @@ include(ExternalProject)
 
 ### Find needed Packages
 
-find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread regex REQUIRED)
 find_package(Doxygen)
 
 
@@ -93,7 +93,8 @@ link_directories(${EXT_LIB_DIR}/lib/)
 target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
 #Test of connections
-add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+# add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
 target_link_libraries(test_connections ${Boost_LIBRARIES} )
 
 #Installation directives

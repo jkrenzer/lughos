@@ -89,3 +89,11 @@ void connection<tcpContext>::handle_read_headers_process()
 
 }
 
+std::string connection<tcpContext>::read()
+{
+        std::string s = response_string_stream.str();
+
+	response_string_stream.str("");
+    return s;  
+
+}

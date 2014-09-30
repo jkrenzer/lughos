@@ -58,7 +58,7 @@ bool connection<serialContext>::start(const char *com_port_name)
 
 
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
-	io_service_.run();
+
 
 	
 	return true;
@@ -173,7 +173,7 @@ void connection<serialContext>::set_port()
 
 
   
-   void connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
+void connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
   {
   
   }
@@ -196,3 +196,11 @@ void connection<serialContext>::handle_read_headers_process()
 
 }
 
+std::string connection<serialContext>::read()
+{
+        std::string s = response_string_stream.str();
+// std::cout<<s<<std::endl;
+	response_string_stream.str("");
+    return s;  
+
+}

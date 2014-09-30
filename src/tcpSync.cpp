@@ -84,7 +84,7 @@ int tcpSync::write(const std::string &buf)
 	 static const boost::regex e("<body>(.*)</body>");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
-	  std::cout << res[1] << '\n';
+	 response_string_stream << res[1] << '\n';
     
     return 1;
 }
