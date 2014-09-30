@@ -52,21 +52,22 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	connection &operator=(const connection &p); 
 	boost::array<char, 1024> buffer_out;
 	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
+	char end_of_line_char() const;
+	void end_of_line_char(const char &c);
+	bool start(const char *port_name, int baud_rate);
+	boost::thread t;
 
 	
   public:
 	connection(void);
 	virtual ~connection(void);
 
-	char end_of_line_char() const;
-	void end_of_line_char(const char &c);
-	std::string readBuffer;
-
-	virtual bool start(const char *port_name, int baud_rate=9600);
+	virtual bool start(const char *port_name);
 	virtual void stop();
 	virtual void set_port();
 
 	int write(const std::string &buf);
+	int write_async(const std::string &buf);
 	void reset();
 
 
@@ -77,6 +78,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	virtual void on_receive_(const boost::system::error_code& ec, size_t bytes_transferred);
 	virtual void on_receive_(const std::string &data);
 	int write_some(const char *buf, const int &size);
+	int write_some_async(const char *buf, const int &size);
 
   
 };
