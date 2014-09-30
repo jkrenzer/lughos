@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11 -g    CMakeFiles/test_forms.dir/src/test_forms.cpp.o  -o test_forms  -L/home/irina/projects/lughos/externalLibraries/lib -rdynamic -lwt -lwthttp -Wl,-rpath,/home/irina/projects/lughos/externalLibraries/lib 

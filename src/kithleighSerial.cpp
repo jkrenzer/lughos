@@ -36,3 +36,11 @@ void kithleighSerial::compose_request(const std::string &buf)
     return;
   
 }
+
+   std::string kithleighSerial::inputoutput(const std::string input, const int async)
+{
+    if (async==0)write(input);
+    else if (async==1)write_async(input);
+    else write(input);
+    return read();
+}

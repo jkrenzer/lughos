@@ -13,13 +13,14 @@
 #include <cstring>
 #include "serialConnections.hpp"
 #include "serialSync.hpp"
+#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
-#include "Dict.hpp"
+// #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync
+class kithleighSerial :virtual public serialSync, virtual public serialAsync
 {
   private:
 	kithleighSerial(const kithleighSerial &p);
@@ -29,6 +30,8 @@ class kithleighSerial :virtual public serialSync
   public:
 	kithleighSerial(void);
 	~kithleighSerial(void);
+	
+	virtual std::string inputoutput(const std::string input, const int async=0);
 protected:
   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();

@@ -30,10 +30,11 @@ class kithleigh :virtual public tcpSync, virtual public tcpAsync
 	kithleigh(const kithleigh &p);
 	kithleigh &operator=(const kithleigh &p);
 	
-	
   public:
 	kithleigh(void);
 	~kithleigh(void);
+	virtual std::string inputoutput(const std::string input, const int async=0);	
+
 protected:
 //   	void compose_request(std::string server, const std::string &buf, boost::asio::streambuf* request);
 };

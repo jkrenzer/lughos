@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>;-DCONFIGDIR:STRING=<INSTALL_DIR>/etc;-DCONNECTOR_FCGI=OFF;-GUnix Makefiles;/home/irina/projects/lughos/externalLibraries/src/wt'

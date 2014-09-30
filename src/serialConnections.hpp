@@ -55,7 +55,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 // 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
 // 	void handle_write_request(const boost::system::error_code& err);
 // 	void handle_read_status_line(const boost::system::error_code& err);
-	void handle_read_check_response(const boost::system::error_code& err);
+	virtual void handle_read_check_response(const boost::system::error_code& err);
 // 	void handle_read_headers(const boost::system::error_code& err);
 	void handle_read_headers_process();
 // 	void handle_read_content(const boost::system::error_code& err);
@@ -86,10 +86,11 @@ private:
 	bool start(const char *port_name);
 	void stop();
 	void set_port();
+	std::string read();
 	std::string response_string;
 	
-	int write(const std::string &buf);
-	int write_async(const std::string &buf);
+// 	int write(const std::string &buf);
+// 	int write_async(const std::string &buf);
 	void reset();
   
 };

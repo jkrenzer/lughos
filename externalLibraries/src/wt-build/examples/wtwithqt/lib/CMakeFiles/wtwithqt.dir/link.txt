@@ -1,0 +1,2 @@
+/usr/bin/ar cr libwtwithqt.a  CMakeFiles/wtwithqt.dir/WQApplication.o CMakeFiles/wtwithqt.dir/DispatchThread.o CMakeFiles/wtwithqt.dir/moccedDispatchThread.o
+/usr/bin/ranlib libwtwithqt.a

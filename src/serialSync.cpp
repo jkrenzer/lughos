@@ -40,7 +40,7 @@ serialSync::~serialSync(void)
 int serialSync::write(const std::string &buf)
 {
 
-
+	io_service_.run();
 
 
 	this->compose_request(buf);
@@ -84,9 +84,9 @@ int serialSync::write(const std::string &buf)
 //         }
 //     // Read the response status line.
     boost::asio::read_until(*port_, response_, end_of_line_char_);
+//     handle_read_check_response(error);
 //      boost::asio::read_until(*port_, response_, "K");
-// 
-// //     this->handle_read_check_response(error);
+      handle_read_check_response(error);
 // //     // Read the response headers, which are terminated by a blank line.
 //     boost::asio::read_until(port_, response_, end_of_line_char_);
 // // 
@@ -103,9 +103,7 @@ int serialSync::write(const std::string &buf)
 //     if (error != boost::asio::error::eof)
 //       throw boost::system::system_error(error);
   
-        std::string s = response_string_stream.str();
-	std::cout << s << '\n';
-	response_string_stream.str("");
+
 	
 // 	 static const boost::regex e("<body>(.*)</body>");
 // 	 boost::cmatch res;
