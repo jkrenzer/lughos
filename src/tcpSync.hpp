@@ -27,7 +27,6 @@ class tcpSync : virtual public connection<tcpContext>
   private:
 	tcpSync(const tcpSync &p);
 	tcpSync &operator=(const tcpSync &p); 
-
 // 	tcp::socket socket;
 
 
@@ -47,7 +46,6 @@ class tcpSync : virtual public connection<tcpContext>
 	~tcpSync(void);
 	
 	int write(const std::string &buf);
-
 // 	void reset();
   
 };

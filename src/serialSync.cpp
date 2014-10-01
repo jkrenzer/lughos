@@ -40,18 +40,19 @@ serialSync::~serialSync(void)
 int serialSync::write(const std::string &buf)
 {
 
-
+	io_service_.run();
 
 
 	this->compose_request(buf);
 
-//                std::cout<<"request"<<" kackhörchen"<<std::endl;
+//                std::cout<<"vor write:"<<&this->request_<<std::endl;
 //      
      boost::system::error_code error = boost::asio::error::host_not_found;
      
 //      boost::asio::streambuf stream;
-
      boost::asio::write(*port_, request_);
+//                     std::cout<<"nach write:"<<&this->request_<<std::endl;
+     
 //           boost::asio::streambuf stream;
 //       const std::string  buf1="*IDN?\r";
       
@@ -83,27 +84,26 @@ int serialSync::write(const std::string &buf)
 //         }
 //     // Read the response status line.
     boost::asio::read_until(*port_, response_, end_of_line_char_);
+//     handle_read_check_response(error);
 //      boost::asio::read_until(*port_, response_, "K");
-// 
-// //     this->handle_read_check_response(error);
+      handle_read_check_response(error);
 // //     // Read the response headers, which are terminated by a blank line.
 //     boost::asio::read_until(port_, response_, end_of_line_char_);
 // // 
 // //     serialSync::handle_read_headers_process();
 // 
 //     // Read until EOF, writing data to output as we go.
-        while (boost::asio::read(*port_, response_, boost::asio::transfer_at_least(1), error))response_string_stream<< &response_;
+//         while (boost::asio::read(*port_, response_, boost::asio::transfer_at_least(1), error))
+    response_string_stream<< &response_;
 	
-	
+// 	 std::cout<<"response: "<<&this->response_<<std::endl;
 
 
     
-    if (error != boost::asio::error::eof)
-      throw boost::system::system_error(error);
+//     if (error != boost::asio::error::eof)
+//       throw boost::system::system_error(error);
   
-        std::string s = response_string_stream.str();
-// 	std::cout << s << '\n';
-	response_string_stream.str("");
+
 	
 // 	 static const boost::regex e("<body>(.*)</body>");
 // 	 boost::cmatch res;
