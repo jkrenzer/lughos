@@ -12,8 +12,10 @@
 #include <Wt/WMenuItem>
 #include <Wt/WEnvironment>
 #include <Wt/WVBoxLayout>
+#include <Wt/WHBoxLayout>
 #include <Wt/WBootstrapTheme>
 #include <Wt/WCssTheme>
+#include <Wt/WImage>
 #include <functional>
 
 namespace lughos 
@@ -21,6 +23,51 @@ namespace lughos
 
   using namespace Wt;
   using namespace std;
+ 
+  class OverView : public Wt::WContainerWidget
+  {
+  public:
+    
+    OverView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
+  class PressureView : public Wt::WContainerWidget
+  {
+  public:
+    
+    PressureView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
+  class TemperatureView : public Wt::WContainerWidget
+  {
+  public:
+    
+    TemperatureView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
+  class DeviceView : public Wt::WContainerWidget
+  {
+  public:
+    
+    DeviceView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
   
   class mainApplication : public WApplication
   {
@@ -38,7 +85,17 @@ namespace lughos
       setTitle("Lughos System Control");
       Wt::WContainerWidget *container = new Wt::WContainerWidget();
       Wt::WContainerWidget *headContainer = new Wt::WContainerWidget();
-      headContainer->addWidget(new WText("LUGHOS System Control"));
+      Wt::WImage *logo = new WImage("resources/logo.png");
+      Wt::WImage *branding = new WImage("resources/branding.png");
+      Wt::WText *headText = new WText("<h1>Lughos System Control</h1>");
+      logo->setHeight(100);
+      branding->setHeight(100);
+      Wt::WHBoxLayout *headBox = new Wt::WHBoxLayout();
+      headContainer->setLayout(headBox);
+      headBox->addWidget(logo);
+      headBox->addWidget(headText,1);
+      headBox->addWidget(branding);
+
       
       
       Wt::WVBoxLayout *vbox = new Wt::WVBoxLayout();
