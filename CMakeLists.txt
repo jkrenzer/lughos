@@ -72,11 +72,6 @@ set(BOOST_INCLUDEDIR "/usr/include/boost")
 endif()
 
 find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random REQUIRED)
-# if(NOT Boost_FOUND)
-#   message("Boost libraries were not found. Guessing...")
-#   set(Boost_INCLUDE_DIR /usr/include/)
-#   set(Boost_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
-# endif()
 find_package(Doxygen)
 
 
@@ -176,7 +171,8 @@ add_dependencies(test_forms wt)
 target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
 #Test of connections
-add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+# add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
 target_link_libraries(test_connections ${Boost_LIBRARIES} )
 
 #Test of TCP

@@ -23,11 +23,19 @@ Extra Arguments=
 Install Directory=file:///usr/local
 
 [CMake][CMake Build Directory 2]
+<<<<<<< HEAD
 Build Directory Path=file:///home/joern.mankiewicz/lughos/build_win64/
 Build Type=Debug
 CMake Binary=file:///usr/bin/cmake
 Environment Profile=
 Extra Arguments=-DMINGW=1 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/Toolchain-cross-mingw64-linux.cmake\s
+=======
+Build Directory Path=file:///home/irina/projects/lughos/build
+Build Type=Debug
+CMake Binary=file:///usr/bin/cmake
+Environment Profile=
+Extra Arguments=
+>>>>>>> 4b92f3a6d563e5b39ca429ab2697096219f09c08
 Install Directory=file:///usr/local
 
 [Launch]
@@ -90,6 +98,7 @@ isExecutable=false
 [Launch][Launch Configuration 3]
 Configured Launch Modes=execute
 Configured Launchers=nativeAppLauncher
+<<<<<<< HEAD
 Name=test_gui
 Type=Native Application
 
@@ -101,6 +110,27 @@ EnvironmentGroup=default
 Executable=file:///home/joern.mankiewicz/lughos/
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=lughos,test_gui
+=======
+Name=test_serial
+Type=Native Application
+
+[Launch][Launch Configuration 3][Data]
+Arguments=
+Debugger Shell=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x02\x00\x00\x00\x0c\x00l\x00u\x00g\x00h\x00o\x00s\x00\x00\x00 \x00t\x00e\x00s\x00t\x00_\x00c\x00o\x00n\x00n\x00e\x00c\x00t\x00i\x00o\x00n\x00s)
+Dependency Action=Build
+Display Demangle Names=true
+Display Static Members=true
+EnvironmentGroup=default
+Executable=file:///home/irina/projects/lughos/
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+GDB Path=
+Project Target=lughos,test_connections
+Remote GDB Config Script=
+Remote GDB Run Script=
+Remote GDB Shell Script=
+Start With=ApplicationOutput
+>>>>>>> 4b92f3a6d563e5b39ca429ab2697096219f09c08
 Use External Terminal=false
 Working Directory=
 isExecutable=false

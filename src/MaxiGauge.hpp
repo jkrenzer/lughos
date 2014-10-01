@@ -1,5 +1,5 @@
-#ifndef KITHLEIGH_HPP
-#define KITHLEIGH_HPP
+#ifndef COOLPACK6000_HPP
+#define COOLPACK6000_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -20,20 +20,21 @@
 // #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync, virtual public serialAsync
+class MaxiGauge :virtual public serialSync
 {
   private:
-	kithleighSerial(const kithleighSerial &p);
-	kithleighSerial &operator=(const kithleighSerial &p);
+	MaxiGauge(const MaxiGauge &p);
+	MaxiGauge &operator=(const MaxiGauge &p);
 	
 	
   public:
-	kithleighSerial(void);
-	~kithleighSerial(void);
+	MaxiGauge(void);
+	~MaxiGauge(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 protected:
   	void compose_request(const std::string &buf);
+	void handle_read_check_response(const boost::system::error_code& err);
 // 	void handle_read_check_response();
 };
 

@@ -1,5 +1,5 @@
-#ifndef KITHLEIGH_HPP
-#define KITHLEIGH_HPP
+#ifndef COOLPACK6000_HPP
+#define COOLPACK6000_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -20,18 +20,18 @@
 // #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync, virtual public serialAsync
+class coolpak6000 :virtual public serialSync, virtual public serialAsync
 {
   private:
-	kithleighSerial(const kithleighSerial &p);
-	kithleighSerial &operator=(const kithleighSerial &p);
+	coolpak6000(const coolpak6000 &p);
+	coolpak6000 &operator=(const coolpak6000 &p);
 	
-	
+
   public:
-	kithleighSerial(void);
-	~kithleighSerial(void);
+	coolpak6000(void);
+	~coolpak6000(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
+	virtual std::string inputoutput(const std::string input, const int async=0);	
 protected:
   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();

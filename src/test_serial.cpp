@@ -1,8 +1,9 @@
 #include <iostream>
-
+#include "coolpak6000.hpp"
+// #include "MaxiGauge.hpp"
 // #include "kithleighSerial.hpp"
 // #include "connectionImpl.hpp"
-#include "basicConnections.hpp"
+// #include "basicConnections.hpp"
 #include <pthread.h>
 
 int main(int argc, char **argv) {
@@ -16,7 +17,9 @@ int main(int argc, char **argv) {
 
   
 //     kithleighSerial* c = new kithleighSerial;
-	connection<serialContext>* c = new connection<serialContext>();
+	coolpak6000* c = new coolpak6000;
+// 		MaxiGauge* c = new MaxiGauge;
+// 	connection<serialContext>* c = new connection<serialContext>();
 
 //     c->context.RTS = false; 
 //     c->context.DTR = true;
@@ -28,18 +31,22 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 //      std::cout << "Write="<< c->write("*IDN?")<< std::endl;
-//    	  std::cout << "Write="<< c->write("*RST\r")<< std::endl;
+//    	  std::cout << "Write="<< c->write_async("*RST")<< std::endl;
 //     	  std::cout << "Write="<< c->write("READ?\r")<< std::endl;
 // 	 std::cout << "Write="<< c->write(":TRAC:FEED:CONT NEVER")<< std::endl;
 // 	 std::cout << "Write="<< c->write(":TRAC:CLE")<< std::endl;
-	 std::cout << "Write="<< c->write("*IDN?\r")<< std::endl;
+// 	 std::cout << "Write="<< c->write_async("*IDN?")<< std::endl;
 /*    	  std::cout << "Write="<< c->write("PR1\r")<< std::endl;
 	  	  	sleep(0.1);
     	  std::cout << "Write="<< c->write("\x05")<< std::endl;*/	  
 //  std::cout << "Write="<< c->write("\x02")<< std::endl;
-//   std::cout << "Write="<< c->write("\x02""SYS""1\r")<< std::endl;
+//   std::cout << "Write="<< c->inputoutput("*IDN?")<< std::endl;
+//     std::cout << "Write="<< c->inputoutput("PR1")<< std::endl;
+    std::cout << "Write="<< c->inputoutput("DAT",1)<< std::endl;
+
+
 //   	  	  	sleep(1);
-//  std::cout << "Write="<< c->write("\x02""SYS""0\r")<< std::endl;
+//  std::cout << "Write="<< c->write("SYS0")<< std::endl;
 //  std::cout << "Write="<< c->write("\x03")<< std::endl;
 //  std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
 //    	  	  	sleep(1);

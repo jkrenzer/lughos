@@ -48,7 +48,7 @@ typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 // #include "Dict.hpp"
 
 
-using boost::asio::ip::tcp;
+
 
 class serialSync : virtual public connection<serialContext>
 {
