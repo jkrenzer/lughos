@@ -16,7 +16,9 @@
 typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 
 #define SERIAL_PORT_READ_BUF_SIZE 256
-
+enum flow_constroll_bit {off, software, hardware};
+enum parity_bit { none, odd, even };
+enum stop_bits_num { one, onepointfive, two };
 class serialContext
 {
   public:
@@ -50,6 +52,8 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	boost::asio::serial_port_base::flow_control::type flow_control;
 	boost::asio::serial_port_base::character_size character_size;
 	boost::asio::serial_port_base::baud_rate baud_rate;
+	boost::asio::serial_port_base::parity::type parity;
+	boost::asio::serial_port_base::stop_bits::type stop_bits;
 	
 // 	void handle_resolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
 // 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
@@ -92,6 +96,12 @@ private:
 // 	int write(const std::string &buf);
 // 	int write_async(const std::string &buf);
 	void reset();
+	void set_baud_rate(const int baud_rate);
+	void set_character_size(const int character_size);
+	void set_flow_controll(flow_constroll_bit controll_type);
+	void set_parity(parity_bit parity_type);
+	void set_stop_bits(stop_bits_num stop);
+	virtual void set_default();
   
 };
 

@@ -8,12 +8,7 @@
 
 kithleighSerial::kithleighSerial(void)
 {
- 
-    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
-    this->flow_control=boost::asio::serial_port_base::flow_control::none;
-    this->character_size=boost::asio::serial_port_base::character_size(8);
-    this->end_of_line_char_='\r';
-
+  set_default();
 }
 
 
@@ -44,3 +39,14 @@ void kithleighSerial::compose_request(const std::string &buf)
     else write(input);
     return read();
 }
+
+   void kithleighSerial::set_default()
+{
+    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
+    this->flow_control=boost::asio::serial_port_base::flow_control::none;
+    this->character_size=boost::asio::serial_port_base::character_size(8);
+    this->end_of_line_char_='\r';
+    this->parity=boost::asio::serial_port_base::parity::none;
+    this->stop_bits=boost::asio::serial_port_base::stop_bits::one;
+}
+
