@@ -32,6 +32,7 @@ class kithleighSerial :virtual public serialSync, virtual public serialAsync
 	~kithleighSerial(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
+	virtual void set_default();
 protected:
   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();
