@@ -1,0 +1,10 @@
+#
+# Files and directories which git should ignore
+#
+
+externalLibraries
+externalLibraries*
+build
+build*
+doc
+*.kdev4
