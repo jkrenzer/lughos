@@ -1,6 +1,6 @@
 #ifndef CONNECTION_IMPL_HPP
 #define CONNECTION_IMPL_HPP
-
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 class connectionImpl
 {
