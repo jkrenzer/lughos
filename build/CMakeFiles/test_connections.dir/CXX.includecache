@@ -8,6 +8,14 @@
 
 /home/irina/projects/lughos/src/connectionImpl.hpp
 
+/home/irina/projects/lughos/src/coolpak6000.cpp
+ostream
+-
+serialSync.hpp
+/home/irina/projects/lughos/src/serialSync.hpp
+coolpak6000.hpp
+/home/irina/projects/lughos/src/coolpak6000.hpp
+
 /home/irina/projects/lughos/src/coolpak6000.hpp
 boost/asio.hpp
 -
@@ -140,13 +148,5 @@ boost/bind.hpp
 boost/thread.hpp
 -
 boost/logic/tribool.hpp
--
-
-/home/irina/projects/lughos/src/test_serial.cpp
-iostream
--
-coolpak6000.hpp
-/home/irina/projects/lughos/src/coolpak6000.hpp
-pthread.h
 -
 
