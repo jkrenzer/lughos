@@ -51,8 +51,8 @@ bool connection<serialContext>::start(const char *com_port_name)
 	// option settings...
 	port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
 	port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
-	port_->set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
-	port_->set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
+	port_->set_option(boost::asio::serial_port_base::stop_bits(stop_bits));
+	port_->set_option(boost::asio::serial_port_base::parity(parity));
 // // 	port_->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware));
 	port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));
 
@@ -203,4 +203,84 @@ std::string connection<serialContext>::read()
 	response_string_stream.str("");
     return s;  
 
+}
+
+void connection<serialContext>::set_baud_rate(const int baud)
+{
+    
+  baud_rate=boost::asio::serial_port_base::baud_rate(baud);
+
+}
+void connection<serialContext>::set_character_size(const int size)
+{
+    
+  character_size=boost::asio::serial_port_base::character_size(size);
+
+}
+
+void connection<serialContext>::set_flow_controll(flow_constroll_bit controll_type)
+{
+    
+  switch(controll_type)
+  {
+  case off:  // (can I just type case EASY?)
+	flow_control=boost::asio::serial_port_base::flow_control::none;
+      break;
+
+  case software: 
+	  flow_control=boost::asio::serial_port_base::flow_control::software;
+      break;
+
+  case hardware: flow_control=boost::asio::serial_port_base::flow_control::hardware;
+
+  default:;
+
+  }
+}
+
+void connection<serialContext>::set_parity(parity_bit parity_type)
+{
+    
+  switch(parity_type)
+  {
+  case none:  
+	parity=boost::asio::serial_port_base::parity::none;
+      break;
+
+  case odd: 
+	 parity=boost::asio::serial_port_base::parity::odd;
+      break;
+
+  case even:parity=boost::asio::serial_port_base::parity::even;
+
+  default:;
+
+  }
+}
+
+void connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
+{
+    
+  switch(stop_bits_type)
+  {
+  case one:  
+	stop_bits=boost::asio::serial_port_base::stop_bits::one;
+      break;
+
+  case onepointfive: 
+	 stop_bits=boost::asio::serial_port_base::stop_bits::onepointfive;
+      break;
+
+  case two: stop_bits=boost::asio::serial_port_base::stop_bits::two;
+
+  default:;
+
+  }
+}
+
+
+
+void connection<serialContext>::set_default()
+{
+    
 }
