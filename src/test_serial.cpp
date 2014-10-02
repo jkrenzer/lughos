@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 
   
 //     kithleighSerial* c = new kithleighSerial;
-	coolpak6000* c = new coolpak6000;
+	boost::shared_ptr<coolpak6000> c(new coolpak6000);
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 
@@ -49,8 +49,7 @@ int main(int argc, char **argv) {
 //  std::cout << "Write="<< c->write("SYS0")<< std::endl;
 //  std::cout << "Write="<< c->write("\x03")<< std::endl;
 //  std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
-//    	  	  	sleep(1);
-		
+//    	  	  	sleep(1);	
 	return 0;
 }
 

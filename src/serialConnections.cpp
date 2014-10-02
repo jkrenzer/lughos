@@ -14,7 +14,7 @@ connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_servic
 
 connection<serialContext>::~connection(void)
 {
-	stop();
+// 	stop();
 }
 
 char connection<serialContext>::end_of_line_char() const

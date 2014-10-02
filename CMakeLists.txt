@@ -2,6 +2,12 @@
 # For cross-compiling issue at commandline: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-cross-*.cmake
 # Make sure to have alls needed tools installed beforehand!
 
+### Include modules
+
+include(ExternalProject)
+
+
+
 ### Project description
 
 project(lugos)
@@ -11,14 +17,24 @@ set(PROJECT_NAME lughos)
 set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interfaces")
 #set(PROJECT_LOGO)
 
+### Configuration switches
+
+#set(LINK_STATIC TRUE) # Uncomment to link libraries static, so we get a stand-alone application
+
+###
+
+list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
+
+if(${CMAKE_BUILD_TYPE} EQUAL Debug)
+list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
+endif()
+
 if(${CMAKE_CROSSCOMPILING})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_crosscompile)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_crosscompile)
 set(EXT_LIB_CROSSCOMPILE_CMAKE_OPT "")
 set(EXT_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalLibraries_crosscompile) #Path relative to build-dir!
 set(GENERATOR "MinGW Makefiles")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
-list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib ${EXT_LIB_DIR}/lib/)
 list(APPEND INCLUDE_DIRS ${CMAKE_FIND_ROOT_PATH}/include ${EXT_LIB_DIR}/include/)
 else()
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
@@ -29,16 +45,28 @@ list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
 list(APPEND INCLUDE_DIRS ${EXT_LIB_DIR}/include/)
 endif()
 
+# What to do if user requests static linking
+
+if(${LINK_STATIC})
+list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+set(${CMAKE_LINK_LIBRARY_SUFFIX} .a)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
+
+else()
+list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/bin)
+endif()
+
+
+### Set directories
+
 include_directories(${INCLUDE_DIRS})
 link_directories(${LINK_DIRS})
 
 set(DOCUMENTATION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 set(CMAKE_TOOLCHAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains)
-
-list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
-#list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
-include(ExternalProject)
 
 ### Printing some information
 
@@ -56,20 +84,23 @@ message("CMAKE_LINKER: ${CMAKE_LINKER}")
 message("MINGW: ${MINGW}")
 message("INCLUDE_DIRS: ${INCLUDE_DIRS}")
 message("LINK_DIRS: ${LINK_DIRS}")
+message("LINK_STATIC: ${LINK_STATIC}")
 
-### Find needed Packages
+### Configure find system
+
+# findBoost
 if(${CMAKE_CROSSCOMPILING})
 set(Boost_DEBUG "ON")
 set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
 set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
 set(Boost_DETAILED_FAILURE_MSG "ON")
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(${CMAKE_LINK_LIBRARY_SUFFIX} .a)
 else()
 set(Boost_DEBUG "ON")
 set(BOOST_INCLUDEDIR "/usr/include/boost")
 endif()
+
+
+### Find needed Packages
 
 find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random REQUIRED)
 find_package(Doxygen)
@@ -157,25 +188,36 @@ add_executable(test_exposer src/test_exposer.cpp)
 add_executable(test_wtdbo src/test_wtdbo.cpp)
 target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
 
-#Test for wt
-find_library(LIBWT NAMES wt PATHS ${EXT_LIB_DIR}/lib CMAKE_FIND_ROOT_PATH_BOTH)
-find_library(LIBWTHTTP NAMES wthttp PATHS ${EXT_LIB_DIR}/lib CMAKE_FIND_ROOT_PATH_BOTH)
-find_library(LIBWS2_32 NAMES ws2_32 REQUIRED)
-find_library(LIBMSWSOCK NAMES mswsock REQUIRED)
-add_executable(test_gui src/test_gui.cpp)
-target_link_libraries(test_gui ${LIBWT} ${LIBWTHTTP} ${Boost_LIBRARIES} ${LIBWS2_32} ${LIBMSWSOCK})
+### Test for wt
 
-#Test for forms
+# Add executbales and libraries
+
+add_executable(test_gui src/test_gui.cpp)
+
+# Find and link libs
+find_library(LIB_wt NAMES wt)
+find_library(LIB_wthttp NAMES wthttp PATHS ${EXT_LIB_DIR}/lib)
+
+
+if(${WIN32})
+find_library(LIB_ws2_32 NAMES ws2_32 REQUIRED)
+find_library(LIB_mswsock NAMES mswsock REQUIRED)
+target_link_libraries(test_gui ${LIB_wt} ${LIB_wthttp} ${Boost_LIBRARIES} ${LIB_ws2_32} ${LIB_mswsock})
+else()
+target_link_libraries(test_gui ${LIB_wt} ${LIB_wthttp} ${Boost_LIBRARIES})
+endif()
+
+### Test for forms
 add_executable(test_forms src/test_forms.cpp)
 add_dependencies(test_forms wt)
 target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
-#Test of connections
+### Test of connections
 # add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
 add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
 target_link_libraries(test_connections ${Boost_LIBRARIES} )
 
-#Test of TCP
+### Test of TCP
 add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
 target_link_libraries(test_tcp ${Boost_LIBRARIES} )
 
