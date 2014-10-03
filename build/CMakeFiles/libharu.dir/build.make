@@ -100,7 +100,7 @@ CMakeFiles/libharu-complete: ../externalLibraries/src/libharu-stamp/libharu-inst
 ../externalLibraries/src/libharu-stamp/libharu-configure: ../externalLibraries/src/libharu-stamp/libharu-patch
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Performing configure step for 'libharu'"
-	cd /home/irina/projects/lughos/externalLibraries/src/libharu-build && /usr/bin/cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/irina/projects/lughos/externalLibraries -DCONFIGDIR:STRING=/home/irina/projects/lughos/externalLibraries/etc "-GUnix Makefiles" /home/irina/projects/lughos/externalLibraries/src/libharu
+	cd /home/irina/projects/lughos/externalLibraries/src/libharu-build && /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH= -DCMAKE_INSTALL_PREFIX:PATH=/home/irina/projects/lughos/externalLibraries -DCONFIGDIR:STRING=/home/irina/projects/lughos/externalLibraries/etc -DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=\".a .dll.a\" "-GUnix Makefiles" /home/irina/projects/lughos/externalLibraries/src/libharu
 	cd /home/irina/projects/lughos/externalLibraries/src/libharu-build && /usr/bin/cmake -E touch /home/irina/projects/lughos/externalLibraries/src/libharu-stamp/libharu-configure
 
 ../externalLibraries/src/libharu-stamp/libharu-build: ../externalLibraries/src/libharu-stamp/libharu-configure

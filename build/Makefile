@@ -151,6 +151,32 @@ test_forms/fast:
 .PHONY : test_forms/fast
 
 #=============================================================================
+# Target rules for targets named test_gui
+
+# Build rule for target.
+test_gui: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_gui
+.PHONY : test_gui
+
+# fast build rule for target.
+test_gui/fast:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/build
+.PHONY : test_gui/fast
+
+#=============================================================================
+# Target rules for targets named test_tcp
+
+# Build rule for target.
+test_tcp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_tcp
+.PHONY : test_tcp
+
+# fast build rule for target.
+test_tcp/fast:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/build
+.PHONY : test_tcp/fast
+
+#=============================================================================
 # Target rules for targets named test_wtdbo
 
 # Build rule for target.
@@ -223,6 +249,30 @@ src/coolpak6000.s: src/coolpak6000.cpp.s
 src/coolpak6000.cpp.s:
 	$(MAKE) -f CMakeFiles/test_connections.dir/build.make CMakeFiles/test_connections.dir/src/coolpak6000.cpp.s
 .PHONY : src/coolpak6000.cpp.s
+
+src/httpDict.o: src/httpDict.cpp.o
+.PHONY : src/httpDict.o
+
+# target to build an object file
+src/httpDict.cpp.o:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/httpDict.cpp.o
+.PHONY : src/httpDict.cpp.o
+
+src/httpDict.i: src/httpDict.cpp.i
+.PHONY : src/httpDict.i
+
+# target to preprocess a source file
+src/httpDict.cpp.i:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/httpDict.cpp.i
+.PHONY : src/httpDict.cpp.i
+
+src/httpDict.s: src/httpDict.cpp.s
+.PHONY : src/httpDict.s
+
+# target to generate assembly for a file
+src/httpDict.cpp.s:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/httpDict.cpp.s
+.PHONY : src/httpDict.cpp.s
 
 src/kithleighSerial.o: src/kithleighSerial.cpp.o
 .PHONY : src/kithleighSerial.o
@@ -320,6 +370,30 @@ src/serialSync.cpp.s:
 	$(MAKE) -f CMakeFiles/test_connections.dir/build.make CMakeFiles/test_connections.dir/src/serialSync.cpp.s
 .PHONY : src/serialSync.cpp.s
 
+src/tcpConnections.o: src/tcpConnections.cpp.o
+.PHONY : src/tcpConnections.o
+
+# target to build an object file
+src/tcpConnections.cpp.o:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/tcpConnections.cpp.o
+.PHONY : src/tcpConnections.cpp.o
+
+src/tcpConnections.i: src/tcpConnections.cpp.i
+.PHONY : src/tcpConnections.i
+
+# target to preprocess a source file
+src/tcpConnections.cpp.i:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/tcpConnections.cpp.i
+.PHONY : src/tcpConnections.cpp.i
+
+src/tcpConnections.s: src/tcpConnections.cpp.s
+.PHONY : src/tcpConnections.s
+
+# target to generate assembly for a file
+src/tcpConnections.cpp.s:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/tcpConnections.cpp.s
+.PHONY : src/tcpConnections.cpp.s
+
 src/test_exposer.o: src/test_exposer.cpp.o
 .PHONY : src/test_exposer.o
 
@@ -368,6 +442,30 @@ src/test_forms.cpp.s:
 	$(MAKE) -f CMakeFiles/test_forms.dir/build.make CMakeFiles/test_forms.dir/src/test_forms.cpp.s
 .PHONY : src/test_forms.cpp.s
 
+src/test_gui.o: src/test_gui.cpp.o
+.PHONY : src/test_gui.o
+
+# target to build an object file
+src/test_gui.cpp.o:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/src/test_gui.cpp.o
+.PHONY : src/test_gui.cpp.o
+
+src/test_gui.i: src/test_gui.cpp.i
+.PHONY : src/test_gui.i
+
+# target to preprocess a source file
+src/test_gui.cpp.i:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/src/test_gui.cpp.i
+.PHONY : src/test_gui.cpp.i
+
+src/test_gui.s: src/test_gui.cpp.s
+.PHONY : src/test_gui.s
+
+# target to generate assembly for a file
+src/test_gui.cpp.s:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/src/test_gui.cpp.s
+.PHONY : src/test_gui.cpp.s
+
 src/test_serial.o: src/test_serial.cpp.o
 .PHONY : src/test_serial.o
 
@@ -391,6 +489,30 @@ src/test_serial.s: src/test_serial.cpp.s
 src/test_serial.cpp.s:
 	$(MAKE) -f CMakeFiles/test_connections.dir/build.make CMakeFiles/test_connections.dir/src/test_serial.cpp.s
 .PHONY : src/test_serial.cpp.s
+
+src/test_tcp.o: src/test_tcp.cpp.o
+.PHONY : src/test_tcp.o
+
+# target to build an object file
+src/test_tcp.cpp.o:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/test_tcp.cpp.o
+.PHONY : src/test_tcp.cpp.o
+
+src/test_tcp.i: src/test_tcp.cpp.i
+.PHONY : src/test_tcp.i
+
+# target to preprocess a source file
+src/test_tcp.cpp.i:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/test_tcp.cpp.i
+.PHONY : src/test_tcp.cpp.i
+
+src/test_tcp.s: src/test_tcp.cpp.s
+.PHONY : src/test_tcp.s
+
+# target to generate assembly for a file
+src/test_tcp.cpp.s:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/src/test_tcp.cpp.s
+.PHONY : src/test_tcp.cpp.s
 
 src/test_wtdbo.o: src/test_wtdbo.cpp.o
 .PHONY : src/test_wtdbo.o
@@ -428,6 +550,8 @@ help:
 	@echo "... test_connections"
 	@echo "... test_exposer"
 	@echo "... test_forms"
+	@echo "... test_gui"
+	@echo "... test_tcp"
 	@echo "... test_wtdbo"
 	@echo "... wt"
 	@echo "... src/MaxiGauge.o"
@@ -436,6 +560,9 @@ help:
 	@echo "... src/coolpak6000.o"
 	@echo "... src/coolpak6000.i"
 	@echo "... src/coolpak6000.s"
+	@echo "... src/httpDict.o"
+	@echo "... src/httpDict.i"
+	@echo "... src/httpDict.s"
 	@echo "... src/kithleighSerial.o"
 	@echo "... src/kithleighSerial.i"
 	@echo "... src/kithleighSerial.s"
@@ -448,15 +575,24 @@ help:
 	@echo "... src/serialSync.o"
 	@echo "... src/serialSync.i"
 	@echo "... src/serialSync.s"
+	@echo "... src/tcpConnections.o"
+	@echo "... src/tcpConnections.i"
+	@echo "... src/tcpConnections.s"
 	@echo "... src/test_exposer.o"
 	@echo "... src/test_exposer.i"
 	@echo "... src/test_exposer.s"
 	@echo "... src/test_forms.o"
 	@echo "... src/test_forms.i"
 	@echo "... src/test_forms.s"
+	@echo "... src/test_gui.o"
+	@echo "... src/test_gui.i"
+	@echo "... src/test_gui.s"
 	@echo "... src/test_serial.o"
 	@echo "... src/test_serial.i"
 	@echo "... src/test_serial.s"
+	@echo "... src/test_tcp.o"
+	@echo "... src/test_tcp.i"
+	@echo "... src/test_tcp.s"
 	@echo "... src/test_wtdbo.o"
 	@echo "... src/test_wtdbo.i"
 	@echo "... src/test_wtdbo.s"

@@ -193,13 +193,83 @@ clean: CMakeFiles/test_forms.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/test_gui.dir
+
+# All Build rule for target.
+CMakeFiles/test_gui.dir/all:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/depend
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  18
+	@echo "Built target test_gui"
+.PHONY : CMakeFiles/test_gui.dir/all
+
+# Include target in all.
+all: CMakeFiles/test_gui.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_gui.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/irina/projects/lughos/build/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_gui.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/irina/projects/lughos/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_gui.dir/rule
+
+# Convenience name for target.
+test_gui: CMakeFiles/test_gui.dir/rule
+.PHONY : test_gui
+
+# clean rule for target.
+CMakeFiles/test_gui.dir/clean:
+	$(MAKE) -f CMakeFiles/test_gui.dir/build.make CMakeFiles/test_gui.dir/clean
+.PHONY : CMakeFiles/test_gui.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/test_gui.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_tcp.dir
+
+# All Build rule for target.
+CMakeFiles/test_tcp.dir/all:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/depend
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  19 20 21
+	@echo "Built target test_tcp"
+.PHONY : CMakeFiles/test_tcp.dir/all
+
+# Include target in all.
+all: CMakeFiles/test_tcp.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_tcp.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/irina/projects/lughos/build/CMakeFiles 3
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_tcp.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/irina/projects/lughos/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_tcp.dir/rule
+
+# Convenience name for target.
+test_tcp: CMakeFiles/test_tcp.dir/rule
+.PHONY : test_tcp
+
+# clean rule for target.
+CMakeFiles/test_tcp.dir/clean:
+	$(MAKE) -f CMakeFiles/test_tcp.dir/build.make CMakeFiles/test_tcp.dir/clean
+.PHONY : CMakeFiles/test_tcp.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/test_tcp.dir/clean
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/test_wtdbo.dir
 
 # All Build rule for target.
 CMakeFiles/test_wtdbo.dir/all:
 	$(MAKE) -f CMakeFiles/test_wtdbo.dir/build.make CMakeFiles/test_wtdbo.dir/depend
 	$(MAKE) -f CMakeFiles/test_wtdbo.dir/build.make CMakeFiles/test_wtdbo.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  18
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  22
 	@echo "Built target test_wtdbo"
 .PHONY : CMakeFiles/test_wtdbo.dir/all
 
@@ -234,7 +304,7 @@ clean: CMakeFiles/test_wtdbo.dir/clean
 CMakeFiles/wt.dir/all:
 	$(MAKE) -f CMakeFiles/wt.dir/build.make CMakeFiles/wt.dir/depend
 	$(MAKE) -f CMakeFiles/wt.dir/build.make CMakeFiles/wt.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  19 20 21 22 23 24 25 26
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles  23 24 25 26 27 28 29 30
 	@echo "Built target wt"
 .PHONY : CMakeFiles/wt.dir/all
 

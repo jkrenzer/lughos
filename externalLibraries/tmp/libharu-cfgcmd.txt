@@ -1,1 +1,1 @@
-cmd='/usr/bin/cmake;-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>;-DCONFIGDIR:STRING=<INSTALL_DIR>/etc;-GUnix Makefiles;/home/irina/projects/lughos/externalLibraries/src/libharu'
+cmd='/usr/bin/cmake;-DCMAKE_TOOLCHAIN_FILE:FILEPATH=;-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>;-DCONFIGDIR:STRING=<INSTALL_DIR>/etc;-DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a";-GUnix Makefiles;/home/irina/projects/lughos/externalLibraries/src/libharu'

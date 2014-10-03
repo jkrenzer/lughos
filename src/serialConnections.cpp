@@ -7,6 +7,11 @@
 // #include "Dict.hpp"
 // #include "httpDict.hpp"
 
+#ifdef WIN32
+#include <windows.h>
+#include <winioctl.h>
+#endif
+
 connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
 {
 
@@ -70,7 +75,77 @@ bool connection<serialContext>::start(const char *com_port_name)
 
 void connection<serialContext>::reset()
 {
-    
+#ifdef WIN32
+
+DCB dcb;
+
+GetCommState(port_, &dcb);
+      int pid = port_->native();
+      // play with RTS & DTR
+      int iFlags=0;
+// 	std::cout << "iFlags="<< iFlags<< std::endl; 
+//       std::cout << "port_type="<< porttype << std::endl; 
+      if (context.DCD)
+      {
+	iFlags = 1;
+// 	ioctl(pid, TIOCMBIS, &iFlags);
+      }
+      else if (!context.DCD)
+      {
+	iFlags = 0;
+// 	ioctl(pid, TIOCMBIC, &iFlags);
+      }
+      else{
+	
+      }
+      if (context.DTR)
+      {
+// 	std::cout << "iFlags DTR="<< iFlags << std::endl; 
+	dcb.fDtrControl =DTR_CONTROL_ENABLE;
+// 	ioctl(pid, TIOCMBIS, &iFlags);
+      }
+      else if (!context.DTR)
+      {
+	dcb.fDtrControl =DTR_CONTROL_DISABLE;
+      }
+      if (context.DSR)
+      {
+
+      }
+      else if (!context.DSR)
+      {
+
+      }
+      if (context.RTS)
+      {
+	dcb.fRtsControl = RTS_CONTROL_ENABLE;
+
+      }
+      else if (!context.RTS)
+      {
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+      }
+      if (context.CTS)
+      {
+
+      }
+      else if (!context.CTS)
+      {
+
+      }
+      if (context.RI)
+      {
+
+      }
+      else if (!context.RI)
+      {
+
+      }
+
+  
+#else
+
+
       int pid = port_->native();
       // play with RTS & DTR
       int iFlags=0;
@@ -142,7 +217,7 @@ void connection<serialContext>::reset()
 	ioctl(pid, TIOCMBIC, &iFlags);
       }
  
-  
+#endif 
 }
 
 

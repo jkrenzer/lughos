@@ -234,7 +234,10 @@ test_connections: CMakeFiles/test_connections.dir/build.make
 test_connections: /usr/lib/x86_64-linux-gnu/libboost_system.so
 test_connections: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
 test_connections: /usr/lib/x86_64-linux-gnu/libboost_thread.so
+test_connections: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 test_connections: /usr/lib/x86_64-linux-gnu/libboost_regex.so
+test_connections: /usr/lib/x86_64-linux-gnu/libboost_date_time.so
+test_connections: /usr/lib/x86_64-linux-gnu/libboost_random.so
 test_connections: /usr/lib/x86_64-linux-gnu/libpthread.so
 test_connections: CMakeFiles/test_connections.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable test_connections"

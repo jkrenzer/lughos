@@ -57,6 +57,8 @@ SET(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_connections.dir/DependInfo.cmake"
   "CMakeFiles/test_exposer.dir/DependInfo.cmake"
   "CMakeFiles/test_forms.dir/DependInfo.cmake"
+  "CMakeFiles/test_gui.dir/DependInfo.cmake"
+  "CMakeFiles/test_tcp.dir/DependInfo.cmake"
   "CMakeFiles/test_wtdbo.dir/DependInfo.cmake"
   "CMakeFiles/wt.dir/DependInfo.cmake"
   )

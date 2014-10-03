@@ -1,1 +1,1 @@
-/usr/bin/c++   -std=c++11 -g    CMakeFiles/test_wtdbo.dir/src/test_wtdbo.cpp.o  -o test_wtdbo  -L/home/irina/projects/lughos/externalLibraries/lib -rdynamic -lwtdbo -lwtdbosqlite3 -Wl,-rpath,/home/irina/projects/lughos/externalLibraries/lib 
+/usr/bin/c++   -std=c++11 -g    CMakeFiles/test_wtdbo.dir/src/test_wtdbo.cpp.o  -o test_wtdbo  -L/home/irina/projects/lughos/externalLibraries/lib  -L/bin -rdynamic -lwtdbo -lwtdbosqlite3 -Wl,-rpath,/home/irina/projects/lughos/externalLibraries/lib:/bin 

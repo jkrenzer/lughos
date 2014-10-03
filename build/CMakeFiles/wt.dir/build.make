@@ -100,7 +100,7 @@ CMakeFiles/wt-complete: ../externalLibraries/src/wt-stamp/wt-install
 ../externalLibraries/src/wt-stamp/wt-configure: ../externalLibraries/src/wt-stamp/wt-patch
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/irina/projects/lughos/build/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Performing configure step for 'wt'"
-	cd /home/irina/projects/lughos/externalLibraries/src/wt-build && /usr/bin/cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/irina/projects/lughos/externalLibraries -DCONFIGDIR:STRING=/home/irina/projects/lughos/externalLibraries/etc -DCONNECTOR_FCGI=OFF "-GUnix Makefiles" /home/irina/projects/lughos/externalLibraries/src/wt
+	cd /home/irina/projects/lughos/externalLibraries/src/wt-build && /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH= -DCMAKE_INSTALL_PREFIX:PATH=/home/irina/projects/lughos/externalLibraries -DCONFIGDIR:STRING=/home/irina/projects/lughos/externalLibraries/etc -DCONNECTOR_FCGI:BOOL=OFF -DBoost_USE_STATIC_LIBS=ON -DBOOST_LIBRARYDIR:PATH=/lib -DBOOST_ROOT:PATH= -DHARU_PREFIX:STRING=/home/irina/projects/lughos/externalLibraries -DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=\".a .dll.a\" "-GUnix Makefiles" /home/irina/projects/lughos/externalLibraries/src/wt
 	cd /home/irina/projects/lughos/externalLibraries/src/wt-build && /usr/bin/cmake -E touch /home/irina/projects/lughos/externalLibraries/src/wt-stamp/wt-configure
 
 ../externalLibraries/src/wt-stamp/wt-build: ../externalLibraries/src/wt-stamp/wt-configure
