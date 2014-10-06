@@ -25,25 +25,31 @@ set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interf
 
 list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
 
-if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
 endif()
 
 # What to do when crosscompiling
 if(${CMAKE_CROSSCOMPILING})
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
-set(GENERATOR "MinGW Makefiles")
-list(APPEND INCLUDE_DIRS ${CMAKE_FIND_ROOT_PATH}/include)
+  set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
+  set(GENERATOR "MinGW Makefiles")
+  list(APPEND INCLUDE_DIRS ${CMAKE_FIND_ROOT_PATH}/include)
 else()
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(GENERATOR "Unix Makefiles")
-
+  set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
+  set(GENERATOR "Unix Makefiles")
 endif()
 
-list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
-list(APPEND INCLUDE_DIRS ${EXT_LIB_DIR}/include/)
+# What to do if we happen to crosscompile with MINGW
+if(MINGW)
+message("== Compiling with MINGW ==")
+list(APPEND LINK_DIRS /usr/${COMPILER_PREFIX}/lib/ /usr/${COMPILER_PREFIX}/sys-root/mingw/lib/)
+list(APPEND INCLUDE_DIRS /usr/${COMPILER_PREFIX}/include/ /lib/${COMPILER_PREFIX}/sys-root/mingw/include/)
+endif()
+
+#list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
+#list(APPEND INCLUDE_DIRS ${EXT_LIB_DIR}/include/)
 
 # What do do if we are compiling for WINDOwS
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
@@ -115,8 +121,8 @@ message("LINK_STATIC: ${LINK_STATIC}")
 # findBoost
 if(${CMAKE_CROSSCOMPILING})
 set(Boost_DEBUG "ON")
-set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
-set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
+#et(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
+#et(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
 set(Boost_DETAILED_FAILURE_MSG "ON")
 else()
 set(Boost_DEBUG "ON")
@@ -168,35 +174,35 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 ### Set executables and dependencies
 
 # #Test for exposer
-# add_executable(test_exposer src/test_exposer.cpp)
-# 
-# #Test for wt-dbo
-# add_executable(test_wtdbo src/test_wtdbo.cpp)
-# target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
-# 
-# ### Test for wt
-# # Add executbales and libraries if dependencies are found
-# add_executable(test_gui src/test_gui.cpp)
-# 
-# if(${Windows})
-# target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock )
-# else()
-# target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES})
-# endif()
-# 
-# ### Test for forms
-# add_executable(test_forms src/test_forms.cpp)
-# add_dependencies(test_forms wt)
-# target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
-# 
-# ### Test of connections
-# # add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
-# add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
-# target_link_libraries(test_connections ${Boost_LIBRARIES} )
-# 
-# ### Test of TCP
-# add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
-# target_link_libraries(test_tcp ${Boost_LIBRARIES} )
+add_executable(test_exposer src/test_exposer.cpp)
+ 
+#Test for wt-dbo
+add_executable(test_wtdbo src/test_wtdbo.cpp)
+target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
+ 
+### Test for wt
+# Add executbales and libraries if dependencies are found
+add_executable(test_gui src/test_gui.cpp)
+ 
+if(${Windows})
+target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock )
+else()
+target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES})
+endif()
+
+### Test for forms
+add_executable(test_forms src/test_forms.cpp)
+add_dependencies(test_forms wt)
+target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
+
+### Test of connections
+# add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
+target_link_libraries(test_connections ${Boost_LIBRARIES} )
+ 
+### Test of TCP
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES} )
 
 #### Installation
 
