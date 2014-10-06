@@ -15,7 +15,7 @@ set(CMAKE_CURRENT_TOOLCHAIN_FILE ${CMAKE_CURRENT_LIST_FILE})
 set(COMPILER_PREFIX "x86_64-w64-mingw32")
 
 # here is the target environment located
-set(CMAKE_FIND_ROOT_PATH  /usr/${COMPILER_PREFIX}/sys-root/mingw)
+set(CMAKE_FIND_ROOT_PATH  /usr/${COMPILER_PREFIX}/sys-root/mingw /usr/${COMPILER_PREFIX}/)
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search 
