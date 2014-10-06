@@ -46,6 +46,7 @@ if(MINGW)
 message("== Compiling with MINGW ==")
 list(APPEND LINK_DIRS /usr/${COMPILER_PREFIX}/lib/ /usr/${COMPILER_PREFIX}/sys-root/mingw/lib/)
 list(APPEND INCLUDE_DIRS /usr/${COMPILER_PREFIX}/include/ /lib/${COMPILER_PREFIX}/sys-root/mingw/include/)
+set(Boost_USE_STATIC_LIBS ON)
 endif()
 
 #list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
