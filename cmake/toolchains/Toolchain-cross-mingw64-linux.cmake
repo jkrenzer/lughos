@@ -3,6 +3,7 @@ include(CMakeForceCompiler)
 
 #Load plattform settings
 set(MINGW 1)
+set(WIN32 1)
 set(CMAKE_SYSTEM_NAME Windows)
 
 set(CMAKE_CURRENT_TOOLCHAIN_FILE ${CMAKE_CURRENT_LIST_FILE})
