@@ -33,6 +33,12 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();
+	bool compressor_on();
+	bool compressor_off();
+	bool coolhead_on(int head);
+	bool coolhead_off(int head);
+	std::string get_data();
+	std::string get_error_list();
 protected:
   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();

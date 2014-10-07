@@ -22,9 +22,13 @@ connection<tcpContext>::~connection(void)
 }
 
 
-bool connection<tcpContext>::start(const char *server_name)
+bool connection<tcpContext>::start()
 {
       
+    	if (server_name.empty()) {
+		std::cout << "please set server name before start" << std::endl;
+		return false;
+	}
     this->server=server_name;
     this->query= new tcp::resolver::query(server_name, "http");
     this->query_async= new tcp::resolver::query(server_name, "http");

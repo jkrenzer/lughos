@@ -1,11 +1,13 @@
-// #include "StdAfx.h"
-
-// #include <Setupapi.h>
-// #pragma comment(lib, "Setupapi.lib")
+#include <boost/regex.hpp>
 
 #include "serialConnections.hpp"
 // #include "Dict.hpp"
 // #include "httpDict.hpp"
+
+#ifdef WIN32
+#include <windows.h>
+#include <winioctl.h>
+#endif
 
 connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
 {
@@ -28,9 +30,14 @@ void connection<serialContext>::end_of_line_char(const char &c)
 }
 
 
-bool connection<serialContext>::start(const char *com_port_name)
+bool connection<serialContext>::start()
 {
-      
+
+  	if (port_name.empty()) {
+		std::cout << "please set port name before start" << std::endl;
+		return false;
+	}
+  
     this->end_of_line_char(end_of_line_char_);
 	boost::system::error_code ec;
 
@@ -40,10 +47,10 @@ bool connection<serialContext>::start(const char *com_port_name)
 	}
 
 	port_ = serial_port_ptr(new boost::asio::serial_port(io_service_));
-	port_->open(com_port_name, ec);
+	port_->open(port_name.c_str(), ec);
 	if (ec) {
 		std::cout << "error : port_->open() failed...com_port_name="
-			<< com_port_name << ", e=" << ec.message().c_str() << std::endl; 
+			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
 		return false;
 	}
 	
@@ -70,7 +77,80 @@ bool connection<serialContext>::start(const char *com_port_name)
 
 void connection<serialContext>::reset()
 {
-    
+ 
+#ifdef WIN32
+
+DCB dcb;
+
+HANDLE h_Port = CreateFile(port_name.c_str(),GENERIC_READ |  GENERIC_WRITE,0,0,OPEN_EXISTING,0,0);
+
+GetCommState(h_Port, &dcb);
+//       int pid = *port_->native();
+      // play with RTS & DTR
+      int iFlags=0;
+// 	std::cout << "iFlags="<< iFlags<< std::endl; 
+//       std::cout << "port_type="<< porttype << std::endl; 
+      if (context.DCD)
+      {
+	iFlags = 1;
+// 	ioctl(pid, TIOCMBIS, &iFlags);
+      }
+      else if (!context.DCD)
+      {
+	iFlags = 0;
+// 	ioctl(pid, TIOCMBIC, &iFlags);
+      }
+      else{
+	
+      }
+      if (context.DTR)
+      {
+// 	std::cout << "iFlags DTR="<< iFlags << std::endl; 
+	dcb.fDtrControl =DTR_CONTROL_ENABLE;
+// 	ioctl(pid, TIOCMBIS, &iFlags);
+      }
+      else if (!context.DTR)
+      {
+	dcb.fDtrControl =DTR_CONTROL_DISABLE;
+      }
+      if (context.DSR)
+      {
+
+      }
+      else if (!context.DSR)
+      {
+
+      }
+      if (context.RTS)
+      {
+	dcb.fRtsControl = RTS_CONTROL_ENABLE;
+
+      }
+      else if (!context.RTS)
+      {
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+      }
+      if (context.CTS)
+      {
+
+      }
+      else if (!context.CTS)
+      {
+
+      }
+      if (context.RI)
+      {
+
+      }
+      else if (!context.RI)
+      {
+
+      }
+
+  
+#else
+
+
       int pid = port_->native();
       // play with RTS & DTR
       int iFlags=0;
@@ -142,7 +222,7 @@ void connection<serialContext>::reset()
 	ioctl(pid, TIOCMBIC, &iFlags);
       }
  
-  
+#endif 
 }
 
 
@@ -201,7 +281,11 @@ std::string connection<serialContext>::read()
         std::string s = response_string_stream.str();
 // std::cout<<s<<std::endl;
 	response_string_stream.str("");
-    return s;  
+	
+	static const boost::regex e("^\D*(\d*)\D$");
+	 boost::cmatch res;
+	 boost::regex_search(s.c_str(), res, e);
+    return res[1];  
 
 }
 
