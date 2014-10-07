@@ -28,7 +28,7 @@ class PSANetzteil :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	PSANetzteil(void);
+	PSANetzteil(boost::asio::io_service * io_service);
 	~PSANetzteil(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);

@@ -27,7 +27,7 @@
 // {
 // 
 // }
-serialSync::serialSync(void)
+serialSync::serialSync(boost::asio::io_service * io_service):connection< serialContext >(io_service)
 {
 }
 
@@ -40,7 +40,7 @@ serialSync::~serialSync(void)
 int serialSync::write(const std::string &buf)
 {
 
-	io_service_.run();
+	io_service_->run();
 
 
 	this->compose_request(buf);

@@ -6,7 +6,7 @@
 #include "PSANetzteil.hpp"
 
 
-PSANetzteil::kithleighSerial(void)
+PSANetzteil::PSANetzteil(boost::asio::io_service * io_service)
 {
   set_default();
 }

@@ -74,7 +74,7 @@ class serialSync : virtual public connection<serialContext>
 
 	
   public:
-	serialSync(void);
+	serialSync(boost::asio::io_service * io_service);
 	~serialSync(void);
 	
 	int write(const std::string &buf);
