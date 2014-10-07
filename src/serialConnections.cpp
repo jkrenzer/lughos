@@ -1,4 +1,4 @@
-#include <boost/regex.hpp>
+
 
 #include "serialConnections.hpp"
 // #include "Dict.hpp"
@@ -282,10 +282,7 @@ std::string connection<serialContext>::read()
 // std::cout<<s<<std::endl;
 	response_string_stream.str("");
 	
-	static const boost::regex e("^\D*(\d*)\D$");
-	 boost::cmatch res;
-	 boost::regex_search(s.c_str(), res, e);
-    return res[1];  
+    return s;  
 
 }
 

@@ -52,6 +52,19 @@ void coolpak6000::compose_request(const std::string &buf)
     this->stop_bits=boost::asio::serial_port_base::stop_bits::one;
 }
 
+std::string coolpak6000::read()
+{
+        std::string s = response_string_stream.str();
+
+	response_string_stream.str("");
+	
+	static const boost::regex e("^\D*(\d*)\D$");
+	 boost::cmatch res;
+	 boost::regex_search(s.c_str(), res, e);
+    return res[1];  
+
+}
+
    bool coolpak6000::compressor_on()
 {
   std::string response=this->inputoutput("SYS1");
@@ -102,3 +115,4 @@ void coolpak6000::compose_request(const std::string &buf)
   else return false; 
   
 }
+

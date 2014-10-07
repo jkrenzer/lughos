@@ -33,10 +33,16 @@ class MaxiGauge :virtual public serialSync
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();
+	virtual std::string read();
+	bool sensor_on(int sensor);
+	bool sensor_off(int sensor);
+	std::string get_status(int sensor);
+	
 protected:
   	void compose_request(const std::string &buf);
 	void handle_read_check_response(const boost::system::error_code& err);
 // 	void handle_read_check_response();
+	int sensor_bench[6];
 };
 
 

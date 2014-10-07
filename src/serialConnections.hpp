@@ -1,10 +1,13 @@
 #ifndef SERIAL_CONNECTIONS_HPP
 #define SERIAL_CONNECTIONS_HPP
 
+#include <boost/regex.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
+
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/logic/tribool.hpp> 
@@ -90,7 +93,7 @@ private:
 	bool start();
 	void stop();
 	void set_port();
-	std::string read();
+	virtual std::string read();
 	std::string response_string;
 	
 // 	int write(const std::string &buf);
