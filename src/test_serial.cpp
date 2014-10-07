@@ -10,21 +10,22 @@ int main(int argc, char **argv) {
 
   
   	bool rv;
-	std::string port_name = "/dev/ttyUSB0";
+
 // 	SerialPort::print_devices();
 // 	std::string name = SerialPort::get_port_name(0);
-	std::string name = port_name;
+// 	std::string name = port_name;
 
   
 //     kithleighSerial* c = new kithleighSerial;
 	boost::shared_ptr<coolpak6000> c(new coolpak6000);
+		c->port_name = "/dev/ttyUSB0";
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 
 //     c->context.RTS = false; 
 //     c->context.DTR = true;
  
-    	rv = c->start(name.c_str()); /*115200*/	
+    	rv = c->start(); /*115200*/	
 	//    c->reset();
 	    	  std::cout << "rv="<< rv<< std::endl;
 	if (rv == false) {

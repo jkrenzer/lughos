@@ -1,10 +1,13 @@
 #ifndef SERIAL_CONNECTIONS_HPP
 #define SERIAL_CONNECTIONS_HPP
 
+#include <boost/regex.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
+
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/logic/tribool.hpp> 
@@ -66,7 +69,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	virtual void compose_request(const std::string &buf);
 	
 	
-
+	
 	std::stringstream response_string_stream;
 // 	const char end_of_line;
 
@@ -87,10 +90,10 @@ private:
 	boost::asio::streambuf response_;
 	boost::asio::streambuf request_;
 
-	bool start(const char *port_name);
+	bool start();
 	void stop();
 	void set_port();
-	std::string read();
+	virtual std::string read();
 	std::string response_string;
 	
 // 	int write(const std::string &buf);
@@ -101,6 +104,7 @@ private:
 	void set_flow_controll(flow_constroll_bit controll_type);
 	void set_parity(parity_bit parity_type);
 	void set_stop_bits(stop_bits_num stop);
+	std::string port_name;
 	virtual void set_default();
   
 };

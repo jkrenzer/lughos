@@ -51,3 +51,68 @@ void coolpak6000::compose_request(const std::string &buf)
     this->parity=boost::asio::serial_port_base::parity::none;
     this->stop_bits=boost::asio::serial_port_base::stop_bits::one;
 }
+
+std::string coolpak6000::read()
+{
+        std::string s = response_string_stream.str();
+
+	response_string_stream.str("");
+	
+	static const boost::regex e("^\D*(\d*)\D$");
+	 boost::cmatch res;
+	 boost::regex_search(s.c_str(), res, e);
+    return res[1];  
+
+}
+
+   bool coolpak6000::compressor_on()
+{
+  std::string response=this->inputoutput("SYS1");
+  if(response.c_str()=="SYS1")return true;
+  else if(response.c_str()=="SYS2")return false;
+  else return false; 
+  
+}
+
+   bool coolpak6000::compressor_off()
+{
+  std::string response=this->inputoutput("SYS0");
+  if(response.c_str()=="SYS0")return true;
+  else if(response.c_str()=="SYS2")return false;
+  else return false; 
+  
+}
+
+   std::string coolpak6000::get_data()
+{
+  return this->inputoutput("DAT");
+  
+}
+
+   std::string coolpak6000::get_error_list()
+{
+  return this->inputoutput("ERR");
+  
+}
+
+   bool coolpak6000::coolhead_on(int head)
+{
+ 
+  std::string request("SC" +std::to_string(head)+std::to_string(1));
+   
+  std::string response=this->inputoutput(request);
+  if(response.c_str()==request.c_str())return true;
+  else return false; 
+  
+}
+
+   bool coolpak6000::coolhead_off(int head)
+{
+  std::string request("SC" +std::to_string(head)+std::to_string(0));
+   
+  std::string response=this->inputoutput(request);
+  if(response.c_str()==request.c_str())return true;
+  else return false; 
+  
+}
+

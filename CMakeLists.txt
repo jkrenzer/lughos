@@ -203,12 +203,31 @@ target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/
 
 ### Test of connections
 # add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
+
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
 add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
-target_link_libraries(test_connections ${Boost_LIBRARIES} )
+target_link_libraries(test_connections ${Boost_LIBRARIES}  libwsock32.a)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
+target_link_libraries(test_connections ${Boost_LIBRARIES})
+endif()
+
  
 ### Test of TCP
-add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
-target_link_libraries(test_tcp ${Boost_LIBRARIES} )
+
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/tcpSync.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES}  libwsock32.a)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/tcpSync.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES})
+endif()
 
 #### Installation
 

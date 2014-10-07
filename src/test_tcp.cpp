@@ -17,8 +17,8 @@ int main(int argc, char **argv) {
 
 	kithleigh* c = new kithleigh();
 
- 
-    	rv = c->start(name.c_str()); 
+	c->server_name=name; 
+    	rv = c->start(); 
 // 	std::cout << "rv="<< rv<< std::endl;
 	if (rv == false) {
 		return -1;

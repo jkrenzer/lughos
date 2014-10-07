@@ -68,7 +68,8 @@ template <> class connection<tcpContext>: public connectionTemplate<tcpContext>
 	connection(void);
 	~connection(void);
 
-	bool start(const char *server_name);
+	bool start();
+	std::string server_name;
 	void stop();
 	void set_port();
 	void reset();
