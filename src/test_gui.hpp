@@ -44,19 +44,51 @@ namespace lughos
   
   template <> class DeviceUI<coolpak6000> : public DeviceUIInterface
   {
+  protected:
+    boost::shared_ptr<coolpak6000> coolpak;
+    Wt::WLineEdit* stateF;
+    Wt::WLabel* stateL;
+    Wt::WPushButton * startB;
+    Wt::WPushButton * stopB;
+    
   public:
-    DeviceUI<coolpak6000>()
+    
+    DeviceUI<coolpak6000>(coolpak6000* dev)  
+    {
+      DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000>(dev));
+    }
+    
+    DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000> dev) : coolpak(dev)
     {
       this->setWidth(250);
       this->addWidget(new Wt::WText(this->name.c_str()));
-      Wt::WLineEdit* stateF = new Wt::WLineEdit("Initializing...");
-      Wt::WLabel* stateL = new Wt::WLabel("Status:");
-      stateL->setBuddy(stateF);
+      this->stateF = new Wt::WLineEdit("Initializing...");
+      this->stateL = new Wt::WLabel("Status:");
+      this->stateL->setBuddy(stateF);
+      this->startB = new Wt::WPushButton("Start");
+      this->stopB = new Wt::WPushButton("Stop");
+      this->startB->setDisabled(true);
+      this->startB->clicked().connect(boost::bind(&DeviceUI<coolpak6000>::start, this));
+      this->stopB->setDisabled(true);
+      this->stopB->clicked().connect(boost::bind(&DeviceUI<coolpak6000>::stop, this));
       this->addWidget(stateL);
       this->addWidget(stateF);
-      this->addWidget(new Wt::WPushButton("Start"));
-      this->addWidget(new Wt::WPushButton("Stop"));
+      this->addWidget(startB);
+      this->addWidget(stopB);
     }
+    
+    void start()
+    {
+      this->stateF->setText("Starting...");
+    }
+    
+    void stop()
+    {
+      this->stateF->setText("Stopping...");
+    }
+    
+    
+    
   };
  
   class OverView : public Wt::WContainerWidget
@@ -98,9 +130,11 @@ namespace lughos
     
     DeviceView(WContainerWidget* parent = 0)
     {
-      DeviceUI< coolpak6000 >* coolpak1 = new DeviceUI< coolpak6000 >();
-      coolpak1->name = std::string("Cryo Compressor 1");
-      this->addWidget(coolpak1);
+      coolpak6000* coolpak1 = new coolpak6000();
+      coolpak1->port_name="COM1";
+      DeviceUI< coolpak6000 >* coolpak1UI = new DeviceUI< coolpak6000 >(coolpak1);
+      coolpak1UI->name = std::string("Cryo Compressor 1");
+      this->addWidget(coolpak1UI);
     }
     
   };
@@ -110,13 +144,15 @@ namespace lughos
   {
   public:
     
+    static boost::asio::io_service* ioService;
+    
     mainApplication(const WEnvironment &env) : WApplication(env)
     {
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);
       this->setTheme(bootstrapTheme);
-
+      this->environment().server()->ioService();
       // load the default bootstrap3 (sub-)theme
       this->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
       setTitle("Lughos System Control");
