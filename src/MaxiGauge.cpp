@@ -6,7 +6,7 @@
 #include "MaxiGauge.hpp"
 
 
-MaxiGauge::MaxiGauge(void)
+MaxiGauge::MaxiGauge(boost::asio::io_service * io_service):serialSync(io_service), connection< serialContext >(io_service)
 {
  
 set_default();
@@ -74,7 +74,7 @@ std::string MaxiGauge::read()
 
 	response_string_stream.str("");
 	
-	static const boost::regex e("^(\d*)\D\D$");
+	static const boost::regex e("^(\\d*)\\D\\D$");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
     return res[1];  
@@ -84,7 +84,7 @@ std::string MaxiGauge::read()
    bool MaxiGauge::sensor_on(int sensor)
 {
   int check_bench[6];
-  static const boost::regex e("(\d)");
+  static const boost::regex e("(\\d)");
   boost::cmatch res;
   boost::regex_search(  this->inputoutput("SEN,0,0,0,0,0,0").c_str(), res, e);
   for(int i=0;i<6;i++) sensor_bench[i]=boost::lexical_cast< int >(res[i+1]);
@@ -121,7 +121,7 @@ std::string MaxiGauge::read()
 bool MaxiGauge::sensor_off(int sensor)
 {
   std::array<int, 6> check_bench;
-  static const boost::regex e("(\d)");
+  static const boost::regex e("(\\d)");
   boost::cmatch res;
   boost::regex_search(  this->inputoutput("SEN,0,0,0,0,0,0").c_str(), res, e);
   for(int i=0;i<6;i++) sensor_bench[i]=boost::lexical_cast< int >(res[i+1]);

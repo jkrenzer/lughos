@@ -28,7 +28,7 @@ class MaxiGauge :virtual public serialSync
 	
 	
   public:
-	MaxiGauge(void);
+	MaxiGauge(boost::asio::io_service * io_service);
 	~MaxiGauge(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);

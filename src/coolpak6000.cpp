@@ -3,10 +3,11 @@
 #include <ostream>
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialSync.hpp"
+#include "serialAsync.hpp"
 #include "coolpak6000.hpp"
 
 
-coolpak6000::coolpak6000(void)
+coolpak6000::coolpak6000(boost::asio::io_service * io_service):serialSync(io_service), serialAsync(io_service), connection< serialContext >(io_service)
 {
  
 set_default();
@@ -58,7 +59,7 @@ std::string coolpak6000::read()
 
 	response_string_stream.str("");
 	
-	static const boost::regex e("^\D*(\d*)\D$");
+	static const boost::regex e("^\\D*(\\d*)\\D$");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
     return res[1];  
