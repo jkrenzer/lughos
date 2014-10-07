@@ -25,8 +25,9 @@ set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interf
 
 list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND NOT ${MINGW})
+ message("Enabling GCC Debug-Flags")
+ list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
 endif()
 
 # What to do when crosscompiling
