@@ -5,6 +5,7 @@
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
+#include <Wt/WLabel>
 #include <Wt/WPushButton>
 #include <Wt/WText>
 #include <Wt/WTextArea>
@@ -17,12 +18,43 @@
 #include <Wt/WCssTheme>
 #include <Wt/WImage>
 #include <functional>
+#include "coolpak6000.hpp"
 
 namespace lughos 
 {
 
   using namespace Wt;
   using namespace std;
+  
+  class DeviceUIInterface : public Wt::WContainerWidget
+  {
+  public:
+    std::string name;
+  };
+  
+  template <class D> class DeviceUI : public DeviceUIInterface
+  {
+  public:
+    DeviceUI<D>()
+    {
+      this->addWidget(new Wt::WText(this->name));
+      this->addWidget(new Wt::WText("No GUI for device availible!"));
+    }
+  };
+  
+  template <> class DeviceUI<coolpak6000> : public DeviceUIInterface
+  {
+  public:
+    DeviceUI<coolpak6000>()
+    {
+      this->addWidget(new Wt::WText(this->name));
+      Wt::WLineEdit* stateF = new Wt::WLineEdit("Initializing...");
+      Wt::WLabel* stateL = new Wt::WLabel("Status:");
+      stateL->setBuddy(stateF);
+      this->addWidget(stateL);
+      this->addWidget(stateF);
+    }
+  };
  
   class OverView : public Wt::WContainerWidget
   {
@@ -63,7 +95,7 @@ namespace lughos
     
     DeviceView(WContainerWidget* parent = 0)
     {
-      
+      this->addWidget(new DeviceUI< coolpak6000 >());
     }
     
   };
@@ -107,16 +139,13 @@ namespace lughos
       tabW->addTab(new Wt::WTextArea("The contents of the tabs are pre-loaded in"
 				    " the browser to ensure swift switching."),
 		  "Preload", Wt::WTabWidget::PreLoading);
-      tabW->addTab(new Wt::WTextArea("You could change any other style attribute of the"
-				    " tab widget by modifying the style class."
-				    " The style class 'trhead' is applied to this tab."),
-		  "Style", Wt::WTabWidget::PreLoading)->setStyleClass("trhead");
+      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("trhead");
 
-      Wt::WMenuItem *tab 
-	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
-					  " by clicking on the close icon."),
-			"Close");
-      tab->setCloseable(true);
+//       Wt::WMenuItem *tab 
+// 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
+// 					  " by clicking on the close icon."),
+// 			"Close");
+//       tab->setCloseable(true);
       vbox->addWidget(tabW);
       tabW->setStyleClass("tabwidget");
       root()->addWidget(container);

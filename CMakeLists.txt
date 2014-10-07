@@ -173,6 +173,10 @@ endif( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 # Generate full custom version-string
 set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}")
 
+### Providing target to build dependencies
+
+add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
+
 ### Set executables and dependencies
 
 # #Test for exposer
