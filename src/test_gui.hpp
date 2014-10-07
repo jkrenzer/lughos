@@ -37,7 +37,7 @@ namespace lughos
   public:
     DeviceUI<D>()
     {
-      this->addWidget(new Wt::WText(this->name));
+      this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for device availible!"));
     }
   };
@@ -47,12 +47,15 @@ namespace lughos
   public:
     DeviceUI<coolpak6000>()
     {
-      this->addWidget(new Wt::WText(this->name));
+      this->setWidth(250);
+      this->addWidget(new Wt::WText(this->name.c_str()));
       Wt::WLineEdit* stateF = new Wt::WLineEdit("Initializing...");
       Wt::WLabel* stateL = new Wt::WLabel("Status:");
       stateL->setBuddy(stateF);
       this->addWidget(stateL);
       this->addWidget(stateF);
+      this->addWidget(new Wt::WPushButton("Start"));
+      this->addWidget(new Wt::WPushButton("Stop"));
     }
   };
  
@@ -95,7 +98,9 @@ namespace lughos
     
     DeviceView(WContainerWidget* parent = 0)
     {
-      this->addWidget(new DeviceUI< coolpak6000 >());
+      DeviceUI< coolpak6000 >* coolpak1 = new DeviceUI< coolpak6000 >();
+      coolpak1->name = std::string("Cryo Compressor 1");
+      this->addWidget(coolpak1);
     }
     
   };
