@@ -1,5 +1,5 @@
-#ifndef KITHLEIGH_HPP
-#define KITHLEIGH_HPP
+#ifndef RELAIS_HPP
+#define RELAIS_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -20,22 +20,28 @@
 // #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync, virtual public serialAsync
+class Relais :virtual public serialSync, virtual public serialAsync
 {
   private:
-	kithleighSerial(const kithleighSerial &p);
-	kithleighSerial &operator=(const kithleighSerial &p);
+	Relais(const Relais &p);
+	Relais &operator=(const Relais &p);
 	
 	
   public:
-	kithleighSerial(void);
-	~kithleighSerial(void);
+	Relais(void);
+	~Relais(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();
+	virtual std::string read();
+	bool input_status(int sensor);
+	bool input_on(int sensor);
+	bool input_off(int sensor);
+	std::string input_read();
+	
 protected:
   	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
+	int input_bench[8];
 };
 
 

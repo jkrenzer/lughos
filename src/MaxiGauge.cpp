@@ -6,7 +6,7 @@
 #include "MaxiGauge.hpp"
 
 
-MaxiGauge::MaxiGauge(boost::asio::io_service * io_service):serialSync(io_service), connection< serialContext >(io_service)
+MaxiGauge::MaxiGauge(void)
 {
  
 set_default();
