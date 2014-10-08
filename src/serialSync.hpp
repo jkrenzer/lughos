@@ -38,7 +38,7 @@ typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread.hpp>
+
 #include <boost/logic/tribool.hpp> 
 
 
@@ -74,7 +74,7 @@ class serialSync : virtual public connection<serialContext>
 
 	
   public:
-	serialSync(boost::asio::io_service * io_service);
+	serialSync(void);
 	~serialSync(void);
 	
 	int write(const std::string &buf);

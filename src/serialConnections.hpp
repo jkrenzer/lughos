@@ -47,9 +47,10 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	char end_of_line_char_;
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
 	std::string read_buf_str_;
+
 // 	char end_of_line;
  
-	boost::asio::io_service * io_service_;
+	boost::asio::io_service io_service_;
 	
 	boost::asio::serial_port_base::flow_control::type flow_control;
 	boost::asio::serial_port_base::character_size character_size;
@@ -83,7 +84,7 @@ private:
 
 	
   public:
-	connection(boost::asio::io_service * io_service);
+	connection(void);
 	~connection(void);
 	
 	boost::asio::streambuf response_;
@@ -105,6 +106,7 @@ private:
 	void set_stop_bits(stop_bits_num stop);
 	std::string port_name;
 	virtual void set_default();
+		int exp_lenght=1;
   
 };
 

@@ -1,5 +1,5 @@
-#ifndef KITHLEIGH_HPP
-#define KITHLEIGH_HPP
+#ifndef RFG_HPP
+#define RFG_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -20,16 +20,16 @@
 // #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync, virtual public serialAsync
+class bronkhorst :virtual public serialSync, virtual public serialAsync
 {
   private:
-	kithleighSerial(const kithleighSerial &p);
-	kithleighSerial &operator=(const kithleighSerial &p);
+	bronkhorst(const bronkhorst &p);
+	bronkhorst &operator=(const bronkhorst &p);
 	
 	
   public:
-	kithleighSerial(void);
-	~kithleighSerial(void);
+	bronkhorst(void);
+	~bronkhorst(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();

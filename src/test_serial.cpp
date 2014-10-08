@@ -1,14 +1,16 @@
 #include <iostream>
-#include "coolpak6000.hpp"
+// #include "coolpak6000.hpp"
 // #include "MaxiGauge.hpp"
 // #include "kithleighSerial.hpp"
 // #include "connectionImpl.hpp"
 // #include "basicConnections.hpp"
+// #include "PSANetzteil.hpp"
+#include "bronkhorst.hpp"
 #include <pthread.h>
 #include <boost/asio.hpp>
 
 int main(int argc, char **argv) {
-boost::asio::io_service * io_service;
+// boost::asio::io_service * io_service;
   
   	bool rv;
 
@@ -18,7 +20,7 @@ boost::asio::io_service * io_service;
 
   
 //     kithleighSerial* c = new kithleighSerial;
-	boost::shared_ptr<coolpak6000> c(new coolpak6000(io_service));
+	boost::shared_ptr<bronkhorst> c(new bronkhorst);
 		c->port_name = "/dev/ttyUSB0";
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
@@ -44,11 +46,18 @@ boost::asio::io_service * io_service;
 //  std::cout << "Write="<< c->write("\x02")<< std::endl;
 //   std::cout << "Write="<< c->inputoutput("*IDN?")<< std::endl;
 //     std::cout << "Write="<< c->inputoutput("PR1")<< std::endl;
-    std::cout << "Write="<< c->inputoutput("DAT",1)<< std::endl;
+//     std::cout << "Write="<< c->inputoutput("DAT",1)<< std::endl;
 
+// std::cout << "Write="<< c->inputoutput("\x02")<< std::endl;
+std::cout << "Write="<< c->inputoutput(":06030401210121")<< std::endl;
 
+// c->on();
+// c->on();
+// std::cout << "Write="<<c->get_voltage()<< std::endl;
+// std::cout << "Write="<<c->get_current()<< std::endl;
+// std::cout << "Write="<<c->get_temperature()<< std::endl;
 //   	  	  	sleep(1);
-//  std::cout << "Write="<< c->write("SYS0")<< std::endl;
+ std::cout << "Write="<< c->exp_lenght<< std::endl;
 //  std::cout << "Write="<< c->write("\x03")<< std::endl;
 //  std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
 //    	  	  	sleep(1);	

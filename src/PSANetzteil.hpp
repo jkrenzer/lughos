@@ -1,5 +1,5 @@
-#ifndef KITHLEIGH_HPP
-#define KITHLEIGH_HPP
+#ifndef PSANETZTEIL_HPP
+#define PSANETZTEIL_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -20,7 +20,7 @@
 // #include "Dict.hpp"
 
 
-class PSANetzteil :virtual public serialSync, virtual public serialAsync
+class PSANetzteil :virtual public serialSync
 {
   private:
 	PSANetzteil(const PSANetzteil &p);
@@ -28,11 +28,17 @@ class PSANetzteil :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	PSANetzteil(boost::asio::io_service * io_service);
+	PSANetzteil(void);
 	~PSANetzteil(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();
+	void off();
+	void on();
+	std::string get_current();
+	std::string get_voltage();
+	std::string get_temperature();
+// 	bool is_on;
 protected:
   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();
