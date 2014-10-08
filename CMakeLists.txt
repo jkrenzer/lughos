@@ -188,7 +188,7 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
  
 ### Test for wt
 # Add executbales and libraries if dependencies are found
-add_executable(test_gui src/test_gui.cpp src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp)
+add_executable(test_gui src/test_gui.cpp src/serialConnections.cpp src/coolpak6000.cpp src/serialSync.cpp src/serialAsync.cpp)
  
 if(${Windows})
 target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock )

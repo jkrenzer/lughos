@@ -17,14 +17,22 @@
 #include <Wt/WBootstrapTheme>
 #include <Wt/WCssTheme>
 #include <Wt/WImage>
+#include <Wt/WServer>
+#include <Wt/WIOService>
 #include <functional>
-#include "coolpak6000.hpp"
+
 
 namespace lughos 
 {
 
   using namespace Wt;
   using namespace std;
+  
+  class lughosIOSession
+  {
+  public:
+    static boost::asio::io_service* ioService;
+  };
   
   class DeviceUIInterface : public Wt::WContainerWidget
   {
@@ -130,8 +138,8 @@ namespace lughos
     
     DeviceView(WContainerWidget* parent = 0)
     {
-      coolpak6000* coolpak1 = new coolpak6000();
-      coolpak1->port_name="COM1";
+     coolpak6000* coolpak1 = new coolpak6000(lughosIOSession::ioService);
+     coolpak1->port_name="COM1";
       DeviceUI< coolpak6000 >* coolpak1UI = new DeviceUI< coolpak6000 >(coolpak1);
       coolpak1UI->name = std::string("Cryo Compressor 1");
       this->addWidget(coolpak1UI);
@@ -144,15 +152,15 @@ namespace lughos
   {
   public:
     
-    static boost::asio::io_service* ioService;
+    
     
     mainApplication(const WEnvironment &env) : WApplication(env)
     {
+      lughosIOSession::ioService = static_cast<boost::asio::io_service*>(&env.server()->ioService());
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);
       this->setTheme(bootstrapTheme);
-      this->environment().server()->ioService();
       // load the default bootstrap3 (sub-)theme
       this->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
       setTitle("Lughos System Control");
@@ -194,6 +202,8 @@ namespace lughos
     
     
   };
+  
+  boost::asio::io_service* lughosIOSession::ioService = NULL;
   
 } //namespace lughos
 

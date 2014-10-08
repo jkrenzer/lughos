@@ -75,32 +75,23 @@ ExternalProject_Add(
 # 	-DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a"
 )
 
-# Boost adds a nasty amount of new dependencies. We will revisit this later.
-#
-#ExternalProject_Add(
+
+
+# ExternalProject_Add(
 #  boost
-#  DEPENDS python, openMPI  
 #  PREFIX ${CMAKE_SYSTEM_NAME}
 #  INSTALL_DIR ${INSTALL_PREFIX}
 #  LIST_SEPARATOR ,
-#  INSTALL_COMMAND ${CPACK_COMMANDLINE}      
-#        -D CPACK_PACKAGE_NAME=boost
-#        -D CPACK_PACKAGE_VERSION=1.56.0
-#	-D CPACK_INSTALL_CMAKE_PROJECTS=<BINARY_DIR>/,Boost,ALL,/
-#	-D CPACK_PACKAGE_CONTACT=Joern\ Mankiewicz
-#  GIT_REPOSITORY https://github.com/boost-cmake/boost-cmake.git
-#  CMAKE_ARGS 
-#      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_CURRENT_TOOLCHAIN_FILE} 
-#      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-#
-#)
+#  INSTALL_COMMAND ""
+#  GIT_REPOSITORY https://github.com/boostorg/boost.git
+# )
 
 
 ExternalProject_Add(
     wt
     DEPENDS libharu
     PREFIX ${CMAKE_SYSTEM_NAME}
-    PATCH_COMMAND git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/wt.patch
+    PATCH_COMMAND git reset --hard && git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/wt.patch
     INSTALL_DIR ${INSTALL_PREFIX}
     LIST_SEPARATOR ,
     INSTALL_COMMAND ${CPACK_COMMANDLINE}	
@@ -122,7 +113,6 @@ ExternalProject_Add(
 #      -DWT_CMAKE_FINDER_INSTALL_DIR:PATH=${CMAKE_CURRENT_SOURCE_DIR}../cmake/modules
       -DINSTALL_RESOURCES:BOOL=OFF
       -DWT_CPP_11_MODE:STRING=-std=c++11
-#      -DWIN32=1
       -DBUILD_EXAMPLES=OFF
       -DBUILD_TESTS=OFF
 #      -DBoost_USE_STATIC_LIBS=ON

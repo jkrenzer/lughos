@@ -1,0 +1,21 @@
+diff --git a/listsfiles/CMakeLists.txt b/listsfiles/CMakeLists.txt
+--- a/listsfiles/CMakeLists.txt
++++ b/listsfiles/CMakeLists.txt
+@@ -172,7 +172,7 @@ add_subdirectory(libs/lockfree)
+ add_subdirectory(libs/logic)
+ add_subdirectory(libs/math)
+ add_subdirectory(libs/move)
+-add_subdirectory(libs/mpi)
++#add_subdirectory(libs/mpi)
+ add_subdirectory(libs/mpl)
+ add_subdirectory(libs/msm)
+ add_subdirectory(libs/multi_array)
+@@ -194,7 +194,7 @@ add_subdirectory(libs/property_map)
+ add_subdirectory(libs/property_tree)
+ add_subdirectory(libs/proto)
+ add_subdirectory(libs/ptr_container)
+-add_subdirectory(libs/python)
++#add_subdirectory(libs/python)
+ add_subdirectory(libs/random)
+ add_subdirectory(libs/range)
+ add_subdirectory(libs/ratio)
