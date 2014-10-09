@@ -206,12 +206,12 @@ target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp  src/Relais.cpp  src/PSANetzteil.cpp)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp src/bronkhorst.cpp src/unitValue.cpp)
 target_link_libraries(test_serial ${Boost_LIBRARIES}  libwsock32.a)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp src/bronkhorst.cpp src/unitValue.cpp)
 target_link_libraries(test_serial ${Boost_LIBRARIES})
 endif()
 

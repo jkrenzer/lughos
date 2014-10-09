@@ -41,12 +41,12 @@ void bronkhorst::compose_request(const std::string &buf)
     return read();
 }
 
-   void RFG::set_default()
+   void bronkhorst::set_default()
 {
     this->baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     this->flow_control=boost::asio::serial_port_base::flow_control::none;
     this->character_size=boost::asio::serial_port_base::character_size(8);
-    this->end_of_line_char_='\r\n';
+    this->end_of_line_char_='\n';
     this->parity=boost::asio::serial_port_base::parity::none;
     this->stop_bits=boost::asio::serial_port_base::stop_bits::one;
 }
