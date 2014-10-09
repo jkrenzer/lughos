@@ -20,7 +20,7 @@
 #include <Wt/WServer>
 #include <Wt/WIOService>
 #include <functional>
-
+#include "coolpak6000.hpp"
 
 namespace lughos 
 {
@@ -61,16 +61,12 @@ namespace lughos
     
   public:
     
-    DeviceUI<coolpak6000>(coolpak6000* dev)  
-    {
-      DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000>(dev));
-    }
-    
     DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000> dev) : coolpak(dev)
     {
       this->setWidth(250);
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
+      this->stateF->setReadOnly();
       this->stateL = new Wt::WLabel("Status:");
       this->stateL->setBuddy(stateF);
       this->startB = new Wt::WPushButton("Start");
@@ -83,16 +79,36 @@ namespace lughos
       this->addWidget(stateF);
       this->addWidget(startB);
       this->addWidget(stopB);
+      this->init();
+    }
+    
+    void init()
+    {
+      
+    }
+    
+    void getState()
+    {
+      std::string state = coolpak->get_data();
+      
     }
     
     void start()
     {
       this->stateF->setText("Starting...");
+      if(this->coolpak->start())
+	this->stateF->setText("System on");
+      else
+	this->stateF->setText("Cannot start!");
     }
     
     void stop()
     {
       this->stateF->setText("Stopping...");
+      if(this->coolpak->start())
+	this->stateF->setText("System off");
+      else
+	this->stateF->setText("Cannot stop!");
     }
     
     
@@ -138,7 +154,7 @@ namespace lughos
     
     DeviceView(WContainerWidget* parent = 0)
     {
-     coolpak6000* coolpak1 = new coolpak6000(lughosIOSession::ioService);
+     boost::shared_ptr<coolpak6000> coolpak1(new coolpak6000());
      coolpak1->port_name="COM1";
       DeviceUI< coolpak6000 >* coolpak1UI = new DeviceUI< coolpak6000 >(coolpak1);
       coolpak1UI->name = std::string("Cryo Compressor 1");

@@ -178,6 +178,9 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 ### Set executables and dependencies
+#Test for regexp
+add_executable(test_regex src/test_regex.cpp)
+target_link_libraries(test_regex boost_regex)
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
