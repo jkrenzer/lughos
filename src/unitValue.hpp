@@ -13,8 +13,8 @@
 class unitValue 
 {
   private:
-	unitValue(const unitValue &p);
-	unitValue &operator=(const unitValue &p);
+// 	unitValue(const unitValue &p);
+// 	unitValue &operator=(const unitValue &p);
 	
 
   public:
