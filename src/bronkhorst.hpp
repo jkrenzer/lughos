@@ -1,5 +1,5 @@
-#ifndef RFG_HPP
-#define RFG_HPP
+#ifndef BRONKHORST_HPP
+#define BRONKHORST_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>

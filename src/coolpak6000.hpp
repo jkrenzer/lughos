@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "unitValue.hpp"
 
 
 class coolpak6000 :virtual public serialSync, virtual public serialAsync
@@ -40,9 +40,28 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	bool coolhead_off(int head);
 	std::string get_data();
 	std::string get_error_list();
+	std::string get_software_version();
+	int get_compressor_state();
+	int get_command_state();
+	int get_coolhead1_state();
+	int get_coolhead2_state();
+	int get_number_of_errors();
+	std::string get_errorstring();
+	int get_number_of_saved_errors();
+	
 protected:
   	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
+	std::string software_version;
+	unitValue operating_hours;
+	unitValue delay;
+	int compressor_state;
+	int command_state;
+	int coolhead1_state;
+	int coolhead2_state;
+	int number_of_errors;
+	std::string errorstring;
+	int number_of_saved_errors;
+
 };
 
 
