@@ -48,6 +48,8 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	int get_number_of_errors();
 	std::string get_errorstring();
 	int get_number_of_saved_errors();
+	unitValue get_delay();
+	unitValue get_operating_hours();
 	
 protected:
   	void compose_request(const std::string &buf);

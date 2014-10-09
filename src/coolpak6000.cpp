@@ -59,10 +59,10 @@ std::string coolpak6000::read()
 
 	response_string_stream.str("");
 	
-	static const boost::regex e("^\\D*(\\d*)\\D$");
-	 boost::cmatch res;
-	 boost::regex_search(s.c_str(), res, e);
-    return res[1];  
+// 	static const boost::regex e("^\\D*(\\d*)\\D$");
+// 	 boost::cmatch res;
+// 	 boost::regex_search(s.c_str(), res, e);
+    return s;  
 
 }
 
@@ -86,11 +86,14 @@ std::string coolpak6000::read()
 
    std::string coolpak6000::get_data()
 {
-  std::string  s =this->inputoutput("DAT");
+  std::string  s ="DAT4.01/017091/17090/24.9/11.8/09.3/000/1/1/1/0/00/0000000000000000/00";//this->inputoutput("DAT");
   
-  	static const boost::regex e("[^/]{1,}");
+//   	 static const boost::regex e("\\/(.*)\\/");
+	   	 static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
+
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
+	 
 	 software_version= res[1];
 	 operating_hours.setunitvalue(boost::lexical_cast<double>(res[3]), "h");
 	 delay.setunitvalue(boost::lexical_cast<double>(res[7]), "sec");
@@ -101,7 +104,8 @@ std::string coolpak6000::read()
 	 number_of_errors= boost::lexical_cast<int>(res[12]);
 	std::string errorstring =res[13];
 	int number_of_saved_errors = boost::lexical_cast<int>(res[14]);
- 
+// 	 std::cout<<res[1]<<std::endl;
+//  for(int i=1; i<2; i++)std::cout<<res[i]<<std::endl;
   return s;
   
 }
@@ -135,33 +139,53 @@ std::string coolpak6000::read()
 
 std::string coolpak6000::get_software_version()
 {
+  get_data();
   return software_version;
 }
 
 int coolpak6000::get_compressor_state()
 {
+  get_data();
   return compressor_state;
 }
 
 int coolpak6000::get_command_state()
 {
+  get_data();
   return command_state;
 }
 int coolpak6000::get_coolhead1_state()
 {
+  get_data();
   return coolhead1_state;
 }
 int coolpak6000::get_coolhead2_state()
 {
+  get_data();
   return coolhead2_state;
 }
 int coolpak6000::get_number_of_errors()
 {
+  get_data();
   return number_of_errors;
 }
 std::string coolpak6000::get_errorstring(){
+  get_data();
   return errorstring;
 }
 int coolpak6000::get_number_of_saved_errors(){
+  get_data();
   return number_of_saved_errors;
+}
+
+unitValue coolpak6000::get_delay(){
+  get_data();
+  unitValue del =delay;
+  return del;
+}
+
+unitValue coolpak6000::get_operating_hours(){
+  get_data();
+  unitValue op=operating_hours;
+  return op;
 }
