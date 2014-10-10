@@ -14,9 +14,9 @@
 // 
 // }
 
-connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
+connection<serialContext>::connection(boost::asio::io_service* io_service) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
 {
-// this->io_service_= io_service;
+  this->io_service_= io_service;
 }
 
 connection<serialContext>::~connection(void)
@@ -51,7 +51,7 @@ bool connection<serialContext>::start()
 		return false;
 	}
 
-	port_ = serial_port_ptr(new boost::asio::serial_port(io_service_));
+	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
 	port_->open(port_name.c_str(), ec);
 	if (ec) {
 		std::cout << "error : port_->open() failed...com_port_name="
@@ -240,8 +240,8 @@ void connection<serialContext>::stop()
 		port_->close();
 		port_.reset();
 	}
-	io_service_.stop();
-	io_service_.reset();
+// 	io_service_->stop();
+// 	io_service_->reset();
 }
 
 

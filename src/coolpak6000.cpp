@@ -14,7 +14,18 @@ set_default();
 
 }
 
-
+template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
+{
+  try
+  {
+    return boost::lexical_cast<T>(source);
+  }
+  catch(boost::bad_lexical_cast e)
+  {
+    return saveDefault;
+  }
+  
+}
 
 coolpak6000::~coolpak6000(void)
 {
@@ -86,7 +97,7 @@ std::string coolpak6000::read()
 
    std::string coolpak6000::get_data()
 {
-  std::string  s ="DAT4.01/017091/17090/24.9/11.8/09.3/000/1/1/1/0/00/0000000000000000/00";//this->inputoutput("DAT");
+  std::string  s = this->inputoutput("DAT");
   
 //   	 static const boost::regex e("\\/(.*)\\/");
 	   	 static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
@@ -95,15 +106,15 @@ std::string coolpak6000::read()
 	 boost::regex_search(s.c_str(), res, e);
 	 
 	 software_version= res[1];
-	 operating_hours.setunitvalue(boost::lexical_cast<double>(res[3]), "h");
-	 delay.setunitvalue(boost::lexical_cast<double>(res[7]), "sec");
-	 compressor_state=boost::lexical_cast<int>(res[8]);
-	 command_state=boost::lexical_cast<int>(res[9]);
-	 coolhead1_state=boost::lexical_cast<int>(res[10]);
-	 coolhead1_state=boost::lexical_cast<int>(res[11]);
-	 number_of_errors= boost::lexical_cast<int>(res[12]);
+	 operating_hours.setunitvalue(save_lexical_cast<double>(res[3],-1), "h");
+	 delay.setunitvalue(save_lexical_cast<double>(res[7],-1), "sec");
+	 compressor_state=save_lexical_cast<int>(res[8],-1);
+	 command_state=save_lexical_cast<int>(res[9],-1);
+	 coolhead1_state=save_lexical_cast<int>(res[10],-1);
+	 coolhead2_state=save_lexical_cast<int>(res[11],-1);
+	 number_of_errors= save_lexical_cast<int>(res[12],-1);
 	std::string errorstring =res[13];
-	int number_of_saved_errors = boost::lexical_cast<int>(res[14]);
+	int number_of_saved_errors = save_lexical_cast<int>(res[14],-1);
 // 	 std::cout<<res[1]<<std::endl;
 //  for(int i=1; i<2; i++)std::cout<<res[i]<<std::endl;
   return s;

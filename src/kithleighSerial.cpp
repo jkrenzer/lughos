@@ -7,7 +7,7 @@
 #include "kithleighSerial.hpp"
 
 
-kithleighSerial::kithleighSerial(void)
+kithleighSerial::kithleighSerial(boost::asio::io_service* io_service) : connection<serialContext>(io_service)
 {
   set_default();
 }

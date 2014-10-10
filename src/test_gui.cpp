@@ -1,5 +1,5 @@
 #include "test_gui.hpp"
-
+#include "coolpak6000.hpp"
 
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {

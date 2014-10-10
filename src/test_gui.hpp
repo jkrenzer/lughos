@@ -57,58 +57,132 @@ namespace lughos
     Wt::WLineEdit* stateF;
     Wt::WLabel* stateL;
     Wt::WPushButton * startB;
+    Wt::WPushButton * stateB;
     Wt::WPushButton * stopB;
     
   public:
     
-    DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000> dev) : coolpak(dev)
+    DeviceUI<coolpak6000>(std::string comPort) : coolpak(new coolpak6000())
     {
-      this->setWidth(250);
-      this->addWidget(new Wt::WText(this->name.c_str()));
-      this->stateF = new Wt::WLineEdit("Initializing...");
-      this->stateF->setReadOnly();
-      this->stateL = new Wt::WLabel("Status:");
-      this->stateL->setBuddy(stateF);
-      this->startB = new Wt::WPushButton("Start");
-      this->stopB = new Wt::WPushButton("Stop");
-      this->startB->setDisabled(true);
-      this->startB->clicked().connect(boost::bind(&DeviceUI<coolpak6000>::start, this));
-      this->stopB->setDisabled(true);
-      this->stopB->clicked().connect(boost::bind(&DeviceUI<coolpak6000>::stop, this));
-      this->addWidget(stateL);
-      this->addWidget(stateF);
-      this->addWidget(startB);
-      this->addWidget(stopB);
-      this->init();
+      
+     coolpak->port_name=comPort;
+     bool isStarted = false;
+     try 
+     {
+      isStarted = coolpak->start();
+     }
+     catch(...)
+     {
+       isStarted = false;
+     }
+     
+     if(isStarted)
+     {
+	this->setWidth(250);
+	this->addWidget(new Wt::WText(this->name.c_str()));
+	this->stateF = new Wt::WLineEdit("Initializing...");
+	this->stateF->setReadOnly(true);
+	this->stateL = new Wt::WLabel("Status:");
+	this->stateL->setBuddy(stateF);
+	this->startB = new Wt::WPushButton("Start");
+	this->stopB = new Wt::WPushButton("Stop");
+	this->stateB = new Wt::WPushButton("Status");
+	this->startB->setDisabled(true);
+	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
+	this->stopB->setDisabled(true);
+	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
+	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::showData);
+	this->addWidget(stateL);
+	this->addWidget(stateF);
+	this->addWidget(startB);
+	this->addWidget(stopB);
+	this->addWidget(stateB);
+	this->init();
+      }
+      else
+      {
+	this->addWidget(new Wt::WText("Wrong or disabled Port!"));
+      }
     }
     
     void init()
     {
-      
+      this->getState();
+    }
+    
+    void showData()
+    {
+      this->stateF->setText(coolpak->get_data());
     }
     
     void getState()
     {
-      std::string state = coolpak->get_data();
-      
+      coolpak->get_data();
+      std::string state;
+      bool communicationEstablished = false;
+      switch(coolpak->get_compressor_state())
+      {
+	case 0:
+	  state += std::string("Compressor OFF ");
+	  communicationEstablished = true;
+	  break;
+	case 1:
+	  state += std::string("Compressor ON ");
+	  communicationEstablished = true;
+	  break;
+	case 2:
+	  state += std::string("Compressor ERROR ");
+	  communicationEstablished = true;
+	  break;
+	default:
+	  state += std::string("Compressor ???? ");
+	 break;
+      }
+      state += std::string(",");
+      switch(coolpak->get_coolhead1_state())
+      {
+	case 0:
+	  state += std::string("Coldhead1 OFF ");
+	  communicationEstablished = true;
+	  break;
+	case 1:
+	  state += std::string("Coldhead1 ON ");
+	  communicationEstablished = true;
+	  break;
+	case 2:
+	  state += std::string("Coldhead1 ERROR ");
+	  communicationEstablished = true;
+	  break;
+	default:
+	  state += std::string("Coldhead1 ???? ");
+	 break;
+      } //TODO Test and if communication is there, activate buttons
+      if(communicationEstablished)
+      {
+	this->stateF->setText(state);
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
+      }
     }
     
     void start()
     {
       this->stateF->setText("Starting...");
-      if(this->coolpak->start())
+      if(this->coolpak->compressor_on())
 	this->stateF->setText("System on");
       else
 	this->stateF->setText("Cannot start!");
+      this->getState();
     }
     
     void stop()
     {
       this->stateF->setText("Stopping...");
-      if(this->coolpak->start())
+      if(this->coolpak->compressor_off())
 	this->stateF->setText("System off");
       else
 	this->stateF->setText("Cannot stop!");
+      this->getState();
     }
     
     
@@ -151,14 +225,9 @@ namespace lughos
   class DeviceView : public Wt::WContainerWidget
   {
   public:
-    
     DeviceView(WContainerWidget* parent = 0)
     {
-     boost::shared_ptr<coolpak6000> coolpak1(new coolpak6000());
-     coolpak1->port_name="COM1";
-      DeviceUI< coolpak6000 >* coolpak1UI = new DeviceUI< coolpak6000 >(coolpak1);
-      coolpak1UI->name = std::string("Cryo Compressor 1");
-      this->addWidget(coolpak1UI);
+      this->addWidget(dev1);
     }
     
   };

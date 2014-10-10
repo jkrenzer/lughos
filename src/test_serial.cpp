@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   
 //     kithleighSerial* c = new kithleighSerial;
 	boost::shared_ptr<coolpak6000> c(new coolpak6000);
-		c->port_name = "/dev/ttyUSB0";
+		c->port_name = "COM1";
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 //     std::cout << c->inputoutput("DAT")<< std::endl;
    std::cout <<  c->get_software_version()<< std::endl;
       std::cout <<  c->get_compressor_state()<< std::endl;
-            std::cout <<  c->get_operating_hours().getvalue()<<c->get_operating_hours().getunit()<< std::endl;
+            std::cout <<  c->get_operating_hours().getvalue() << c->get_operating_hours().getunit()<< std::endl;
 // std::cout << "Write="<< c->inputoutput("\x02")<< std::endl;
 // std::cout << "Write="<< c->inputoutput(":06030401210121")<< std::endl;
 

@@ -38,7 +38,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 {
  
   protected:
-	boost::asio::io_service io_service_;
+	boost::asio::io_service *io_service_;
 	serial_port_ptr port_;
 	boost::mutex mutex_;
 	char end_of_line_char_;
@@ -59,7 +59,7 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 
 	
   public:
-	connection(void);
+	connection(boost::asio::io_service *io_service);
 	virtual ~connection(void);
 
 	virtual bool start(const char *port_name);
