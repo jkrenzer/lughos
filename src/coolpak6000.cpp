@@ -86,10 +86,10 @@ std::string coolpak6000::read()
 
    std::string coolpak6000::get_data()
 {
-  std::string  s ="DAT4.01/017091/17090/24.9/11.8/09.3/000/1/1/1/0/00/0000000000000000/00";//this->inputoutput("DAT");
+  std::string  s =this->inputoutput("DAT");
   
 //   	 static const boost::regex e("\\/(.*)\\/");
-	   	 static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
+static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
 
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
