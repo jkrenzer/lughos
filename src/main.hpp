@@ -6,7 +6,7 @@ using boost::property_tree::ptree;
 
 namespace lughos
 {
-
+  
 class configurableObject
 {
 public:

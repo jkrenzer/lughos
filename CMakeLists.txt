@@ -23,11 +23,16 @@ set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interf
 
 ###
 
-list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
+add_compile_options(-std=c++11) #Enable C++11 support
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND NOT ${MINGW})
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND NOT MINGW)
  message("Enabling GCC Debug-Flags")
- list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
+ add_compile_options(-g -O0) #Enable debugging-output, no-optimization (for valgrind and gdb)
+ set(CMAKE_VERBOSE_MAKEFILE ON)
+ elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND MINGW)
+ message("Enabling GCC Debug-Flags with DWARF output")
+ add_compile_options(-gdwarf-4 -O0)
+ set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 
 # What to do when crosscompiling
@@ -47,6 +52,7 @@ if(MINGW)
 message("== Compiling with MINGW ==")
 list(APPEND LINK_DIRS /usr/${COMPILER_PREFIX}/lib/ /usr/${COMPILER_PREFIX}/sys-root/mingw/lib/)
 list(APPEND INCLUDE_DIRS /usr/${COMPILER_PREFIX}/include/ /lib/${COMPILER_PREFIX}/sys-root/mingw/include/)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
 set(Boost_USE_STATIC_LIBS ON)
 endif()
 
@@ -77,15 +83,15 @@ endif()
 
 # What to do if user requests static linking
 
-if(${LINK_STATIC})
-list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
+# if(${LINK_STATIC})
+# list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib)
+# set(Boost_USE_STATIC_LIBS ON)
+# set(Boost_USE_STATIC_RUNTIME OFF)
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
 
-else()
-list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/bin)
-endif()
+# else()
+# list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/bin)
+# endif()
 
 
 ### Set directories
@@ -106,6 +112,9 @@ message("current toolchain-file: ${CMAKE_CURRENT_TOOLCHAIN_FILE}")
 endif()
 message("EXT_LIB_DIR: ${EXT_LIB_DIR}")
 message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 message("CMAKE_IMPORT_LIBRARY_PREFIX: ${CMAKE_IMPORT_LIBRARY_PREFIX}")
 message("CMAKE_IMPORT_LIBRARY_SUFFIX: ${CMAKE_IMPORT_LIBRARY_SUFFIX}")
 message("CMAKE_LINK_LIBRARY_SUFFIX: ${CMAKE_LINK_LIBRARY_SUFFIX}")
@@ -178,6 +187,9 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 ### Set executables and dependencies
+#Test for regexp
+add_executable(test_regex src/test_regex.cpp)
+target_link_libraries(test_regex boost_regex)
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
@@ -188,12 +200,12 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
  
 ### Test for wt
 # Add executbales and libraries if dependencies are found
-add_executable(test_gui src/test_gui.cpp)
+add_executable(test_gui src/test_gui.cpp src/serialConnections.cpp src/coolpak6000.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
  
 if(${Windows})
 target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock )
 else()
-target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} libboost_signals.so)
 endif()
 
 ### Test for forms

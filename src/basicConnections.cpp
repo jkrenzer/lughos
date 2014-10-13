@@ -8,7 +8,7 @@
 
 connection<serialContext>::connection(void) : end_of_line_char_('\r') 
 {
-
+  this->port_ = NULL;
 }
 
 connection<serialContext>::~connection(void)
@@ -153,6 +153,8 @@ void connection<serialContext>::stop()
 	}
 	io_service_.stop();
 	io_service_.reset();
+	delete port_;
+	port_ = NULL;
 }
 
 int connection<serialContext>::write(const std::string &buf)

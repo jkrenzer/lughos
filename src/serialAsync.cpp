@@ -11,7 +11,7 @@
 #include "serialAsync.hpp"
 
 
-serialAsync::serialAsync(void)
+serialAsync::serialAsync(boost::asio::io_service* io_service) : connection<serialContext>(io_service)
 {
 }
 
@@ -48,7 +48,7 @@ void serialAsync::async_read_some_()
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
 	
-	io_service_.run();
+	io_service_->run();
 	
 
 }
