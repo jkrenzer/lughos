@@ -28,7 +28,7 @@ class bronkhorst :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	bronkhorst(void);
+	bronkhorst(boost::asio::io_service* io_service);
 	~bronkhorst(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);

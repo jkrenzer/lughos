@@ -28,9 +28,9 @@ class Relais :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	Relais(void);
+	Relais(boost::asio::io_service* io_service);
 	~Relais(void);
-	
+
 	virtual std::string inputoutput(const std::string input, const int async=0);
 	virtual void set_default();
 	virtual std::string read();

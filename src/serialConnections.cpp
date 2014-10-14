@@ -14,10 +14,13 @@
 // 
 // }
 
-connection<serialContext>::connection(boost::asio::io_service* io_service) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
+connection<serialContext>::connection(boost::asio::io_service * io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size()
 {
-  this->io_service_= io_service;
+this->io_service_= io_service;
+
 }
+
+
 
 connection<serialContext>::~connection(void)
 {
@@ -50,7 +53,6 @@ bool connection<serialContext>::start()
 		std::cout << "error : port is already opened..." << std::endl;
 		return false;
 	}
-
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
 	port_->open(port_name.c_str(), ec);
 	if (ec) {
@@ -233,7 +235,7 @@ GetCommState(h_Port, &dcb);
 
 void connection<serialContext>::stop()
 {
-	boost::mutex::scoped_lock look(mutex_);
+// 	boost::mutex::scoped_lock look(mutex_);
 
 	if (port_) {
 		port_->cancel();

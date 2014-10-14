@@ -43,14 +43,14 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
   protected:
 
 	serial_port_ptr port_;
-	boost::mutex mutex_;
+// 	boost::mutex mutex_;
 	char end_of_line_char_;
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
 	std::string read_buf_str_;
 
 // 	char end_of_line;
  
-	boost::asio::io_service* io_service_;
+	boost::asio::io_service * io_service_;
 	
 	boost::asio::serial_port_base::flow_control::type flow_control;
 	boost::asio::serial_port_base::character_size character_size;

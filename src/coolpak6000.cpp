@@ -7,7 +7,7 @@
 #include "coolpak6000.hpp"
 
 
-coolpak6000::coolpak6000(void)
+coolpak6000::coolpak6000(boost::asio::io_service* io_service):serialSync(io_service), serialAsync(io_service), connection< serialContext >(io_service)
 {
  
 set_default();

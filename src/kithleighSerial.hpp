@@ -28,7 +28,7 @@ class kithleighSerial :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	kithleighSerial(void);
+	kithleighSerial(boost::asio::io_service* io_service);
 	~kithleighSerial(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);

@@ -10,7 +10,7 @@
 #include <boost/asio.hpp>
 
 int main(int argc, char **argv) {
-// boost::asio::io_service * io_service;
+boost::asio::io_service * io_service = new boost::asio::io_service;
   
   	bool rv;
 
@@ -20,8 +20,10 @@ int main(int argc, char **argv) {
 
   
 //     kithleighSerial* c = new kithleighSerial;
-	boost::shared_ptr<coolpak6000> c(new coolpak6000);
-		c->port_name = "COM1";
+	boost::shared_ptr<coolpak6000> c(new coolpak6000(io_service));
+// 		c->port_name = "COM1";
+			c->port_name = "/dev/ttyUSB0";
+		
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 

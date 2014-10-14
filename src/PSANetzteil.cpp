@@ -3,11 +3,10 @@
 #include <ostream>
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialSync.hpp"
-#include "serialAsync.hpp"
 #include "PSANetzteil.hpp"
 
 
-PSANetzteil::PSANetzteil(void)
+PSANetzteil::PSANetzteil(boost::asio::io_service* io_service):serialSync(io_service), connection< serialContext >(io_service)
 {
   set_default();
   

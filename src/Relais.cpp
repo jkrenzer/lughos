@@ -7,7 +7,7 @@
 #include <math.h>  
 
 
-Relais::Relais(void)
+Relais::Relais(boost::asio::io_service* io_service):serialSync(io_service), serialAsync(io_service), connection< serialContext >(io_service)
 {
  
 set_default();
