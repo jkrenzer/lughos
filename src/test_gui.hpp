@@ -1,6 +1,8 @@
 #ifndef TEST_GUI_HPP
 #define TEST_GUI_HPP
 
+#define SDL_MAIN_HANDLED 1
+
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
@@ -28,11 +30,7 @@ namespace lughos
   using namespace Wt;
   using namespace std;
   
-  class lughosIOSession
-  {
-  public:
-    static boost::asio::io_service* ioService;
-  };
+  extern boost::asio::io_service * ioService;
   
   class DeviceUIInterface : public Wt::WContainerWidget
   {
@@ -62,9 +60,9 @@ namespace lughos
     
   public:
     
-    DeviceUI<coolpak6000>(std::string comPort) : coolpak(new coolpak6000())
+    DeviceUI<coolpak6000>(std::string  name, std::string comPort) : coolpak(new coolpak6000(ioService))
     {
-      
+     this->name = name;
      coolpak->port_name=comPort;
      bool isStarted = false;
      try 
@@ -156,7 +154,7 @@ namespace lughos
 	default:
 	  state += std::string("Coldhead1 ???? ");
 	 break;
-      } //TODO Test and if communication is there, activate buttons
+      } 
       if(communicationEstablished)
       {
 	this->stateF->setText(state);
@@ -227,7 +225,7 @@ namespace lughos
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
-      this->addWidget(dev1);
+      this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "COM1"));
     }
     
   };
@@ -241,7 +239,6 @@ namespace lughos
     
     mainApplication(const WEnvironment &env) : WApplication(env)
     {
-      lughosIOSession::ioService = static_cast<boost::asio::io_service*>(&env.server()->ioService());
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);
@@ -288,7 +285,6 @@ namespace lughos
     
   };
   
-  boost::asio::io_service* lughosIOSession::ioService = NULL;
   
 } //namespace lughos
 

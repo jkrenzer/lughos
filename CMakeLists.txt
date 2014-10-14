@@ -52,7 +52,7 @@ if(MINGW)
 message("== Compiling with MINGW ==")
 list(APPEND LINK_DIRS /usr/${COMPILER_PREFIX}/lib/ /usr/${COMPILER_PREFIX}/sys-root/mingw/lib/)
 list(APPEND INCLUDE_DIRS /usr/${COMPILER_PREFIX}/include/ /lib/${COMPILER_PREFIX}/sys-root/mingw/include/)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc -v")
 set(Boost_USE_STATIC_LIBS ON)
 endif()
 
@@ -186,6 +186,22 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 
 add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
+### Set libraries and dependencies
+
+add_library(serialConnections src/serialConnections.cpp)
+
+add_library(coolpak6000 src/coolpak6000.cpp)
+target_link_libraries(coolpak6000 serialSync serialAsync unitValue serialConnections)
+add_dependencies(coolpak6000 serialSync serialAsync unitValue serialConnections)
+
+add_library(serialSync src/serialSync.cpp)
+add_dependencies(serialSync serialConnections)
+
+add_library(serialAsync src/serialAsync.cpp)
+add_dependencies(serialAsync serialConnections)
+
+add_library(unitValue src/unitValue.cpp)
+
 ### Set executables and dependencies
 #Test for regexp
 add_executable(test_regex src/test_regex.cpp)
@@ -200,12 +216,13 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
  
 ### Test for wt
 # Add executbales and libraries if dependencies are found
-add_executable(test_gui src/test_gui.cpp src/serialConnections.cpp src/coolpak6000.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
- 
+add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+add_dependencies(test_gui coolpak6000)
+
 if(${Windows})
-target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock )
+target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock SDL)
 else()
-target_link_libraries(test_gui ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} libboost_signals.so)
+target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} libboost_signals.so)
 endif()
 
 ### Test for forms

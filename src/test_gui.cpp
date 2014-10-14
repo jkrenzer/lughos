@@ -1,6 +1,10 @@
 #include "test_gui.hpp"
 #include "coolpak6000.hpp"
 
+namespace lughos {
+
+boost::asio::io_service * ioService;
+
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
   /*
@@ -12,6 +16,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
+  ioService = new boost::asio::io_service;
   /*
    * Your main method may set up some shared resources, but should then
    * start the server application (FastCGI or httpd) that starts listening
@@ -23,5 +28,9 @@ int main(int argc, char **argv)
    * support. The function should return a newly instantiated application
    * object.
    */
-  return Wt::WRun(argc, argv, &createApplication);
+  int result = Wt::WRun(argc, argv, &createApplication);
+  delete ioService;
+  return result;
 }
+
+} //namespace lughos

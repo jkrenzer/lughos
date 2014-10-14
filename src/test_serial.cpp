@@ -64,6 +64,7 @@ boost::asio::io_service * io_service = new boost::asio::io_service;
 //  std::cout << "Write="<< c->write("\x03")<< std::endl;
 //  std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
 //    	  	  	sleep(1);	
+	delete io_service;
 	return 0;
 }
 
@@ -110,4 +111,5 @@ boost::asio::io_service * io_service = new boost::asio::io_service;
 //    	  	  	sleep(1);
 // 		
 // 	return 0;
+    
 // }
