@@ -48,7 +48,7 @@ void serialAsync::async_read_some_()
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
 	
-	io_service_->run();
+// 	io_service_->run();
 	
 
 }
