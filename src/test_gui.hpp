@@ -1,8 +1,6 @@
 #ifndef TEST_GUI_HPP
 #define TEST_GUI_HPP
 
-#define SDL_MAIN_HANDLED 1
-
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
@@ -76,6 +74,7 @@ namespace lughos
      
      if(isStarted)
      {
+        coolpak->stop();
 	this->setWidth(250);
 	this->addWidget(new Wt::WText(this->name.c_str()));
 	this->stateF = new Wt::WLineEdit("Initializing...");
