@@ -222,7 +222,7 @@ add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnec
 add_dependencies(test_gui coolpak6000)
 
 if(${Windows})
-target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock SDL)
+target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock)
 else()
 target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} libboost_signals.so)
 endif()
