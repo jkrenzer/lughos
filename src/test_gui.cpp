@@ -21,7 +21,8 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 int main(int argc, char **argv)
 {
   lughos::ioService = new boost::asio::io_service;
-  boost::asio::io_service::work work(lughos::ioService);
+  boost::asio::io_service::work work(*lughos::ioService);
+  lughos::ioService->run();
   /*
    * Your main method may set up some shared resources, but should then
    * start the server application (FastCGI or httpd) that starts listening
