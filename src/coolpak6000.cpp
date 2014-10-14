@@ -65,7 +65,8 @@ void coolpak6000::compose_request(const std::string &buf)
 }
 
 std::string coolpak6000::read()
-{
+{       
+   this->start();
         std::string s = response_string_stream.str();
 
 	response_string_stream.str("");
@@ -73,7 +74,8 @@ std::string coolpak6000::read()
 // 	static const boost::regex e("^\\D*(\\d*)\\D$");
 // 	 boost::cmatch res;
 // 	 boost::regex_search(s.c_str(), res, e);
-    return s;  
+  this->stop();
+  return s;  
 
 }
 

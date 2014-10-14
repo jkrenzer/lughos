@@ -5,6 +5,8 @@ namespace lughos {
 
 boost::asio::io_service * ioService;
 
+} //namespace lughos
+
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
   /*
@@ -14,9 +16,12 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   return new lughos::mainApplication(env);
 }
 
+
+
 int main(int argc, char **argv)
 {
-  ioService = new boost::asio::io_service;
+  lughos::ioService = new boost::asio::io_service;
+  boost::asio::io_service::work work(lughos::ioService);
   /*
    * Your main method may set up some shared resources, but should then
    * start the server application (FastCGI or httpd) that starts listening
@@ -29,8 +34,8 @@ int main(int argc, char **argv)
    * object.
    */
   int result = Wt::WRun(argc, argv, &createApplication);
-  delete ioService;
+  lughos::ioService->stop();
+  delete lughos::ioService;
   return result;
 }
 
-} //namespace lughos
