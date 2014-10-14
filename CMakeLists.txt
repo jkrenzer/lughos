@@ -15,6 +15,9 @@ cmake_minimum_required(VERSION 2.8)
 
 set(PROJECT_NAME lughos)
 set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interfaces")
+set(DOCUMENTATION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+set(CMAKE_TOOLCHAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains)
 #set(PROJECT_LOGO)
 
 ### Configuration switches
@@ -93,40 +96,6 @@ endif()
 # list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/bin)
 # endif()
 
-
-### Set directories
-
-include_directories(${INCLUDE_DIRS})
-link_directories(${LINK_DIRS})
-list( APPEND CMAKE_FIND_ROOT_PATH ${EXT_LIB_DIR})
-set(DOCUMENTATION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
-set(CMAKE_TOOLCHAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains)
-
-### Printing some information
-
-message("-= CMAKE FOR LUGHOS SCADA LIBRARY =-")
-if(${CMAKE_CROSSCOMPILING})
-message("cmake is CROSSCOMPILING!")
-message("current toolchain-file: ${CMAKE_CURRENT_TOOLCHAIN_FILE}")
-endif()
-message("EXT_LIB_DIR: ${EXT_LIB_DIR}")
-message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
-message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
-message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-message("CMAKE_IMPORT_LIBRARY_PREFIX: ${CMAKE_IMPORT_LIBRARY_PREFIX}")
-message("CMAKE_IMPORT_LIBRARY_SUFFIX: ${CMAKE_IMPORT_LIBRARY_SUFFIX}")
-message("CMAKE_LINK_LIBRARY_SUFFIX: ${CMAKE_LINK_LIBRARY_SUFFIX}")
-message("CMAKE_FIND_LIBRARY_SUFFIXES: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
-message("CMAKE_FIND_LIBRARY_PREFIXES: ${CMAKE_FIND_LIBRARY_PREFIXES}")
-message("CMAKE_LINKER: ${CMAKE_LINKER}")
-message("CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
-message("MINGW: ${MINGW}")
-message("INCLUDE_DIRS: ${INCLUDE_DIRS}")
-message("LINK_DIRS: ${LINK_DIRS}")
-message("LINK_STATIC: ${LINK_STATIC}")
-
 ### Configure find system
 
 # findBoost
@@ -147,6 +116,8 @@ find_package(Boost COMPONENTS system filesystem thread program_options regex dat
 find_package(Doxygen)
 find_package(Libharu)
 find_package(Wt)
+
+
 
 ### Taget for generating Doxygen documentation (if Doygen is found)
 
@@ -181,6 +152,37 @@ if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 endif( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 # Generate full custom version-string
 set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}")
+
+
+### Set include/link directories
+
+include_directories(${INCLUDE_DIRS} ${Wt_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+link_directories(${LINK_DIRS} ${Boost_LIBRARY_DIRS})
+
+### Printing some information
+
+message("-= CMAKE FOR LUGHOS SCADA LIBRARY =-")
+if(${CMAKE_CROSSCOMPILING})
+message("cmake is CROSSCOMPILING!")
+message("current toolchain-file: ${CMAKE_CURRENT_TOOLCHAIN_FILE}")
+endif()
+message("EXT_LIB_DIR: ${EXT_LIB_DIR}")
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
+message("CMAKE_IMPORT_LIBRARY_PREFIX: ${CMAKE_IMPORT_LIBRARY_PREFIX}")
+message("CMAKE_IMPORT_LIBRARY_SUFFIX: ${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+message("CMAKE_LINK_LIBRARY_SUFFIX: ${CMAKE_LINK_LIBRARY_SUFFIX}")
+message("CMAKE_FIND_LIBRARY_SUFFIXES: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+message("CMAKE_FIND_LIBRARY_PREFIXES: ${CMAKE_FIND_LIBRARY_PREFIXES}")
+message("CMAKE_LINKER: ${CMAKE_LINKER}")
+message("CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
+message("MINGW: ${MINGW}")
+message("INCLUDE_DIRS: ${INCLUDE_DIRS}")
+message("LINK_DIRS: ${LINK_DIRS}")
+message("LINK_STATIC: ${LINK_STATIC}")
+
 
 ### Providing target to build dependencies
 
