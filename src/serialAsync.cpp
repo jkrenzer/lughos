@@ -25,6 +25,7 @@ serialAsync::~serialAsync(void)
 int serialAsync::write_async(const std::string &buf)
 {    
   
+      start();
 	compose_request(buf);
 
 	boost::system::error_code ec;

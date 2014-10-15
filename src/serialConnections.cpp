@@ -242,6 +242,7 @@ void connection<serialContext>::stop()
 		port_->close();
 		port_.reset();
 	}
+	
 // 	io_service_->stop();
 // 	io_service_->reset();
 }
@@ -288,7 +289,7 @@ std::string connection<serialContext>::read()
         std::string s = response_string_stream.str();
 // std::cout<<s<<std::endl;
 	response_string_stream.str("");
-	
+  stop();
     return s;  
 
 }

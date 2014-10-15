@@ -224,7 +224,7 @@ add_dependencies(test_gui coolpak6000)
 if(${Windows})
 target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()
-target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(test_gui coolpak6000 ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
 endif()
 
 ### Test for forms

@@ -39,7 +39,7 @@ serialSync::~serialSync(void)
 
 int serialSync::write(const std::string &buf)
 {
-
+  start();
 //   io_service_->run();
   this->compose_request(buf);
   boost::system::error_code error = boost::asio::error::host_not_found;

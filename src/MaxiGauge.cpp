@@ -77,6 +77,7 @@ std::string MaxiGauge::read()
 	static const boost::regex e("^(\\d*)\\D\\D$");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
+	 stop();
     return res[1];  
 
 }

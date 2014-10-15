@@ -38,6 +38,7 @@ int main(int argc, char **argv)
    */
   int result = Wt::WRun(argc, argv, &createApplication);
   lughos::ioService->stop();
+  lughos::ioService->reset();
   delete lughos::ioService;
   return result;
 }
