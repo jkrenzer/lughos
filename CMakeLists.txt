@@ -101,12 +101,12 @@ endif()
 # findBoost
 if(${CMAKE_CROSSCOMPILING})
 set(Boost_DEBUG "ON")
-#et(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
-#et(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
+# set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
+# set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
 set(Boost_DETAILED_FAILURE_MSG "ON")
 else()
 set(Boost_DEBUG "ON")
-set(BOOST_INCLUDEDIR "/usr/include/boost")
+set(BOOST_INCLUDEDIR "/usr/include/boost" "/usr/local/include/boost")
 endif()
 
 
