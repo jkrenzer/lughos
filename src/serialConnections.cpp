@@ -240,6 +240,7 @@ void connection<serialContext>::stop()
 	if (port_) {
 		port_->cancel();
 		port_->close();
+		delete port_.get();
 		port_.reset();
 	}
 	

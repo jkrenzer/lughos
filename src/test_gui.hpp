@@ -66,15 +66,17 @@ namespace lughos
      try 
      {
       isStarted = coolpak->start();
+      coolpak->stop();
      }
      catch(...)
      {
+       this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
+       coolpak->stop();
        isStarted = false;
      }
      
      if(isStarted)
      {
-        coolpak->stop();
 	this->setWidth(250);
 	this->addWidget(new Wt::WText(this->name.c_str()));
 	this->stateF = new Wt::WLineEdit("Initializing...");
@@ -98,7 +100,7 @@ namespace lughos
       }
       else
       {
-	this->addWidget(new Wt::WText("Wrong or disabled Port!"));
+	this->addWidget(new Wt::WText(std::string("Port ") + comPort + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
       }
     }
     
@@ -224,9 +226,13 @@ namespace lughos
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
+#ifdef WIN32
       this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "COM1"));
+#else
+      this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "/dev/ttyS0"));
+#endif
     }
-    
+
   };
   
   
