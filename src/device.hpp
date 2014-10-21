@@ -78,6 +78,7 @@ namespace lughos
       GUARD
       this->connection = boost::shared_ptr<ConnectionImpl>(connection);
       this->connected = connection->testconnection();
+      this->init();
       return this->connected;
     }
     
@@ -95,6 +96,7 @@ namespace lughos
     
     void disconnect()
     {
+      this->shutdown();
       if(this->connection)
 	this->connection.reset();
       this->connected = false;
@@ -129,12 +131,10 @@ namespace lughos
     
     Device()
     {
-      this->init();
     }
     
     ~Device()
     {
-      this->shutdown();
     }
     
   };
