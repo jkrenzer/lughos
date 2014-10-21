@@ -236,14 +236,23 @@ GetCommState(h_Port, &dcb);
 void connection<serialContext>::stop()
 {
 // 	boost::mutex::scoped_lock look(mutex_);
-
-	if (port_) {
+    try{
+	if (port_) 
+	{
 		port_->cancel();
 		port_->close();
-		delete port_.get();
 		port_.reset();
+		delete port_.get();
+		
 	}
-	
+    }
+    catch(...)
+    {
+      	if (port_) 
+	{
+		delete port_.get();	
+	}
+    }
 // 	io_service_->stop();
 // 	io_service_->reset();
 }

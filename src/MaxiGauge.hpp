@@ -1,5 +1,5 @@
-#ifndef COOLPACK6000_HPP
-#define COOLPACK6000_HPP
+#ifndef MAXIGAUGE_HPP
+#define MAXIGAUGE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>

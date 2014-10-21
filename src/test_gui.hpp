@@ -21,6 +21,7 @@
 #include <Wt/WIOService>
 #include <functional>
 #include "coolpak6000.hpp"
+#include "MaxiGauge.hpp"
 
 namespace lughos 
 {
@@ -60,13 +61,26 @@ namespace lughos
     
     DeviceUI<coolpak6000>(std::string  name, std::string comPort) : coolpak(new coolpak6000(ioService))
     {
+      
+        std::ofstream ofs ("/home/irina/projects/DeviceUI.txt", std::ofstream::out);
+
+  ofs << "DeviceUI\n";
+//     ofs.close();
      this->name = name;
      coolpak->port_name=comPort;
      bool isStarted = false;
+       ofs << "coolpackPort\n";
      try 
      {
+
+
       isStarted = coolpak->start();
+   ofs << "trystart\n";
+//     ofs.close();
       coolpak->stop();
+    ofs << "trystop\n";
+    ofs.close();
+
      }
      catch(...)
      {
@@ -74,7 +88,9 @@ namespace lughos
        coolpak->stop();
        isStarted = false;
      }
-     
+/*     
+    ofs << "started\n";
+    ofs.close();*/
      if(isStarted)
      {
 	this->setWidth(250);
@@ -96,7 +112,7 @@ namespace lughos
 	this->addWidget(startB);
 	this->addWidget(stopB);
 	this->addWidget(stateB);
-	this->init();
+// 	this->init();
       }
       else
       {
@@ -187,6 +203,151 @@ namespace lughos
     
     
   };
+  //---------------MaxiGauge
+   template <> class DeviceUI<MaxiGauge> : public DeviceUIInterface
+  {
+  protected:
+    boost::shared_ptr<MaxiGauge> maxigauge;
+    Wt::WLineEdit* stateF;
+    Wt::WLabel* stateL;
+    Wt::WPushButton * startB;
+    Wt::WPushButton * onB[6];
+    Wt::WPushButton * offB[6];
+    Wt::WPushButton * stopB;
+    Wt::WPushButton * stateB;
+    
+  public:
+    
+
+DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new MaxiGauge(ioService))
+    {
+     this->name = name;
+     maxigauge->port_name=comPort;
+     bool isStarted = false;
+     try 
+     {
+      isStarted = maxigauge->start();
+     }
+     catch(...)
+     {
+       isStarted = false;
+     }
+     
+     if(isStarted)
+     {
+        maxigauge->stop();
+	this->setWidth(250);
+	this->addWidget(new Wt::WText(this->name.c_str()));
+	this->stateF = new Wt::WLineEdit("Initializing...");
+	this->stateF->setReadOnly(true);
+	this->stateL = new Wt::WLabel("Status:");
+	this->stateL->setBuddy(stateF);
+	this->startB = new Wt::WPushButton("Start all");
+	this->stopB = new Wt::WPushButton("Stop all");
+	this->stateB = new Wt::WPushButton("Status");
+	this->startB->setDisabled(true);
+	this->startB->clicked().connect(this,&DeviceUI<MaxiGauge>::startall);
+	this->stopB->setDisabled(true);
+	this->stopB->clicked().connect(this,&DeviceUI<MaxiGauge>::stopall);
+      for(int i=0;i<6;i++)
+      {
+	this->onB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_on,this, i));
+	this->addWidget(onB[i]);
+      }
+      for(int i=0;i<6;i++)
+      {
+	this->offB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_off,this, i));
+	this->addWidget(offB[i]);
+      }
+	this->addWidget(stateL);
+	this->addWidget(stateF);
+// 	this->addWidget(startB);
+// 	this->addWidget(stopB);
+	
+	this->init();
+      }
+      else
+      {
+	this->addWidget(new Wt::WText("Wrong or disabled Port!"));
+      }
+    }
+    
+    void init()
+    {
+      this->getState();
+    }
+    
+    void sensor_on(int i)
+    {
+      this->stateF->setText(std::to_string(maxigauge->sensor_on(i)));
+    }
+        
+     void sensor_off(int i)
+    {
+      this->stateF->setText(std::to_string(maxigauge->sensor_off(i)));
+    }
+    
+    void getState()
+    {
+      
+//       coolpak->get_data();
+      std::string state;
+      std::string enabled="Enabled channels: ";
+      std::string disabled="disabled channels: ";
+
+      bool communicationEstablished = false;
+      for(int i=0;i<6;i++)
+      {
+	if(!maxigauge->get_status(i).empty())
+	{
+	 enabled+=std::to_string(i); 
+	 enabled+=std::string(" ");
+	 communicationEstablished = true;
+	}
+	else
+	{
+	 disabled+=std::to_string(i); 
+	 disabled+=std::string(" ");
+	 communicationEstablished = true;
+	}
+	
+      }
+      state=enabled+disabled;
+     
+      if(communicationEstablished)
+      {
+	this->stateF->setText(state);
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
+      }
+    }
+    
+    
+    
+    void startall()
+    {
+      
+      for(int i=0;i<6;i++)
+      {
+	maxigauge->sensor_on(i);
+      }
+      this->getState();
+    }
+    
+    void stopall()
+    {
+      for(int i=0;i<6;i++)
+      {
+	maxigauge->sensor_off(i);
+      }
+      this->getState();
+    }
+    
+    
+    
+  };
+  //-----------------------
+  
  
   class OverView : public Wt::WContainerWidget
   {
@@ -226,11 +387,17 @@ namespace lughos
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
+      
+//           ofs.close();
 #ifdef WIN32
       this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "COM1"));
+      this->addWidget(new DeviceUI<MaxiGauge>("Preasure Monitor 1" , "COM2"));  
 #else
       this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "/dev/ttyS0"));
+      this->addWidget(new DeviceUI<MaxiGauge>("Compressor 1" , "/dev/ttyS1"));
+
 #endif
+
     }
 
   };
@@ -244,6 +411,10 @@ namespace lughos
     
     mainApplication(const WEnvironment &env) : WApplication(env)
     {
+      
+
+
+
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);
@@ -251,6 +422,7 @@ namespace lughos
       // load the default bootstrap3 (sub-)theme
       this->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
       setTitle("Lughos System Control");
+// 		    ofs.close();
       Wt::WContainerWidget *container = new Wt::WContainerWidget();
       Wt::WContainerWidget *headContainer = new Wt::WContainerWidget();
       Wt::WImage *logo = new WImage("resources/logo.png");
@@ -263,19 +435,21 @@ namespace lughos
       headBox->addWidget(logo);
       headBox->addWidget(headText,1);
       headBox->addWidget(branding);
-
+// 		    ofs.close();
       
       
       Wt::WVBoxLayout *vbox = new Wt::WVBoxLayout();
       container->setLayout(vbox);
       vbox->addWidget(headContainer);
+// 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
       tabW->addTab(new Wt::WTextArea("This is the contents of the first tab."),
 		  "First", Wt::WTabWidget::PreLoading);
       tabW->addTab(new Wt::WTextArea("The contents of the tabs are pre-loaded in"
 				    " the browser to ensure swift switching."),
 		  "Preload", Wt::WTabWidget::PreLoading);
-      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("trhead");
+// 		    ofs.close();
+      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
@@ -285,9 +459,11 @@ namespace lughos
       vbox->addWidget(tabW);
       tabW->setStyleClass("tabwidget");
       root()->addWidget(container);
+
+
     }
     
-    
+  
   };
   
   
