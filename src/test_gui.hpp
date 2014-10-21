@@ -112,7 +112,7 @@ namespace lughos
 	this->addWidget(startB);
 	this->addWidget(stopB);
 	this->addWidget(stateB);
-// 	this->init();
+	this->init();
       }
       else
       {

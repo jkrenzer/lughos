@@ -48,10 +48,17 @@ void coolpak6000::compose_request(const std::string &buf)
 
    std::string coolpak6000::inputoutput(const std::string input, const int async)
 {
+  try
+  {
     if (async==0)write(input);
     else if (async==1)write_async(input);
     else write(input);
     return read();
+  }
+  catch(...)
+  {
+    return std::string("");
+  }
 }
 
    void coolpak6000::set_default()
