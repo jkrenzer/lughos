@@ -4,6 +4,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 #include "connectionImpl.hpp"
 
@@ -14,12 +15,17 @@ namespace lughos
   
   typedef boost::recursive_mutex Mutex;
   
-  template <class C> DeviceTemplate 
+  /**
+   * @brief Template-class which deklares the basic interface of a device
+   * 
+   */
+  class DeviceImpl 
   {
   protected:
     Mutex mutex;
-    Connection<C> connection;
+    boost::smart_ptr<ConnectionImpl> connection;
     bool initialized;
+    bool connected;
     
     virtual void initImplementation() = 0;
     
@@ -37,37 +43,80 @@ namespace lughos
     
   public:
     
+    /**
+     * @brief Initialize device
+     * 
+     * This method is called on construction time and should initialize the internal states of the device class. 
+     * 
+     * @return void
+     */
     void init()
     {
       GUARD
       this->initImplementation;
+      this->initialized = true;
     }
     
+    /**
+     * @brief Shutdown device
+     * 
+     * This member-function deactivates the device.
+     * 
+     * @return void
+     */
     void shutdown()
     {
       GUARD
       this->shutdownImplementation;
+      this->initialized = false;
+    }
+    
+    void connect(ConnectionImpl* connection)
+    {
+      GUARD
+      this->connection = boost::shared_ptr<ConnectionImpl>(connection);
+      this->connected = connection->testconnection();
+      return this->connected;
+    }
+    
+    bool isConnected()
+    {
+      GUARD
+      return this->connected;
+    }
+    
+    bool isInitialized()
+    {
+      GUARD
+      return this->initialized;
+    }
+    
+    void disconnect()
+    {
+      if(this->connection)
+	this->connection.reset();
+      this->connected = false;
     }
     
     std::string inputOutput(std::string query)
     {
       GUARD
-      this->inputOutputImplementation(query);
+      return this->inputOutputImplementation(query);
     }
     
-    DeviceTemplate<T>()
+    DeviceImpl<T>() : connection()
     {
       this->init();
     }
     
-    ~DeviceTemplate<T>()
+    ~DeviceImpl<T>()
     {
       this->shutdown();
     }
     
   };
   
-  template <class C> Device : public DeviceTemplate<C>
+  Device : public DeviceImpl
   {
     
   };
