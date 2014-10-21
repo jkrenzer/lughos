@@ -113,18 +113,29 @@ namespace lughos
     
     DeviceImpl() : connection()
     {
-      this->init();
+      
     }
     
     ~DeviceImpl()
     {
-      this->shutdown();
+      
     }
     
   };
   
   class Device : public DeviceImpl
   {
+  public:
+    
+    Device()
+    {
+      this->init();
+    }
+    
+    ~Device()
+    {
+      this->shutdown();
+    }
     
   };
 
