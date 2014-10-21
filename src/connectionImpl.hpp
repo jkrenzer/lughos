@@ -5,12 +5,11 @@
 class ConnectionImpl
 {
 public:
-	virtual std::string inputoutput(const std::string input)=0;
 	virtual bool testconnection()=0;
 	virtual void set_port()=0;
 	virtual void reset()=0;
-	virtual void write(std::string query)=0;
-	virtual void read()=0;
+	virtual int  write(std::string query)=0;
+	virtual std::string read()=0;
 // 	connectionImpl(void);
 // 	~connectionImpl(void);
 protected:

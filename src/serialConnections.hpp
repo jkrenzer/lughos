@@ -44,7 +44,6 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 
 	serial_port_ptr port_;
 // 	boost::mutex mutex_;
-	char end_of_line_char_;
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
 	std::string read_buf_str_;
 
@@ -52,11 +51,7 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
  
 	boost::asio::io_service * io_service_;
 	
-	boost::asio::serial_port_base::flow_control::type flow_control;
-	boost::asio::serial_port_base::character_size character_size;
-	boost::asio::serial_port_base::baud_rate baud_rate;
-	boost::asio::serial_port_base::parity::type parity;
-	boost::asio::serial_port_base::stop_bits::type stop_bits;
+
 	
 // 	void handle_resolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
 // 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
@@ -78,7 +73,7 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 
 
 private:
-  	Connection(const connection &p);
+  	Connection(const Connection &p);
 	Connection &operator=(const Connection &p); 
 	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
 	char end_of_line_char() const;
@@ -91,6 +86,8 @@ private:
 	Connection(boost::asio::io_service* io_service);
 	~Connection(void);
 	
+	char end_of_line_char_;
+	
 	boost::asio::streambuf response_;
 	boost::asio::streambuf request;
 
@@ -98,7 +95,7 @@ private:
 	void reset();
 
 	virtual std::string read();
-	virtual std::string write();
+	virtual int write(std::string query);
 	std::string response_string;
 	virtual bool testconnection();
 // 	int write(const std::string &buf);
@@ -112,6 +109,12 @@ private:
 	std::string port_name;
 	virtual void set_default();
 		int exp_lenght=1;
+		
+	boost::asio::serial_port_base::flow_control::type flow_control;
+	boost::asio::serial_port_base::character_size character_size;
+	boost::asio::serial_port_base::baud_rate baud_rate;
+	boost::asio::serial_port_base::parity::type parity;
+	boost::asio::serial_port_base::stop_bits::type stop_bits;
   
 };
 

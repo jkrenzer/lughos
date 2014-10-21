@@ -18,9 +18,9 @@
 #include <iostream>
 #include <boost/array.hpp>
 #include "unitValue.hpp"
-
-
-class coolpak6000 :virtual public serialSync, virtual public serialAsync
+#include "device.hpp"
+using namespace lughos;
+class coolpak6000 : public Device
 {
   private:
 	coolpak6000(const coolpak6000 &p);
@@ -28,12 +28,12 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	
 
   public:
-	coolpak6000(boost::asio::io_service* io_service);
+	coolpak6000();
 	~coolpak6000(void);
 	
-	virtual std::string inputoutput(const std::string input);
+	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
-	virtual std::string read();
+	
 	bool compressor_on();
 	bool compressor_off();
 	bool coolhead_on(int head);
@@ -50,9 +50,11 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	int get_number_of_saved_errors();
 	unitValue get_delay();
 	unitValue get_operating_hours();
-	
+	void initImplementation();
+	void shutdownImplementation();
+		
 protected:
-  	void compose_request(const std::string &buf);
+  
 	std::string software_version;
 	unitValue operating_hours;
 	unitValue delay;
@@ -63,6 +65,9 @@ protected:
 	int number_of_errors;
 	std::string errorstring;
 	int number_of_saved_errors;
+	
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
 
 };
 

@@ -36,7 +36,7 @@ int serialAsync::write(std::string query)
 	 
    	 async_read_some_();
   
-  return 1;
+  return 0;
 }
 
 

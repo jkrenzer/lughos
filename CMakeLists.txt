@@ -192,9 +192,9 @@ add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 add_library(serialConnections src/serialConnections.cpp)
 
-add_library(MaxiGauge src/MaxiGauge.cpp)
-target_link_libraries(MaxiGauge serialSync unitValue serialConnections)
-add_dependencies(MaxiGauge serialSync unitValue serialConnections)
+# add_library(MaxiGauge src/MaxiGauge.cpp)
+# target_link_libraries(MaxiGauge serialSync unitValue serialConnections)
+# add_dependencies(MaxiGauge serialSync unitValue serialConnections)
 
 add_library(coolpak6000 src/coolpak6000.cpp)
 target_link_libraries(coolpak6000 serialSync serialAsync unitValue serialConnections)
@@ -223,12 +223,12 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
 ### Test for wt
 # Add executbales and libraries if dependencies are found
 add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
-add_dependencies(test_gui coolpak6000 MaxiGauge)
+add_dependencies(test_gui coolpak6000 )
 
 if(${Windows})
-target_link_libraries(test_gui coolpak6000 MaxiGauge ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
+target_link_libraries(test_gui coolpak6000  ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()
-target_link_libraries(test_gui coolpak6000 MaxiGauge ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
+target_link_libraries(test_gui coolpak6000  ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
 endif()
 
 ### Test for forms

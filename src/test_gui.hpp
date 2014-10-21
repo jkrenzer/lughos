@@ -30,6 +30,7 @@ namespace lughos
   using namespace std;
   
   extern boost::asio::io_service * ioService;
+  extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
   
   class DeviceUIInterface : public Wt::WContainerWidget
   {
@@ -59,17 +60,19 @@ namespace lughos
     
   public:
     
-    DeviceUI<coolpak6000>(std::string  name, std::string comPort) : coolpak(new coolpak6000(ioService))
+    DeviceUI< coolpak6000 >(boost::shared_ptr<Device> coolpak)
+    {
+      DeviceUI<coolpak6000> (boost::dynamic_pointer_cast<coolpak6000>(coolpak));
+    }
+    
+    DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000> coolpak) : coolpak(coolpak)
     {
       
-
-//     ofs.close();
-     this->name = name;
-     coolpak->port_name=comPort;
+    this->name=coolpak->getName();
      bool ConnectionEstablished = false;
      try 
      {
-      ConnectionEstablished = coolpak->testconnection();
+      ConnectionEstablished = coolpak->isConnected();
      }
      catch(...)
      {
@@ -102,7 +105,7 @@ namespace lughos
       }
       else
       {
-	this->addWidget(new Wt::WText(std::string("Port ") + comPort + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
+	this->addWidget(new Wt::WText(std::string("Port ") + dynamic_cast <const Connection< serialContext > *>(coolpak->getConnection())->port_name + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
       }
     }
     
@@ -189,6 +192,8 @@ namespace lughos
     
     
   };
+  
+  /*
   //---------------MaxiGauge
    template <> class DeviceUI<MaxiGauge> : public DeviceUIInterface
   {
@@ -288,7 +293,7 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
 	if(!maxigauge->get_status(i).empty())
 	{
 	 enabled+=std::to_string(i); 
-	 enabled+=std::string(" ");
+	
 	 communicationEstablished = true;
 	}
 	else
@@ -335,7 +340,7 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
   };
   //-----------------------
   
- 
+ */
   class OverView : public Wt::WContainerWidget
   {
   public:
@@ -374,17 +379,8 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
-      
-//           ofs.close();
-#ifdef WIN32
-      this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "COM1"));
-      this->addWidget(new DeviceUI<MaxiGauge>("Preasure Monitor 1" , "COM2"));  
-#else
-      this->addWidget(new DeviceUI<coolpak6000>("Compressor 1" , "/dev/ttyS0"));
-      this->addWidget(new DeviceUI<MaxiGauge>("Compressor 1" , "/dev/ttyS1"));
-
-#endif
-
+      this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 1")] ));
+//       this->addWidget(new DeviceUI<MaxiGauge>("Preasure Monitor 1" , "COM2"));  
     }
 
   };

@@ -401,3 +401,8 @@ bool Connection<serialContext>::testconnection()
      }
      return ConnectionEstablished;
 }
+
+int Connection<serialContext>::write(std::string query)
+{
+  return 0;  
+}

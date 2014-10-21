@@ -4,22 +4,30 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 #include "connectionImpl.hpp"
+#include "basicObject.hpp"
 
-#define GUARD boost::lock_guard guard(mutex);
+#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
 
 namespace lughos
 {
   
   typedef boost::recursive_mutex Mutex;
   
-  template <class C> DeviceTemplate 
+  /**
+   * @brief Template-class which deklares the basic interface of a device
+   * 
+   */
+  class DeviceImpl : public basicObject
   {
   protected:
     Mutex mutex;
-    ConnectionImpl connection;
+
+    boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
+    bool connected;
     
     virtual void initImplementation() = 0;
     
@@ -31,43 +39,91 @@ namespace lughos
     
     virtual std::string inputOutputImplementation(std::string query)
     {
-      connection.write(this->composeRequest(query));
-      return this->interpretAnswer(connection.read());
+      connection->write(this->composeRequest(query));
+      return this->interpretAnswer(connection->read());
     }
     
   public:
     
+    /**
+     * @brief Initialize device
+     * 
+     * This method is called on construction time and should initialize the internal states of the device class. 
+     * 
+     * @return void
+     */
     void init()
     {
       GUARD
-      this->initImplementation;
+      this->initImplementation();
+      this->initialized = true;
     }
     
+    /**
+     * @brief Shutdown device
+     * 
+     * This member-function deactivates the device.
+     * 
+     * @return void
+     */
     void shutdown()
     {
       GUARD
-      this->shutdownImplementation;
+      this->shutdownImplementation();
+      this->initialized = false;
+    }
+    
+    bool connect(ConnectionImpl* connection)
+    {
+      GUARD
+      this->connection = boost::shared_ptr<ConnectionImpl>(connection);
+      this->connected = connection->testconnection();
+      return this->connected;
+    }
+    
+    bool isConnected()
+    {
+      GUARD
+      return this->connected;
+    }
+    
+    bool isInitialized()
+    {
+      GUARD
+      return this->initialized;
+    }
+    
+    void disconnect()
+    {
+      if(this->connection)
+	this->connection.reset();
+      this->connected = false;
+    }
+    
+    const ConnectionImpl* const getConnection()
+    {
+      return this->connection.get();
     }
     
     std::string inputOutput(std::string query)
     {
       GUARD
-      this->inputOutputImplementation(query);
+      return this->inputOutputImplementation(query);
     }
     
-    DeviceTemplate<T>()
+    DeviceImpl() : connection()
     {
       this->init();
     }
     
-    ~DeviceTemplate<T>()
+    ~DeviceImpl()
     {
       this->shutdown();
     }
     
   };
   
-  template <class C> Device : public DeviceTemplate<C>
+  class Device : public DeviceImpl
   {
     
   };
