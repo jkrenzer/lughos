@@ -22,10 +22,13 @@ serialAsync::~serialAsync(void)
 
 
 
-int serialAsync::write()
+int serialAsync::write(std::string query)
 {    
   
       start();
+      std::ostream request_stream(&request);
+      request_stream<<query;
+    
 	const int size=request.size();
 	boost::system::error_code ec;
 // 	if (!port_) return -1;

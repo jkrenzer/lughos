@@ -52,7 +52,7 @@ class serialAsync : virtual public Connection<serialContext>
 	serialAsync(boost::asio::io_service* io_service);
 	~serialAsync(void);
 	
-	int write();
+	int write(std::string query);
 
   
 };

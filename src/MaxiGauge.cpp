@@ -26,7 +26,7 @@ void MaxiGauge::compose_request(const std::string &buf)
 //   boost::asio::streambuf buff;
 //   std::ostream request_stream(&buff);
 
-    std::ostream request_stream(&request_);
+    std::ostream request_stream(&request);
 
     request_stream<<buf.c_str()<< "\r";
 //       std::cout<<"composed_"<<&request_<<std::endl;

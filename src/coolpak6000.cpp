@@ -38,7 +38,7 @@ void coolpak6000::compose_request(const std::string &buf)
 //   boost::asio::streambuf buff;
 //   std::ostream request_stream(&buff);
 
-    std::ostream request_stream(&request_);
+    std::ostream request_stream(&request);
 
     request_stream<<"\x02" <<buf.c_str()<< "\r";
 //       std::cout<<"composed_"<<&request_<<std::endl;
@@ -48,8 +48,17 @@ void coolpak6000::compose_request(const std::string &buf)
 
    std::string coolpak6000::inputoutput(const std::string input)
 {
+
+  try
+  {
     write(input);
+
     return read();
+  }
+  catch(...)
+  {
+    return std::string("");
+  }
 }
 
    void coolpak6000::set_default()

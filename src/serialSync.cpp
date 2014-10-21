@@ -37,12 +37,15 @@ serialSync::~serialSync(void)
 
 
 
-int serialSync::write()
+int serialSync::write(std::string query)
 {
   start();
 //   io_service_->run();
   boost::system::error_code error = boost::asio::error::host_not_found;
-  boost::asio::streambuf stream;
+  std::ostream request_stream(&request);
+
+    request_stream<<query;
+  
   boost::asio::write(*port_, request);
 
 // Read the response status line.
