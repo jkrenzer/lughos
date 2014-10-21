@@ -31,9 +31,7 @@ namespace lughos
     
     virtual std::string inputOutputImplementation(std::string query)
     {
-      std::ostream requestStream(&connection.request);
-      requestStream << this->composeRequest(query);
-      connection.write();
+      connection.write(this->composeRequest(query));
       return this->interpretAnswer(connection.read());
     }
     
