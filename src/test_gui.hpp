@@ -70,7 +70,7 @@ namespace lughos
       this->init();
     }
     
-    bool checkConnected()
+    void checkConnected()
     {
       if(coolpak->isConnected())
       {
@@ -81,7 +81,8 @@ namespace lughos
 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
         this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::showData);
-	return true;
+	this->getState();
+
       }
       else
       {
@@ -90,7 +91,6 @@ namespace lughos
 	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
 	this->startB->setDisabled(true);
 	this->stopB->setDisabled(true);
-	return false;
       }
     }
     
@@ -106,18 +106,12 @@ namespace lughos
       this->startB = new Wt::WPushButton("Start");
       this->stopB = new Wt::WPushButton("Stop");
       this->stateB = new Wt::WPushButton("Status");
-      
-      
-
-      this->addWidget(stateL);
-      this->addWidget(stateF);
+     this->addWidget(stateL);
+     this->addWidget(stateF);
      this->addWidget(startB);
      this->addWidget(stopB);
      this->addWidget(stateB);
-     if(this->checkConnected())
-     {
-	this->getState();
-     }      
+     this->checkConnected();
     }
     
     void showData()
