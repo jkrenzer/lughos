@@ -18,7 +18,7 @@ namespace lughos
   {
   protected:
     Mutex mutex;
-    Connection<C> connection;
+    ConnectionImpl connection;
     bool initialized;
     
     virtual void initImplementation() = 0;
