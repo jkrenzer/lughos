@@ -60,60 +60,64 @@ namespace lughos
     
   public:
     
-    DeviceUI< coolpak6000 >(boost::shared_ptr<Device> coolpak)
+    DeviceUI< coolpak6000 >(boost::shared_ptr<Device> coolpak) : coolpak(boost::dynamic_pointer_cast<coolpak6000>(coolpak))
     {
-      DeviceUI<coolpak6000> (boost::dynamic_pointer_cast<coolpak6000>(coolpak));
+      this->init();
     }
     
     DeviceUI<coolpak6000>(boost::shared_ptr<coolpak6000> coolpak) : coolpak(coolpak)
     {
-      
-    this->name=coolpak->getName();
-     bool ConnectionEstablished = false;
-     try 
-     {
-      ConnectionEstablished = coolpak->isConnected();
-     }
-     catch(...)
-     {
-      this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
-       ConnectionEstablished = false;
-     }
-     
-     if(ConnectionEstablished)
-     {
-	this->setWidth(250);
-	this->addWidget(new Wt::WText(this->name.c_str()));
-	this->stateF = new Wt::WLineEdit("Initializing...");
-	this->stateF->setReadOnly(true);
-	this->stateL = new Wt::WLabel("Status:");
-	this->stateL->setBuddy(stateF);
-	this->startB = new Wt::WPushButton("Start");
-	this->stopB = new Wt::WPushButton("Stop");
-	this->stateB = new Wt::WPushButton("Status");
-	this->startB->setDisabled(true);
+      this->init();
+    }
+    
+    bool checkConnected()
+    {
+      if(coolpak->isConnected())
+      {
+	this->stateF->setText("Connected!");
+        this->stateB->setText("Status");
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
-	this->stopB->setDisabled(true);
 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
-	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::showData);
-	this->addWidget(stateL);
-	this->addWidget(stateF);
-	this->addWidget(startB);
-	this->addWidget(stopB);
-	this->addWidget(stateB);
-	this->init();
+        this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::showData);
+	return true;
       }
       else
       {
-
-	this->addWidget(new Wt::WText(std::string("Port ") + "wonttellyou"/*dynamic_cast <const Connection< serialContext > *>(coolpak->getConnection())->port_name*/ + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
-
+	this->stateF->setText("Not connected!");
+        this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
+	this->startB->setDisabled(true);
+	this->stopB->setDisabled(true);
+	return false;
       }
     }
     
     void init()
     {
-      this->getState();
+     this->name=coolpak->getName();
+     this->setWidth(250);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->stateF = new Wt::WLineEdit("Initializing...");
+      this->stateF->setReadOnly(true);
+      this->stateL = new Wt::WLabel("Status:");
+      this->stateL->setBuddy(stateF);
+      this->startB = new Wt::WPushButton("Start");
+      this->stopB = new Wt::WPushButton("Stop");
+      this->stateB = new Wt::WPushButton("Status");
+      
+      
+
+      this->addWidget(stateL);
+      this->addWidget(stateF);
+     this->addWidget(startB);
+     this->addWidget(stopB);
+     this->addWidget(stateB);
+     if(this->checkConnected())
+     {
+	this->getState();
+     }      
     }
     
     void showData()
