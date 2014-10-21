@@ -50,7 +50,7 @@ typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 
 
 
-class serialSync : virtual public connection<serialContext>
+class serialSync : virtual public Connection<serialContext>
 {
   private:
 	serialSync(const serialSync &p);
@@ -77,7 +77,7 @@ class serialSync : virtual public connection<serialContext>
 	serialSync(boost::asio::io_service* io_service);
 	~serialSync(void);
 	
-	int write(const std::string &buf);
+	int write();
 
 // 	void reset();
   

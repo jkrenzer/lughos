@@ -6,7 +6,7 @@
 #include "PSANetzteil.hpp"
 
 
-PSANetzteil::PSANetzteil(boost::asio::io_service* io_service):serialSync(io_service), connection< serialContext >(io_service)
+PSANetzteil::PSANetzteil(boost::asio::io_service* io_service):serialSync(io_service), Connection< serialContext >(io_service)
 {
   set_default();
   
@@ -25,7 +25,7 @@ void PSANetzteil::compose_request(const std::string &buf)
 //   boost::asio::streambuf buff;
 //   std::ostream request_stream(&buff);
 
-    std::ostream request_stream(&request_);
+    std::ostream request_stream(&request);
 
     request_stream <<buf.c_str()<<"\r";
 //       std::cout<<"composed_"<<&request_<<std::endl;

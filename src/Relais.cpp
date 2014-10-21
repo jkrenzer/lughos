@@ -7,7 +7,7 @@
 #include <math.h>  
 
 
-Relais::Relais(boost::asio::io_service* io_service):serialSync(io_service), serialAsync(io_service), connection< serialContext >(io_service)
+Relais::Relais(boost::asio::io_service* io_service):serialSync(io_service), serialAsync(io_service), Connection< serialContext >(io_service)
 {
  
 set_default();
@@ -27,7 +27,7 @@ void Relais::compose_request(const std::string &buf)
 //   boost::asio::streambuf buff;
 //   std::ostream request_stream(&buff);
 
-    std::ostream request_stream(&request_);
+    std::ostream request_stream(&request);
 
     request_stream<<buf.c_str();
 //       std::cout<<"composed_"<<&request_<<std::endl;

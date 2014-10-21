@@ -62,36 +62,22 @@ namespace lughos
     DeviceUI<coolpak6000>(std::string  name, std::string comPort) : coolpak(new coolpak6000(ioService))
     {
       
-        std::ofstream ofs ("/home/irina/projects/DeviceUI.txt", std::ofstream::out);
 
-  ofs << "DeviceUI\n";
 //     ofs.close();
      this->name = name;
      coolpak->port_name=comPort;
-     bool isStarted = false;
-       ofs << "coolpackPort\n";
+     bool ConnectionEstablished = false;
      try 
      {
-
-
-      isStarted = coolpak->start();
-   ofs << "trystart\n";
-//     ofs.close();
-      coolpak->stop();
-    ofs << "trystop\n";
-    ofs.close();
-
+      ConnectionEstablished = coolpak->testconnection();
      }
      catch(...)
      {
-       this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
-       coolpak->stop();
-       isStarted = false;
+      this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
+       ConnectionEstablished = false;
      }
-/*     
-    ofs << "started\n";
-    ofs.close();*/
-     if(isStarted)
+     
+     if(ConnectionEstablished)
      {
 	this->setWidth(250);
 	this->addWidget(new Wt::WText(this->name.c_str()));
@@ -223,19 +209,20 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
     {
      this->name = name;
      maxigauge->port_name=comPort;
-     bool isStarted = false;
+     bool ConnectionEstablished = false;
      try 
      {
-      isStarted = maxigauge->start();
+      ConnectionEstablished = maxigauge->testconnection();
      }
      catch(...)
      {
-       isStarted = false;
+       this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
+       ConnectionEstablished = false;
      }
      
-     if(isStarted)
+     if(ConnectionEstablished)
      {
-        maxigauge->stop();
+//         maxigauge->stop();
 	this->setWidth(250);
 	this->addWidget(new Wt::WText(this->name.c_str()));
 	this->stateF = new Wt::WLineEdit("Initializing...");

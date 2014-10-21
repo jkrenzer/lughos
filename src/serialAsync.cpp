@@ -11,7 +11,7 @@
 #include "serialAsync.hpp"
 
 
-serialAsync::serialAsync(boost::asio::io_service* io_service) : connection<serialContext>(io_service)
+serialAsync::serialAsync(boost::asio::io_service* io_service) : Connection<serialContext>(io_service)
 {
 }
 
@@ -22,14 +22,12 @@ serialAsync::~serialAsync(void)
 
 
 
-int serialAsync::write_async(const std::string &buf)
+int serialAsync::write()
 {    
   
       start();
-	compose_request(buf);
-
+	const int size=request.size();
 	boost::system::error_code ec;
-	const int size=buf.size();
 // 	if (!port_) return -1;
 	if (size == 0) return 0;
 	 
@@ -45,7 +43,7 @@ void serialAsync::async_read_some_()
 //   std::cout<<"bist du versackt?"<<std::endl;
 	if (port_.get() == NULL || !port_->is_open()) return;
 
-	  boost::asio::async_write(*port_, request_,
+	  boost::asio::async_write(*port_, request,
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
 	

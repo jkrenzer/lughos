@@ -7,7 +7,7 @@
 #include "coolpak6000.hpp"
 
 
-coolpak6000::coolpak6000(boost::asio::io_service* io_service):serialSync(io_service), serialAsync(io_service), connection< serialContext >(io_service)
+coolpak6000::coolpak6000(boost::asio::io_service* io_service): serialAsync(io_service), Connection< serialContext >(io_service)
 {
  
 set_default();
@@ -46,11 +46,9 @@ void coolpak6000::compose_request(const std::string &buf)
   
 }
 
-   std::string coolpak6000::inputoutput(const std::string input, const int async)
+   std::string coolpak6000::inputoutput(const std::string input)
 {
-    if (async==0)write(input);
-    else if (async==1)write_async(input);
-    else write(input);
+    write(input);
     return read();
 }
 
@@ -67,14 +65,9 @@ void coolpak6000::compose_request(const std::string &buf)
 std::string coolpak6000::read()
 {       
    this->start();
-        std::string s = response_string_stream.str();
-
-	response_string_stream.str("");
-	
-// 	static const boost::regex e("^\\D*(\\d*)\\D$");
-// 	 boost::cmatch res;
-// 	 boost::regex_search(s.c_str(), res, e);
-  this->stop();
+      std::string s = response_string_stream.str();
+      response_string_stream.str("");
+      this->stop();
   return s;  
 
 }
@@ -100,11 +93,11 @@ std::string coolpak6000::read()
    std::string coolpak6000::get_data()
 {
 
-  std::string  s =this->inputoutput("DAT");
+	std::string  s =this->inputoutput("DAT");
 
   
 //   	 static const boost::regex e("\\/(.*)\\/");
-static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
+	 static const boost::regex e("([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)");
 
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);

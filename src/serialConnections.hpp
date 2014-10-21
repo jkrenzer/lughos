@@ -38,7 +38,7 @@ class serialContext
   }
 };
 
-template <> class connection<serialContext>: public connectionTemplate<serialContext>
+template <> class Connection<serialContext>: public ConnectionTemplate<serialContext>
 {
   protected:
 
@@ -72,10 +72,14 @@ template <> class connection<serialContext>: public connectionTemplate<serialCon
 	
 	std::stringstream response_string_stream;
 // 	const char end_of_line;
+	
+	bool start();
+	void stop();
+
 
 private:
-  	connection(const connection &p);
-	connection &operator=(const connection &p); 
+  	Connection(const connection &p);
+	Connection &operator=(const Connection &p); 
 	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
 	char end_of_line_char() const;
 	void end_of_line_char(const char &c);
@@ -84,21 +88,22 @@ private:
 
 	
   public:
-	connection(boost::asio::io_service* io_service);
-	~connection(void);
+	Connection(boost::asio::io_service* io_service);
+	~Connection(void);
 	
 	boost::asio::streambuf response_;
-	boost::asio::streambuf request_;
+	boost::asio::streambuf request;
 
-	bool start();
-	void stop();
 	void set_port();
+	void reset();
+
 	virtual std::string read();
+	virtual std::string write();
 	std::string response_string;
-	
+	virtual bool testconnection();
 // 	int write(const std::string &buf);
 // 	int write_async(const std::string &buf);
-	void reset();
+
 	void set_baud_rate(const int baud_rate);
 	void set_character_size(const int character_size);
 	void set_flow_controll(flow_constroll_bit controll_type);

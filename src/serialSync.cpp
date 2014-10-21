@@ -27,7 +27,7 @@
 // {
 // 
 // }
-serialSync::serialSync(boost::asio::io_service* io_service) : connection< serialContext >(io_service)
+serialSync::serialSync(boost::asio::io_service* io_service) : Connection< serialContext >(io_service)
 {
 }
 
@@ -37,14 +37,13 @@ serialSync::~serialSync(void)
 
 
 
-int serialSync::write(const std::string &buf)
+int serialSync::write()
 {
   start();
 //   io_service_->run();
-  this->compose_request(buf);
   boost::system::error_code error = boost::asio::error::host_not_found;
   boost::asio::streambuf stream;
-  boost::asio::write(*port_, request_);
+  boost::asio::write(*port_, request);
 
 // Read the response status line.
   if(end_of_line_char_=='\0'){

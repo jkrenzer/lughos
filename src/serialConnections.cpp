@@ -14,7 +14,7 @@
 // 
 // }
 
-connection<serialContext>::connection(boost::asio::io_service * io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size()
+Connection<serialContext>::Connection(boost::asio::io_service * io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size()
 {
 this->io_service_= io_service;
 
@@ -22,23 +22,23 @@ this->io_service_= io_service;
 
 
 
-connection<serialContext>::~connection(void)
+Connection<serialContext>::~Connection(void)
 {
 // 	stop();
 }
 
-char connection<serialContext>::end_of_line_char() const
+char Connection<serialContext>::end_of_line_char() const
 {
     return this->end_of_line_char_;
 }
 
-void connection<serialContext>::end_of_line_char(const char &c)
+void Connection<serialContext>::end_of_line_char(const char &c)
 {
   this->end_of_line_char_ = c;
 }
 
 
-bool connection<serialContext>::start()
+bool Connection<serialContext>::start()
 {
 
   	if (port_name.empty()) {
@@ -46,7 +46,7 @@ bool connection<serialContext>::start()
 		return false;
 	}
   
-    this->end_of_line_char(end_of_line_char_);
+	this->end_of_line_char(end_of_line_char_);
 	boost::system::error_code ec;
 
 	if (port_) {
@@ -82,7 +82,7 @@ bool connection<serialContext>::start()
 
 
 
-void connection<serialContext>::reset()
+void Connection<serialContext>::reset()
 {
  
 #ifdef WIN32
@@ -233,7 +233,7 @@ GetCommState(h_Port, &dcb);
 }
 
 
-void connection<serialContext>::stop()
+void Connection<serialContext>::stop()
 {
 // 	boost::mutex::scoped_lock look(mutex_);
     try{
@@ -259,25 +259,25 @@ void connection<serialContext>::stop()
 
 
 
-void connection<serialContext>::compose_request(const std::string &buf)
+void Connection<serialContext>::compose_request(const std::string &buf)
 {
 //   	                std::cout<<"wrong compose"<<std::endl;
 }
 
-void connection<serialContext>::set_port()
+void Connection<serialContext>::set_port()
 {
 
 }
 
 
   
-void connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
+void Connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
   {
   
   }
 
 
-void connection<serialContext>::handle_read_headers_process()
+void Connection<serialContext>::handle_read_headers_process()
 {
         // Process the response headers.
 //       std::istream response_stream(&response_);
@@ -294,7 +294,7 @@ void connection<serialContext>::handle_read_headers_process()
 
 }
 
-std::string connection<serialContext>::read()
+std::string Connection<serialContext>::read()
 {
         std::string s = response_string_stream.str();
 // std::cout<<s<<std::endl;
@@ -304,20 +304,20 @@ std::string connection<serialContext>::read()
 
 }
 
-void connection<serialContext>::set_baud_rate(const int baud)
+void Connection<serialContext>::set_baud_rate(const int baud)
 {
     
   baud_rate=boost::asio::serial_port_base::baud_rate(baud);
 
 }
-void connection<serialContext>::set_character_size(const int size)
+void Connection<serialContext>::set_character_size(const int size)
 {
     
   character_size=boost::asio::serial_port_base::character_size(size);
 
 }
 
-void connection<serialContext>::set_flow_controll(flow_constroll_bit controll_type)
+void Connection<serialContext>::set_flow_controll(flow_constroll_bit controll_type)
 {
     
   switch(controll_type)
@@ -337,7 +337,7 @@ void connection<serialContext>::set_flow_controll(flow_constroll_bit controll_ty
   }
 }
 
-void connection<serialContext>::set_parity(parity_bit parity_type)
+void Connection<serialContext>::set_parity(parity_bit parity_type)
 {
     
   switch(parity_type)
@@ -357,7 +357,7 @@ void connection<serialContext>::set_parity(parity_bit parity_type)
   }
 }
 
-void connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
+void Connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
 {
     
   switch(stop_bits_type)
@@ -379,7 +379,25 @@ void connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
 
 
 
-void connection<serialContext>::set_default()
+void Connection<serialContext>::set_default()
 {
     
+}
+
+bool Connection<serialContext>::testconnection()
+{
+  bool ConnectionEstablished = false;
+     try 
+     {
+      ConnectionEstablished = this->start();
+     }
+     catch(...)
+     {
+       ConnectionEstablished = false;
+     }
+     if(ConnectionEstablished)
+     {
+       this->stop();
+     }
+     return ConnectionEstablished;
 }

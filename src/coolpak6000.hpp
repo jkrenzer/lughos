@@ -31,7 +31,7 @@ class coolpak6000 :virtual public serialSync, virtual public serialAsync
 	coolpak6000(boost::asio::io_service* io_service);
 	~coolpak6000(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
+	virtual std::string inputoutput(const std::string input);
 	virtual void set_default();
 	virtual std::string read();
 	bool compressor_on();
