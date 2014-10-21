@@ -77,15 +77,21 @@ namespace lughos
     {
       GUARD
       this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-      this->connected = connection->testconnection();
-      this->init();
+      if(this->connection->testconnection())
+	this->init();
       return this->connected;
     }
     
     bool isConnected()
     {
       GUARD
-      return this->connected;
+      bool currentlyConnected = this->connection->testconnection();
+      if(currentlyConnected && !this->connected)
+	this->init();
+      else if (!currentlyConnected && this->connected)
+	this->initialized = false;
+      this->connected = currentlyConnected;
+      return currentlyConnected;
     }
     
     bool isInitialized()
