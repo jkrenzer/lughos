@@ -116,7 +116,7 @@ namespace lughos
     
   };
   
-  Device : public DeviceImpl
+  class Device : public DeviceImpl
   {
     
   };
