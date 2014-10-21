@@ -106,7 +106,7 @@ namespace lughos
       else
       {
 
-	this->addWidget(new Wt::WText(std::string("Port ") + "wonttellyou"/*dynamic_cast <const Connection< serialContext > *>(coolpak->getConnection())->port_name*/ + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
+	this->addWidget(new Wt::WText(std::string("Port ") + std::string("wonttellyou") + std::string(" cannot be opened. Port blocked, disabled or wrong portname.")));
 
       }
     }
