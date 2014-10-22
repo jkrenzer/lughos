@@ -43,16 +43,17 @@ int main(int argc, char **argv)
   ofs << "IOService started and running..";
     ofs.close();
   std::cout << "IOService started and running..." << std::endl;
-     serialAsync connection1(lughos::ioService);
-     serialAsync connection2(lughos::ioService);
+  
+    boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
      
      #ifdef WIN32 
       connection1.port_name = std::string("COM1");
       connection2.port_name = std::string("COM2");
 
      #else
-      connection1.port_name = std::string("/dev/ttyUSB0");
-      connection2.port_name = std::string("/dev/ttyS1");
+      connection1->port_name = std::string("/dev/ttyUSB0");
+      connection2->port_name = std::string("/dev/ttyS1");
     #endif
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
       compressor1->setName(std::string("Compressor 1"));
 //       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
       
-      compressor1->connect(&connection1);
+      compressor1->connect(connection1);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
   
@@ -80,9 +81,27 @@ int main(int argc, char **argv)
    */
   
   std::cout << "Starting Webserver" << std::endl;
+//   char* arg1=new char;
+//   arg1="--docroot=./";
+//   char* arg2 = new char;
+//   arg2="--http-address=127.0.0.1";
+  
+  
+//   char* myargv[3];
+// 
+//   myargv[0]=argv[0];
+//   myargv[1] = new char [100];
+//   strcpy(myargv[1],"--docroot=./");
+//   myargv[2] = new char [100];
+//   strcpy(myargv[2],"--http-address=127.0.0.1");
+// 
+//   std::printf("argv[1] = %s", myargv[1]);
+//   std::printf("argv[2] = %s", myargv[2]);
+//   
   int result = Wt::WRun(argc, argv, &createApplication);
+//   int result = Wt::WRun(3, myargv, &createApplication);
 
-
+   
 
 //   ofs<< "Shutting down Webserver" << std::endl;
 

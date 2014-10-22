@@ -1,6 +1,8 @@
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
+#include <ostream>
+
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
@@ -40,6 +42,10 @@ namespace lughos
     virtual std::string inputOutputImplementation(std::string query)
     {
       connection->write(this->composeRequest(query));
+      
+        std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
+	ofs <<connection->read() << std::endl;
+	ofs.close();
       return this->interpretAnswer(connection->read());
     }
     
@@ -73,7 +79,7 @@ namespace lughos
       this->initialized = false;
     }
     
-    bool connect(ConnectionImpl* connection)
+    bool connect(boost::shared_ptr<ConnectionImpl> connection)
     {
       GUARD
       this->connection = boost::shared_ptr<ConnectionImpl>(connection);
@@ -118,11 +124,11 @@ namespace lughos
       
     }
     
-    ~DeviceImpl()
-    {
-      
-    }
-    
+//     ~DeviceImpl()
+//     {
+//       
+//     }
+//     
   };
   
   class Device : public DeviceImpl

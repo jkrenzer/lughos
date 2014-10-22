@@ -37,7 +37,7 @@ void MaxiGauge::compose_request(const std::string &buf)
    void MaxiGauge::handle_read_check_response(const boost::system::error_code& err)
 {
   std::stringstream check_response_stream;
-  check_response_stream<<&response_;
+  check_response_stream<<&response;
  
   
         std::string s = check_response_stream.str();

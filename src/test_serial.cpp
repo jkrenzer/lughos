@@ -1,5 +1,8 @@
 #include <iostream>
+#include <map>
 #include "coolpak6000.hpp"
+#include "serialAsync.hpp"
+#include "device.hpp"
 // #include "MaxiGauge.hpp"
 // #include "kithleighSerial.hpp"
 // #include "connectionImpl.hpp"
@@ -9,9 +12,15 @@
 #include <pthread.h>
 #include <boost/asio.hpp>
 
+typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
+
+
 int main(int argc, char **argv) {
 boost::asio::io_service * io_service = new boost::asio::io_service;
-  
+std::map< std::string, boost::shared_ptr<Device> > deviceMap;
+
+       boost::shared_ptr<serialAsync> connection1(new serialAsync(io_service) );
+        connection1->port_name = std::string("/dev/ttyUSB0");
   	bool rv;
 
 // 	SerialPort::print_devices();
@@ -20,22 +29,29 @@ boost::asio::io_service * io_service = new boost::asio::io_service;
 
   
 //     kithleighSerial* c = new kithleighSerial;
-	boost::shared_ptr<coolpak6000> c(new coolpak6000(io_service));
-// 		c->port_name = "COM1";
-			c->port_name = "/dev/ttyUSB0";
+      boost::shared_ptr<Device> compressor1(new coolpak6000);
+//       MaxiGauge* pressureMonitor1 = new MaxiGauge;
+      
+      compressor1->setName(std::string("Compressor 1"));
+//       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
+      
+      compressor1->connect(connection1);
+//       deviceMap[compressor1->getName()]=compressor1;
+      deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
+
+	boost::shared_ptr<coolpak6000> coolpak = boost::dynamic_pointer_cast<coolpak6000>(compressor1);
 		
+		 std::cout << "Write="<< coolpak->get_data()<< std::endl;
+		  std::cout << "Write="<< coolpak->compressor_on()<< std::endl;
+		  sleep(1);
+		   std::cout << "Write="<< coolpak->compressor_off()<< std::endl;
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 
 //     c->context.RTS = false; 
 //     c->context.DTR = true;
  
-    	rv = c->start(); /*115200*/	
-	//    c->reset();
-	    	  std::cout << "rv="<< rv<< std::endl;
-	if (rv == false) {
-		return -1;
-	}
+
 //      std::cout << "Write="<< c->write("*IDN?")<< std::endl;
 //    	  std::cout << "Write="<< c->write_async("*RST")<< std::endl;
 //     	  std::cout << "Write="<< c->write("READ?\r")<< std::endl;
@@ -48,9 +64,9 @@ boost::asio::io_service * io_service = new boost::asio::io_service;
 //  std::cout << "Write="<< c->write("\x02")<< std::endl;
 //   std::cout << "Write="<< c->inputoutput("*IDN?")<< std::endl;
 //     std::cout << c->inputoutput("DAT")<< std::endl;
-   std::cout <<  c->get_software_version()<< std::endl;
-      std::cout <<  c->get_compressor_state()<< std::endl;
-            std::cout <<  c->get_operating_hours().getvalue() << c->get_operating_hours().getunit()<< std::endl;
+//    std::cout <<  c->get_software_version()<< std::endl;
+//       std::cout <<  c->get_compressor_state()<< std::endl;
+//             std::cout <<  c->get_operating_hours().getvalue() << c->get_operating_hours().getunit()<< std::endl;
 // std::cout << "Write="<< c->inputoutput("\x02")<< std::endl;
 // std::cout << "Write="<< c->inputoutput(":06030401210121")<< std::endl;
 

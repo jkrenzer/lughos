@@ -59,16 +59,16 @@ void serialAsync::async_read_some_()
 void serialAsync::handle_write_request(const boost::system::error_code& err)
   {
 
-    if (!err)
+    if (!err&&port_)
     {
       // Read the response status line.
-      boost::asio::async_read_until(*port_, response_, end_of_line_char_,
+      boost::asio::async_read_until(*port_, response, end_of_line_char_,
           boost::bind(&serialAsync::handle_read_content, this,
             boost::asio::placeholders::error));
     }
     else
     {
-      std::cout << "Error: " << err.message() << "\n";
+      std::cout << "Error Async: port or" << err.message() << "\n";
     }
   }
   
@@ -80,12 +80,12 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
     if (!err)
     {
       // Write all of the data that has been read so far.
-	response_string_stream<< &response_;
+	response_string_stream<< &response;
 
     }
     else if (err != boost::asio::error::eof)
     {
-      std::cout << "Error: " << err << "\n";
+      std::cout << "Error ReadContent: " << err << "\n";
     }
 
   } 

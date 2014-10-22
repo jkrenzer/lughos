@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 #include "connectionImpl.hpp"
+#include <boost/thread/recursive_mutex.hpp>
+
 
 typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 
@@ -41,7 +43,7 @@ class serialContext
 template <> class Connection<serialContext>: public ConnectionTemplate<serialContext>
 {
   protected:
-
+	boost::recursive_mutex mutex;
 	serial_port_ptr port_;
 // 	boost::mutex mutex_;
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
@@ -88,7 +90,7 @@ private:
 	
 	char end_of_line_char_;
 	
-	boost::asio::streambuf response_;
+	boost::asio::streambuf response;
 	boost::asio::streambuf request;
 
 	void set_port();
@@ -110,11 +112,11 @@ private:
 	virtual void set_default();
 		int exp_lenght=1;
 		
-	boost::asio::serial_port_base::flow_control::type flow_control;
+	boost::asio::serial_port_base::flow_control flow_control;
 	boost::asio::serial_port_base::character_size character_size;
 	boost::asio::serial_port_base::baud_rate baud_rate;
-	boost::asio::serial_port_base::parity::type parity;
-	boost::asio::serial_port_base::stop_bits::type stop_bits;
+	boost::asio::serial_port_base::parity parity;
+	boost::asio::serial_port_base::stop_bits stop_bits;
   
 };
 

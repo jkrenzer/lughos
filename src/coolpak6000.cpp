@@ -33,11 +33,11 @@ template <> void coolpak6000::setDefaultImpl< Connection<serialContext> > (Conne
 {
   
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(4800);
-    connection.flow_control=boost::asio::serial_port_base::flow_control::none;
+    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);
     connection.end_of_line_char_='\r';
-    connection.parity=boost::asio::serial_port_base::parity::none;
-    connection.stop_bits=boost::asio::serial_port_base::stop_bits::one;
+    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
   
 }
 
@@ -125,10 +125,10 @@ std::string coolpak6000::interpretAnswer(std::string s)
    bool coolpak6000::coolhead_on(int head)
 {
  
-  std::string request("SC" +std::to_string(head)+std::to_string(1));
+  std::string request1("SC" +std::to_string(head)+std::to_string(1));
    
-  std::string response=this->inputOutput(request);
-  if(response.c_str()==request.c_str())return true;
+  std::string response=this->inputOutput(request1);
+  if(response.c_str()==request1.c_str())return true;
   else return false; 
   
 }

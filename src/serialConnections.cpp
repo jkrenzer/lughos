@@ -1,4 +1,5 @@
-
+#include <iostream>
+#include <fstream>
 
 #include "serialConnections.hpp"
 // #include "Dict.hpp"
@@ -8,6 +9,8 @@
 #include <windows.h>
 #include <winioctl.h>
 #endif
+
+#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
 
 // connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
 // {
@@ -40,9 +43,20 @@ void Connection<serialContext>::end_of_line_char(const char &c)
 
 bool Connection<serialContext>::start()
 {
+  std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
+	ofs << "ready to set following options" << std::endl;
+	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
+	ofs << "character_size: "<<character_size.value() << std::endl;
+	ofs << "stop_bits: "<<stop_bits.value() << std::endl;
+	ofs << "parity: "<<parity.value() << std::endl;
+	ofs << "flow_control: "<<flow_control.value() << std::endl;
 
+
+  ofs<< character_size.value() << std::endl;
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
+		ofs<< "please set port name before start" << std::endl;
+		ofs.close();
 		return false;
 	}
   
@@ -51,6 +65,8 @@ bool Connection<serialContext>::start()
 
 	if (port_) {
 		std::cout << "error : port is already opened..." << std::endl;
+		ofs << "error : port is already opened..." << std::endl;
+		ofs.close();
 		return false;
 	}
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
@@ -58,23 +74,71 @@ bool Connection<serialContext>::start()
 	if (ec) {
 		std::cout << "error : port_->open() failed...com_port_name="
 			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+		ofs << "error : port_->open() failed...com_port_name="
+			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+			ofs.close();
 		return false;
 	}
 	
 // 	this->reset();
 	// option settings...
-	port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
-	port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
-	port_->set_option(boost::asio::serial_port_base::stop_bits(stop_bits));
-	port_->set_option(boost::asio::serial_port_base::parity(parity));
-// // 	port_->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware));
-	port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));
 
 
+	  try 
+	  {
+	      port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+	  }
+	  catch(...)
+	  {
+	      ofs << "baud rate problems" << std::endl;
+	  }
+
+	  try 
+	  {
+	  port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
+	  }
+	  catch(...)
+	  {
+	      ofs << "character_size problems" << std::endl;
+	  }
+
+	  try 
+	  {
+	    int i=0;
+	  port_->set_option(stop_bits);
+	  }
+	  catch(...)
+	  {
+	      ofs << "stop_bits problems" << std::endl;
+	  }
+	
+	
+	  try 
+	  {
+	    int i=0;
+	    port_->set_option(boost::asio::serial_port_base::parity(parity));
+	  }
+	  catch(...)
+	  {
+	      ofs << "parity problems" << std::endl;
+	  }
+	
+	  try 
+	  {
+	    port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));	  }
+	  catch(...)
+	  {
+	      ofs << "flow_control problems" << std::endl;
+	  }
+	
+
+
+
+	ofs << "start is fine" << std::endl;
+	ofs.flush();
+	ofs.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
 
-
-	
 	return true;
     
     
@@ -323,14 +387,14 @@ void Connection<serialContext>::set_flow_controll(flow_constroll_bit controll_ty
   switch(controll_type)
   {
   case off:  // (can I just type case EASY?)
-	flow_control=boost::asio::serial_port_base::flow_control::none;
-      break;
+	  flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+  break;
 
   case software: 
-	  flow_control=boost::asio::serial_port_base::flow_control::software;
-      break;
+	  flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::software);
+  break;
 
-  case hardware: flow_control=boost::asio::serial_port_base::flow_control::hardware;
+  case hardware: flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware);
 
   default:;
 
@@ -343,14 +407,14 @@ void Connection<serialContext>::set_parity(parity_bit parity_type)
   switch(parity_type)
   {
   case none:  
-	parity=boost::asio::serial_port_base::parity::none;
+	parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
       break;
 
   case odd: 
-	 parity=boost::asio::serial_port_base::parity::odd;
+	 parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::odd);
       break;
 
-  case even:parity=boost::asio::serial_port_base::parity::even;
+  case even:parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::even);
 
   default:;
 
@@ -363,14 +427,14 @@ void Connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
   switch(stop_bits_type)
   {
   case one:  
-	stop_bits=boost::asio::serial_port_base::stop_bits::one;
+	stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
       break;
 
   case onepointfive: 
-	 stop_bits=boost::asio::serial_port_base::stop_bits::onepointfive;
+	 stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::onepointfive);
       break;
 
-  case two: stop_bits=boost::asio::serial_port_base::stop_bits::two;
+  case two: stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::two);
 
   default:;
 
@@ -384,8 +448,11 @@ void Connection<serialContext>::set_default()
     
 }
 
+
+
 bool Connection<serialContext>::testconnection()
 {
+ GUARD
   bool ConnectionEstablished = false;
      try 
      {
