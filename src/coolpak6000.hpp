@@ -33,6 +33,9 @@ class coolpak6000 : public Device
 	
 	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
+	
 	
 	bool compressor_on();
 	bool compressor_off();
@@ -50,8 +53,7 @@ class coolpak6000 : public Device
 	int get_number_of_saved_errors();
 	unitValue get_delay();
 	unitValue get_operating_hours();
-	void initImplementation();
-	void shutdownImplementation();
+
 		
 protected:
   

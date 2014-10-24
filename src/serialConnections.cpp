@@ -17,7 +17,7 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::asio::io_service * io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size()
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size()
 {
 this->io_service_= io_service;
 
@@ -27,7 +27,7 @@ this->io_service_= io_service;
 
 Connection<serialContext>::~Connection(void)
 {
-// 	stop();
+	stop();
 }
 
 char Connection<serialContext>::end_of_line_char() const
@@ -47,16 +47,17 @@ bool Connection<serialContext>::start()
 	ofs << "ready to set following options" << std::endl;
 	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
 	ofs << "character_size: "<<character_size.value() << std::endl;
-	ofs << "stop_bits: "<<stop_bits.value() << std::endl;
+	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
 	ofs << "parity: "<<parity.value() << std::endl;
 	ofs << "flow_control: "<<flow_control.value() << std::endl;
 
-
+  std::cout<<"port name: "<< port_name<< std::endl;
   ofs<< character_size.value() << std::endl;
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
 		ofs<< "please set port name before start" << std::endl;
 		ofs.close();
+		stop();
 		return false;
 	}
   
@@ -67,6 +68,7 @@ bool Connection<serialContext>::start()
 		std::cout << "error : port is already opened..." << std::endl;
 		ofs << "error : port is already opened..." << std::endl;
 		ofs.close();
+		stop();
 		return false;
 	}
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
@@ -77,6 +79,7 @@ bool Connection<serialContext>::start()
 		ofs << "error : port_->open() failed...com_port_name="
 			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
 			ofs.close();
+		stop();
 		return false;
 	}
 	
@@ -138,7 +141,7 @@ bool Connection<serialContext>::start()
 	ofs.flush();
 	ofs.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
-
+//   io_service_->run();
 	return true;
     
     
@@ -299,23 +302,22 @@ GetCommState(h_Port, &dcb);
 
 void Connection<serialContext>::stop()
 {
-// 	boost::mutex::scoped_lock look(mutex_);
-    try{
+// 	boost::mutex::scoped_lock look(mutex_)
+//   std::cout<<"trying to close port"<<std::endl;
+    try
+    {
 	if (port_) 
-	{
+	{  
+// 		std::cout<<"open port found"<<std::endl;
+
 		port_->cancel();
 		port_->close();
 		port_.reset();
-		delete port_.get();
-		
+
 	}
     }
     catch(...)
     {
-      	if (port_) 
-	{
-		delete port_.get();	
-	}
     }
 // 	io_service_->stop();
 // 	io_service_->reset();
@@ -361,9 +363,8 @@ void Connection<serialContext>::handle_read_headers_process()
 std::string Connection<serialContext>::read()
 {
         std::string s = response_string_stream.str();
-// std::cout<<s<<std::endl;
 	response_string_stream.str("");
-  stop();
+// 	stop();
     return s;  
 
 }

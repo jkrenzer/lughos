@@ -3,7 +3,7 @@
 #include "coolpak6000.hpp"
 #include "serialAsync.hpp"
 #include "device.hpp"
-// #include "MaxiGauge.hpp"
+#include "MaxiGauge.hpp"
 // #include "kithleighSerial.hpp"
 // #include "connectionImpl.hpp"
 // #include "basicConnections.hpp"
@@ -11,16 +11,21 @@
 // #include "bronkhorst.hpp"
 #include <pthread.h>
 #include <boost/asio.hpp>
-
+#include <boost/shared_ptr.hpp>
+#define BOOST_ASIO_HANDLER_TRACKING
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
 
 int main(int argc, char **argv) {
-boost::asio::io_service * io_service = new boost::asio::io_service;
-std::map< std::string, boost::shared_ptr<Device> > deviceMap;
+	boost::shared_ptr<boost::asio::io_service> io_service (new boost::asio::io_service);
+	boost::asio::io_service::work work(*io_service);
+	boost::thread thread(boost::bind(&boost::asio::io_service::run, io_service));
+	std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 
-       boost::shared_ptr<serialAsync> connection1(new serialAsync(io_service) );
+        boost::shared_ptr<serialAsync> connection1(new serialAsync(io_service) );
         connection1->port_name = std::string("/dev/ttyUSB0");
+	boost::shared_ptr<serialAsync> connection2(new serialAsync(io_service) );
+        connection2->port_name = std::string("/dev/ttyUSB1");
   	bool rv;
 
 // 	SerialPort::print_devices();
@@ -30,21 +35,26 @@ std::map< std::string, boost::shared_ptr<Device> > deviceMap;
   
 //     kithleighSerial* c = new kithleighSerial;
       boost::shared_ptr<Device> compressor1(new coolpak6000);
+//       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
       compressor1->setName(std::string("Compressor 1"));
 //       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
       
       compressor1->connect(connection1);
+//             pressureMonitor1->connect(connection2);
 //       deviceMap[compressor1->getName()]=compressor1;
       deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
+//       deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
 
 	boost::shared_ptr<coolpak6000> coolpak = boost::dynamic_pointer_cast<coolpak6000>(compressor1);
+// 	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
 		
-		 std::cout << "Write="<< coolpak->get_data()<< std::endl;
+// 		 std::cout << "Write="<< coolpak->get_data()<< std::endl;
 		  std::cout << "Write="<< coolpak->compressor_on()<< std::endl;
 		  sleep(1);
 		   std::cout << "Write="<< coolpak->compressor_off()<< std::endl;
+// 		    std::cout << "At least i write something"<< std::endl;
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
 
@@ -80,7 +90,13 @@ std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 //  std::cout << "Write="<< c->write("\x03")<< std::endl;
 //  std::cout << "Write="<< c->write("PR1""\r\n""\x05")<< std::endl;
 //    	  	  	sleep(1);	
-	delete io_service;
+// 	delete io_service;
+
+  io_service->stop();
+//    ofs<< "IOService stopping..." << std::endl;
+  std::cout << "IOService stopping..." << std::endl;
+  io_service->reset();
+  thread.join();
 	return 0;
 }
 

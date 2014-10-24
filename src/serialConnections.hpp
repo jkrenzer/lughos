@@ -50,8 +50,8 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 	std::string read_buf_str_;
 
 // 	char end_of_line;
- 
-	boost::asio::io_service * io_service_;
+	boost::shared_ptr<boost::asio::io_service> io_service_;
+// 	boost::asio::io_service * io_service_;
 	
 
 	
@@ -85,7 +85,7 @@ private:
 
 	
   public:
-	Connection(boost::asio::io_service* io_service);
+	Connection(boost::shared_ptr<boost::asio::io_service> io_service) ;
 	~Connection(void);
 	
 	char end_of_line_char_;

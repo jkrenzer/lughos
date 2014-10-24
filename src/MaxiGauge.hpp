@@ -17,10 +17,10 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
+using namespace lughos;
 
-
-class MaxiGauge :virtual public serialSync
+class MaxiGauge : public Device
 {
   private:
 	MaxiGauge(const MaxiGauge &p);
@@ -28,21 +28,23 @@ class MaxiGauge :virtual public serialSync
 	
 	
   public:
-	MaxiGauge(boost::asio::io_service* io_service);
+	MaxiGauge();
 	~MaxiGauge(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
+	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
-	virtual std::string read();
+	void initImplementation();
+	void shutdownImplementation();
+	
 	bool sensor_on(int sensor);
 	bool sensor_off(int sensor);
 	std::string get_status(int sensor);
 	
 protected:
-  	void compose_request(const std::string &buf);
-	void handle_read_check_response(const boost::system::error_code& err);
-// 	void handle_read_check_response();
 	int sensor_bench[6];
+	
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
 };
 
 

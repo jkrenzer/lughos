@@ -28,8 +28,8 @@ namespace lughos
 
   using namespace Wt;
   using namespace std;
-  
-  extern boost::asio::io_service * ioService;
+  extern boost::shared_ptr<boost::asio::io_service> ioService;
+//   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
   
   class DeviceUIInterface : public Wt::WContainerWidget
@@ -48,6 +48,9 @@ namespace lughos
     }
   };
   
+  
+  
+  
   template <> class DeviceUI<coolpak6000> : public DeviceUIInterface
   {
   protected:
@@ -62,6 +65,7 @@ namespace lughos
     
     DeviceUI< coolpak6000 >(boost::shared_ptr<Device> coolpak) : coolpak(boost::dynamic_pointer_cast<coolpak6000>(coolpak))
     {
+      
       this->init();
     }
     
@@ -87,8 +91,8 @@ namespace lughos
       else
       {
 
-// 	this->stateF->setText("Not connected!");
-	this->stateF->setText(std::to_string(coolpak->isConnected()));
+	this->stateF->setText("Not connected!");
+// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB->setText("Try again");
 	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
 	this->startB->setDisabled(true);
@@ -195,15 +199,54 @@ namespace lughos
     
     
   };
+
   
-  /*
-  //---------------MaxiGauge
-   template <> class DeviceUI<MaxiGauge> : public DeviceUIInterface
+  
+
+
+
+  class OverView : public Wt::WContainerWidget
   {
-  protected:
+  public:
+    
+    OverView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
+  class PressureView : public Wt::WContainerWidget
+  {
+  public:
+    
+    PressureView(WContainerWidget* parent = 0)
+    {
+
+    }
+    
+  };
+  
+  class TemperatureView : public Wt::WContainerWidget
+  {
+  public:
+    
+    TemperatureView(WContainerWidget* parent = 0)
+    {
+      
+    }
+    
+  };
+  
+  
+  template <> class DeviceUI<MaxiGauge> : public DeviceUIInterface
+  {
+   protected:
     boost::shared_ptr<MaxiGauge> maxigauge;
     Wt::WLineEdit* stateF;
     Wt::WLabel* stateL;
+    Wt::WLabel* sensorOnL;
+    Wt::WLabel* sensorOffL;
     Wt::WPushButton * startB;
     Wt::WPushButton * onB[6];
     Wt::WPushButton * offB[6];
@@ -212,80 +255,103 @@ namespace lughos
     
   public:
     
-
-DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new MaxiGauge(ioService))
+    DeviceUI< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge))
     {
-     this->name = name;
-     maxigauge->port_name=comPort;
-     bool ConnectionEstablished = false;
-     try 
-     {
-      ConnectionEstablished = maxigauge->testconnection();
-     }
-     catch(...)
-     {
-       this->addWidget(new Wt::WText(std::string("Port-accessor crashed!\n")));
-       ConnectionEstablished = false;
-     }
-     
-     if(ConnectionEstablished)
-     {
-//         maxigauge->stop();
-	this->setWidth(250);
-	this->addWidget(new Wt::WText(this->name.c_str()));
-	this->stateF = new Wt::WLineEdit("Initializing...");
-	this->stateF->setReadOnly(true);
-	this->stateL = new Wt::WLabel("Status:");
-	this->stateL->setBuddy(stateF);
-	this->startB = new Wt::WPushButton("Start all");
-	this->stopB = new Wt::WPushButton("Stop all");
-	this->stateB = new Wt::WPushButton("Status");
-	this->startB->setDisabled(true);
+    std::cout<< maxigauge.get()<<std::endl;
+
+      this->init();
+    }
+    
+    DeviceUI<MaxiGauge>(boost::shared_ptr<MaxiGauge> maxigauge) : maxigauge(maxigauge)
+    {
+      this->init();
+    }
+    
+    
+    void checkConnected()
+    {
+      if(maxigauge->isConnected())
+      {
+	this->stateF->setText("Connected!");
+        this->stateB->setText("Status");
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
 	this->startB->clicked().connect(this,&DeviceUI<MaxiGauge>::startall);
-	this->stopB->setDisabled(true);
 	this->stopB->clicked().connect(this,&DeviceUI<MaxiGauge>::stopall);
-      for(int i=0;i<6;i++)
-      {
-	this->onB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_on,this, i));
-	this->addWidget(onB[i]);
-      }
-      for(int i=0;i<6;i++)
-      {
-	this->offB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_off,this, i));
-	this->addWidget(offB[i]);
-      }
-	this->addWidget(stateL);
-	this->addWidget(stateF);
-// 	this->addWidget(startB);
-// 	this->addWidget(stopB);
-	
-	this->init();
+        this->stateB->clicked().connect(this,&DeviceUI<MaxiGauge>::showData);
+
+
+
+	this->getState();
       }
       else
       {
-	this->addWidget(new Wt::WText("Wrong or disabled Port!"));
+	for(int i=0;i<6;i++)
+	{
+	  this->onB[i]->setDisabled(true);
+	  this->offB[i]->setDisabled(true);
+	}
+
+	this->stateF->setText("Not connected!");
+// 	this->stateF->setText(std::to_string(maxigauge->isConnected()));
+        this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<MaxiGauge>::checkConnected);
+	this->startB->setDisabled(true);
+	this->stopB->setDisabled(true);
+
       }
     }
     
     void init()
     {
-      this->getState();
+     this->name=maxigauge->getName();
+     this->setWidth(250);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->stateF = new Wt::WLineEdit("Initializing...");
+      this->stateF->setReadOnly(true);
+      this->stateL = new Wt::WLabel("Status:");
+      this->stateL->setBuddy(stateF);
+      this->sensorOnL = new Wt::WLabel("Sensor on: ");
+      this->sensorOffL = new Wt::WLabel("Sensor off:");
+      this->startB = new Wt::WPushButton("Start");
+      this->stopB = new Wt::WPushButton("Stop");
+      this->stateB = new Wt::WPushButton("Status");
+     this->addWidget(stateL);
+     this->addWidget(stateF);
+     this->addWidget(startB);
+     this->addWidget(stopB);
+     this->addWidget(stateB);
+     
+     Wt::WContainerWidget* onButtonContainer= new Wt::WContainerWidget;
+     this->addWidget(onButtonContainer);
+      Wt::WContainerWidget* offButtonContainer= new Wt::WContainerWidget;
+     this->addWidget(offButtonContainer);
+     onButtonContainer->addWidget(sensorOnL);
+         for(int i=0;i<6;i++)
+      {
+	onB[i]=new Wt::WPushButton(std::to_string(i+1));
+	this->onB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_on,this, i));
+	onButtonContainer->addWidget(onB[i]);
+      }
+     offButtonContainer->addWidget(sensorOffL);
+      for(int i=0;i<6;i++)
+      {
+	offB[i]=new Wt::WPushButton(std::to_string(i+1));
+	this->offB[i]->clicked().connect(boost::bind(&DeviceUI<MaxiGauge>::sensor_off,this, i));
+	this->addWidget(offB[i]);
+	offButtonContainer->addWidget(offB[i]);
+      }
+     this->checkConnected();
     }
     
-    void sensor_on(int i)
+    void showData()
     {
-      this->stateF->setText(std::to_string(maxigauge->sensor_on(i)));
-    }
-        
-     void sensor_off(int i)
-    {
-      this->stateF->setText(std::to_string(maxigauge->sensor_off(i)));
+      this->getState();
+//       this->stateF->setText("");
     }
     
     void getState()
     {
-      
-//       coolpak->get_data();
       std::string state;
       std::string enabled="Enabled channels: ";
       std::string disabled="disabled channels: ";
@@ -293,6 +359,7 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
       bool communicationEstablished = false;
       for(int i=0;i<6;i++)
       {
+	
 	if(!maxigauge->get_status(i).empty())
 	{
 	 enabled+=std::to_string(i); 
@@ -317,8 +384,6 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
       }
     }
     
-    
-    
     void startall()
     {
       
@@ -338,44 +403,20 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
       this->getState();
     }
     
-    
-    
-  };
-  //-----------------------
-  
- */
-  class OverView : public Wt::WContainerWidget
-  {
-  public:
-    
-    OverView(WContainerWidget* parent = 0)
+        void sensor_on(int i)
     {
-      
+      this->stateF->setText(std::to_string(maxigauge->sensor_on(i)));
     }
+        
+     void sensor_off(int i)
+    {
+      this->stateF->setText(std::to_string(maxigauge->sensor_off(i)));
+    }
+    
     
   };
   
-  class PressureView : public Wt::WContainerWidget
-  {
-  public:
-    
-    PressureView(WContainerWidget* parent = 0)
-    {
-      
-    }
-    
-  };
   
-  class TemperatureView : public Wt::WContainerWidget
-  {
-  public:
-    
-    TemperatureView(WContainerWidget* parent = 0)
-    {
-      
-    }
-    
-  };
   
   class DeviceView : public Wt::WContainerWidget
   {
@@ -383,7 +424,7 @@ DeviceUI<MaxiGauge>(std::string  name, std::string comPort) : maxigauge(new Maxi
     DeviceView(WContainerWidget* parent = 0)
     {
       this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 1")] ));
-//       this->addWidget(new DeviceUI<MaxiGauge>("Preasure Monitor 1" , "COM2"));  
+      this->addWidget(new DeviceUI<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
     }
 
   };

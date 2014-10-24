@@ -5,15 +5,14 @@
 #include "serialAsync.hpp"
 #include "device.hpp"
 // #include "coolpak6000.hpp"
-// #include "MaxiGauge.hpp"
+#include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
 namespace lughos 
 {
-
-boost::asio::io_service * ioService;
+boost::shared_ptr<boost::asio::io_service> ioService;
 std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 
 } //namespace lughos
@@ -34,7 +33,7 @@ int main(int argc, char **argv)
   
 
   
-  lughos::ioService = new boost::asio::io_service;
+  lughos::ioService= boost::shared_ptr<boost::asio::io_service>(new boost::asio::io_service);
 
   boost::asio::io_service::work work(*lughos::ioService);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, lughos::ioService));
@@ -53,19 +52,23 @@ int main(int argc, char **argv)
 
      #else
       connection1->port_name = std::string("/dev/ttyUSB0");
-      connection2->port_name = std::string("/dev/ttyS1");
+      connection2->port_name = std::string("/dev/ttyUSB1");
     #endif
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
+      boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
       compressor1->setName(std::string("Compressor 1"));
-//       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
+      pressureMonitor1->setName(std::string("Pressure Monitor 1"));
       
       compressor1->connect(connection1);
+      pressureMonitor1->connect(connection2);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
-  
+  std::cout<< pressureMonitor1->getName()<<std::endl;
+    std::cout<< pressureMonitor1.get()<<std::endl;
+  deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
 
   
   /*
@@ -110,7 +113,6 @@ int main(int argc, char **argv)
 //    ofs<< "IOService stopping..." << std::endl;
   std::cout << "IOService stopping..." << std::endl;
   lughos::ioService->reset();
-  delete lughos::ioService;
   thread.join();
   std::cout << "Everything cleaned up, quitting..." << std::endl;
 //   ofs<< "Everything cleaned up, quitting..." << std::endl;
