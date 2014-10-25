@@ -198,8 +198,8 @@ add_dependencies(kithleighSerial serialAsync unitValue serialConnections)
 
 
 add_library(MaxiGauge src/MaxiGauge.cpp)
-target_link_libraries(MaxiGauge serialAsync unitValue serialConnections)
-add_dependencies(MaxiGauge serialAsync unitValue serialConnections)
+target_link_libraries(MaxiGauge serialAsync measuredValue unitValue serialConnections)
+add_dependencies(MaxiGauge serialAsync measuredValue serialConnections)
 
 add_library(coolpak6000 src/coolpak6000.cpp)
 target_link_libraries(coolpak6000 serialAsync unitValue serialConnections)
@@ -213,10 +213,18 @@ add_dependencies(serialAsync serialConnections)
 
 add_library(unitValue src/unitValue.cpp)
 
+add_library(measuredValue src/measuredValue.cpp)
+add_dependencies(measuredValue unitValue)
+
 ### Set executables and dependencies
 #Test for regexp
 add_executable(test_regex src/test_regex.cpp)
 target_link_libraries(test_regex boost_regex)
+
+# #Test for exposer
+add_executable(test_ioservice src/test_ioservice.cpp)
+target_link_libraries(test_ioservice ${Boost_LIBRARIES})
+
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)

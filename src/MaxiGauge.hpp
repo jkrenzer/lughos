@@ -18,6 +18,8 @@
 #include <iostream>
 #include <boost/array.hpp>
 #include "device.hpp"
+#include "measuredValue.hpp"
+
 using namespace lughos;
 
 class MaxiGauge : public Device
@@ -38,6 +40,7 @@ class MaxiGauge : public Device
 	
 	bool sensor_on(int sensor);
 	bool sensor_off(int sensor);
+	measuredValue getPressure(int sensor);
 	std::string get_status(int sensor);
 	
 protected:
