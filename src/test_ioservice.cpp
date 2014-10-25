@@ -2,102 +2,52 @@
 #include <ostream>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/asio.hpp>
+#include <boost/date_time.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include "device.hpp"
+#include "jobQueue.hpp"
 
 using namespace std;
 
-void doSomethingElse()
-{
-  for(int i = 0; i < 15; i++)
-  {
-    cout << "Boing #" << i << endl;
-    boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-  }
-}
+using namespace lughos;
 
-void writeSomething(std::string s)
-{
-  std::cout << s << std::endl;
-}
-
-class Carl
+class TestTask : public Task
 {
 public:
-  virtual void do_something() = 0;
-};
-
-class Duffy : public Carl
-{
-public:
-  boost::shared_ptr<boost::asio::io_service> ioService;
   
-  Duffy(boost::shared_ptr<boost::asio::io_service> ioService) : ioService(ioService)
+  std::string name;
+  
+    TestTask(boost::shared_ptr< boost::asio::io_service > executionQueuePtr) : Task(executionQueuePtr)
+    {
+      
+    }
+  
+  void run()
   {
+    boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+    boost::posix_time::time_duration td = now - this->lastExecution - this->every;
+    cout << "It's " << name << " I've been executed " << this->executed << " times. Time-inprecision: " << td <<  endl;
   }
   
-  void do_something()
-  {
-    boost::shared_ptr<boost::asio::serial_port> port(new boost::asio::serial_port(*ioService));
-    boost::system::error_code ec;
-    ioService->post(boost::bind(&writeSomething,std::string("Ok, i'll try too... *sigh*")));
-    port->open("/dev/ttyUSB0", ec);
-    std::string query("Hi!");
-    boost::asio::async_write(*port,boost::asio::buffer(query),boost::bind(&writeSomething,std::string("And again: anybody hearing?!!!!")));
-    port->close();
-    ioService->post(boost::bind(&writeSomething,std::string("Content? And now be quiet already!!")));
-    port.reset();
-  }
 };
 
 int main()
 {
   boost::shared_ptr<boost::asio::io_service> ioService(new boost::asio::io_service);
   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
-  ioService->post(boost::bind(&writeSomething,std::string("Ready, steady...")));
   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
-  ioService->post(boost::bind(&writeSomething,std::string("GO!")));
-  ioService->post(boost::bind(&writeSomething,std::string("Cewl, ioservice is still running! :-)")));
-  ioService->post(boost::bind(&writeSomething,std::string("Now I'll open a serial port.")));
-  boost::shared_ptr<boost::asio::serial_port> port(new boost::asio::serial_port(*ioService));
-  boost::system::error_code ec;
-  ioService->post(boost::bind(&writeSomething,std::string("Ok, object is here, now we'll give it a portname...")));
-  port->open("/dev/ttyUSB0", ec);
-  port->set_option(boost::asio::serial_port_base::baud_rate(9600));
-  port->set_option(boost::asio::serial_port_base::character_size(8));
-  port->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware));
-  port->set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
-  port->set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
-  std::string query("*IDN?\r\n");
-  boost::asio::streambuf answerBuffer;
-  istream answerStream(&answerBuffer);
-  std::string answer;
-  boost::asio::deadline_timer timer(*ioService);
-  boost::asio::async_write(*port,boost::asio::buffer(query),boost::bind(&writeSomething,std::string("We have written something to the port. Anybody there?")));
-  boost::asio::async_read_until(*port,answerBuffer,'\r',boost::bind(&writeSomething,std::string("We got an answer!")));
-  answerStream >> answer;
-//   timer.expires_from_now(boost::posix_time::milliseconds(1000));
-//   timer.wait();
-  ioService->run_one();
-  ioService->post(boost::bind(&writeSomething,std::string("1: ") + answerStream.str()));
-//   port->async_write_some(boost::asio::buffer(query),boost::bind(&writeSomething,std::string("Hello? Hello? Nobody answering?!")));
-//   port->async_read_some(boost::asio::buffer(answerBuffer,64),boost::bind(&writeSomething,std::string("Ah! Hi! Nive to hear: ") + std::string(answerBuffer)));
-//   boost::this_thread::sleep(boost::posix_time::millisec(5000));
-  ioService->post(boost::bind(&writeSomething,std::string("2: ") + answerStream.str()));
-  ioService->post(boost::bind(&writeSomething,std::string("Ha! I'm still alive!")));
-  port->close();
-  ioService->post(boost::bind(&writeSomething,std::string("Port closed...")));
-  port.reset();
-  ioService->post(boost::bind(&writeSomething,std::string("And port destroyed.")));
-  boost::shared_ptr<Duffy> duffy( new Duffy(ioService));
-  boost::shared_ptr<Carl> carl = duffy;
-  ioService->post(boost::bind(&writeSomething,std::string("Lets ask carl if he can reach somebody...CAARL?! Im waiting....")));
-  timer.expires_from_now(boost::posix_time::microseconds(10000000));
-  ioService->post(boost::bind(&doSomethingElse));
-  timer.wait();
-  cout << "Hey, im still waiting!? Where is everybody?!" << endl;
-  ioService->dispatch(boost::bind(&writeSomething,std::string("Now do it already!!")));
-  carl->do_something();
+  TestTask test(ioService);
+  test.setEvery(boost::posix_time::seconds(1));
+  test.setExecuteTimes(12);
+  test.name = std::string("Albert");
+  test.start();
+  TestTask test2(ioService);
+  test2.setEvery(boost::posix_time::seconds(3));
+  test2.setExecuteTimes(Task::Execute::infinite);
+  test2.name = std::string("Bert");
+  test2.start();
+  cout << "This is main-thread. Waiting for work to end..." << endl;
   work.reset();
   workerThread.join();
   
