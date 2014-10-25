@@ -1,7 +1,8 @@
 #include <ostream>
+#include <limits>
 // #pragma comment(lib, "Setupapi.lib")
 #include "unitValue.hpp"
-
+#include <boost/math/special_functions.hpp>
 
 unitValue::unitValue(void)
 {
@@ -52,4 +53,24 @@ double unitValue::getvalue()
 std::string unitValue::getunit()
 {
     return unit;
+}
+
+bool unitValue::isPositiveInfinity()
+{
+  return (this->value > 0 && boost::math::isinf(this->value));
+}
+
+bool unitValue::isNegativeInfinity()
+{
+  return (this->value < 0 && boost::math::isinf(this->value));
+}
+
+bool unitValue::isNotANumber()
+{
+  return boost::math::isnan(this->value);
+}
+
+bool unitValue::isValidValue()
+{
+  return boost::math::isnormal(this->value);
 }

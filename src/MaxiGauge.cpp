@@ -4,7 +4,7 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialConnections.hpp"
 #include "MaxiGauge.hpp"
-
+#include <limits>
 
 MaxiGauge::MaxiGauge()
 {
@@ -186,4 +186,32 @@ void MaxiGauge::initImplementation()
 
 void MaxiGauge::shutdownImplementation()
 {
+}
+
+measuredValue MaxiGauge::getPressure(int sensor)
+{
+  std::string s = this->get_status(sensor);
+  static const boost::regex e("^(\\d),(\\d*\\.\\d*E[+-]\\d*)");
+  boost::cmatch res;
+  boost::regex_search(s.c_str(), res, e);
+  int state = save_lexical_cast<int>(res[1],-1);
+  s = res[2];
+  measuredValue value;
+  if(!s.empty() && state == 0)
+  {
+    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+  }
+  else if (state == 1)
+  {
+    value.setvalue(-std::numeric_limits<double>::infinity());
+  }
+  else if (state == 2)
+  {
+    value.setvalue(std::numeric_limits<double>::infinity());
+  }
+  else
+  {
+    value.setvalue(std::numeric_limits<double>::signaling_NaN());
+  }
+  return value;
 }

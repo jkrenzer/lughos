@@ -6,7 +6,6 @@
 #include <string>
 #include <cstring>
 #include <iostream>
-#include <ctime>
 // #include "Dict.hpp"
 
 
@@ -29,12 +28,14 @@ class unitValue
 	std::string getunit();
 	void setvalue(double putvalue);
 	void setunit(std::string putunit);
-	std::time_t gettimestamp();
+	bool isPositiveInfinity();
+	bool isNegativeInfinity();
+	bool isNotANumber();
+	bool isValidValue();
 
 protected:
 	double value=0.0;
 	std::string unit="";
-// 	std::time_t  timestamp;
 };
 
 

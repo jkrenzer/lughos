@@ -4,6 +4,7 @@
 #include "test_gui.hpp"
 #include "serialAsync.hpp"
 #include "device.hpp"
+#include "test_gui_monitoring.hpp"
 // #include "coolpak6000.hpp"
 // #include "MaxiGauge.hpp"
 // #include "MaxiGauge.hpp"
@@ -27,14 +28,13 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   return new lughos::mainApplication(env);
 }
 
-
-
 int main(int argc, char **argv)
 {
   
 
   
   lughos::ioService= boost::shared_ptr<boost::asio::io_service>(new boost::asio::io_service);
+  boost::shared_ptr<boost::asio::io_service> taskExecutor(new boost::asio::io_service);
 
   boost::asio::io_service::work work(*lughos::ioService);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, lughos::ioService));
