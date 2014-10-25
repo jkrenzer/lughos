@@ -31,13 +31,15 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 int main(int argc, char **argv)
 {
   
-
+  
   
   lughos::ioService= boost::shared_ptr<boost::asio::io_service>(new boost::asio::io_service);
   boost::shared_ptr<boost::asio::io_service> taskExecutor(new boost::asio::io_service);
 
   boost::asio::io_service::work work(*lughos::ioService);
+  boost::asio::io_service::work work2(*taskExecutor);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, lughos::ioService));
+  boost::thread thread2(boost::bind(&boost::asio::io_service::run, taskExecutor));
   std::ofstream ofs ("/home/irina/projects/test_gui_main.txt", std::ofstream::out);
 
   ofs << "IOService started and running..";
@@ -58,12 +60,15 @@ int main(int argc, char **argv)
       connection2->port_name = std::string("/dev/ttyUSB2");
       connection3->port_name = std::string("/dev/ttyUSB0");
     #endif
+      
+      
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
+        
       compressor1->setName(std::string("Compressor 1"));
       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
       temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
@@ -77,6 +82,15 @@ int main(int argc, char **argv)
     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
   deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
+  
+  //Start logging
+  
+  std::cout << "Starting task-execution" << std::endl;
+  
+  PressureMonitor press(taskExecutor,pressureMonitor1,1);
+  press.setEvery(boost::posix_time::seconds(5));
+  press.setExecuteTimes(Task::Execute::infinite);
+  press.start();
   
   /*
    * Your main method may set up some shared resources, but should then
