@@ -7,6 +7,7 @@
 #include "device.hpp"
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
+#include "jobQueue.hpp"
 // #include "connectionImpl.hpp"
 // #include "basicConnections.hpp"
 // #include "PSANetzteil.hpp"
@@ -17,11 +18,32 @@
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
+class exec_task : public lughos::Task
+{
+public:
+   exec_task(boost::shared_ptr<boost::asio::io_service>  io_service,  boost::shared_ptr<kithleighSerial> keithley): Task (io_service), keithley(keithley)
+  {
+    
+  }
+protected:
+  boost::shared_ptr<kithleighSerial> keithley;
+
+  void run()
+  {
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+  }
+};
+
 
 int main(int argc, char **argv) {
 	boost::shared_ptr<boost::asio::io_service> io_service (new boost::asio::io_service);
 	boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*io_service));
 	boost::thread thread(boost::bind(&boost::asio::io_service::run, io_service.get()));
+	
+	boost::shared_ptr<boost::asio::io_service> exec_service (new boost::asio::io_service);
+	boost::shared_ptr<boost::asio::io_service::work> exec_work(new boost::asio::io_service::work(*exec_service));
+	boost::thread exec_thread(boost::bind(&boost::asio::io_service::run, exec_service.get()));	
+
 	std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 
 //      boost::shared_ptr<serialAsync> connection1(new serialAsync(io_service) );
@@ -55,8 +77,10 @@ int main(int argc, char **argv) {
      deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
 	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
      std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
-     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
-     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+    exec_task task(exec_service, keithley);
+    task.setEvery(boost::posix_time::seconds(1));
+    task.setExecuteTimes(3);
+    task.start();
       
 
 
@@ -104,10 +128,14 @@ int main(int argc, char **argv) {
 
 //    ofs<< "IOService stopping..." << std::endl;
   std::cout << "IOService waiting for children..." << std::endl;
-  work.reset();
+        exec_work.reset(); 
+	exec_thread.join();
+	work.reset();
+
     std::cout << "IOService stopping..." << std::endl;
-//   io_service->stop();
-  thread.join();
+   
+    
+      thread.join();
    std::cout << "IOService stopped..." << std::endl;
 	return 0;
 }
