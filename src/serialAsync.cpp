@@ -97,6 +97,7 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
     {
       // Write all of the data that has been read so far.
 	response_string_stream<< &response;
+	
 // 	std::cout<<response_string_stream<<std::endl;
 
     }

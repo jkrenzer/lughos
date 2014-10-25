@@ -54,9 +54,9 @@ int main(int argc, char **argv)
       connection2.port_name = std::string("COM3");
 
      #else
-      connection1->port_name = std::string("/dev/ttyUSB1");
+      connection1->port_name = std::string("/dev/ttyUSB0");
       connection2->port_name = std::string("/dev/ttyUSB2");
-      connection3->port_name = std::string("/dev/ttyUSB0");
+      connection3->port_name = std::string("/dev/ttyUSB1");
     #endif
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);

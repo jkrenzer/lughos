@@ -362,10 +362,10 @@ void Connection<serialContext>::handle_read_headers_process()
 
 std::string Connection<serialContext>::read()
 {
-//         std::string s = response_string_stream.str();
-// 	response_string_stream.str("");
+        std::string s = response_string_stream.str();
+	response_string_stream.str("");
 // 	stop();
-    return response_string_stream.str();  
+    return s;  
 
 }
 
