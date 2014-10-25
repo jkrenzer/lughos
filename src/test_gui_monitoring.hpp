@@ -7,22 +7,27 @@
 
 using namespace lughos;
 
-class pressureMonitor : public Task
+class PressureMeasurement : public measuredValue
+{
+  
+};
+
+class PressureMonitor : public Task
 {
 protected:
   
-    MaxiGauge& maxiGauge;
+    boost::shared_ptr<MaxiGauge> maxiGauge;
     int sensor;
   
     virtual void run()
     {
-      measuredValue pressure = this->maxiGauge.getPressure(sensor);
-      std::cout << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
+      measuredValue pressure = this->maxiGauge->getPressure(sensor);
+      std::cout << "[*] Maxigauge sensor " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
     }
     
 public:
   
-    pressureMonitor(boost::shared_ptr< boost::asio::io_service > executionQueuePtr, MaxiGauge& maxiGauge, int sensor) : Task(executionQueuePtr), maxiGauge(maxiGauge)
+    PressureMonitor(boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> maxiGauge, int sensor) : Task(executionQueuePtr), maxiGauge(boost::dynamic_pointer_cast<MaxiGauge>(maxiGauge))
     {
       this->sensor = sensor;
     }
