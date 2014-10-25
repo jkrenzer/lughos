@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
 #include "serialAsync.hpp"
 
 #include <iostream>

@@ -22,7 +22,7 @@
 #include <functional>
 #include "coolpak6000.hpp"
 #include "MaxiGauge.hpp"
-
+#include "kithleighSerial.hpp"
 namespace lughos 
 {
 
@@ -416,6 +416,119 @@ namespace lughos
     
   };
   
+  //-----------------------------------
+    template <> class DeviceUI<kithleighSerial> : public DeviceUIInterface
+  {
+  protected:
+    boost::shared_ptr<kithleighSerial> keithley;
+    Wt::WLineEdit* stateF;
+    Wt::WLabel* stateL;
+    Wt::WPushButton * startB;
+    Wt::WPushButton * stateB;
+    Wt::WPushButton * stopB;
+    
+  public:
+    
+    DeviceUI< kithleighSerial >(boost::shared_ptr<Device> keithley) : keithley(boost::dynamic_pointer_cast<kithleighSerial>(keithley))
+    {
+      
+      this->init();
+    }
+    
+    DeviceUI<kithleighSerial>(boost::shared_ptr<kithleighSerial> keithley) : keithley(keithley)
+    {
+      this->init();
+    }
+    
+    void checkConnected()
+    {
+      if(keithley->isConnected())
+      {
+	this->stateF->setText("Connected!");
+        this->stateB->setText("Status");
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
+	this->startB->clicked().connect(this,&DeviceUI<kithleighSerial>::start);
+	this->stopB->clicked().connect(this,&DeviceUI<kithleighSerial>::stop);
+        this->stateB->clicked().connect(this,&DeviceUI<kithleighSerial>::showData);
+	this->getState();
+
+      }
+      else
+      {
+
+	this->stateF->setText("Not connected!");
+// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
+        this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<kithleighSerial>::checkConnected);
+	this->startB->setDisabled(true);
+	this->stopB->setDisabled(true);
+
+      }
+    }
+    
+    void init()
+    {
+     this->name=keithley->getName();
+     this->setWidth(250);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->stateF = new Wt::WLineEdit("Initializing...");
+      this->stateF->setReadOnly(true);
+      this->stateL = new Wt::WLabel("Status:");
+      this->stateL->setBuddy(stateF);
+      this->startB = new Wt::WPushButton("Start");
+      this->stopB = new Wt::WPushButton("Stop");
+      this->stateB = new Wt::WPushButton("Status");
+     this->addWidget(stateL);
+     this->addWidget(stateF);
+     this->addWidget(startB);
+     this->addWidget(stopB);
+     this->addWidget(stateB);
+     this->checkConnected();
+    }
+    
+    void showData()
+    {
+      
+          fstream f;
+	  f.open("~/projects/test.dat", ios::out);
+	  f << keithley->inputOutput("*IDN?") << endl;
+	   f.close();
+      
+      this->stateF->setText(keithley->inputOutput("*IDN?"));
+    }
+    
+    void getState()
+    {
+      std::string state;
+      state=keithley->inputOutput("*IDN?");
+      std::cout<<"state "<<state<<std::endl;
+      bool communicationEstablished = false;
+
+      if(communicationEstablished)
+      {
+	this->stateF->setText(state);
+	this->startB->setDisabled(false);
+	this->stopB->setDisabled(false);
+      }
+    }
+    
+    void start()
+    {
+      this->stateF->setText("Starting...");
+      this->getState();
+    }
+    
+    void stop()
+    {
+      this->stateF->setText("Stopping...");
+      this->getState();
+    }
+    
+  };
+
+  //------------------------------------
+  
   
   
   class DeviceView : public Wt::WContainerWidget
@@ -425,6 +538,7 @@ namespace lughos
     {
       this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 1")] ));
       this->addWidget(new DeviceUI<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
+      this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
     }
 
   };

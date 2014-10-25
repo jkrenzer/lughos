@@ -40,6 +40,8 @@ template <> void MaxiGauge::setDefaultImpl< Connection<serialContext> > (Connect
     connection.end_of_line_char_='\x0A';
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+//     this->inputOutput("\x03");
+//         this->inputOutput("\x05");
 }
 
 MaxiGauge::~MaxiGauge(void)
@@ -65,9 +67,12 @@ std::string MaxiGauge::composeRequest(std::string query)
 
 std::string MaxiGauge::interpretAnswer(std::string s)
 {  
-  
+//         this->inputOutput("\x05");  
 //   std::cout << "interpretAnswer " << s<<std::endl; 
-    if(s=="\x15""\r\n") return "NAK";
+    if(s=="\x15""\r\n")
+    { std::cout<<"ACK "<<std::endl;
+      return "NAK";
+    }
     else if(s=="\x06""\r\n"||s=="\x06""\r") 
     { 
             std::cout<<"ACK "<<std::endl;
@@ -77,11 +82,12 @@ std::string MaxiGauge::interpretAnswer(std::string s)
     else
     {
 //       std::cout<<"string "<<s<<" "<<std::endl;
-	 static const boost::regex e("^(\\d*)\\D\\D$");
+       static const boost::regex e("^([\\d\\w,\\.+-]*)");
+// 	 static const boost::regex e("^(\\d*)\\D\\D$");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
-	 std::cout<<"Regex "<<res[1]<<std::endl;
-	 return s;   
+// 	 std::cout<<"Regex "<<res[1]<<std::endl;
+	 return res[1];   
     }
 
 }
@@ -173,6 +179,8 @@ bool MaxiGauge::sensor_off(int sensor)
 
 void MaxiGauge::initImplementation()
 {
+//       this->inputOutput("\x03");
+        this->inputOutput("\x05");
 }
     
 

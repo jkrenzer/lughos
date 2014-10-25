@@ -1,8 +1,6 @@
 // #include "StdAfx.h"
 
 #include <ostream>
-// #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
 #include "serialAsync.hpp"
 #include "kithleighSerial.hpp"
 
@@ -36,7 +34,7 @@ template <> void kithleighSerial::setDefaultImpl< Connection<serialContext> > (C
     connection.end_of_line_char_='\r';
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
-    
+   
 }
 
 

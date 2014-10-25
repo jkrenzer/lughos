@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
 	pressureMonitor1->connect(connection2);
 	deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
 	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
+// 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
 	std::cout << "Write="<< maxigauge->get_status(1)<< std::endl;
 
 	      
