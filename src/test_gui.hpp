@@ -36,6 +36,10 @@ namespace lughos
   {
   public:
     std::string name;
+    DeviceUIInterface()
+    {
+      this->setStyleClass("DeviceContainer");
+    }
   };
   
   template <class D> class DeviceUI : public DeviceUIInterface
@@ -43,6 +47,7 @@ namespace lughos
   public:
     DeviceUI<D>()
     {
+
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for device availible!"));
     }
@@ -65,7 +70,7 @@ namespace lughos
     
     DeviceUI< coolpak6000 >(boost::shared_ptr<Device> coolpak) : coolpak(boost::dynamic_pointer_cast<coolpak6000>(coolpak))
     {
-      
+
       this->init();
     }
     
@@ -104,7 +109,7 @@ namespace lughos
     void init()
     {
      this->name=coolpak->getName();
-     this->setWidth(250);
+//      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
@@ -305,7 +310,7 @@ namespace lughos
     void init()
     {
      this->name=maxigauge->getName();
-     this->setWidth(250);
+//      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
@@ -420,12 +425,14 @@ namespace lughos
     template <> class DeviceUI<kithleighSerial> : public DeviceUIInterface
   {
   protected:
-    boost::shared_ptr<kithleighSerial> keithley;
-    Wt::WLineEdit* stateF;
-    Wt::WLabel* stateL;
-    Wt::WPushButton * startB;
-    Wt::WPushButton * stateB;
-    Wt::WPushButton * stopB;
+  Wt::WTextArea *dialogField;
+  Wt::WTextArea *responseField;
+  boost::shared_ptr<kithleighSerial> keithley;
+  Wt::WLineEdit* stateF;
+  Wt::WLabel* stateL;
+  Wt::WPushButton * dialogB;
+  Wt::WPushButton * stateB;
+//     Wt::WPushButton * stopB;
     
   public:
     
@@ -446,12 +453,20 @@ namespace lughos
       {
 	this->stateF->setText("Connected!");
         this->stateB->setText("Status");
-	this->startB->setDisabled(false);
-	this->stopB->setDisabled(false);
-	this->startB->clicked().connect(this,&DeviceUI<kithleighSerial>::start);
-	this->stopB->clicked().connect(this,&DeviceUI<kithleighSerial>::stop);
+	this->dialogField->setDisabled(false);
+	
+// 	this->stopB->setDisabled(false);
+	this->dialogB->setDisabled(false);
+// 	this->startB->clicked().connect(this,&DeviceUI<kithleighSerial>::start);
+// 	this->stopB->clicked().connect(this,&DeviceUI<kithleighSerial>::stop);
         this->stateB->clicked().connect(this,&DeviceUI<kithleighSerial>::showData);
+	this->dialogB->clicked().connect(this,&DeviceUI<kithleighSerial>::startDialog);
+
+
+// 	Wt::WText *out = new Wt::WText("<p></p>", dialogField);
+
 	this->getState();
+	
 
       }
       else
@@ -461,8 +476,9 @@ namespace lughos
 // 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB->setText("Try again");
 	this->stateB->clicked().connect(this,&DeviceUI<kithleighSerial>::checkConnected);
-	this->startB->setDisabled(true);
-	this->stopB->setDisabled(true);
+// 	this->startB->setDisabled(true);
+// 	this->stopB->setDisabled(true);
+// 	this->dialogB->setDisabled(true);
 
       }
     }
@@ -470,20 +486,30 @@ namespace lughos
     void init()
     {
      this->name=keithley->getName();
-     this->setWidth(250);
+//      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
       this->stateL = new Wt::WLabel("Status:");
       this->stateL->setBuddy(stateF);
-      this->startB = new Wt::WPushButton("Start");
-      this->stopB = new Wt::WPushButton("Stop");
+      this->dialogField =  new Wt::WTextArea();
+      this->responseField =  new Wt::WTextArea();
+//       this->stopB = new Wt::WPushButton("Stop");
       this->stateB = new Wt::WPushButton("Status");
+       this->dialogB = new Wt::WPushButton("Send");
+      this->responseField->isReadOnly(); 
      this->addWidget(stateL);
      this->addWidget(stateF);
-     this->addWidget(startB);
-     this->addWidget(stopB);
+//      this->addWidget(startB);
+     this->addWidget(dialogField);
+     this->addWidget(responseField);
      this->addWidget(stateB);
+     
+//      	Wt::WTextArea *ta = new Wt::WTextArea(dialogField);
+// 	ta->setColumns(80);
+// 	ta->setRows(5);
+// 	ta->setText("");
+     this->addWidget(dialogB);
      this->checkConnected();
     }
     
@@ -508,10 +534,28 @@ namespace lughos
       if(communicationEstablished)
       {
 	this->stateF->setText(state);
-	this->startB->setDisabled(false);
-	this->stopB->setDisabled(false);
+// 	this->startB->setDisabled(false);
+// 	this->stopB->setDisabled(false);
       }
     }
+    
+    void startDialog()
+    {
+      std::string sendText = dialogField->text().toUTF8();
+	std::istringstream iss(sendText);
+	std::string token;
+	
+	while(getline(iss, token, '\n'))
+	{
+	  
+// 	  std::cout<<keithley->inputOutput(token)<<std::endl;
+	  responseField->setText(responseField->text().toUTF8()+keithley->inputOutput(token));   
+	  std::cout << token << std::endl;
+	}
+        responseField->setText(responseField->text().toUTF8()+std::string("\n--------------------------\n")); 
+// 	dialogField->setText("");
+    }
+    
     
     void start()
     {
@@ -555,7 +599,7 @@ namespace lughos
       
 
 
-
+      this->useStyleSheet("resources/lughos.css");
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);

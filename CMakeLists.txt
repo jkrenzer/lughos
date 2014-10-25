@@ -260,7 +260,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp  src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/kithleighSerial.cpp src/unitValue.cpp)
-target_link_libraries(test_serial ${Boost_LIBRARIES})
+target_link_libraries(test_serial ${Boost_LIBRARIES} measuredValue)
 endif()
 
  

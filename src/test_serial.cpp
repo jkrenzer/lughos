@@ -7,6 +7,7 @@
 #include "device.hpp"
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
+#include "jobQueue.hpp"
 // #include "connectionImpl.hpp"
 // #include "basicConnections.hpp"
 // #include "PSANetzteil.hpp"
@@ -17,11 +18,32 @@
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
+class exec_task : public lughos::Task
+{
+public:
+   exec_task(boost::shared_ptr<boost::asio::io_service>  io_service,  boost::shared_ptr<kithleighSerial> keithley): Task (io_service), keithley(keithley)
+  {
+    
+  }
+protected:
+  boost::shared_ptr<kithleighSerial> keithley;
+
+  void run()
+  {
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+  }
+};
+
 
 int main(int argc, char **argv) {
 	boost::shared_ptr<boost::asio::io_service> io_service (new boost::asio::io_service);
 	boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*io_service));
 	boost::thread thread(boost::bind(&boost::asio::io_service::run, io_service.get()));
+	
+	boost::shared_ptr<boost::asio::io_service> exec_service (new boost::asio::io_service);
+	boost::shared_ptr<boost::asio::io_service::work> exec_work(new boost::asio::io_service::work(*exec_service));
+	boost::thread exec_thread(boost::bind(&boost::asio::io_service::run, exec_service.get()));	
+
 	std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 
 //      boost::shared_ptr<serialAsync> connection1(new serialAsync(io_service) );
@@ -36,33 +58,35 @@ int main(int argc, char **argv) {
 // 	sleep(1);
 // 	std::cout << "Write="<< coolpak->compressor_off()<< std::endl;
 	
-	boost::shared_ptr<serialAsync> connection2(new serialAsync(io_service) );
-        connection2->port_name = std::string("/dev/ttyUSB0");
-	boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
-	pressureMonitor1->setName(std::string("Pressure Monitor 1"));
-	pressureMonitor1->connect(connection2);
-	deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
-	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
-// 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
-	std::cout << "Write="<< maxigauge->get_status(1)<< std::endl;
+// 	boost::shared_ptr<serialAsync> connection2(new serialAsync(io_service) );
+//         connection2->port_name = std::string("/dev/ttyUSB0");
+// 	boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
+// 	pressureMonitor1->setName(std::string("Pressure Monitor 1"));
+// 	pressureMonitor1->connect(connection2);
+// 	deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
+// 	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
+// // 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
+// 	std::cout << "Write="<< maxigauge->get_status(1)<< std::endl;
 
 	      
-// 	boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
-//      connection3->port_name = std::string("/dev/ttyUSB0");
-//      boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
-//      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
-//      temperatureMonitor1->connect(connection3);
-//      deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
-// 	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
-// 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
-
-
+     boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
+     connection3->port_name = std::string("/dev/ttyUSB1");
+     boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
+     temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+     temperatureMonitor1->connect(connection3);
+     deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
+	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+    exec_task task(exec_service, keithley);
+    task.setEvery(boost::posix_time::seconds(1));
+    task.setExecuteTimes(3);
+    task.start();
       
 
 
 		
 
-// 		std::cout << "Write="<< keithley->inputOutput("*IDN?\n\r")<< std::endl;
+
 // 		    std::cout << "At least i write something"<< std::endl;
 // 		MaxiGauge* c = new MaxiGauge;
 // 	connection<serialContext>* c = new connection<serialContext>();
@@ -104,10 +128,14 @@ int main(int argc, char **argv) {
 
 //    ofs<< "IOService stopping..." << std::endl;
   std::cout << "IOService waiting for children..." << std::endl;
-  work.reset();
+        exec_work.reset(); 
+	exec_thread.join();
+	work.reset();
+
     std::cout << "IOService stopping..." << std::endl;
-//   io_service->stop();
-  thread.join();
+   
+    
+      thread.join();
    std::cout << "IOService stopped..." << std::endl;
 	return 0;
 }
