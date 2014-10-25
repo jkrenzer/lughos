@@ -1,6 +1,7 @@
 #ifndef TEST_GUI_MONITORING_HPP
 #define TEST_GUI_MONITORING_HPP
 #include "MaxiGauge.hpp"
+#include "kithleighSerial.hpp"
 #include "measuredValue.hpp"
 #include "jobQueue.hpp"
 #include <Wt/Dbo/Dbo>
@@ -9,6 +10,26 @@ using namespace lughos;
 
 class PressureMeasurement : public measuredValue
 {
+  
+};
+
+class KeithleyTest : public Task
+{
+  protected:
+  
+    boost::shared_ptr<kithleighSerial> keithley;
+  
+    virtual void run()
+    {
+      std::cout << "[*] Keithley " << boost::posix_time::second_clock::local_time() << " -> " << this->keithley->inputOutput("*IDN?") << std::endl;
+    }
+    
+public:
+  
+    KeithleyTest(boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> keithley) : Task(executionQueuePtr), keithley(boost::dynamic_pointer_cast<kithleighSerial>(keithley))
+    {
+    
+    }
   
 };
 
@@ -22,7 +43,7 @@ protected:
     virtual void run()
     {
       measuredValue pressure = this->maxiGauge->getPressure(sensor);
-      std::cout << "[*] Maxigauge sensor " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
+      std::cout << "[*] Keithley " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
     }
     
 public:
