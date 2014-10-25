@@ -55,7 +55,12 @@ void serialAsync::async_read_some_()
 	  boost::asio::async_write(*port_, request,
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
-// 	std::cout<<port_name<<std::endl;
+// 	
+// 	  std::cout<<port_name<<std::endl;
+	  io_service_->poll();
+	  this->timeoutTimer.expires_from_now(boost::posix_time::millisec(1000));
+          this->timeoutTimer.wait();
+
 	  if (port_.get() == NULL || !port_->is_open())	std::cout<<"port is somehow closed again"<<std::endl;
 	  if(io_service_->io_service::stopped())std::cout<<"Io service gestoppt"<<std::endl;
 	  
@@ -74,6 +79,8 @@ void serialAsync::handle_write_request(const boost::system::error_code& err)
       boost::asio::async_read_until(*port_, response, end_of_line_char_,
           boost::bind(&serialAsync::handle_read_content, this,
             boost::asio::placeholders::error));
+    
+      
     }
     else
     {
@@ -85,12 +92,12 @@ void serialAsync::handle_write_request(const boost::system::error_code& err)
 
 void serialAsync::handle_read_content(const boost::system::error_code& err)
   {
-
+  	this->timeoutTimer.cancel();
     if (!err)
     {
       // Write all of the data that has been read so far.
 	response_string_stream<< &response;
-	std::cout<<response_string_stream<<std::endl;
+// 	std::cout<<response_string_stream<<std::endl;
 
     }
     else if (err != boost::asio::error::eof)

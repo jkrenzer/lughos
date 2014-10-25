@@ -51,7 +51,8 @@ std::string MaxiGauge::composeRequest(std::string query)
 {
     std::string requestString="";
     requestString+=query;
-    requestString+=std::string("\r");
+//     if (query!="\x05")
+      requestString+=std::string("\r");
 
     return requestString;
   
@@ -63,15 +64,24 @@ std::string MaxiGauge::composeRequest(std::string query)
 }
 
 std::string MaxiGauge::interpretAnswer(std::string s)
-{   
+{  
+  
+//   std::cout << "interpretAnswer " << s<<std::endl; 
     if(s=="\x15""\r\n") return "NAK";
-    else if(s=="\x06""\r\n") return this->inputOutput("\x05");
+    else if(s=="\x06""\r\n"||s=="\x06""\r") 
+    { 
+            std::cout<<"ACK "<<std::endl;
+ return this->inputOutput("\x05");
+      
+    }
     else
-    {	
+    {
+//       std::cout<<"string "<<s<<" "<<std::endl;
 	 static const boost::regex e("^(\\d*)\\D\\D$");
 	 boost::cmatch res;
 	 boost::regex_search(s.c_str(), res, e);
-	 return res[1];   
+	 std::cout<<"Regex "<<res[1]<<std::endl;
+	 return s;   
     }
 
 }

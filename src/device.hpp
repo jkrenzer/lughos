@@ -43,9 +43,9 @@ namespace lughos
     {
       connection->write(this->composeRequest(query));
       
-        std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
-	ofs <<connection->read() << std::endl;
-	ofs.close();
+//         std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
+// 	ofs <<connection->read() << std::endl;
+// 	ofs.close();
       return this->interpretAnswer(connection->read());
     }
     

@@ -51,7 +51,8 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 
 // 	char end_of_line;
 	boost::shared_ptr<boost::asio::io_service> io_service_;
-// 	boost::asio::io_service * io_service_;
+	boost::asio::deadline_timer timeoutTimer;
+	// 	boost::asio::io_service * io_service_;
 	
 
 	
