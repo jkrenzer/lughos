@@ -214,6 +214,11 @@ add_executable(test_regex src/test_regex.cpp)
 target_link_libraries(test_regex boost_regex)
 
 # #Test for exposer
+add_executable(test_ioservice src/test_ioservice.cpp)
+target_link_libraries(test_ioservice ${Boost_LIBRARIES})
+
+
+# #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
  
 #Test for wt-dbo
