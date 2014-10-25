@@ -5,7 +5,8 @@
 #include "serialAsync.hpp"
 #include "device.hpp"
 // #include "coolpak6000.hpp"
-#include "MaxiGauge.hpp"
+// #include "MaxiGauge.hpp"
+// #include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
@@ -45,31 +46,37 @@ int main(int argc, char **argv)
   
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
      #ifdef WIN32 
       connection1.port_name = std::string("COM1");
       connection2.port_name = std::string("COM2");
+      connection2.port_name = std::string("COM3");
 
      #else
-      connection1->port_name = std::string("/dev/ttyUSB0");
-      connection2->port_name = std::string("/dev/ttyUSB1");
+      connection1->port_name = std::string("/dev/ttyUSB1");
+      connection2->port_name = std::string("/dev/ttyUSB2");
+      connection3->port_name = std::string("/dev/ttyUSB0");
     #endif
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
+      boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
       compressor1->setName(std::string("Compressor 1"));
       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
+      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
       
       compressor1->connect(connection1);
       pressureMonitor1->connect(connection2);
+      temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
   std::cout<< pressureMonitor1->getName()<<std::endl;
     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
-
+  deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
   
   /*
    * Your main method may set up some shared resources, but should then
