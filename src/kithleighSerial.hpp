@@ -17,25 +17,33 @@
 
 #include <iostream>
 #include <boost/array.hpp>
+#include "device.hpp"
+using namespace lughos;
 // #include "Dict.hpp"
 
 
-class kithleighSerial :virtual public serialSync, virtual public serialAsync
+class kithleighSerial : public Device
 {
   private:
 	kithleighSerial(const kithleighSerial &p);
 	kithleighSerial &operator=(const kithleighSerial &p);
 	
+	template <class T> void setDefaultImpl(T& connection);
+	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
+	
 	
   public:
-	kithleighSerial(boost::asio::io_service* io_service);
+	kithleighSerial();
 	~kithleighSerial(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
-	virtual void set_default();
 protected:
-  	void compose_request(const std::string &buf);
+//   	void compose_request(const std::string &buf);
 // 	void handle_read_check_response();
+	
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
 };
 
 
