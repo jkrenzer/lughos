@@ -32,6 +32,42 @@ namespace lughos
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
   
+    class ScatterPlotWidget : public Wt::WContainerWidget
+  {
+  public:
+    std::string name;
+    ScatterPlotWidget()
+    {
+      this->setStyleClass("ScatterPlotContainer");
+    }
+  };
+  
+    template <class S> class ScatterPlot : public ScatterPlotWidget
+  {
+  public:
+    ScatterPlot<S>()
+    {
+
+      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
+    }
+  };
+  
+  
+  
+    class ScatterPlotView : public Wt::WContainerWidget
+  {
+  public:
+    ScatterPlotView(WContainerWidget* parent = 0)
+    {
+//       this->addWidget(new ScatterPlot<S>());
+//       this->addWidget(new DeviceUI<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
+//       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
+    }
+
+  };
+  
+  
   class DeviceUIInterface : public Wt::WContainerWidget
   {
   public:
@@ -42,6 +78,7 @@ namespace lughos
     }
   };
   
+    
   template <class D> class DeviceUI : public DeviceUIInterface
   {
   public:
@@ -635,7 +672,7 @@ namespace lughos
 		  "Preload", Wt::WTabWidget::PreLoading);
 // 		    ofs.close();
       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
-
+      tabW->addTab(new ScatterPlotView(), "ScatterPlots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
 // 					  " by clicking on the close icon."),
