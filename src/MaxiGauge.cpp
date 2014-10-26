@@ -70,24 +70,27 @@ std::string MaxiGauge::interpretAnswer(std::string s)
 //         this->inputOutput("\x05");  
 //   std::cout << "interpretAnswer " << s<<std::endl; 
     if(s=="\x15""\r\n")
-    { std::cout<<"ACK "<<std::endl;
+    { 
+//       std::cout<<"NAK "<<std::endl;
       return "NAK";
     }
-    else if(s=="\x06""\r\n"||s=="\x06""\r") 
+    else if(s=="\x06""\r\n"||s=="\x06""\r"||s=="\n\x06""\r") 
     { 
-            std::cout<<"ACK "<<std::endl;
+//             std::cout<<"ACK "<<std::endl;
  return this->inputOutput("\x05");
       
     }
     else
     {
 //       std::cout<<"string "<<s<<" "<<std::endl;
-       static const boost::regex e("^([\\d\\w,\\.+-]*)");
+//        static const boost::regex e("([\\d\\w,\\.+-]*)");
 // 	 static const boost::regex e("^(\\d*)\\D\\D$");
-	 boost::cmatch res;
-	 boost::regex_search(s.c_str(), res, e);
+// 	 boost::cmatch res;
+// 	 boost::regex_search(s.c_str(), res, e);
+	 s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
+	 s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
 // 	 std::cout<<"Regex "<<res[1]<<std::endl;
-	 return res[1];   
+	 return s;   
     }
 
 }
