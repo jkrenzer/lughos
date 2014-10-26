@@ -56,9 +56,9 @@ int main(int argc, char **argv)
       connection2.port_name = std::string("COM3");
 
      #else
-      connection1->port_name = std::string("/dev/ttyUSB0");
-      connection2->port_name = std::string("/dev/ttyUSB2");
-      connection3->port_name = std::string("/dev/ttyUSB1");
+      connection1->port_name = std::string("/dev/ttyUSB2");
+      connection2->port_name = std::string("/dev/ttyUSB1");
+      connection3->port_name = std::string("/dev/ttyUSB0");
     #endif
       
       
@@ -92,10 +92,10 @@ int main(int argc, char **argv)
 //   press.setExecuteTimes(Task::Execute::infinite);
 //   press.start();
   
-  KeithleyTest keithley(taskExecutor,temperatureMonitor1);
-  keithley.setEvery(boost::posix_time::seconds(5));
-  keithley.setExecuteTimes(Task::Execute::infinite);
-  keithley.start();
+//   KeithleyTest keithley(taskExecutor,temperatureMonitor1);
+//   keithley.setEvery(boost::posix_time::seconds(10));
+//   keithley.setExecuteTimes(Task::Execute::infinite);
+//   keithley.start();
   
   /*
    * Your main method may set up some shared resources, but should then

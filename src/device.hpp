@@ -3,6 +3,7 @@
 
 #include <ostream>
 
+#include <boost/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
@@ -42,7 +43,7 @@ namespace lughos
     virtual std::string inputOutputImplementation(std::string query)
     {
       connection->write(this->composeRequest(query));
-      
+      connection->waitForCompletion();
 //         std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
 // 	ofs <<connection->read() << std::endl;
 // 	ofs.close();

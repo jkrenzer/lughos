@@ -17,7 +17,7 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service)
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
 
@@ -363,7 +363,7 @@ void Connection<serialContext>::handle_read_headers_process()
 std::string Connection<serialContext>::read()
 {
         std::string s = response_string_stream.str();
-	response_string_stream.str("");
+	response_string_stream.str(std::string(""));
 // 	stop();
     return s;  
 

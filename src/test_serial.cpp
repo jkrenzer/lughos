@@ -70,17 +70,28 @@ int main(int argc, char **argv) {
 
 	      
      boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
-     connection3->port_name = std::string("/dev/ttyUSB1");
+     connection3->port_name = std::string("/dev/ttyUSB0");
      boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
      temperatureMonitor1->connect(connection3);
      deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
 	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
      std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
-    exec_task task(exec_service, keithley);
-    task.setEvery(boost::posix_time::seconds(1));
-    task.setExecuteTimes(3);
-    task.start();
+     std::cout << "Write="<< keithley->inputOutput("*RST")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("INIT:CONT OFF")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("TRIG:COUN 1")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:FUNC 'VOLT:DC'")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:VOLT:RANG:AUTO ON")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("READ?")<< std::endl;
+
+
+
+
+
+//     exec_task task(exec_service, keithley);
+//     task.setEvery(boost::posix_time::seconds(1));
+//     task.setExecuteTimes(3);
+//     task.start();
       
 
 
@@ -127,14 +138,14 @@ int main(int argc, char **argv) {
 
 
 //    ofs<< "IOService stopping..." << std::endl;
-  std::cout << "IOService waiting for children..." << std::endl;
+  std::cout << "Execution-service stopping..." << std::endl;
         exec_work.reset(); 
 	exec_thread.join();
-	work.reset();
+	
 
     std::cout << "IOService stopping..." << std::endl;
    
-    
+      work.reset();
       thread.join();
    std::cout << "IOService stopped..." << std::endl;
 	return 0;

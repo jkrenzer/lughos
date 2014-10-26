@@ -25,7 +25,7 @@ serialAsync::~serialAsync(void)
 
 int serialAsync::write(std::string query)
 {    
-  
+  this->queryDone = false;
 //       start();
       std::ostream request_stream(&request);
       request_stream<<query;
@@ -58,8 +58,8 @@ void serialAsync::async_read_some_()
 // 	
 // 	  std::cout<<port_name<<std::endl;
 	  io_service_->poll();
-	  this->timeoutTimer.expires_from_now(boost::posix_time::millisec(1000));
-          this->timeoutTimer.wait();
+// 	  this->timeoutTimer.expires_from_now(boost::posix_time::millisec(1000));
+//           this->timeoutTimer.wait();
 
 	  if (port_.get() == NULL || !port_->is_open())	std::cout<<"port is somehow closed again"<<std::endl;
 	  if(io_service_->io_service::stopped())std::cout<<"Io service gestoppt"<<std::endl;
@@ -92,12 +92,13 @@ void serialAsync::handle_write_request(const boost::system::error_code& err)
 
 void serialAsync::handle_read_content(const boost::system::error_code& err)
   {
-  	this->timeoutTimer.cancel();
+//   	this->timeoutTimer.cancel();
     if (!err)
     {
       // Write all of the data that has been read so far.
+        response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
-	
+	this->notifyWaitingClient();
 // 	std::cout<<response_string_stream<<std::endl;
 
     }
@@ -123,4 +124,11 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
     port_.cancel();  // will cause read_callback to fire with an error
   } 
 
+void serialAsync::abort()
+{
+  this->port_->cancel();
+}
+
+
+  
   

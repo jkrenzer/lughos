@@ -53,7 +53,7 @@ class serialAsync : virtual public Connection<serialContext>
 	~serialAsync(void);
 	
 	int write(std::string query);
-	
+	void abort();
 protected:
 /////////////
 	std::deque<char> write_msgs_;
