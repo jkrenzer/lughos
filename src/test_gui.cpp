@@ -57,8 +57,8 @@ int main(int argc, char **argv)
 
      #else
       connection1->port_name = std::string("/dev/ttyUSB2");
-      connection2->port_name = std::string("/dev/ttyUSB0");
-      connection3->port_name = std::string("/dev/ttyUSB1");
+      connection2->port_name = std::string("/dev/ttyUSB1");
+      connection3->port_name = std::string("/dev/ttyUSB0");
     #endif
       
       
@@ -87,15 +87,15 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-  PressureMonitor press(taskExecutor,pressureMonitor1,1);
-  press.setEvery(boost::posix_time::seconds(5));
-  press.setExecuteTimes(Task::Execute::infinite);
-  press.start();
+//   PressureMonitor press(taskExecutor,pressureMonitor1,1);
+//   press.setEvery(boost::posix_time::seconds(5));
+//   press.setExecuteTimes(Task::Execute::infinite);
+//   press.start();
   
-//   KeithleyTest keithley(taskExecutor,temperatureMonitor1);
-//   keithley.setEvery(boost::posix_time::seconds(5));
-//   keithley.setExecuteTimes(Task::Execute::infinite);
-//   keithley.start();
+  KeithleyTest keithley(taskExecutor,temperatureMonitor1);
+  keithley.setEvery(boost::posix_time::seconds(5));
+  keithley.setExecuteTimes(Task::Execute::infinite);
+  keithley.start();
   
   /*
    * Your main method may set up some shared resources, but should then

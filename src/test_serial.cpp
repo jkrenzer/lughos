@@ -58,25 +58,25 @@ int main(int argc, char **argv) {
 // 	sleep(1);
 // 	std::cout << "Write="<< coolpak->compressor_off()<< std::endl;
 	
-	boost::shared_ptr<serialAsync> connection2(new serialAsync(io_service) );
-        connection2->port_name = std::string("/dev/ttyUSB0");
-	boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
-	pressureMonitor1->setName(std::string("Pressure Monitor 1"));
-	pressureMonitor1->connect(connection2);
-	deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
-	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
-// 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
-	std::cout << "Write="<< maxigauge->get_status(1)<< std::endl;
+// 	boost::shared_ptr<serialAsync> connection2(new serialAsync(io_service) );
+//         connection2->port_name = std::string("/dev/ttyUSB0");
+// 	boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
+// 	pressureMonitor1->setName(std::string("Pressure Monitor 1"));
+// 	pressureMonitor1->connect(connection2);
+// 	deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
+// 	boost::shared_ptr<MaxiGauge> maxigauge = boost::dynamic_pointer_cast<MaxiGauge>(pressureMonitor1);
+// // 	std::cout << "Write="<< maxigauge->inputOutput("\x05")<< std::endl;
+// 	std::cout << "Write="<< maxigauge->get_status(1)<< std::endl;
 
 	      
-//      boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
-//      connection3->port_name = std::string("/dev/ttyUSB0");
-//      boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
-//      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
-//      temperatureMonitor1->connect(connection3);
-//      deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
-// 	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
-//      std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+     boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
+     connection3->port_name = std::string("/dev/ttyUSB0");
+     boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
+     temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+     temperatureMonitor1->connect(connection3);
+     deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
+	boost::shared_ptr<kithleighSerial> keithley = boost::dynamic_pointer_cast<kithleighSerial>(temperatureMonitor1);
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
 //     exec_task task(exec_service, keithley);
 //     task.setEvery(boost::posix_time::seconds(1));
 //     task.setExecuteTimes(3);
