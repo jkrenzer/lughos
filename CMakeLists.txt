@@ -239,9 +239,9 @@ add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnec
 add_dependencies(test_gui coolpak6000 MaxiGauge)
 
 if(${Windows})
-target_link_libraries(test_gui coolpak6000 MaxiGauge kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()
-target_link_libraries(test_gui coolpak6000 MaxiGauge kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
 endif()
 
 ### Test for forms
