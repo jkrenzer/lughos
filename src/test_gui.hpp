@@ -19,10 +19,22 @@
 #include <Wt/WImage>
 #include <Wt/WServer>
 #include <Wt/WIOService>
+#include <Wt/Chart/WCartesianChart>
+#include <Wt/Chart/WDataSeries>
+#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemView>
+#include <Wt/WDate>
+#include <Wt/WPaintedWidget>
+#include <Wt/WItemDelegate>
+#include <Wt/WShadow>
+#include <Wt/WStandardItemModel>
+#include <Wt/WTableView>
 #include <functional>
 #include "coolpak6000.hpp"
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
+
+#include "../build/resources/CsvUtil.h"
 namespace lughos 
 {
 
@@ -31,6 +43,91 @@ namespace lughos
   extern boost::shared_ptr<boost::asio::io_service> ioService;
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
+  
+    class ScatterPlotWidget : public Wt::WContainerWidget
+  {
+  public:
+    std::string name;
+    ScatterPlotWidget()
+    {
+      this->setStyleClass("ScatterPlotContainer");
+    }
+  };
+  
+    template <class S> class ScatterPlot : public ScatterPlotWidget
+  {
+  public:
+    ScatterPlot<S>()
+    {
+
+      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
+    }
+  };
+  
+    template <> class ScatterPlot<MaxiGauge> : public ScatterPlotWidget
+  {
+  protected:
+    boost::shared_ptr<MaxiGauge> maxigauge;
+          Wt::Chart::WCartesianChart *chart;
+
+  public:
+    
+    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge))
+    {
+
+      this->init();
+    }
+        void init()
+    {	
+     this->name=maxigauge->getName();
+//      this->setWidth(500);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+           this->name=maxigauge->getName();
+      this->chart = new Wt::Chart::WCartesianChart();
+      this->chart->setBackground(Wt::WColor(220, 220, 220));
+
+      Wt::WStandardItemModel *model = new Wt::WStandardItemModel(40, 2);
+      model->setHeaderData(0, Wt::WString("X"));
+      model->setHeaderData(1, Wt::WString("Y = sin(X)"));
+      for (unsigned i = 0; i < 40; ++i) 
+	{
+	    double x = (static_cast<double>(i) - 20) / 4;
+
+	    model->setData(i, 0, x);
+	    model->setData(i, 1, std::sin(x));
+	}	
+      chart->setModel(model);
+      this->chart->setXSeriesColumn(0);
+      this->chart->setLegendEnabled(true);
+      this-> chart->setType(Wt::Chart::ScatterPlot);
+//       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
+      chart->setPlotAreaPadding(80, Wt::Left);
+      chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
+
+      // Add the curves
+      Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
+      s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      chart->addSeries(s);
+      this->addWidget(chart);
+      chart->resize(800, 400);
+      chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+    }
+  };
+  
+  
+    class ScatterPlotView : public Wt::WContainerWidget
+  {
+  public:
+    ScatterPlotView(WContainerWidget* parent = 0)
+    {
+//       this->addWidget(new ScatterPlot<S>());
+      this->addWidget(new ScatterPlot<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
+//       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
+    }
+
+  };
+  
   
   class DeviceUIInterface : public Wt::WContainerWidget
   {
@@ -42,6 +139,7 @@ namespace lughos
     }
   };
   
+    
   template <class D> class DeviceUI : public DeviceUIInterface
   {
   public:
@@ -124,6 +222,7 @@ namespace lughos
      this->addWidget(stopB);
      this->addWidget(stateB);
      this->checkConnected();
+
     }
     
     void showData()
@@ -497,7 +596,7 @@ namespace lughos
 //       this->stopB = new Wt::WPushButton("Stop");
       this->stateB = new Wt::WPushButton("Status");
        this->dialogB = new Wt::WPushButton("Send");
-      this->responseField->isReadOnly(); 
+      this->responseField->setReadOnly(true); 
      this->addWidget(stateL);
      this->addWidget(stateF);
 //      this->addWidget(startB);
@@ -635,7 +734,7 @@ namespace lughos
 		  "Preload", Wt::WTabWidget::PreLoading);
 // 		    ofs.close();
       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
-
+      tabW->addTab(new ScatterPlotView(), "ScatterPlots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
 // 					  " by clicking on the close icon."),

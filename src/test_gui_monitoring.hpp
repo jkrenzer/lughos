@@ -21,9 +21,13 @@ class KeithleyTest : public Task
   
     virtual void run()
     {
-      std::cout << "[*] Keithley " << boost::posix_time::second_clock::local_time() << " -> " << this->keithley->inputOutput("*IDN?") << std::endl;
+      std::cout << "[*] Keithley " << boost::posix_time::second_clock::local_time() << " -> " << this->keithley->inputOutput("READ?") << std::endl;
     }
     
+        virtual void init()
+    {
+     this->keithley->inputOutput("*RST");
+    }
 public:
   
     KeithleyTest(boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> keithley) : Task(executionQueuePtr), keithley(boost::dynamic_pointer_cast<kithleighSerial>(keithley))
@@ -43,7 +47,7 @@ protected:
     virtual void run()
     {
       measuredValue pressure = this->maxiGauge->getPressure(sensor);
-      std::cout << "[*] Keithley " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
+      std::cout << "[*] MaxiGauge " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
     }
     
 public:

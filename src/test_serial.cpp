@@ -84,10 +84,6 @@ int main(int argc, char **argv) {
      std::cout << "Write="<< keithley->inputOutput("SENS:VOLT:RANG:AUTO ON")<< std::endl;
      std::cout << "Write="<< keithley->inputOutput("READ?")<< std::endl;
 
-
-
-
-
 //     exec_task task(exec_service, keithley);
 //     task.setEvery(boost::posix_time::seconds(1));
 //     task.setExecuteTimes(3);
