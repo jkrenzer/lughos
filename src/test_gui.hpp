@@ -110,19 +110,47 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(session->query<Item>("SELECT value, timestamp FROM measuredValue"));
+      model->setQuery(session->query<Item>("select value, timestamp from measuredValue"));
       model->addColumn("value");
       model->addColumn("timestamp");
-      
+//       
 
+      for (int row = 0; row < 10; ++row) {
+    Wt::WString s = Wt::asString(model->data(row, 0));
+    double t= Wt::asNumber(model->data(row, 1));
+//     Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
+    model->setData(row, 0, s);
+    model->setData(row, 1, t);
+    }
+      
 	transaction.commit();
 //   
-	
-      	WTableView *view = new WTableView();
-	view->resize(800, 400);
-	view->setModel(model);
-	view->setAlternatingRowColors(true);
-	this->addWidget(view);
+	dbo::Transaction transaction1(*session);
+	  Wt::WTableView *table = new Wt::WTableView();
+	  table->setModel(model);
+	  table->setSortingEnabled(false);
+	  table->setColumnResizeEnabled(true);
+	  table->setAlternatingRowColors(true);
+	  table->setColumnAlignment(0, Wt::AlignCenter);
+	  table->setHeaderAlignment(0, Wt::AlignCenter);
+	  table->setRowHeight(28);
+	  table->setHeaderHeight(28);
+	  table->setColumnWidth(0, 80);
+	  for (int column = 1; column < model->columnCount(); ++column)
+	  table->setColumnWidth(column, 90);
+	  table->resize(783, 200);
+	  std::cout << " Columns " <<model->columnCount() <<"Rows "<<model->rowCount()<< std::endl;
+
+// 	Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart();
+// 	chart->setBackground(Wt::WColor(220, 220, 220));
+// // 	chart->setModel(model);
+// 	chart->setXSeriesColumn(0);
+// 	chart->setLegendEnabled(true);
+// 	chart->setType(Wt::Chart::ScatterPlot);
+// 	chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
+	transaction1.commit();
+		  this->addWidget(table);
+// 		  		  this->addWidget(chart);
 //       model->setHeaderData(0, Wt::WString("X"));
 //       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
 //       for (unsigned i = 0; i < 40; ++i) 
