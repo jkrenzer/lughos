@@ -117,11 +117,11 @@ namespace lughos
       model->addColumn("timestamp");
       transaction.commit();
 	
-      	WTableView *view = new WTableView();
-	view->resize(800, 400);
-	view->setModel(model);
-	view->setAlternatingRowColors(true);
-	this->addWidget(view);
+//       	WTableView *view = new WTableView();
+// 	view->resize(800, 400);
+// 	view->setModel(model);
+// 	view->setAlternatingRowColors(true);
+// 	this->addWidget(view);
 //       model->setHeaderData(0, Wt::WString("X"));
 //       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
 //       for (unsigned i = 0; i < 40; ++i) 
@@ -133,21 +133,23 @@ namespace lughos
 // 	}
 
 	
-//       chart->setModel(model);
-//       this->chart->setXSeriesColumn(0);
-//       this->chart->setLegendEnabled(true);
-//       this-> chart->setType(Wt::Chart::ScatterPlot);
-// //       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
-//       chart->setPlotAreaPadding(80, Wt::Left);
-//       chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
-
-// //       Add the curves
-//       Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
-//       s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-//       chart->addSeries(s);
-//       this->addWidget(chart);
-//       chart->resize(800, 400);
-//       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+      chart->setModel(model);
+      this->chart->setXSeriesColumn(0);
+      this->chart->setLegendEnabled(true);
+      this-> chart->setType(Wt::Chart::ScatterPlot);
+      this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
+      chart->setPlotAreaPadding(80, Wt::Left);
+      chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
+      chart->setPlotAreaPadding(40, Wt::Left | Wt::Top | Wt::Bottom);
+      chart->setPlotAreaPadding(120, Wt::Right);
+//       Add the curves
+      Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
+      s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      chart->addSeries(s);
+      this->addWidget(chart);
+      chart->resize(800, 400);
+      chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+      this->addWidget(chart);
     }
     
   };
