@@ -54,9 +54,9 @@ int main(int argc, char **argv)
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
      #ifdef WIN32 
-      connection1.port_name = std::string("COM1");
-      connection2.port_name = std::string("COM2");
-      connection2.port_name = std::string("COM3");
+      connection1->port_name = std::string("COM1");
+      connection2->port_name = std::string("COM2");
+      connection3->port_name = std::string("COM3");
 
      #else
       connection1->port_name = std::string("/dev/ttyUSB2");

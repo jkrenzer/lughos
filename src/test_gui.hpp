@@ -76,30 +76,32 @@ namespace lughos
   protected:
     boost::shared_ptr<kithleighSerial> kithleigh;
           Wt::Chart::WCartesianChart *chart;
+	  boost::shared_ptr<dbo::Session> session;
+	  dbo::backend::Sqlite3 dbBackend;
+	  
 
   public:
     
-    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh))
+    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
     }
-        void init()
+    
+    void init()
     {	
-      
-      dbo::backend::Sqlite3 sqlite3("test.db");
-      boost::shared_ptr<dbo::Session> session(new dbo::Session);
-      session->setConnection(sqlite3);
-      session->mapClass<measuredDBValue>("measuredValue");
+      this->session->setConnection(this->dbBackend);
+      this->session->mapClass<measuredDBValue>("measuredValue");
       this->name=kithleigh->getName();
 //      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
            this->name=kithleigh->getName();
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
-
-      dbo::Transaction transaction(*session);
-      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = session->find<measuredDBValue>();
+      
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      
       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
@@ -110,22 +112,12 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(session->query<Item>("select value, timestamp from measuredValue"));
+
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue"));
       model->addColumn("value");
       model->addColumn("timestamp");
-//       
-
-      for (int row = 0; row < 10; ++row) {
-    Wt::WString s = Wt::asString(model->data(row, 0));
-    double t= Wt::asNumber(model->data(row, 1));
-//     Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
-    model->setData(row, 0, s);
-    model->setData(row, 1, t);
-    }
-      
-	transaction.commit();
-//   
-	dbo::Transaction transaction1(*session);
+      transaction.commit();
+	
 	  Wt::WTableView *table = new Wt::WTableView();
 	  table->setModel(model);
 	  table->setSortingEnabled(false);
@@ -136,21 +128,22 @@ namespace lughos
 	  table->setRowHeight(28);
 	  table->setHeaderHeight(28);
 	  table->setColumnWidth(0, 80);
-	  for (int column = 1; column < model->columnCount(); ++column)
-	  table->setColumnWidth(column, 90);
+	  for (int column = 1; column < model->columnCount(); ++column) table->setColumnWidth(column, 90);
 	  table->resize(783, 200);
-	  std::cout << " Columns " <<model->columnCount() <<"Rows "<<model->rowCount()<< std::endl;
+	  this->addWidget(table);
 
-// 	Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart();
-// 	chart->setBackground(Wt::WColor(220, 220, 220));
-// // 	chart->setModel(model);
-// 	chart->setXSeriesColumn(0);
-// 	chart->setLegendEnabled(true);
-// 	chart->setType(Wt::Chart::ScatterPlot);
-// 	chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
-	transaction1.commit();
-		  this->addWidget(table);
-// 		  		  this->addWidget(chart);
+	Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart();
+	chart->setBackground(Wt::WColor(220, 220, 220));
+	chart->setModel(model);
+	chart->setXSeriesColumn(0);
+	chart->setLegendEnabled(true);
+	chart->setType(Wt::Chart::ScatterPlot);
+	chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
+	chart->axis(Wt::Chart::XAxis).setLocation(Wt::Chart::ZeroValue);
+	chart->axis(Wt::Chart::YAxis).setLocation(Wt::Chart::ZeroValue);
+
+	this->addWidget(chart);
+	
 //       model->setHeaderData(0, Wt::WString("X"));
 //       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
 //       for (unsigned i = 0; i < 40; ++i) 
@@ -178,6 +171,7 @@ namespace lughos
 //       chart->resize(800, 400);
 //       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
     }
+    
   };
   
   
