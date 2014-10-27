@@ -1,5 +1,7 @@
 #ifndef JOBQUEUE_HPP
 #define JOBQUEUE_HPP
+#include "threadSafety.hpp"
+#include <boost/asio/deadline_timer.hpp>
 
 namespace lughos 
 {

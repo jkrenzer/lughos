@@ -11,7 +11,7 @@
 ### Project description
 
 project(lugos)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 set(PROJECT_NAME lughos)
 set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interfaces")
@@ -156,8 +156,10 @@ set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}"
 
 ### Set include/link directories
 
+if(${Wt_FOUND})
 include_directories(${INCLUDE_DIRS} ${Wt_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 link_directories(${LINK_DIRS} ${Boost_LIBRARY_DIRS})
+endif()
 
 ### Printing some information
 
@@ -268,6 +270,10 @@ add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp  src/se
 target_link_libraries(test_serial ${Boost_LIBRARIES} boost_chrono measuredValue)
 endif()
 
+### Test of data acquisition
+add_executable(test_acquisition src/test_acquisition.cpp)
+target_link_libraries(test_acquisition ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} unitValue measuredValue boost_signals)
+#add_dependencies(test_acquisition )
  
 ### Test of TCP
 

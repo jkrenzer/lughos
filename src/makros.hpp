@@ -6,7 +6,7 @@
 #define DECLARE_GETTER_SETTER(V,T) \
     void set ## V(T V);		\
 				\
-    T get ## V();
+    const T get ## V() const;
 
 
 //Automatically define getter and setter-functions for variable X of type T
@@ -17,7 +17,7 @@
       this->V = V;		\
     }				\
 				\
-    T C::get ## V()		\
+    const T C::get ## V() const		\
     {				\
       return this->V;	\
     }
