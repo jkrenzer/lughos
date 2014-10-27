@@ -31,7 +31,7 @@ class kithleigh :virtual public tcpSync, virtual public tcpAsync
 	kithleigh &operator=(const kithleigh &p);
 	
   public:
-	kithleigh(void);
+	kithleigh(boost::asio::io_service* io_service);
 	~kithleigh(void);
 	virtual std::string inputoutput(const std::string input, const int async=0);	
 

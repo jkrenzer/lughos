@@ -27,7 +27,7 @@
 // {
 // 
 // }
-serialSync::serialSync(void)
+serialSync::serialSync(boost::asio::io_service* io_service) : Connection< serialContext >(io_service)
 {
 }
 
@@ -37,79 +37,30 @@ serialSync::~serialSync(void)
 
 
 
-int serialSync::write(const std::string &buf)
+int serialSync::write(std::string query)
 {
+  start();
+//   io_service_->run();
+  boost::system::error_code error = boost::asio::error::host_not_found;
+  std::ostream request_stream(&request);
 
-	io_service_.run();
-
-
-	this->compose_request(buf);
-
-//                std::cout<<"vor write:"<<&this->request_<<std::endl;
-//      
-     boost::system::error_code error = boost::asio::error::host_not_found;
-     
-//      boost::asio::streambuf stream;
-     boost::asio::write(*port_, request_);
-//                     std::cout<<"nach write:"<<&this->request_<<std::endl;
-     
-//           boost::asio::streambuf stream;
-//       const std::string  buf1="*IDN?\r";
-      
-//           std::ostream request_stream(&stream);
-
-//     request_stream <<buf.c_str()<< "\r";
-//       std::cout<<"composed_"<<&request_<<std::endl;
-//        boost::asio::write(*port_,boost::asio::buffer(buf1.c_str(),buf1.size()));
-//          boost::asio::write(*port_,stream);
-     
-//   if(&request_)    std::cout<<"composed_"<<std::endl;
-// 
+    request_stream<<query;
   
-  
-//           char c;
-//         std::string result;
-//         for(;;)
-//         {
-//             boost::asio::read(*port_,boost::asio::buffer(&c,1));
-//             switch(c)
-//             {
-//                 case '\r':
-//                     break;
-//                 case '\n':
-//                      std::cout<<result<<std::endl;;
-//                 default:
-//                     result+=c;
-//             }
-//         }
-//     // Read the response status line.
-    boost::asio::read_until(*port_, response_, end_of_line_char_);
+  boost::asio::write(*port_, request);
+
+// Read the response status line.
+  if(end_of_line_char_=='\0'){
+    boost::asio::read(*port_, response,
+          boost::asio::transfer_at_least(4), error);
+//     boost::asio::read_until(*port_, response_, end_of_line_char_);  
+  }
+  else  boost::asio::read_until(*port_, response, end_of_line_char_);
 //     handle_read_check_response(error);
 //      boost::asio::read_until(*port_, response_, "K");
       handle_read_check_response(error);
-// //     // Read the response headers, which are terminated by a blank line.
-//     boost::asio::read_until(port_, response_, end_of_line_char_);
-// // 
-// //     serialSync::handle_read_headers_process();
-// 
-//     // Read until EOF, writing data to output as we go.
-//         while (boost::asio::read(*port_, response_, boost::asio::transfer_at_least(1), error))
-    response_string_stream<< &response_;
-	
-// 	 std::cout<<"response: "<<&this->response_<<std::endl;
 
+    response_string_stream<< &response;
 
-    
-//     if (error != boost::asio::error::eof)
-//       throw boost::system::system_error(error);
-  
-
-	
-// 	 static const boost::regex e("<body>(.*)</body>");
-// 	 boost::cmatch res;
-// 	 boost::regex_search(s.c_str(), res, e);
-// 	  std::cout << res[1] << '\n';
-    
     return 1;
 }
 

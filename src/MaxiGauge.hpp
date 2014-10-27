@@ -1,5 +1,5 @@
-#ifndef COOLPACK6000_HPP
-#define COOLPACK6000_HPP
+#ifndef MAXIGAUGE_HPP
+#define MAXIGAUGE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -17,10 +17,12 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
+#include "measuredValue.hpp"
 
+using namespace lughos;
 
-class MaxiGauge :virtual public serialSync
+class MaxiGauge : public Device
 {
   private:
 	MaxiGauge(const MaxiGauge &p);
@@ -28,14 +30,24 @@ class MaxiGauge :virtual public serialSync
 	
 	
   public:
-	MaxiGauge(void);
+	MaxiGauge();
 	~MaxiGauge(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
+	template <class T> void setDefaultImpl(T& connection);
+	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
+	
+	bool sensor_on(int sensor);
+	bool sensor_off(int sensor);
+	measuredValue getPressure(int sensor);
+	std::string get_status(int sensor);
+	
 protected:
-  	void compose_request(const std::string &buf);
-	void handle_read_check_response(const boost::system::error_code& err);
-// 	void handle_read_check_response();
+	int sensor_bench[6];
+	
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
 };
 
 

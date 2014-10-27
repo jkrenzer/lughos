@@ -6,7 +6,7 @@
 #include "kithleigh.hpp"
 
 
-kithleigh::kithleigh(void)
+kithleigh::kithleigh(boost::asio::io_service* io_service): connection<serialContext>(io_service)
 {
     this->dict = new httpDict;
     this->dict->addition = std::string("/scpi_response.html?cmd=");

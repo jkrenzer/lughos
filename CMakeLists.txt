@@ -2,77 +2,120 @@
 # For cross-compiling issue at commandline: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-cross-*.cmake
 # Make sure to have alls needed tools installed beforehand!
 
+### Include modules
+
+
+
+
+
 ### Project description
 
 project(lugos)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 set(PROJECT_NAME lughos)
 set(PROJECT_BRIEF_DESCRIPTION "Library for exposing of classes to various interfaces")
-#set(PROJECT_LOGO)
-
-if(${CMAKE_CROSSCOMPILING})
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_crosscompile)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_crosscompile)
-set(EXT_LIB_CROSSCOMPILE_CMAKE_OPT "")
-set(EXT_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalLibraries_crosscompile) #Path relative to build-dir!
-set(GENERATOR "MinGW Makefiles")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
-list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib ${EXT_LIB_DIR}/lib/)
-list(APPEND INCLUDE_DIRS ${CMAKE_FIND_ROOT_PATH}/include ${EXT_LIB_DIR}/include/)
-else()
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(EXT_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalLibraries) #Path relative to build-dir!
-set(GENERATOR "Unix Makefiles")
-list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
-list(APPEND INCLUDE_DIRS ${EXT_LIB_DIR}/include/)
-endif()
-
-include_directories(${INCLUDE_DIRS})
-link_directories(${LINK_DIRS})
-
 set(DOCUMENTATION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 set(CMAKE_TOOLCHAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains)
+#set(PROJECT_LOGO)
 
-list( APPEND CMAKE_CXX_FLAGS "-std=c++11") #Enable C++11 support
-#list( APPEND CMAKE_CXX_FLAGS "-g -O0") #Enable debugging-output, no-optimization (for valgrind and gdb)
-include(ExternalProject)
+### Configuration switches
 
-### Printing some information
+#set(LINK_STATIC TRUE) # Uncomment to link libraries static, so we get a stand-alone application
 
-message("-= CMAKE FOR LUGHOS SCADA LIBRARY =-")
-if(${CMAKE_CROSSCOMPILING})
-message("cmake is CROSSCOMPILING!")
-message("current toolchain-file: ${CMAKE_CURRENT_TOOLCHAIN_FILE}")
+###
+
+add_compile_options(-std=c++11) #Enable C++11 support
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND NOT MINGW)
+ message("Enabling GCC Debug-Flags")
+ add_compile_options(-g -O0) #Enable debugging-output, no-optimization (for valgrind and gdb)
+ set(CMAKE_VERBOSE_MAKEFILE ON)
+ elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND MINGW)
+ message("Enabling GCC Debug-Flags with DWARF output")
+ add_compile_options(-gdwarf-4 -O0)
+ set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
-message("CMAKE_IMPORT_LIBRARY_PREFIX: ${CMAKE_IMPORT_LIBRARY_PREFIX}")
-message("CMAKE_IMPORT_LIBRARY_SUFFIX: ${CMAKE_IMPORT_LIBRARY_SUFFIX}")
-message("CMAKE_LINK_LIBRARY_SUFFIX: ${CMAKE_LINK_LIBRARY_SUFFIX}")
-message("CMAKE_FIND_LIBRARY_SUFFIXES: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
-message("CMAKE_FIND_LIBRARY_PREFIXES: ${CMAKE_FIND_LIBRARY_PREFIXES}")
-message("CMAKE_LINKER: ${CMAKE_LINKER}")
-message("MINGW: ${MINGW}")
-message("INCLUDE_DIRS: ${INCLUDE_DIRS}")
-message("LINK_DIRS: ${LINK_DIRS}")
 
-### Find needed Packages
+# What to do when crosscompiling
+if(${CMAKE_CROSSCOMPILING})
+  set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build_${CMAKE_SYSTEM_NAME})
+  set(GENERATOR "MinGW Makefiles")
+  list(APPEND INCLUDE_DIRS ${CMAKE_FIND_ROOT_PATH}/include)
+else()
+  set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
+  set(GENERATOR "Unix Makefiles")
+endif()
+
+# What to do if we happen to crosscompile with MINGW
+if(MINGW)
+message("== Compiling with MINGW ==")
+list(APPEND LINK_DIRS /usr/${COMPILER_PREFIX}/lib/ /usr/${COMPILER_PREFIX}/sys-root/mingw/lib/)
+list(APPEND INCLUDE_DIRS /usr/${COMPILER_PREFIX}/include/ /lib/${COMPILER_PREFIX}/sys-root/mingw/include/)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc -v")
+set(Boost_USE_STATIC_LIBS ON)
+endif()
+
+#list(APPEND LINK_DIRS ${EXT_LIB_DIR}/lib/)
+#list(APPEND INCLUDE_DIRS ${EXT_LIB_DIR}/include/)
+
+# What do do if we are compiling for WINDOwS
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+message("== Compiling for Windows ==")
+set(Windows TRUE)
+set(WIN32 TRUE)
+add_definitions(-DWIN32) #Set c/c++ preprocessor var
+endif()
+
+# What do do if we are compiling for LINUX
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+message("== Compiling for Linux ==")
+set(Linux TRUE)
+add_definitions(-DLINUX) #Set c/c++ preprocessor var
+endif()
+
+# What do do if we are compiling for OSX
+if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+message("== Compiling for MacOS X ==")
+set(Darwin TRUE)
+add_definitions(-DOSX) #Set c/c++ preprocessor var
+endif()
+
+# What to do if user requests static linking
+
+# if(${LINK_STATIC})
+# list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/lib)
+# set(Boost_USE_STATIC_LIBS ON)
+# set(Boost_USE_STATIC_RUNTIME OFF)
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -static -static-libstdc++ -static-libgcc")
+
+# else()
+# list(APPEND LINK_DIRS ${CMAKE_FIND_ROOT_PATH}/bin)
+# endif()
+
+### Configure find system
+
+# findBoost
 if(${CMAKE_CROSSCOMPILING})
 set(Boost_DEBUG "ON")
-set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
-set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
+# set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
+# set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
 set(Boost_DETAILED_FAILURE_MSG "ON")
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(${CMAKE_LINK_LIBRARY_SUFFIX} .a)
 else()
 set(Boost_DEBUG "ON")
-set(BOOST_INCLUDEDIR "/usr/include/boost")
+set(BOOST_INCLUDEDIR "/usr/include/boost" "/usr/local/include/boost")
 endif()
+
+
+### Find needed Packages
 
 find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random REQUIRED)
 find_package(Doxygen)
+find_package(Libharu)
+find_package(Wt)
 
 
 
@@ -89,45 +132,7 @@ if(DOXYGEN_FOUND)
  )
 endif(DOXYGEN_FOUND)
 
-### Download and compile missing external libraries
 
-if(LIBARU_FOUND)
-add_custom_target(libharu COMMENT "libharu was sucessfully found. Skipping build.")
-else()
-ExternalProject_Add(
-      libharu
-      PREFIX ${EXT_LIB_DIR}
-      GIT_REPOSITORY https://github.com/libharu/libharu.git #Comment-out when cmake keeps buggin you with rebuilds
-      CMAKE_ARGS 
-        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_CURRENT_TOOLCHAIN_FILE}
-	-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> 
-	-DCONFIGDIR:STRING=<INSTALL_DIR>/etc
-	-DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a"
-
-  )
-endif()
-
-if(WT_FOUND)
-add_custom_target(libharu COMMENT "Wt was sucessfully found. Skipping build.")
-else()
-ExternalProject_Add(
-    wt
-    PREFIX ${EXT_LIB_DIR}
-    GIT_REPOSITORY https://github.com/kdeforche/wt.git #Comment-out when cmake keeps buggin you with rebuilds
-    CMAKE_ARGS 
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_CURRENT_TOOLCHAIN_FILE} 
-      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> 
-      -DCONFIGDIR:STRING=<INSTALL_DIR>/etc  
-      -DCONNECTOR_FCGI:BOOL=OFF 
-      -DBoost_USE_STATIC_LIBS=ON
-      -DBOOST_LIBRARYDIR:PATH=${CMAKE_FIND_ROOT_PATH}/lib
-      -DBOOST_ROOT:PATH=${CMAKE_FIND_ROOT_PATH}
-#       -DWT_WRASTERIMAGE_IMPLEMENTATION:STRING=GraphicsMagick
-      -DHARU_PREFIX:STRING=${EXT_LIB_DIR}
-      -DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a"
-
- )
-endif()
 
 ### Generate Version-Information from git tag and commit-information
 
@@ -148,39 +153,158 @@ endif( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 # Generate full custom version-string
 set(PROJECT_FULL_VERSION "Version: ${PROJECT_VERSION} Rev.: ${PROJECT_REVISION}")
 
+
+### Set include/link directories
+
+if(${Wt_FOUND})
+include_directories(${INCLUDE_DIRS} ${Wt_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+link_directories(${LINK_DIRS} ${Boost_LIBRARY_DIRS})
+endif()
+
+### Printing some information
+
+message("-= CMAKE FOR LUGHOS SCADA LIBRARY =-")
+if(${CMAKE_CROSSCOMPILING})
+message("cmake is CROSSCOMPILING!")
+message("current toolchain-file: ${CMAKE_CURRENT_TOOLCHAIN_FILE}")
+endif()
+message("EXT_LIB_DIR: ${EXT_LIB_DIR}")
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
+message("CMAKE_IMPORT_LIBRARY_PREFIX: ${CMAKE_IMPORT_LIBRARY_PREFIX}")
+message("CMAKE_IMPORT_LIBRARY_SUFFIX: ${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+message("CMAKE_LINK_LIBRARY_SUFFIX: ${CMAKE_LINK_LIBRARY_SUFFIX}")
+message("CMAKE_FIND_LIBRARY_SUFFIXES: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+message("CMAKE_FIND_LIBRARY_PREFIXES: ${CMAKE_FIND_LIBRARY_PREFIXES}")
+message("CMAKE_LINKER: ${CMAKE_LINKER}")
+message("CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
+message("MINGW: ${MINGW}")
+message("INCLUDE_DIRS: ${INCLUDE_DIRS}")
+message("LINK_DIRS: ${LINK_DIRS}")
+message("LINK_STATIC: ${LINK_STATIC}")
+
+
+### Providing target to build dependencies
+
+add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
+
+### Set libraries and dependencies
+
+add_library(serialConnections src/serialConnections.cpp)
+
+add_library(kithleighSerial src/kithleighSerial.cpp)
+target_link_libraries(kithleighSerial serialAsync unitValue serialConnections)
+add_dependencies(kithleighSerial serialAsync unitValue serialConnections)
+
+
+add_library(MaxiGauge src/MaxiGauge.cpp)
+target_link_libraries(MaxiGauge serialAsync measuredValue unitValue serialConnections)
+add_dependencies(MaxiGauge serialAsync measuredValue serialConnections)
+
+add_library(coolpak6000 src/coolpak6000.cpp)
+target_link_libraries(coolpak6000 serialAsync unitValue serialConnections)
+add_dependencies(coolpak6000 serialAsync unitValue serialConnections)
+
+add_library(serialSync src/serialSync.cpp)
+add_dependencies(serialSync serialConnections)
+
+add_library(serialAsync src/serialAsync.cpp)
+add_dependencies(serialAsync serialConnections)
+
+add_library(unitValue src/unitValue.cpp)
+
+add_library(measuredValue src/measuredValue.cpp)
+add_dependencies(measuredValue unitValue)
+
 ### Set executables and dependencies
+#Test for regexp
+add_executable(test_regex src/test_regex.cpp)
+target_link_libraries(test_regex boost_regex)
 
-#Test for exposer
+# #Test for exposer
+add_executable(test_ioservice src/test_ioservice.cpp)
+target_link_libraries(test_ioservice ${Boost_LIBRARIES})
+
+
+# #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
-
+ 
 #Test for wt-dbo
 add_executable(test_wtdbo src/test_wtdbo.cpp)
 target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/lib/libwtdbosqlite3.so)
+ 
+### Test for wt
+# Add executbales and libraries if dependencies are found
+add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+add_dependencies(test_gui coolpak6000 MaxiGauge)
 
-#Test for wt
-find_library(LIBWT NAMES wt PATHS ${EXT_LIB_DIR}/lib CMAKE_FIND_ROOT_PATH_BOTH)
-find_library(LIBWTHTTP NAMES wthttp PATHS ${EXT_LIB_DIR}/lib CMAKE_FIND_ROOT_PATH_BOTH)
-find_library(LIBWS2_32 NAMES ws2_32 REQUIRED)
-find_library(LIBMSWSOCK NAMES mswsock REQUIRED)
-add_executable(test_gui src/test_gui.cpp)
-target_link_libraries(test_gui ${LIBWT} ${LIBWTHTTP} ${Boost_LIBRARIES} ${LIBWS2_32} ${LIBMSWSOCK})
+if(${Windows})
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
+else()
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
+endif()
 
-#Test for forms
+### Test for forms
 add_executable(test_forms src/test_forms.cpp)
 add_dependencies(test_forms wt)
 target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/libwthttp.so)
 
-#Test of connections
+### Test of connections
 # add_executable(test_connections src/test_serial.cpp src/basicConnections.cpp)
-add_executable(test_connections src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp)
-target_link_libraries(test_connections ${Boost_LIBRARIES} )
-
-#Test of TCP
-add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp)
-target_link_libraries(test_tcp ${Boost_LIBRARIES} )
 
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp src/bronkhorst.cpp src/unitValue.cpp)
+target_link_libraries(test_serial ${Boost_LIBRARIES} libwsock32.a)
+endif()
 
-#Installation directives
-#install(TARGETS lughos RUNTIME DESTINATION bin)
-#install(TARGETS connectionimpl RUNTIME DESTINATION bin)
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp  src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/kithleighSerial.cpp src/unitValue.cpp)
+target_link_libraries(test_serial ${Boost_LIBRARIES} boost_chrono measuredValue)
+endif()
+
+### Test of data acquisition
+add_executable(test_acquisition src/test_acquisition.cpp)
+target_link_libraries(test_acquisition ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} unitValue measuredValue boost_signals)
+#add_dependencies(test_acquisition )
+ 
+### Test of TCP
+
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/tcpSync.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES}  libwsock32.a)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/tcpSync.cpp)
+target_link_libraries(test_tcp ${Boost_LIBRARIES})
+endif()
+
+#### Installation
+
+### Installation directives
+
+set(CMAKE_INSTALL_COMPONENT dependencies) # Generate dependencies
+
+install(FILES ${EXT_LIB_DIR}/lib/* COMPONENT external_libs DESTINATION lib)
+install(FILES ${EXT_LIB_DIR}/include/* COMPONENT external_includes DESTINATION include)
+
+#install(TARGETS test_connections test_exposer test_forms test_gui test_tcp test_wtdbo COMPONENT tests RUNTIME DESTINATION bin)
+
+set(CPACK_COMPONENTS_ALL tests)
+set(CPACK_COMPONENT_TESTS_DISPLAY_NAME "Testprograms")
+set(CPACK_COMPONENT_TESTS_DESCRIPTION "Various test-applications to test library components")
+SET(CPACK_GENERATOR "")
+set(CPACK_PACKAGE_NAME "LUGHOS")
+set(CPACK_PACKAGE_VENDOR "LUGHOS community")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LUGHOS - An lbratory SCADA system")
+set(CPACK_PACKAGE_VERSION "0.0.1RC1")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "lughos")
+# This must always be last!
+ include(CPack)

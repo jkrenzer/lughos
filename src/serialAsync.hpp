@@ -21,7 +21,7 @@
 
 
 
-class serialAsync : virtual public connection<serialContext>
+class serialAsync : virtual public Connection<serialContext>
 {
   private:
 	serialAsync(const serialAsync &p);
@@ -49,11 +49,21 @@ class serialAsync : virtual public connection<serialContext>
 
 	
   public:
-	serialAsync(void);
+	serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
 	~serialAsync(void);
 	
-	int write_async(const std::string &buf);
-
+	int write(std::string query);
+	void abort();
+protected:
+/////////////
+	std::deque<char> write_msgs_;
+	void do_close(const boost::system::error_code& error);
+	void write_complete(const boost::system::error_code& error);
+	void write_start(void);
+	void do_write(const char msg);
+	void read_complete(const boost::system::error_code& error, size_t bytes_transferred);
+	void read_start(void);
+////////////
   
 };
 

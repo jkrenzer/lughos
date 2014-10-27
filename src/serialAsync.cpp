@@ -11,97 +11,63 @@
 #include "serialAsync.hpp"
 
 
-serialAsync::serialAsync(void) 
+serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<serialContext>(io_service)
 {
+     start(); 
 }
 
 serialAsync::~serialAsync(void)
 {
-
+    stop();
 }
 
 
 
-int serialAsync::write_async(const std::string &buf)
+int serialAsync::write(std::string query)
 {    
-  
-	compose_request(buf);
-
+  this->queryDone = false;
+//       start();
+      std::ostream request_stream(&request);
+      request_stream<<query;
+    
+// 	const int size=request_stream;
 	boost::system::error_code ec;
-	const int size=buf.size();
 // 	if (!port_) return -1;
-	if (size == 0) return 0;
-	 
-   	 async_read_some_();
-// 	  io_service_.run();
-// 	       boost::asio::async_write(*port_, request_);
-//     port_->async_write_some<>(request_);
-	
-	
+// 	if (size == 0) return 0;
+// 	 io_service_->post(async_read_some_);
+// 	io_service_->run();
 
-	  
-  return 1;
+   	 async_read_some_();
+  
+  return 0;
 }
 
 
 void serialAsync::async_read_some_()
 {
   
+  
 //   std::cout<<"bist du versackt?"<<std::endl;
+ 
+	if (port_.get() == NULL || !port_->is_open()) start();
 	if (port_.get() == NULL || !port_->is_open()) return;
-// std::cout<<"nicht versackt"<<std::endl;
-// 	port_->async_read_some( 
-// 		boost::asio::buffer(read_buf_raw_, SERIAL_PORT_READ_BUF_SIZE),
-// 		boost::bind(
-// 			&serialAsync::handle_write_request,
-// 			this, boost::asio::placeholders::error, 
-// 			boost::asio::placeholders::bytes_transferred));
-	
-	      boost::asio::async_write(*port_, request_,
+// 	  boost::asio::write(*port_, request);
+	  boost::asio::async_write(*port_, request,
           boost::bind(&serialAsync::handle_write_request, this,
-            boost::asio::placeholders::error));
-	
-	io_service_.run();
-	
-	
-// 	std::string s = response_string_stream.str();
-// 	response_string_stream.str("");
-// 		  std::cout << s<< '\n';
-}
-// void serialAsync::on_receive_(const boost::system::error_code& ec, size_t bytes_transferred)
-// {
-// //   std::cout<<"on_receive_"<<std::endl;
+          boost::asio::placeholders::error));
 // 	
-// 	boost::mutex::scoped_lock look(mutex_);
-// 
-// 	if (port_.get() == NULL || !port_->is_open()) return;
-// 	if (ec) {
-// 		async_read_some_();
-// 		return;
-// 	}
-// 
-// 	for (unsigned int i = 0; i < bytes_transferred; ++i) {
-// 		char c = read_buf_raw_[i];
-// 		if (c == end_of_line_char_) {
-// 			this->on_receive_(read_buf_str_);
-// 			read_buf_str_.clear();
-// 		}
-// 		else {
-// 			read_buf_str_ += c;
-// 		}
-// 	}
-// 
-// 	async_read_some_();
-// }
-// 
-// void serialAsync::on_receive_(const std::string &data)
-// {
-// 	std::cout <<  data << std::endl;
-// }
+// 	  std::cout<<port_name<<std::endl;
+	  io_service_->poll();
+// 	  this->timeoutTimer.expires_from_now(boost::posix_time::millisec(1000));
+//           this->timeoutTimer.wait();
 
-
-//----------------
-//-------
+	  if (port_.get() == NULL || !port_->is_open())	std::cout<<"port is somehow closed again"<<std::endl;
+	  if(io_service_->io_service::stopped())std::cout<<"Io service gestoppt"<<std::endl;
+	  
+// if(	io_service_->)std::cout<<"io_service has_service"<<std::endl;
+	
+// if (port_.get() == NULL || !port_->is_open())std::cout<<"wer hat dich denn zu gemacht?"<<std::endl;
+}
 
 
 void serialAsync::handle_write_request(const boost::system::error_code& err)
@@ -110,13 +76,15 @@ void serialAsync::handle_write_request(const boost::system::error_code& err)
     if (!err)
     {
       // Read the response status line.
-      boost::asio::async_read_until(*port_, response_, end_of_line_char_,
+      boost::asio::async_read_until(*port_, response, end_of_line_char_,
           boost::bind(&serialAsync::handle_read_content, this,
             boost::asio::placeholders::error));
+    
+      
     }
     else
     {
-      std::cout << "Error: " << err.message() << "\n";
+      std::cout << "Error Async: " << err.message() << "\n";
     }
   }
   
@@ -124,26 +92,24 @@ void serialAsync::handle_write_request(const boost::system::error_code& err)
 
 void serialAsync::handle_read_content(const boost::system::error_code& err)
   {
-
+//   	this->timeoutTimer.cancel();
     if (!err)
     {
       // Write all of the data that has been read so far.
-	response_string_stream<< &response_;
-      // Continue reading remaining data until EOF.
-	
-// 	std::cout<<response_string_stream.str()<<std::endl;
-//       boost::asio::async_read(*port_, response_,
-//           boost::asio::transfer_at_least(1),
-//           boost::bind(&serialAsync::handle_read_content, this,
-//             boost::asio::placeholders::error));
+        response_string_stream.str(std::string(""));
+	response_string_stream<< &response;
+	this->notifyWaitingClient();
+// 	std::cout<<response_string_stream<<std::endl;
+
     }
     else if (err != boost::asio::error::eof)
     {
-      std::cout << "Error: " << err << "\n";
+      std::cout << "Error ReadContent: " << err << "\n";
     }
 
   } 
-//------------------
+
+
 
 
   void serialAsync::wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error)
@@ -158,4 +124,11 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
     port_.cancel();  // will cause read_callback to fire with an error
   } 
 
+void serialAsync::abort()
+{
+  this->port_->cancel();
+}
+
+
+  
   

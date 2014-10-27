@@ -1,19 +1,40 @@
 // #include "StdAfx.h"
 
 #include <ostream>
-// #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
+#include "serialAsync.hpp"
 #include "kithleighSerial.hpp"
 
-
-kithleighSerial::kithleighSerial(void)
+kithleighSerial::kithleighSerial()
 {
- 
-    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
-    this->flow_control=boost::asio::serial_port_base::flow_control::none;
-    this->character_size=boost::asio::serial_port_base::character_size(8);
-    this->end_of_line_char_='\r';
+  set_default();
+}
 
+template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
+{
+  try
+  {
+    return boost::lexical_cast<T>(source);
+  }
+  catch(boost::bad_lexical_cast e)
+  {
+    return saveDefault;
+  }
+  
+}
+
+template <class T> void kithleighSerial::setDefaultImpl(T& connection)
+{
+}
+template <> void kithleighSerial::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+{
+  
+    connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
+    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+    connection.character_size=boost::asio::serial_port_base::character_size(7);
+    connection.end_of_line_char_='\r';
+    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+   
 }
 
 
@@ -23,24 +44,36 @@ kithleighSerial::~kithleighSerial(void)
 
 }
 
-void kithleighSerial::compose_request(const std::string &buf)
+
+
+std::string kithleighSerial::composeRequest(std::string query)
 {
-//         std::cout<<"composed_"<<std::endl;
-//   boost::asio::streambuf buff;
-//   std::ostream request_stream(&buff);
 
-    std::ostream request_stream(&request_);
+    std::string requestString="";
+    requestString+=query;
+    requestString+=std::string("\r");
 
-    request_stream <<buf.c_str()<< "\r";
-//       std::cout<<"composed_"<<&request_<<std::endl;
-    return;
+    return requestString;
   
 }
 
-   std::string kithleighSerial::inputoutput(const std::string input, const int async)
+
+void kithleighSerial::set_default()
 {
-    if (async==0)write(input);
-    else if (async==1)write_async(input);
-    else write(input);
-    return read();
+
 }
+std::string kithleighSerial::interpretAnswer(std::string s)
+{       
+  return s;  
+
+}
+
+void kithleighSerial::initImplementation()
+{
+}
+    
+
+void kithleighSerial::shutdownImplementation()
+{
+}
+
