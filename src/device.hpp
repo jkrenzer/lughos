@@ -3,22 +3,17 @@
 
 #include <ostream>
 
-#include <boost/thread.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/lock_guard.hpp>
+
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
+#include "threadSafety.hpp"
 
-#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
 
 namespace lughos
 {
-  
-  typedef boost::recursive_mutex Mutex;
-  
+    
   /**
    * @brief Template-class which deklares the basic interface of a device
    * 

@@ -45,12 +45,12 @@ void unitValue::setunitvalue(int putvalue, std::string putunit)
     return;
 }
 
-double unitValue::getvalue()
+double unitValue::getvalue() const
 {
     return value;
 }
 
-std::string unitValue::getunit()
+std::string unitValue::getunit() const
 {
     return unit;
 }
