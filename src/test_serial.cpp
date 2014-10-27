@@ -83,6 +83,20 @@ int main(int argc, char **argv) {
      std::cout << "Write="<< keithley->inputOutput("SENS:FUNC 'VOLT:DC'")<< std::endl;
      std::cout << "Write="<< keithley->inputOutput("SENS:VOLT:RANG:AUTO ON")<< std::endl;
      std::cout << "Write="<< keithley->inputOutput("READ?")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("*RST")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("INIT:CONT OFF")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("TRIG:COUN 1")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:FUNC 'VOLT:DC'")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:VOLT:RANG:AUTO ON")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("READ?")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("*IDN?")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("*RST")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("INIT:CONT OFF")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("TRIG:COUN 1")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:FUNC 'VOLT:DC'")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("SENS:VOLT:RANG:AUTO ON")<< std::endl;
+     std::cout << "Write="<< keithley->inputOutput("READ?")<< std::endl;
 
 //     exec_task task(exec_service, keithley);
 //     task.setEvery(boost::posix_time::seconds(1));

@@ -76,30 +76,32 @@ namespace lughos
   protected:
     boost::shared_ptr<kithleighSerial> kithleigh;
           Wt::Chart::WCartesianChart *chart;
+	  boost::shared_ptr<dbo::Session> session;
+	  dbo::backend::Sqlite3 dbBackend;
+	  
 
   public:
     
-    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh))
+    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
     }
-        void init()
+    
+    void init()
     {	
-      
-      dbo::backend::Sqlite3 sqlite3("test.db");
-      boost::shared_ptr<dbo::Session> session(new dbo::Session);
-      session->setConnection(sqlite3);
-      session->mapClass<measuredDBValue>("measuredValue");
+      this->session->setConnection(this->dbBackend);
+      this->session->mapClass<measuredDBValue>("measuredValue");
       this->name=kithleigh->getName();
 //      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
            this->name=kithleigh->getName();
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
-
-      dbo::Transaction transaction(*session);
-      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = session->find<measuredDBValue>();
+      
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      
       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
@@ -110,13 +112,10 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(session->query<Item>("SELECT value, timestamp FROM measuredValue"));
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue"));
       model->addColumn("value");
       model->addColumn("timestamp");
-      
-
-	transaction.commit();
-//   
+      transaction.commit();
 	
       	WTableView *view = new WTableView();
 	view->resize(800, 400);
@@ -150,6 +149,7 @@ namespace lughos
 //       chart->resize(800, 400);
 //       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
     }
+    
   };
   
   
