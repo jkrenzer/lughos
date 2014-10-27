@@ -238,6 +238,11 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
 add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
 add_dependencies(test_gui coolpak6000 MaxiGauge)
 
+### Test for wt-plots
+# Add executbales and libraries if dependencies are found
+add_executable(test_plots src/test_plots.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES} )
+
 if(${Windows})
 target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()

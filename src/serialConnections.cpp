@@ -474,3 +474,8 @@ int Connection<serialContext>::write(std::string query)
 {
   return 0;  
 }
+
+int Connection<serialContext>::write_only(std::string query)
+{
+  return 0;  
+}

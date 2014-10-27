@@ -15,6 +15,7 @@ public:
 	virtual void reset()=0;
 	virtual void abort() = 0;
 	virtual int  write(std::string query)=0;
+	virtual int  write_only(std::string query)=0;
 	void waitForCompletion()
 	{
 	  boost::unique_lock<boost::mutex> lock(waitForCompletionMutex);

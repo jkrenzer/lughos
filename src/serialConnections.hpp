@@ -99,6 +99,7 @@ private:
 
 	virtual std::string read();
 	virtual int write(std::string query);
+	virtual int write_only(std::string query);
 	std::string response_string;
 	virtual bool testconnection();
 // 	int write(const std::string &buf);

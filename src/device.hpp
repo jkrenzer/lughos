@@ -44,12 +44,14 @@ namespace lughos
     {
       connection->write(this->composeRequest(query));
       connection->waitForCompletion();
-//         std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
-// 	ofs <<connection->read() << std::endl;
-// 	ofs.close();
       return this->interpretAnswer(connection->read());
     }
     
+    virtual void inputImplementation(std::string query)
+    {
+      connection->write_only(this->composeRequest(query));
+      return;
+    }
   public:
     
     /**
@@ -124,6 +126,13 @@ namespace lughos
     {
       GUARD
       return this->inputOutputImplementation(query);
+    }
+    
+   void input(std::string query)
+    {
+      GUARD
+      this->inputImplementation(query);
+      return;
     }
     
     DeviceImpl() : connection()

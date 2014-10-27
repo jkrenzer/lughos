@@ -29,46 +29,62 @@ int serialAsync::write(std::string query)
 //       start();
       std::ostream request_stream(&request);
       request_stream<<query;
-    
-// 	const int size=request_stream;
+
 	boost::system::error_code ec;
-// 	if (!port_) return -1;
-// 	if (size == 0) return 0;
-// 	 io_service_->post(async_read_some_);
-// 	io_service_->run();
-
-   	 async_read_some_();
-  
-  return 0;
-}
-
-
-void serialAsync::async_read_some_()
-{
-  
-  
-//   std::cout<<"bist du versackt?"<<std::endl;
  
 	if (port_.get() == NULL || !port_->is_open()) start();
-	if (port_.get() == NULL || !port_->is_open()) return;
-// 	  boost::asio::write(*port_, request);
+	if (port_.get() == NULL || !port_->is_open()) return 0;
+
 	  boost::asio::async_write(*port_, request,
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
-// 	
-// 	  std::cout<<port_name<<std::endl;
+
 	  io_service_->poll();
-// 	  this->timeoutTimer.expires_from_now(boost::posix_time::millisec(1000));
-//           this->timeoutTimer.wait();
+
 
 	  if (port_.get() == NULL || !port_->is_open())	std::cout<<"port is somehow closed again"<<std::endl;
 	  if(io_service_->io_service::stopped())std::cout<<"Io service gestoppt"<<std::endl;
-	  
-// if(	io_service_->)std::cout<<"io_service has_service"<<std::endl;
-	
-// if (port_.get() == NULL || !port_->is_open())std::cout<<"wer hat dich denn zu gemacht?"<<std::endl;
+
+  
+  return 1;
 }
 
+
+int serialAsync::write_only(std::string query)
+{
+  this->queryDone = false;
+//       start();
+      std::ostream request_stream(&request);
+      request_stream<<query;
+
+	boost::system::error_code ec;
+ 
+	if (port_.get() == NULL || !port_->is_open()) start();
+	if (port_.get() == NULL || !port_->is_open()) return 0;
+
+	  boost::asio::async_write(*port_, request,
+          boost::bind(&serialAsync::handle_write_only, this,
+          boost::asio::placeholders::error));
+
+	  io_service_->poll();
+
+
+  
+  return 1;
+}
+
+
+void serialAsync::handle_write_only(const boost::system::error_code& err)
+  {
+
+    if (!err)
+    {   
+    }
+    else
+    {
+      std::cout << "Error Async write only: " << err.message() << "\n";
+    }
+  }
 
 void serialAsync::handle_write_request(const boost::system::error_code& err)
   {

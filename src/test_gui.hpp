@@ -34,7 +34,6 @@
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
 
-#include "../build/resources/CsvUtil.h"
 namespace lughos 
 {
 

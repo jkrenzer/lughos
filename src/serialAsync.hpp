@@ -32,7 +32,7 @@ class serialAsync : virtual public Connection<serialContext>
 
   protected:
     
-	virtual void async_read_some_();
+	virtual void handle_write_only(const boost::system::error_code& err);
 // 	virtual void on_receive_(const boost::system::error_code& ec, size_t bytes_transferred);
 // 	virtual void on_receive_(const std::string &data);
 	int write_some(const char *buf, const int &size);
@@ -53,6 +53,7 @@ class serialAsync : virtual public Connection<serialContext>
 	~serialAsync(void);
 	
 	int write(std::string query);
+	int write_only(std::string query);
 	void abort();
 protected:
 /////////////
