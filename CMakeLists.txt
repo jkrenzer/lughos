@@ -248,7 +248,7 @@ target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES}
 if(${Windows})
 target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()
-target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} boost_signals)
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals)
 endif()
 
 ### Test for forms

@@ -77,3 +77,44 @@ void kithleighSerial::shutdownImplementation()
 {
 }
 
+
+measuredValue kithleighSerial::getMeasure(bool force)
+{
+  if(!force &&!storedMeasure.gettimestamp().is_not_a_date_time()&& storedMeasure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
+  {
+    return storedMeasure;
+   }
+    
+
+  std::string s = this->inputOutput("READ?");
+  static const boost::regex e("([\\d\\.+-]*[E][\\d\\.+-]*)([\\w]*)");
+
+  boost::cmatch res;
+  boost::regex_search(s.c_str(), res, e);
+  double number = save_lexical_cast<double>(res[1],-1);
+
+  s=res[2];
+  measuredValue value;
+  if(!s.empty() && number == 0)
+  {
+    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setunit(s);
+    storedMeasure=value;
+  }
+    if(s.empty() && number == 0)
+  {
+    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setunit("");
+    storedMeasure=value;    
+  }
+  else 
+  {
+    value.setvalue(number);
+    value.setunit(s);
+    value.settimestamp(boost::posix_time::second_clock::local_time());
+    storedMeasure=value;
+  }
+
+  return value;
+  
+}

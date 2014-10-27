@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/QueryModel>
 #include "test_gui.hpp"
 #include "serialAsync.hpp"
 #include "device.hpp"
@@ -85,6 +88,23 @@ int main(int argc, char **argv)
   
   //Start logging
   
+    dbo::backend::Sqlite3 sqlite3("test.db");
+  boost::shared_ptr<dbo::Session> session(new dbo::Session);
+  boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
+//   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
+//   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
+    session->setConnection(sqlite3);
+  session->mapClass<measuredDBValue>("measuredValue");
+  try 
+  {
+    session->createTables();
+    std::cout << "Creating tables..." << endl;
+  }
+  catch(...)
+  {
+    std::cout << "Tables already created." << endl;
+  }
+  
   std::cout << "Starting task-execution" << std::endl;
   
 //   PressureMonitor press(taskExecutor,pressureMonitor1,1);
@@ -92,10 +112,14 @@ int main(int argc, char **argv)
 //   press.setExecuteTimes(Task::Execute::infinite);
 //   press.start();
   
-//   KeithleyTest keithley(taskExecutor,temperatureMonitor1);
-//   keithley.setEvery(boost::posix_time::seconds(10));
-//   keithley.setExecuteTimes(Task::Execute::infinite);
-//   keithley.start();
+  KeithleyTest keithley(session, taskExecutor,temperatureMonitor1);
+  keithley.setEvery(boost::posix_time::seconds(10));
+  keithley.setExecuteTimes(Task::Execute::infinite);
+  keithley.start();
+  
+  
+  
+  
   
   /*
    * Your main method may set up some shared resources, but should then
@@ -138,6 +162,8 @@ int main(int argc, char **argv)
   lughos::ioService->stop();
 //    ofs<< "IOService stopping..." << std::endl;
   std::cout << "IOService stopping..." << std::endl;
+  
+  
   lughos::ioService->reset();
   thread.join();
   std::cout << "Everything cleaned up, quitting..." << std::endl;

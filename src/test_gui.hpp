@@ -29,7 +29,13 @@
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
 #include <Wt/WTableView>
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/QueryModel>
 #include <functional>
+#include "measuredValue.hpp"
+#include "measuredDBValue.hpp"
+#include "jobQueue.hpp"
 #include "coolpak6000.hpp"
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
@@ -63,6 +69,96 @@ namespace lughos
       this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
     }
   };
+  
+  //------------------------
+      template <> class ScatterPlot<kithleighSerial> : public ScatterPlotWidget
+  {
+  protected:
+    boost::shared_ptr<kithleighSerial> kithleigh;
+          Wt::Chart::WCartesianChart *chart;
+
+  public:
+    
+    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh))
+    {
+
+      this->init();
+    }
+        void init()
+    {	
+      
+      dbo::backend::Sqlite3 sqlite3("test.db");
+      boost::shared_ptr<dbo::Session> session(new dbo::Session);
+      session->setConnection(sqlite3);
+      session->mapClass<measuredDBValue>("measuredValue");
+      this->name=kithleigh->getName();
+//      this->setWidth(500);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+           this->name=kithleigh->getName();
+      this->chart = new Wt::Chart::WCartesianChart();
+      this->chart->setBackground(Wt::WColor(220, 220, 220));
+
+      dbo::Transaction transaction(*session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = session->find<measuredDBValue>();
+      typedef boost::tuple<double, boost::posix_time::ptime> Item;
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
+      
+//       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
+
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//   
+      model->setQuery(session->query<Item>("SELECT value, timestamp FROM measuredValue"));
+      model->addColumn("value");
+      model->addColumn("timestamp");
+      
+      	WTableView *view = new WTableView();
+	view->resize(800, 400);
+	view->setModel(model);
+	view->setAlternatingRowColors(true);
+	transaction.commit();
+//   
+	
+	  WTableView *view = new WTableView();
+  view->resize(600, 300);
+  view->setSelectionMode(SingleSelection);
+  view->setModel(model);
+    this->addWidget(view);
+//       model->setHeaderData(0, Wt::WString("X"));
+//       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
+//       for (unsigned i = 0; i < 40; ++i) 
+// 	{
+// 	    double x = (static_cast<double>(i) - 20) / 4;
+// 
+// 	    model->setData(i, 0, x);
+// 	    model->setData(i, 1, std::sin(x));
+// 	}
+
+	
+//       chart->setModel(model);
+//       this->chart->setXSeriesColumn(0);
+//       this->chart->setLegendEnabled(true);
+//       this-> chart->setType(Wt::Chart::ScatterPlot);
+// //       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
+//       chart->setPlotAreaPadding(80, Wt::Left);
+//       chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
+
+// //       Add the curves
+//       Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
+//       s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+//       chart->addSeries(s);
+//       this->addWidget(chart);
+//       chart->resize(800, 400);
+//       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+    }
+  };
+  
+  
+
+  
+  //------------------------
   
     template <> class ScatterPlot<MaxiGauge> : public ScatterPlotWidget
   {
@@ -122,7 +218,7 @@ namespace lughos
     {
 //       this->addWidget(new ScatterPlot<S>());
       this->addWidget(new ScatterPlot<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
-//       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
+      this->addWidget(new ScatterPlot<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
     }
 
   };
@@ -647,7 +743,8 @@ namespace lughos
 	{
 	  
 // 	  std::cout<<keithley->inputOutput(token)<<std::endl;
-	  responseField->setText(responseField->text().toUTF8()+keithley->inputOutput(token));   
+	  if (token.find_last_of("?")) responseField->setText(responseField->text().toUTF8()+keithley->inputOutput(token));   
+	  else keithley->input(token);  
 	  std::cout << token << std::endl;
 	}
         responseField->setText(responseField->text().toUTF8()+std::string("\n--------------------------\n")); 
