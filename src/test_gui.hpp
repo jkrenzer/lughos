@@ -103,7 +103,7 @@ namespace lughos
       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
-//       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
+      std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
@@ -114,18 +114,15 @@ namespace lughos
       model->addColumn("value");
       model->addColumn("timestamp");
       
+
+	transaction.commit();
+//   
+	
       	WTableView *view = new WTableView();
 	view->resize(800, 400);
 	view->setModel(model);
 	view->setAlternatingRowColors(true);
-	transaction.commit();
-//   
-	
-	  WTableView *view = new WTableView();
-  view->resize(600, 300);
-  view->setSelectionMode(SingleSelection);
-  view->setModel(model);
-    this->addWidget(view);
+	this->addWidget(view);
 //       model->setHeaderData(0, Wt::WString("X"));
 //       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
 //       for (unsigned i = 0; i < 40; ++i) 
