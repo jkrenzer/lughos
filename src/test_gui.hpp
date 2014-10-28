@@ -24,14 +24,18 @@
 #include <Wt/WAbstractItemModel>
 #include <Wt/WAbstractItemView>
 #include <Wt/WDate>
+#include <Wt/WDateTime>
+#include <Wt/WLocalDateTime>
 #include <Wt/WPaintedWidget>
 #include <Wt/WItemDelegate>
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
 #include <Wt/WTableView>
+#include <Wt/WTimer>
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/QueryModel>
+#include <Wt/Dbo/WtSqlTraits>
 #include <functional>
 #include "measuredValue.hpp"
 #include "measuredDBValue.hpp"
@@ -88,6 +92,12 @@ namespace lughos
       this->init();
     }
     
+    ~ScatterPlot< kithleighSerial >()
+    {
+      
+    }
+    
+    
     void init()
     {	
       this->session->setConnection(this->dbBackend);
@@ -102,7 +112,8 @@ namespace lughos
       dbo::Transaction transaction(*this->session);
       dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
       
-      typedef boost::tuple<double, boost::posix_time::ptime> Item;
+//       typedef boost::tuple<double, boost::posix_time::ptime> Item;
+      typedef boost::tuple<double, Wt::WDateTime> Item;
       dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
@@ -112,7 +123,7 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue"));
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");
       model->addColumn("timestamp");
       transaction.commit();
@@ -134,21 +145,24 @@ namespace lughos
 
 	
       chart->setModel(model);
-      this->chart->setXSeriesColumn(0);
+      this->chart->setXSeriesColumn(1);
       this->chart->setLegendEnabled(true);
       this-> chart->setType(Wt::Chart::ScatterPlot);
       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
-      chart->setPlotAreaPadding(80, Wt::Left);
-      chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
-      chart->setPlotAreaPadding(40, Wt::Left | Wt::Top | Wt::Bottom);
-      chart->setPlotAreaPadding(120, Wt::Right);
+      chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
+      
 //       Add the curves
-      Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
+      Wt::Chart::WDataSeries s(0, Wt::Chart::LineSeries);
       s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       chart->addSeries(s);
-      this->addWidget(chart);
-      chart->resize(800, 400);
+      chart->resize(1024, 800);
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+//       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
+//       chart->axis(Wt::Chart::YAxis).setAutoLimits(Wt::Chart::MinimumValue | Wt::Chart::MaximumValue);
+      Wt::WTimer *intervalTimer = new Wt::WTimer(this);
+      intervalTimer->setInterval(5000);
+      intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
+      intervalTimer->start();
       this->addWidget(chart);
     }
     
