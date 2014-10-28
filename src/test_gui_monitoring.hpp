@@ -27,7 +27,7 @@ class KeithleyTest : public Task
       measuredValue measure = this->keithley->getMeasure();
 
       dbo::Transaction transaction(*session);
-      this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit())));
+      this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(), measure.gettimestamp())));
       transaction.commit();
       std::cout << "[*] Keithley " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
     }
@@ -50,17 +50,21 @@ class PressureMonitor : public Task
 protected:
   
     boost::shared_ptr<MaxiGauge> maxiGauge;
+    boost::shared_ptr<dbo::Session> session;
     int sensor;
   
     virtual void run()
     {
       measuredValue pressure = this->maxiGauge->getPressure(sensor);
+      dbo::Transaction transaction(*session);
+      this->session->add(static_cast<measuredDBValue*>(new measuredValue(pressure.getvalue(),pressure.getunit())));
+      transaction.commit();
       std::cout << "[*] MaxiGauge " << this->sensor << " @ " << boost::posix_time::second_clock::local_time() << " -> " << pressure.getvalue() << pressure.getunit() << std::endl;
     }
     
 public:
   
-    PressureMonitor(boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> maxiGauge, int sensor) : Task(executionQueuePtr), maxiGauge(boost::dynamic_pointer_cast<MaxiGauge>(maxiGauge))
+    PressureMonitor(boost::shared_ptr<dbo::Session> session, boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> maxiGauge, int sensor) : session(session),Task(executionQueuePtr), maxiGauge(boost::dynamic_pointer_cast<MaxiGauge>(maxiGauge))
     {
       this->sensor = sensor;
     }

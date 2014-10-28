@@ -107,10 +107,10 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-//   PressureMonitor press(taskExecutor,pressureMonitor1,1);
-//   press.setEvery(boost::posix_time::seconds(5));
-//   press.setExecuteTimes(Task::Execute::infinite);
-//   press.start();
+  PressureMonitor press(session,taskExecutor,pressureMonitor1,1);
+  press.setEvery(boost::posix_time::seconds(5));
+  press.setExecuteTimes(Task::Execute::infinite);
+  press.start();
   
   KeithleyTest keithley(session, taskExecutor,temperatureMonitor1);
   keithley.setEvery(boost::posix_time::seconds(10));
