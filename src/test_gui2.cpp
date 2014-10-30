@@ -4,11 +4,12 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/QueryModel>
-#include "test_gui.hpp"
+#include "test_gui2.hpp"
 #include "serialAsync.hpp"
 #include "device.hpp"
-#include "test_gui_monitoring.hpp"
-// #include "coolpak6000.hpp"
+#include "bronkhorst.hpp"
+#include "test_gui_monitoring2.hpp"
+#include "RFG.hpp"
 // #include "MaxiGauge.hpp"
 // #include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
@@ -43,65 +44,62 @@ int main(int argc, char **argv)
   boost::asio::io_service::work work2(*taskExecutor);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, lughos::ioService));
   boost::thread thread2(boost::bind(&boost::asio::io_service::run, taskExecutor));
-  std::ofstream ofs ("/home/irina/projects/test_gui_main.txt", std::ofstream::out);
 
-  ofs << "IOService started and running..";
-    ofs.close();
+
   std::cout << "IOService started and running..." << std::endl;
   
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
-    boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+//     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
      #ifdef WIN32 
       connection1->port_name = std::string("COM1");
       connection2->port_name = std::string("COM2");
-      connection3->port_name = std::string("COM3");
+//       connection3->port_name = std::string("COM3");
 
      #else
-      connection1->port_name = std::string("/dev/ttyUSB2");
+      connection1->port_name = std::string("/dev/ttyUSB0");
       connection2->port_name = std::string("/dev/ttyUSB1");
-      connection3->port_name = std::string("/dev/ttyUSB0");
+//       connection3->port_name = std::string("/dev/ttyUSB0");
     #endif
       
       
 
-      boost::shared_ptr<Device> compressor1(new coolpak6000);
-      boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
-      boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
+      boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
+      boost::shared_ptr<Device> RFG1(new RFG);
+// // //       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
-      compressor1->setName(std::string("Compressor 1"));
-      pressureMonitor1->setName(std::string("Pressure Monitor 1"));
-      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+      flowcontroll1->setName(std::string("Flow Controll 1"));
+      RFG1->setName(std::string("RFG 1"));
+//       temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
       
-      compressor1->connect(connection1);
-      pressureMonitor1->connect(connection2);
-      temperatureMonitor1->connect(connection3);
+      flowcontroll1->connect(connection1);
+      RFG1->connect(connection2);
+//       temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
-  deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
-  std::cout<< pressureMonitor1->getName()<<std::endl;
-    std::cout<< pressureMonitor1.get()<<std::endl;
-  deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
-  deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
+  deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
+//   std::cout<< pressureMonitor1->getName()<<std::endl;
+//     std::cout<< pressureMonitor1.get()<<std::endl;
+  deviceMap.insert(deviceMapPair(RFG1->getName(), RFG1));
+//   deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
   
-  //Start logging
   
-    dbo::backend::Sqlite3 sqlite3("test.db");
+      dbo::backend::Sqlite3 sqlite3("test.db");
   boost::shared_ptr<dbo::Session> session(new dbo::Session);
-  boost::shared_ptr<dbo::Session> session1(new dbo::Session);
+//   boost::shared_ptr<dbo::Session> session1(new dbo::Session);
   boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
 //   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
   session->setConnection(sqlite3);
   session->mapClass<measuredDBValue>("measuredValue");
-  session1->setConnection(sqlite3);
-  session1->mapClass<measuredDBValue>("measuredValue");
+//   session1->setConnection(sqlite3);
+//   session1->mapClass<measuredDBValue>("measuredValue");
   try 
   {
     session->createTables();
-    session1->createTables();
+//     session1->createTables();
     std::cout << "Creating tables..." << endl;
   }
   catch(...)
@@ -111,17 +109,15 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-  PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
-  press.setEvery(boost::posix_time::seconds(5));
-  press.setExecuteTimes(Task::Execute::infinite);
-  press.start();
+//   PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
+//   press.setEvery(boost::posix_time::seconds(5));
+//   press.setExecuteTimes(Task::Execute::infinite);
+//   press.start();
   
-  KeithleyTest keithley(session, taskExecutor,temperatureMonitor1);
-  keithley.setEvery(boost::posix_time::seconds(10));
-  keithley.setExecuteTimes(Task::Execute::infinite);
-  keithley.start();
-  
-  
+  BronkhorstTest horst(session, taskExecutor,flowcontroll1);
+  horst.setEvery(boost::posix_time::seconds(10));
+  horst.setExecuteTimes(Task::Execute::infinite);
+  horst.start();
   
   
   

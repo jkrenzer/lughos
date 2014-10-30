@@ -17,10 +17,14 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
+#include "measuredValue.hpp"
+
+using namespace lughos;
 
 
-class RFG :virtual public serialSync, virtual public serialAsync
+
+class RFG :public Device
 {
   private:
 	RFG(const RFG &p);
@@ -31,11 +35,30 @@ class RFG :virtual public serialSync, virtual public serialAsync
 	RFG(void);
 	~RFG(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
+	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
+	void power_supply_mode();
+	void bcc_mode();
+	void use_voltage_controler();
+	void use_current_controler();
+	void use_power_controler();
+	int set_power_max(int i);
+	int set_power_min(int i);
+	int set_current_lim(int i);
+	int set_controler_chanel(int i);
+	measuredValue channel_output[8];
+	bool readout();
+	
 protected:
-  	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
+	int power_max;
+	int power_min;
+	bool mode;
+	int controler;
+  
 };
 
 

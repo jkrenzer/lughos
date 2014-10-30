@@ -6,56 +6,66 @@
 #include "PSANetzteil.hpp"
 
 
-PSANetzteil::PSANetzteil(boost::asio::io_service* io_service):serialSync(io_service), Connection< serialContext >(io_service)
+PSANetzteil::PSANetzteil()
 {
   set_default();
   
 }
 
+template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
+{
+  try
+  {
+    return boost::lexical_cast<T>(source);
+  }
+  catch(boost::bad_lexical_cast e)
+  {
+    return saveDefault;
+  }
+  
+}
 
+template <class T> void PSANetzteil::setDefaultImpl(T& connection)
+{
+}
+
+template <> void PSANetzteil::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+{
+  
+    connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
+    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+    connection.character_size=boost::asio::serial_port_base::character_size(8);
+    connection.end_of_line_char_='$';
+    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+
+}
 
 PSANetzteil::~PSANetzteil(void)
 {
 
 }
 
-void PSANetzteil::compose_request(const std::string &buf)
+std::string PSANetzteil::composeRequest(std::string query)
 {
-//         std::cout<<"composed_"<<std::endl;
-//   boost::asio::streambuf buff;
-//   std::ostream request_stream(&buff);
+    std::string requestString="";
+    requestString+=query;
+//     if (query!="\x05")
+//       requestString+=std::string("\r");
 
-    std::ostream request_stream(&request);
-
-    request_stream <<buf.c_str()<<"\r";
-//       std::cout<<"composed_"<<&request_<<std::endl;
-    return;
+    return requestString;
   
-}
-
-   std::string PSANetzteil::inputoutput(const std::string input, const int async)
-{
-//     on();
-    if (async==0)write(input);
-//     else if (async==1)write_async(input);
-    else write(input);
-    return read();
 }
 
    void PSANetzteil::set_default()
 {
-    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
-    this->flow_control=boost::asio::serial_port_base::flow_control::none;
-    this->character_size=boost::asio::serial_port_base::character_size(8);
-    this->end_of_line_char_='\0';
-    this->parity=boost::asio::serial_port_base::parity::none;
-    this->stop_bits=boost::asio::serial_port_base::stop_bits::one;
+   this->setDefaultImpl(*(this->connection.get()));
 }
 
 void PSANetzteil::off()
 {
 
-  this->inputoutput("\x11");
+  this->input("\x11");
 //     is_on=false;
   
 }
@@ -63,28 +73,44 @@ void PSANetzteil::off()
 void PSANetzteil::on()
 {
 
-  this->inputoutput("\x10");
+  this->input("\x10");
 //     is_on=true;
   
 }
 
 std::string PSANetzteil::get_current()
 {
-  exp_lenght=4;
- return this->inputoutput("\x02");
+//   exp_lenght=4;
+ return this->inputOutput("\x02");
   
 }
 
 std::string PSANetzteil::get_voltage()
 {
- exp_lenght=4;
- return this->inputoutput("\x01");
+//  exp_lenght=4;
+ return this->inputOutput("\x01");
   
 }
 
 std::string PSANetzteil::get_temperature()
 {
- exp_lenght=4;
- return this->inputoutput("\x03");
+//  exp_lenght=4;
+ return this->inputOutput("\x03");
   
+}
+
+std::string PSANetzteil::interpretAnswer(std::string s)
+{  
+  return s;     
+}
+
+
+void PSANetzteil::initImplementation()
+{
+
+}
+    
+
+void PSANetzteil::shutdownImplementation()
+{
 }

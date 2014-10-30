@@ -191,8 +191,14 @@ void MaxiGauge::shutdownImplementation()
 {
 }
 
-measuredValue MaxiGauge::getPressure(int sensor)
+measuredValue MaxiGauge::getPressure(int sensor, bool force)
 {
+    if(!force &&!storedPressure.gettimestamp().is_not_a_date_time()&& storedPressure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
+  {
+    return storedPressure;
+   }
+    
+  
   std::string s = this->get_status(sensor);
   static const boost::regex e("^(\\d),(\\d*\\.\\d*E[+-]\\d*)");
   boost::cmatch res;
@@ -216,5 +222,6 @@ measuredValue MaxiGauge::getPressure(int sensor)
   {
     value.setvalue(std::numeric_limits<double>::signaling_NaN());
   }
-  return value;
+    value.settimestamp(boost::posix_time::second_clock::local_time());
+    return value;
 }
