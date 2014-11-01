@@ -48,7 +48,9 @@ class RFG :public Device
 	int set_power_min(int i);
 	int set_current_lim(int i);
 	int set_controler_chanel(int i);
-	measuredValue channel_output[8];
+	measuredValue get_channel(int i, bool force=false);
+
+
 	bool readout();
 	
 protected:
@@ -58,6 +60,7 @@ protected:
 	int power_min;
 	bool mode;
 	int controler;
+	measuredValue channel_output[8];
   
 };
 

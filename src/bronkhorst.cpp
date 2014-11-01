@@ -71,9 +71,33 @@ void bronkhorst::set_default()
    this->setDefaultImpl(*(this->connection.get()));
 }
 
-std::string bronkhorst::get_value()
+measuredValue bronkhorst::get_value()
 {
-  return this->inputOutput(":06030421402140\r\n");
+  std::string s = this->inputOutput(":06030421402140\r\n");
+  static const boost::regex e("(.*))");
+
+  boost::cmatch res;
+  boost::regex_search(s.c_str(), res, e);
+  double number = save_lexical_cast<double>(res[0],-1);
+
+  s=res[0];
+  measuredValue value;
+
+    if(s.empty() && number == 0)
+  {
+    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setunit("sccm");
+    storedMeasure=value;    
+  }
+  else 
+  {
+    value.setvalue(number);
+    value.setunit("sccm");
+    value.settimestamp(boost::posix_time::second_clock::local_time());
+    storedMeasure=value;
+  }
+
+  return value;
   
 }
 

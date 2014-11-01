@@ -33,9 +33,11 @@ class unitValue
 	bool isNotANumber();
 	bool isValidValue();
 
+
 protected:
 	double value=0.0;
 	std::string unit="";
+	
 };
 
 

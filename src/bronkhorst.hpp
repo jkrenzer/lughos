@@ -28,7 +28,7 @@ class bronkhorst : public Device
 	bronkhorst &operator=(const bronkhorst &p);
 	
 	
-  public:
+public:
 	bronkhorst();
 	~bronkhorst(void);
 	
@@ -36,11 +36,13 @@ class bronkhorst : public Device
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
-	std::string get_value();
+	measuredValue get_value();
 	std::string set_flow(float value);
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
+	
+	measuredValue storedMeasure;
 };
 
 

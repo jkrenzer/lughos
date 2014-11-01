@@ -160,18 +160,30 @@ bool RFG::readout()
     stream <<res[i+1];
     stream >> value;
     channel_output[i].setvalue(value);
-    channel_output[i].setunit("");
+    if (controler==0)channel_output[i].setunit("V");
+    if (controler==1)channel_output[i].setunit("I");
+    if (controler==2)channel_output[i].setunit("Watt");
     channel_output[i].settimestamp(now);
   }
 
  return true; 
 }
 
+measuredValue RFG::get_channel(int i, bool force)
+{
+ if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(1))
+  {
+    return channel_output[i];
+  }
+  
+  this->readout();
+ return channel_output[i];
+}
+
+
 void RFG::initImplementation()
 {
-this->input("\x0");
-this->input("A");
-this->input("F");
+this->input("\r""\x0""AF");
 this->mode=true;
 controler =0;
 }

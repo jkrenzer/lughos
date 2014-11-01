@@ -88,14 +88,14 @@ int main(int argc, char **argv)
   
       dbo::backend::Sqlite3 sqlite3("test.db");
   boost::shared_ptr<dbo::Session> session(new dbo::Session);
-//   boost::shared_ptr<dbo::Session> session1(new dbo::Session);
+  boost::shared_ptr<dbo::Session> session1(new dbo::Session);
   boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
-//   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
+  boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
   session->setConnection(sqlite3);
   session->mapClass<measuredDBValue>("measuredValue");
-//   session1->setConnection(sqlite3);
-//   session1->mapClass<measuredDBValue>("measuredValue");
+  session1->setConnection(sqlite3);
+  session1->mapClass<measuredDBValue>("measuredValue");
   try 
   {
     session->createTables();
@@ -109,10 +109,10 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-//   PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
-//   press.setEvery(boost::posix_time::seconds(5));
-//   press.setExecuteTimes(Task::Execute::infinite);
-//   press.start();
+  RFGTest rfg(session1,taskExecutor,RFG1,1);
+  rfg.setEvery(boost::posix_time::seconds(5));
+  rfg.setExecuteTimes(Task::Execute::infinite);
+  rfg.start();
   
   BronkhorstTest horst(session, taskExecutor,flowcontroll1);
   horst.setEvery(boost::posix_time::seconds(10));
