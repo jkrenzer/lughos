@@ -207,6 +207,22 @@ add_library(coolpak6000 src/coolpak6000.cpp)
 target_link_libraries(coolpak6000 serialAsync unitValue serialConnections)
 add_dependencies(coolpak6000 serialAsync unitValue serialConnections)
 
+add_library(bronkhorst src/bronkhorst.cpp)
+target_link_libraries(bronkhorst serialAsync unitValue serialConnections)
+add_dependencies(bronkhorst serialAsync unitValue serialConnections)
+
+add_library(PSANetzteil src/PSANetzteil.cpp)
+target_link_libraries(PSANetzteil serialAsync unitValue serialConnections)
+add_dependencies(PSANetzteil serialAsync unitValue serialConnections)
+
+add_library(Relais src/Relais.cpp)
+target_link_libraries(Relais serialAsync unitValue serialConnections)
+add_dependencies(Relais serialAsync unitValue serialConnections)
+
+add_library(RFG src/RFG.cpp)
+target_link_libraries(RFG serialAsync unitValue serialConnections)
+add_dependencies(RFG serialAsync unitValue serialConnections)
+
 add_library(serialSync src/serialSync.cpp)
 add_dependencies(serialSync serialConnections)
 
@@ -240,16 +256,29 @@ target_link_libraries(test_wtdbo ${EXT_LIB_DIR}/lib/libwtdbo.so ${EXT_LIB_DIR}/l
 add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
 add_dependencies(test_gui coolpak6000 MaxiGauge)
 
-### Test for wt-plots
-# Add executbales and libraries if dependencies are found
-add_executable(test_plots src/test_plots.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
-target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES} )
-
 if(${Windows})
 target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
 else()
 target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals)
 endif()
+
+### Test for wt
+# Add executbales and libraries if dependencies are found
+add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+add_dependencies(test_gui2 bronkhorst)
+
+if(${Windows})
+target_link_libraries(test_gui2 bronkhorst RFG measuredValue boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ws2_32 mswsock mingw32)
+else()
+target_link_libraries(test_gui2 bronkhorst RFG measuredValue boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals)
+endif()
+
+### Test for wt-plots
+# Add executbales and libraries if dependencies are found
+add_executable(test_plots src/test_plots.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES} )
+
+
 
 ### Test for forms
 add_executable(test_forms src/test_forms.cpp)
@@ -261,12 +290,12 @@ target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp src/bronkhorst.cpp src/unitValue.cpp)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/RFG.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp src/bronkhorst.cpp src/unitValue.cpp)
 target_link_libraries(test_serial ${Boost_LIBRARIES} libwsock32.a)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp  src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/kithleighSerial.cpp src/unitValue.cpp)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp  src/serialAsync.cpp  src/bronkhorst.cpp src/coolpak6000.cpp src/RFG.cpp src/MaxiGauge.cpp src/kithleighSerial.cpp src/unitValue.cpp)
 target_link_libraries(test_serial ${Boost_LIBRARIES} boost_chrono measuredValue)
 endif()
 

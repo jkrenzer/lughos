@@ -65,11 +65,8 @@ bool Connection<serialContext>::start()
 	boost::system::error_code ec;
 
 	if (port_) {
-		std::cout << "error : port is already opened..." << std::endl;
-		ofs << "error : port is already opened..." << std::endl;
-		ofs.close();
-		stop();
-		return false;
+// 		stop();
+// 		return false;
 	}
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
 	port_->open(port_name.c_str(), ec);

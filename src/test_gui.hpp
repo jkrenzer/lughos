@@ -123,7 +123,7 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").limit(100).orderBy("timestamp DESC"));
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Temperature Monitor 1").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");
       model->addColumn("timestamp");
       transaction.commit();
@@ -177,49 +177,82 @@ namespace lughos
   {
   protected:
     boost::shared_ptr<MaxiGauge> maxigauge;
-          Wt::Chart::WCartesianChart *chart;
+    Wt::Chart::WCartesianChart *chart;
+    boost::shared_ptr<dbo::Session> session;
+    dbo::backend::Sqlite3 dbBackend;
 
   public:
     
-    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge))
+    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
     }
         void init()
     {	
-     this->name=maxigauge->getName();
+     this->session->setConnection(this->dbBackend);
+      this->session->mapClass<measuredDBValue>("measuredValue");
+      this->name=maxigauge->getName();
 //      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
-           this->name=maxigauge->getName();
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
+      
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      
+//       typedef boost::tuple<double, boost::posix_time::ptime> Item;
+      typedef boost::tuple<double, Wt::WDateTime> Item;
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
+      
+      std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
-      Wt::WStandardItemModel *model = new Wt::WStandardItemModel(40, 2);
-      model->setHeaderData(0, Wt::WString("X"));
-      model->setHeaderData(1, Wt::WString("Y = sin(X)"));
-      for (unsigned i = 0; i < 40; ++i) 
-	{
-	    double x = (static_cast<double>(i) - 20) / 4;
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//   
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value");
+      model->addColumn("timestamp");
+      transaction.commit();
+	
+//       	WTableView *view = new WTableView();
+// 	view->resize(800, 400);
+// 	view->setModel(model);
+// 	view->setAlternatingRowColors(true);
+// 	this->addWidget(view);
+//       model->setHeaderData(0, Wt::WString("X"));
+//       model->setHeaderData(1, Wt::WString("Y = sin(X)"));
+//       for (unsigned i = 0; i < 40; ++i) 
+// 	{
+// 	    double x = (static_cast<double>(i) - 20) / 4;
+// 
+// 	    model->setData(i, 0, x);
+// 	    model->setData(i, 1, std::sin(x));
+// 	}
 
-	    model->setData(i, 0, x);
-	    model->setData(i, 1, std::sin(x));
-	}	
+	
       chart->setModel(model);
-      this->chart->setXSeriesColumn(0);
+      this->chart->setXSeriesColumn(1);
       this->chart->setLegendEnabled(true);
       this-> chart->setType(Wt::Chart::ScatterPlot);
-//       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
-      chart->setPlotAreaPadding(80, Wt::Left);
-      chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
-
-      // Add the curves
-      Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
+      this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
+      chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
+      
+//       Add the curves
+      Wt::Chart::WDataSeries s(0, Wt::Chart::LineSeries);
       s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       chart->addSeries(s);
-      this->addWidget(chart);
-      chart->resize(800, 400);
+      chart->resize(1024, 800);
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+//       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
+//       chart->axis(Wt::Chart::YAxis).setAutoLimits(Wt::Chart::MinimumValue | Wt::Chart::MaximumValue);
+      Wt::WTimer *intervalTimer = new Wt::WTimer(this);
+      intervalTimer->setInterval(5000);
+      intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
+      intervalTimer->start();
+      this->addWidget(chart);
     }
   };
   
@@ -602,7 +635,11 @@ namespace lughos
       for(int i=0;i<6;i++)
       {
 	maxigauge->sensor_on(i);
+	onB[i]->setDisabled(true);
+	offB[i]->setDisabled(false);
       }
+
+      
       this->getState();
     }
     
@@ -611,18 +648,30 @@ namespace lughos
       for(int i=0;i<6;i++)
       {
 	maxigauge->sensor_off(i);
+	onB[i]->setDisabled(false);
+	offB[i]->setDisabled(true);
       }
       this->getState();
     }
     
         void sensor_on(int i)
     {
-      this->stateF->setText(std::to_string(maxigauge->sensor_on(i)));
+      if(maxigauge->sensor_on(i))
+      {
+	this->stateF->setText("Sensor "+ std::to_string(i)+" enabled");
+	onB[i]->setDisabled(true);
+	offB[i]->setDisabled(false);
+      }
     }
         
      void sensor_off(int i)
     {
-      this->stateF->setText(std::to_string(maxigauge->sensor_off(i)));
+      if(maxigauge->sensor_off(i))
+      {
+	this->stateF->setText("Sensor "+ std::to_string(i)+" disabled");
+	onB[i]->setDisabled(false);
+	offB[i]->setDisabled(true);
+      }
     }
     
     

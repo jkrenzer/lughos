@@ -17,10 +17,10 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
 
-
-class PSANetzteil :virtual public serialSync
+using namespace lughos;
+class PSANetzteil : public Device
 {
   private:
 	PSANetzteil(const PSANetzteil &p);
@@ -28,11 +28,14 @@ class PSANetzteil :virtual public serialSync
 	
 	
   public:
-	PSANetzteil(boost::asio::io_service* io_service);
+	PSANetzteil();
 	~PSANetzteil(void);
 	
 	virtual std::string inputoutput(const std::string input, const int async=0);
+	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
 	void off();
 	void on();
 	std::string get_current();
@@ -40,9 +43,8 @@ class PSANetzteil :virtual public serialSync
 	std::string get_temperature();
 // 	bool is_on;
 protected:
-  	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
-};
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);};
 
 
 

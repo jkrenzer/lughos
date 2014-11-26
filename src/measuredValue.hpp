@@ -12,7 +12,7 @@ namespace lughos
     boost::posix_time::ptime timestamp;
     std::string sensorName;
   public:
-      measuredValue(double value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time());
+      measuredValue(double value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName ="unknown");
       
       measuredValue(void);
       

@@ -8,7 +8,7 @@ namespace lughos {
 
   DEFINE_GETTER_SETTER(measuredValue,sensorName,std::string)
 
-  measuredValue::measuredValue(double value, std::string unit, boost::posix_time::ptime timestamp): timestamp(timestamp)
+  measuredValue::measuredValue(double value, std::string unit, boost::posix_time::ptime timestamp, std::string sensorName): timestamp(timestamp), sensorName(sensorName)
   {
     static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 support in float required");
     this->value = value;
