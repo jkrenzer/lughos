@@ -43,6 +43,7 @@
 #include "bronkhorst.hpp"
 #include "DeviceUI.hpp"
 
+
 using namespace lughos;
 
  template <> class DeviceUI<bronkhorst> : public DeviceUIInterface
@@ -60,6 +61,8 @@ using namespace lughos;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
 //     Wt::WPushButton * stopB;
+    boost::shared_ptr<dbo::Session> session;
+//     dbo::backend::Sqlite3 dbBackend;
     
   public:
     

@@ -44,8 +44,8 @@ class RFG :public Device
 	void use_voltage_controler();
 	void use_current_controler();
 	void use_power_controler();
-	int set_power_max(int i);
-	int set_power_min(int i);
+	int set_voltage_max(int i);
+	int set_voltage_min(int i);
 	int set_current_lim(int i);
 	int set_controler_chanel(int i);
 	measuredValue get_channel(int i, bool force=false);
@@ -56,8 +56,8 @@ class RFG :public Device
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	int power_max;
-	int power_min;
+	int voltage_max;
+	int voltage_min;
 	bool mode;
 	int controler;
 	measuredValue channel_output[8];

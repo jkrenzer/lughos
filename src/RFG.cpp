@@ -28,6 +28,7 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 template <class T> void RFG::setDefaultImpl(T& connection)
 {
 }
+
 template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
 {
   
@@ -37,6 +38,10 @@ template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<se
     connection.end_of_line_char_='\n';//unconfirmed
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+    for (int i=0;i<8;i++)
+    {
+      channel_output[1].setunitvalue(0,"");
+    }
 }
 
 
@@ -50,8 +55,8 @@ std::string RFG::composeRequest(std::string query)
 
     std::string requestString="";
     requestString+=query;
-    requestString+=std::string("\r");
-
+//     requestString+=std::string("\r");
+    std::cout<<"R: "<<requestString<<std::endl;
     return requestString;
   
 }
@@ -67,6 +72,7 @@ std::string RFG::interpretAnswer(std::string s)
 
 void RFG::set_default()
 {
+  
    this->setDefaultImpl(*(this->connection.get()));
 }
 
@@ -96,9 +102,9 @@ void RFG::use_power_controler()
 }
 
 
-int RFG::set_power_max(int i)
+int RFG::set_voltage_max(int i)
 {
-  if(power_min>i) return 0;
+  if(voltage_min>i) return 0;
   std::stringstream stream;
   stream << std::hex << i;
   std::string request= stream.str();
@@ -109,9 +115,9 @@ int RFG::set_power_max(int i)
 }
 
 
-int RFG::set_power_min(int i)
+int RFG::set_voltage_min(int i)
 {
-  if(power_max<i) return 0;
+  if(voltage_max<i) return 0;
   std::stringstream stream;
   stream << std::hex << i;
   std::string request= stream.str();
@@ -144,14 +150,14 @@ int RFG::set_controler_chanel(int i)
  return value; 
 }
 
-
 bool RFG::readout()
 {
-  int value;
+  int value=0;
   std::stringstream stream;
   std::string s = this->inputOutput("\x32");
+//   this->inputOutput("\r");
   boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-
+  std::cout<<"S: "<<std::hex<<s<<std::endl;
   static const boost::regex e("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
   boost::cmatch res;
   boost::regex_search(s.c_str(), res, e);
@@ -183,7 +189,7 @@ measuredValue RFG::get_channel(int i, bool force)
 
 void RFG::initImplementation()
 {
-this->input("\r""\x0""AF");
+this->inputOutput(std::string("\x0d")+std::string("AF")+std::string("\r"));//
 this->mode=true;
 controler =0;
 }

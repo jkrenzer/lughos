@@ -28,12 +28,12 @@ class BronkhorstTest : public Task
      if( horst->isConnected())
       { 
 	try{
-// 	  measuredValue measure = this->horst->getMeasure();
+	  measuredValue measure = this->horst->get_value();
 
 	  dbo::Transaction transaction(*session);
-// 	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), horst->getName())));
+	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), horst->getName())));
 	  transaction.commit();
-// 	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
 	}
 	catch(...)
 	{

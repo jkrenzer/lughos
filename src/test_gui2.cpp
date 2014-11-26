@@ -109,13 +109,13 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-  RFGTest rfg(session1,taskExecutor,RFG1,1);
-  rfg.setEvery(boost::posix_time::seconds(5));
-  rfg.setExecuteTimes(Task::Execute::infinite);
-  rfg.start();
+//   RFGTest rfg(session1,taskExecutor,RFG1,1);
+//   rfg.setEvery(boost::posix_time::seconds(5));
+//   rfg.setExecuteTimes(Task::Execute::infinite);
+//   rfg.start();
   
   BronkhorstTest horst(session, taskExecutor,flowcontroll1);
-  horst.setEvery(boost::posix_time::seconds(10));
+  horst.setEvery(boost::posix_time::seconds(1));
   horst.setExecuteTimes(Task::Execute::infinite);
   horst.start();
   

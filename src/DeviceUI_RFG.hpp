@@ -93,8 +93,11 @@ using namespace lughos;
       {
 	this->stateF->setText("Connected!");
         this->stateB->setText("Status");
-// 	this->startB->setDisabled(false);
-// 	this->stopB->setDisabled(false);
+	this->sendIB->setDisabled(false);
+	this->iField->setDisabled(false);
+	this->sendUB->setDisabled(false);
+	this->uMinField->setDisabled(false);
+	this->uMaxField->setDisabled(false);
 // 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setU);
@@ -109,8 +112,11 @@ using namespace lughos;
 // 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB->setText("Try again");
 // 	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
-// 	this->startB->setDisabled(true);
-// 	this->stopB->setDisabled(true);
+	this->sendIB->setDisabled(true);
+	this->iField->setDisabled(true);
+	this->sendUB->setDisabled(true);
+	this->uMinField->setDisabled(true);
+	this->uMaxField->setDisabled(true);
 
       }
     }
@@ -165,11 +171,11 @@ using namespace lughos;
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
       this->addWidget(stateB);
-      this->sendIB->setDisabled(true);
-      this->iField->setDisabled(true);
-      this->sendUB->setDisabled(true);
-      this->uMinField->setDisabled(true);
-      this->uMaxField->setDisabled(true);
+//       this->sendIB->setDisabled(true);
+//       this->iField->setDisabled(true);
+//       this->sendUB->setDisabled(true);
+//       this->uMinField->setDisabled(true);
+//       this->uMaxField->setDisabled(true);
   //      this->responseField =  new Wt::WTextArea("");
   //      this->responseField->setReadOnly(true); 
   //      this->addWidget(responseField);
@@ -188,7 +194,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF->setText("Flow set:"+iField->text().toUTF8());
-//       responseField->setText(responseField->text().toUTF8()+rfg->set_flow(f));
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
       
     }

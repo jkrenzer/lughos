@@ -73,31 +73,67 @@ void bronkhorst::set_default()
 
 measuredValue bronkhorst::get_value()
 {
+    boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
+    measuredValue returnvalue;
   std::string s = this->inputOutput(":06030421402140\r\n");
-  static const boost::regex e("(.*))");
 
-  boost::cmatch res;
-  boost::regex_search(s.c_str(), res, e);
-  double number = save_lexical_cast<double>(res[0],-1);
-
-  s=res[0];
-  measuredValue value;
-
-    if(s.empty() && number == 0)
+  s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
+  s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+  
+  s.erase(0,1);
+  int wordlen;
+  int node;
+  int chained;
+  int type;
+  float value=0;
+  unsigned int protovalue;
+//     std::cout<<s<<std::endl;
+  std::stringstream(s.substr(0,2)) >> wordlen;
+//     std::cout<<"wordlen: "<<wordlen<<std::endl;
+  s.erase(0,2);
+//       std::cout<<s<<std::endl;
+  std::stringstream(s.substr(0,2)) >> node;
+//       std::cout<<"node: "<<node<<std::endl;
+  s.erase(0,2);
+//       std::cout<<s<<std::endl;
+  s.erase(0,2);
+  s.erase(0,2);
+  std::stringstream(s.substr(0,2)) >> type;
+  s.erase(0,2);
+//       std::cout<<s<<std::endl;
+//   std::cout<<type<<std::endl;
+  if(type==40)
   {
-    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-    value.setunit("sccm");
-    storedMeasure=value;    
+    std::stringstream(s.substr(0,4)) >> std::hex>>protovalue;  
+    value=reinterpret_cast<float&>(protovalue);
   }
-  else 
-  {
-    value.setvalue(number);
-    value.setunit("sccm");
-    value.settimestamp(boost::posix_time::second_clock::local_time());
-    storedMeasure=value;
-  }
+  
+//    static const boost::regex e("(.*))");
+// 
+//   boost::cmatch res;
+//   boost::regex_search(s.c_str(), res, e);
+//   double number = save_lexical_cast<double>(res[0],-1);
+// 
+//   s=res[0];
 
-  return value;
+// 
+//     if(s.empty() && number == 0)
+//   {
+//     value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+//     value.setunit("sccm");
+//     storedMeasure=value;    
+//   }
+//   else 
+//   {
+//     value.setvalue(number);
+//     value.setunit("sccm");
+//     value.settimestamp(boost::posix_time::second_clock::local_time());
+//     storedMeasure=value;
+//   }
+  returnvalue.settimestamp(now);
+  returnvalue.setvalue(value);
+  returnvalue.setunit("sccm");
+  return returnvalue;
   
 }
 
