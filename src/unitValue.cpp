@@ -50,6 +50,13 @@ double unitValue::getvalue() const
     return value;
 }
 
+std::string unitValue::getStringValue() const
+{
+  std::stringstream ss;
+  ss << value;
+    return ss.str();
+}
+
 std::string unitValue::getunit() const
 {
     return unit;

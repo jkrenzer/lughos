@@ -25,6 +25,7 @@ class unitValue
 	void setunitvalue(double putvalue, std::string putunit);
 	void setunitvalue(int putvalue, std::string putunit);
 	double getvalue() const;
+	std::string getStringValue() const;
 	std::string getunit() const;
 	void setvalue(double putvalue);
 	void setunit(std::string putunit);

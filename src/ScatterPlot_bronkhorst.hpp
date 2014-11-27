@@ -122,7 +122,7 @@ using namespace lughos;
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
 //       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
 //       chart->axis(Wt::Chart::YAxis).setAutoLimits(Wt::Chart::MinimumValue | Wt::Chart::MaximumValue);
-      Wt::WTimer *intervalTimer = new Wt::WTimer(this);
+      boost::shared_ptr<Wt::WTimer> intervalTimer(new Wt::WTimer(this));
       intervalTimer->setInterval(5000);
       intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
       intervalTimer->start();
