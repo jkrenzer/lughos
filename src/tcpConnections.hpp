@@ -39,12 +39,9 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
  	boost::recursive_mutex mutex;
 	boost::shared_ptr<boost::asio::io_service>  io_service_;
 	boost::shared_ptr<boost::asio::io_service>  io_service_async;
-	tcp::resolver resolver;
-	tcp::resolver resolver_async;
+	boost::shared_ptr<tcp::resolver> resolver;
 	boost::shared_ptr<tcp::resolver::query> query;
-	boost::shared_ptr<tcp::resolver::query> query_async;
-	tcp::socket socket;
-	tcp::socket socket_async;
+	boost::shared_ptr<tcp::socket> socket;
 	boost::shared_ptr<Dict> dict;
 
 	void handle_read_check_response(const boost::system::error_code& err);
@@ -59,7 +56,9 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	std::string read();
 	bool start();
 	void stop();
-
+	virtual bool connect() = 0;
+	virtual bool disconnect() = 0;
+	bool connected;
 
 	
   public:
@@ -67,6 +66,7 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	~Connection(void);
 
 	std::string server_name;
+	bool IPv6;
 	void set_port(std::string port);
 	void reset();
 

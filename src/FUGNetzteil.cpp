@@ -54,7 +54,7 @@ std::string fug::composeRequest(std::string query)
 //     requestString+=std::string(serverName);  
 //     requestString+=std::string("\r\nAccept: */*\r\nConnection: close\r\n\r\n");
     requestString+=query;
-    requestString+=std::string("\r");
+    requestString+=std::string("\r\n");
 
     return requestString;
   
@@ -70,7 +70,7 @@ std::string fug::interpretAnswer(std::string s)
 
 //  static const boost::regex e("<body>(.*)</body>");
   static const boost::regex e("(.*)");
-  s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+//   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
  boost::cmatch res;
  boost::regex_search(s.c_str(), res, e);
   
@@ -183,16 +183,22 @@ std::string fug::getLastError()
   
 }
 
+std::string fug::getIDN()
+{
+  return inputOutput("?");
+}
+
 
 double fug::getI()
 {
   int success=0;
   std::string answer="";
   answer=inputOutput(">S1?");
-      std::cout<<"answer: "<<inputOutput(">S1?")<<std::endl;
+   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
+      std::cout<<"i/O: "<<iO<<std::endl;
+      std::cout<<"answer: "<<answer<<std::endl;
   if (answer[0]=='S')
   {
-
    answer= answer.erase(0, 3);
   return std::stod(answer);
   }
@@ -239,8 +245,11 @@ void fug::setError(std::string command, std::string error)
   std::string discription;
   int errorNum;
     error.erase( std::remove(error.begin(), error.end(), 'E'), error.end() );
-
-   errorNum = std::stoi (error);
+    
+  if(!error.empty())
+    errorNum = std::stoi (error);
+  else
+    errorNum = -1;
    
    if (errorNum == 1)
    {
