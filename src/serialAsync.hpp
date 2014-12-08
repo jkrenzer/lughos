@@ -33,17 +33,11 @@ class serialAsync : virtual public Connection<serialContext>
   protected:
     
 	virtual void handle_write_only(const boost::system::error_code& err);
-// 	virtual void on_receive_(const boost::system::error_code& ec, size_t bytes_transferred);
-// 	virtual void on_receive_(const std::string &data);
 	int write_some(const char *buf, const int &size);
 	int write_some_async(const char *buf, const int &size);
 	
 	
 	void handle_write_request(const boost::system::error_code& err);
-// 	void handle_read_status_line(const boost::system::error_code& err);
-// 	void handle_read_check_response(const boost::system::error_code& err);
-// 	void handle_read_headers(const boost::system::error_code& err);
-// 	void handle_read_headers_process();
 	void handle_read_content(const boost::system::error_code& err);
 
 

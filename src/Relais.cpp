@@ -72,7 +72,9 @@ std::string Relais::read_channels()
 
   std::string state = this->inputOutput("\x0f");
   int a;
-  state>>std::hex>>a;
+  std::stringstream str;
+  str << state;
+  str>>std::hex>>a;
   for(int i=0; i<8; i++)
   {
     channel_bench[i]=(a&i);
@@ -82,16 +84,16 @@ std::string Relais::read_channels()
  return    responseString;
 }
 
-std::string Relais::write_channels(std::to_string channels)
+std::string Relais::write_channels(std::string channels)
 {
     int input_int=0; 
-    string::iterator i;
+    std::string::iterator i;
     int counter=0;
     for (i=channels.begin(); i!=channels.end(); i++)
     {
       counter++;
-       if (*i!= "0"&&*i!= "1") return "Input error";
-       else if (*i= "1") input_int+= exp(2,counter);
+       if (*i!= '0'&&*i!= '1') return "Input error";
+       else if (*i= '1') input_int+= std::pow(2,counter);
     }
 
     std::ostringstream request;
@@ -110,9 +112,9 @@ std::string Relais::write_channel(int channel, bool onoff)
 //     int counter=0;
     for (int i=1; i<9; i++)
     {
-       if (i!=channel) input_int+= exp(2,channel_bench[i]);
-       else if (i=channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= exp(2,i);
-       else if (i=channel&&int(onoff)=channel_bench[i]) input_int+= exp(2,channel_bench[i]);
+       if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
+       else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i);
+       else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
     }
 
     std::ostringstream request;

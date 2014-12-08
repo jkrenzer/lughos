@@ -23,8 +23,6 @@ this->io_service_= io_service;
 
 }
 
-
-
 Connection<serialContext>::~Connection(void)
 {
 	stop();
@@ -327,7 +325,7 @@ void Connection<serialContext>::compose_request(const std::string &buf)
 //   	                std::cout<<"wrong compose"<<std::endl;
 }
 
-void Connection<serialContext>::set_port()
+void Connection<serialContext>::set_port(std::string port)
 {
 
 }
@@ -342,18 +340,6 @@ void Connection<serialContext>::handle_read_check_response(const boost::system::
 
 void Connection<serialContext>::handle_read_headers_process()
 {
-        // Process the response headers.
-//       std::istream response_stream(&response_);
-//       std::string header;
-//       while (std::getline(response_stream, header) && header != "\r");
-// 	std::cout << header << "\n";
-//       std::cout << "\n";
-      
-     // Write whatever content we already have to output.
-//       if (response_.size() > 0) //response_string_stream<<&response_;
-//         std::cout << &response_;
-//       response_string_stream
-      
 
 }
 

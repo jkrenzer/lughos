@@ -38,7 +38,7 @@ class Relais :public Device
 	void shutdownImplementation();
 	
 	virtual std::string read_channels();
-	virtual std::string write_channels();
+	virtual std::string write_channels(std::string channels);
 	virtual std::string write_channel(int i,bool onoff);
 	
 	bool input_status(int sensor);

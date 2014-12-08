@@ -10,7 +10,7 @@
 #include "jobQueue.hpp"
 // #include "connectionImpl.hpp"
 // #include "basicConnections.hpp"
-// #include "PSANetzteil.hpp"
+#include "Relais.hpp"
 #include "bronkhorst.hpp"
 #include <pthread.h>
 #include <boost/asio.hpp>
@@ -21,14 +21,14 @@ typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 class exec_task : public lughos::Task
 {
 public:
-   exec_task(boost::shared_ptr<boost::asio::io_service>  io_service,  boost::shared_ptr<RFG> rfg): Task (io_service), rfg(rfg)
+   exec_task(boost::shared_ptr<boost::asio::io_service>  io_service,  boost::shared_ptr<Relais> relais): Task (io_service), relais(relais)
 //    exec_task(boost::shared_ptr<boost::asio::io_service>  io_service,  boost::shared_ptr<bronkhorst> horst): Task (io_service), horst(horst)
 
    {
     
   }
 protected:
-  boost::shared_ptr<RFG> rfg;
+  boost::shared_ptr<Relais> relais;
 //   boost::shared_ptr<bronkhorst> horst;
   void run()
   {
@@ -51,14 +51,14 @@ int main(int argc, char **argv) {
      boost::shared_ptr<serialAsync> connection3(new serialAsync(io_service) );
      connection3->port_name = std::string("/dev/ttyUSB0");
      
-     boost::shared_ptr<Device> rfg1(new RFG);
+     boost::shared_ptr<Device> relais1(new Relais);
      
-     rfg1->setName(std::string("RFG 1"));
-     rfg1->connect(connection3);
-     deviceMap.insert(deviceMapPair(rfg1->getName(), rfg1));
-	boost::shared_ptr<RFG> rfg = boost::dynamic_pointer_cast<RFG>(rfg1);
-     std::cout << "Write="<< rfg->get_channel(1).getvalue()<< std::endl;
-     std::cout << "Write="<< rfg->inputOutput("")<< std::endl;
+     relais1->setName(std::string("relais 1"));
+     relais1->connect(connection3);
+     deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
+     boost::shared_ptr<Relais> relais = boost::dynamic_pointer_cast<Relais>(relais);
+     std::cout << "Write="<< relais->read_channels()<< std::endl;
+     std::cout << "Write="<< relais->inputOutput("")<< std::endl;
 //      boost::shared_ptr<Device> horst1(new bronkhorst);
 //      
 //      horst1->setName(std::string("RFG 1"));

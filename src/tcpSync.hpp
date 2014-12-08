@@ -22,7 +22,7 @@
 
 using boost::asio::ip::tcp;
 
-class tcpSync : virtual public connection<tcpContext>
+class tcpSync : virtual public Connection<tcpContext>
 {
   private:
 	tcpSync(const tcpSync &p);

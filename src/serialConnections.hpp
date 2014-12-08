@@ -49,27 +49,13 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
 	std::string read_buf_str_;
 
-// 	char end_of_line;
 	boost::shared_ptr<boost::asio::io_service> io_service_;
 	boost::asio::deadline_timer timeoutTimer;
-	// 	boost::asio::io_service * io_service_;
-	
 
-	
-// 	void handle_resolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
-// 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
-// 	void handle_write_request(const boost::system::error_code& err);
-// 	void handle_read_status_line(const boost::system::error_code& err);
 	virtual void handle_read_check_response(const boost::system::error_code& err);
-// 	void handle_read_headers(const boost::system::error_code& err);
 	void handle_read_headers_process();
-// 	void handle_read_content(const boost::system::error_code& err);
 	virtual void compose_request(const std::string &buf);
-	
-	
-	
 	std::stringstream response_string_stream;
-// 	const char end_of_line;
 	
 	bool start();
 	void stop();
@@ -94,7 +80,7 @@ private:
 	boost::asio::streambuf response;
 	boost::asio::streambuf request;
 
-	void set_port();
+	void set_port(std::string port);
 	void reset();
 
 	virtual std::string read();

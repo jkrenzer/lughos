@@ -11,7 +11,7 @@ class ConnectionImpl
 public:
         
 	virtual bool testconnection()=0;
-	virtual void set_port()=0;
+	virtual void set_port(std::string port)=0;
 	virtual void reset()=0;
 	virtual void abort() = 0;
 	virtual int  write(std::string query)=0;

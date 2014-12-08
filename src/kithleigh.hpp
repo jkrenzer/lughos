@@ -15,28 +15,40 @@
 #include "connectionImpl.hpp"
 #include "tcpConnections.hpp"
 #include "tcpAsync.hpp"
-#include "tcpSync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
+#include "device.hpp"
 #include "httpDict.hpp"
+#include "measuredValue.hpp"
 
-
+using namespace lughos;
 using boost::asio::ip::tcp;
 
-class kithleigh :virtual public tcpSync, virtual public tcpAsync
+class kithleigh : public Device
 {
+
+
+  
   private:
 	kithleigh(const kithleigh &p);
 	kithleigh &operator=(const kithleigh &p);
 	
+	template <class T> void setDefaultImpl(T& connection);
+	virtual void set_default();
+	void initImplementation();
+	void shutdownImplementation();
+	measuredValue storedMeasure;
+	std::string serverName;
+	
   public:
-	kithleigh(boost::asio::io_service* io_service);
+	kithleigh(void);
 	~kithleigh(void);
-	virtual std::string inputoutput(const std::string input, const int async=0);	
+	measuredValue getMeasure(bool force=false);	
 
 protected:
-//   	void compose_request(std::string server, const std::string &buf, boost::asio::streambuf* request);
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
 };
 
 
