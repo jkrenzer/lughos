@@ -9,6 +9,7 @@
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
 #include "threadSafety.hpp"
+#include "errorHandling.hpp"
 
 
 namespace lughos
@@ -81,7 +82,8 @@ namespace lughos
     {
       GUARD
       this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-      if(this->connection->testconnection())
+      this->connected = this->connection->testconnection();
+      if(this->connected)
 	this->init();
       return this->connected;
     }
@@ -120,14 +122,19 @@ namespace lughos
     std::string inputOutput(std::string query)
     {
       GUARD
-      return this->inputOutputImplementation(query);
+      if(this->connected)
+	return this->inputOutputImplementation(query);
+      else
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
    void input(std::string query)
     {
       GUARD
-      this->inputImplementation(query);
-      return;
+      if(this->connected)
+	this->inputImplementation(query);
+      else
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("input_without_connection")) << errorTitle("Input was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     DeviceImpl() : connection()

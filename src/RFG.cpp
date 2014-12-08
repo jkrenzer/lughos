@@ -74,6 +74,9 @@ void RFG::set_default()
 {
   
    this->setDefaultImpl(*(this->connection.get()));
+   this->voltage_max =12;
+   this->voltage_min =7;
+   this->current_max =2;
 }
 
 void RFG::power_supply_mode()
@@ -101,39 +104,53 @@ void RFG::use_power_controler()
  if(controler!=2)this->input("H"); 
 }
 
-
-int RFG::set_voltage_max(int i)
+float RFG::getLimitMaxVoltage()
 {
-  if(voltage_min>i) return 0;
+  return this->voltage_max;
+}
+
+float RFG::getLimitMinVoltage()
+{
+  return this->voltage_min;
+}
+
+float RFG::getLimitMaxCurrent()
+{
+  return this->current_max;
+}
+
+float RFG::set_voltage_max(float f)
+{
+  if(voltage_min>f) return 0;
   std::stringstream stream;
-  stream << std::hex << i;
+  stream << std::hex << f;
   std::string request= stream.str();
   stream << this->inputOutput("U"+std::string(request)+"\r").erase(0,1);
-  int value;
+  float value;
   stream >> std::hex >> value;
  return value; 
 }
 
 
-int RFG::set_voltage_min(int i)
+float RFG::set_voltage_min(float f)
 {
-  if(voltage_max<i) return 0;
+  if(voltage_max<f) return 0;
   std::stringstream stream;
-  stream << std::hex << i;
+  stream << std::hex << f;
   std::string request= stream.str();
   stream << this->inputOutput("M"+std::string(request)+"\r").erase(0,1);
-  int value;
+  float value;
   stream >> std::hex >> value;
  return value; 
 }
 
-int RFG::set_current_lim(int i)
+float RFG::set_current_lim(float f)
 {
   std::stringstream stream;
-  stream << std::hex << i;
+  stream << std::hex << f;
   std::string request= stream.str();
   stream << this->inputOutput("I"+std::string(request)+"\r").erase(0,1);
-  int value;
+  float value;
   stream >> std::hex >> value;
  return value; 
 }

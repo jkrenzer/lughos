@@ -41,7 +41,7 @@ template <> void bronkhorst::setDefaultImpl< Connection<serialContext> > (Connec
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);
-    connection.end_of_line_char_='\n';
+    connection.end_of_line_char_='\r';
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
 
@@ -76,7 +76,7 @@ measuredValue bronkhorst::get_value()
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
   std::string s = this->inputOutput(":06030421402140\r\n");
-
+  std::string debugs = s;
   s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
   
@@ -96,12 +96,14 @@ measuredValue bronkhorst::get_value()
 //       std::cout<<"node: "<<node<<std::endl;
   s.erase(0,2);
 //       std::cout<<s<<std::endl;
-  s.erase(0,2);
-  s.erase(0,2);
+  s.erase(0,2); //command "02"
+  s.erase(0,2); //process 
   std::stringstream(s.substr(0,2)) >> type;
-  s.erase(0,2);
+  s.erase(0,2); //parameter
 //       std::cout<<s<<std::endl;
 //   std::cout<<type<<std::endl;
+  std::cout << "Bronkhorst answered: " << debugs << std::endl;
+  std::cout << "I understood: Length" << ": "<< wordlen << " Node:" << node << " Type:" << type << std::endl;
   if(type==40)
   {
     std::stringstream(s.substr(0,4)) >> std::hex>>protovalue;  
@@ -154,7 +156,7 @@ std::string bronkhorst::set_flow(float value)
 
 void bronkhorst::initImplementation()
 {
-  this->input(":050302010412\r\n070304006000600F\r\n");
+  this->input(":050301000A52\r\n:050302010412\r\n:070304006000600F\r\n");
 }
     
 

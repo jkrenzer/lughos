@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <boost/regex.hpp>
 
@@ -14,5 +15,7 @@ int main()
   boost::sregex_token_iterator j;
   for(boost::sregex_token_iterator i(str.begin(), str.end(), r, subs); i !=j; i++) 
     cout << "Match: " << *i << endl;
-  return 0;
+  char buffer [50];
+  sprintf (buffer, "%A",10.13);
+  std::cout << "And a hex: " << buffer << std::endl;
 }

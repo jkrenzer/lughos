@@ -87,17 +87,19 @@ using namespace lughos;
 // 	this->stopB->setDisabled(false);
 // 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
+	this->sendB->setDisabled(false);
+	this->flowField->setDisabled(false);
         this->sendB->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
+	this->stateB->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
 	this->getState();
 
       }
       else
       {
-
 	this->stateF->setText("Not connected!");
 // 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB->setText("Try again");
-// 	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
+ 	this->stateB->clicked().connect(this,&DeviceUI<bronkhorst>::checkConnected);
 // 	this->startB->setDisabled(true);
 // 	this->stopB->setDisabled(true);
 
@@ -114,7 +116,7 @@ using namespace lughos;
       this->stateL = new Wt::WLabel("Status:");
       this->flowL = new Wt::WLabel("Set Flow:");
       this->stateL->setBuddy(stateF);
-      this->flowField =  new  Wt::WLineEdit("");
+      this->flowField =  new  Wt::WLineEdit("0.0");
        this->sendB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
      this->addWidget(stateL);
@@ -135,7 +137,6 @@ using namespace lughos;
     void setFlow()
     {
 //       
-      
       stringstream sstr; 
       string str = flowField->text().toUTF8(); 
       float f; 
@@ -144,13 +145,21 @@ using namespace lughos;
 
       this->stateF->setText("Flow set:"+flowField->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
+      this->getFlow();
 //     
       
     }
     
+    void getFlow()
+    {
+      measuredValue v = this->horst->get_value();
+      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
+      this->flowField->setText(std::string(v.getStringValue()));
+    }
+    
     void getState()
     {
-      
+      this->getFlow();
     }
     
     void start()

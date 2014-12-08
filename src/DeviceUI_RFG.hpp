@@ -30,6 +30,8 @@
 #include <Wt/WItemDelegate>
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
+#include <Wt/WSpinBox>
+#include <Wt/WDoubleSpinBox>
 #include <Wt/WTableView>
 #include <Wt/WTimer>
 #include <Wt/Dbo/Dbo>
@@ -65,10 +67,10 @@ using namespace lughos;
     Wt::WLineEdit *iOutField;
     Wt::WLineEdit *uOutField;
     Wt::WLineEdit *pOutField;
-    Wt::WLineEdit *iField;
+    Wt::WDoubleSpinBox *iField;
     Wt::WPushButton *sendUB;
-    Wt::WLineEdit *uMinField;
-    Wt::WLineEdit *uMaxField;
+    Wt::WDoubleSpinBox *uMinField;
+    Wt::WDoubleSpinBox *uMaxField;
     Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
@@ -100,7 +102,7 @@ using namespace lughos;
 	this->uMaxField->setDisabled(false);
 // 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
-        this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setU);
+        this->sendUB->clicked().connect(this,&DeviceUI<RFG>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setI);
 	this->getState();
 
@@ -148,9 +150,15 @@ using namespace lughos;
       this->pOutField =  new  Wt::WLineEdit("");
       this->pOutField->setReadOnly(true);  
       
-      this->iField =  new  Wt::WLineEdit("");
-      this->uMinField =  new  Wt::WLineEdit("");
-      this->uMaxField =  new  Wt::WLineEdit("");
+      this->iField =  new  Wt::WDoubleSpinBox(0);
+      this->iField->setMaximum(this->rfg->getLimitMaxCurrent());
+      this->iField->setMinimum(0);
+      this->uMinField =  new  Wt::WDoubleSpinBox(0);
+      this->uMinField->setMinimum(0);
+      this->uMinField->setMaximum(this->rfg->getLimitMinVoltage());
+      this->uMaxField =  new  Wt::WDoubleSpinBox(0);
+      this->uMaxField->setMinimum(this->rfg->getLimitMinVoltage());
+      this->uMaxField->setMaximum(this->rfg->getLimitMaxVoltage());
       this->sendIB = new Wt::WPushButton("Send");
       this->sendUB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
@@ -193,7 +201,7 @@ using namespace lughos;
       sstr<<str; 
       sstr>>f;
 
-      this->stateF->setText("Flow set:"+iField->text().toUTF8());
+      this->stateF->setText("Voltage set:"+iField->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
       
@@ -209,26 +217,33 @@ using namespace lughos;
       sstr<<str; 
       sstr>>f;
 
-      this->stateF->setText("Flow set:"+iField->text().toUTF8());
-//       responseField->setText(responseField->text().toUTF8()+rfg->set_flow(f));
+      this->stateF->setText("Current set:"+iField->text().toUTF8());
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
 //     
       
     }
     
     void getState()
     {
-      
+      measuredValue v;
+      std::stringstream ss;
+      for (int i; i<8;i++)
+      {
+	v = this->rfg->get_channel(i);
+	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
+      }
+      this->stateF->setText(ss.str());
     }
     
-    void start()
-    {
-
-    }
-    
-    void stop()
-    {
-
-    }
+//     void start()
+//     {
+// 
+//     }
+//     
+//     void stop()
+//     {
+// 
+//     }
     
     
     

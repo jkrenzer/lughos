@@ -13,6 +13,10 @@
 // #include "MaxiGauge.hpp"
 // #include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+#define CONFIG_FILENAME "config.xml"
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
@@ -32,6 +36,14 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   return new lughos::mainApplication(env);
 }
 
+boost::shared_ptr<Device> makeInstance(std::string typeIdentifier)
+{
+  if (typeIdentifier == std::string("rfg"))
+    return boost::shared_ptr<Device>(new RFG);
+  else if (typeIdentifier == std::string("bronkhorst"))
+    return boost::shared_ptr<Device>(new bronkhorst);
+}
+
 int main(int argc, char **argv)
 {
   
@@ -48,22 +60,42 @@ int main(int argc, char **argv)
 
   std::cout << "IOService started and running..." << std::endl;
   
+  /* preparing configuration */
+    using boost::property_tree::ptree;
+    ptree config;
+    
+    /* Try to load configuration from file */
+    
+    try
+    {
+      boost::property_tree::read_xml(CONFIG_FILENAME, config);
+    }
+    catch(...) // If we cannot open the configuration, we generate a new one
+    {
+      std::cout << "No configuration foung! Generating default! Check if it is sane!!" << std::endl;
+      config.put("devices.flowcontroll1.name","Flow Controll 1");
+      config.put("devices.flowcontroll1.type","bronkhorst");
+      config.put("devices.flowcontroll1.connection.type","serial");
+      config.put("devices.flowcontroll1.connection.mode","async");
+      config.put("devices.flowcontroll1.connection.port","COM1");
+      //
+      config.put("devices.rfg1.name","RFG 1");
+      config.put("devices.rfg1.type","RFG");
+      config.put("devices.rfg1.connection.type","serial");
+      config.put("devices.rfg1.connection.mode","async");
+      config.put("devices.rfg1.connection.port","COM2");
+      boost::property_tree::write_xml(CONFIG_FILENAME, config);
+    }
+    
+    //TODO Make a loop which iterates over declared devices
+    
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
 //     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
-     #ifdef WIN32 
-      connection1->port_name = std::string("COM1");
-      connection2->port_name = std::string("COM2");
+      connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
+      connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
 //       connection3->port_name = std::string("COM3");
-
-     #else
-      connection1->port_name = std::string("/dev/ttyUSB0");
-      connection2->port_name = std::string("/dev/ttyUSB1");
-//       connection3->port_name = std::string("/dev/ttyUSB0");
-    #endif
-      
-      
 
       boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
       boost::shared_ptr<Device> RFG1(new RFG);
@@ -71,12 +103,14 @@ int main(int argc, char **argv)
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
-      flowcontroll1->setName(std::string("Flow Controll 1"));
-      RFG1->setName(std::string("RFG 1"));
+      flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
+      RFG1->setName(config.get<std::string>("devices.rfg1.name"));
 //       temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
       
-      flowcontroll1->connect(connection1);
-      RFG1->connect(connection2);
+      if(!flowcontroll1->connect(connection1))
+	std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll1!!!" << std::endl;
+      if(!RFG1->connect(connection2))
+	std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;;
 //       temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
