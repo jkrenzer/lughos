@@ -10,7 +10,7 @@
 #include "bronkhorst.hpp"
 #include "test_gui_monitoring2.hpp"
 #include "RFG.hpp"
-// #include "MaxiGauge.hpp"
+#include "Relais.hpp"
 // #include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -85,44 +85,55 @@ int main(int argc, char **argv)
       config.put("devices.rfg1.connection.mode","async");
       config.put("devices.rfg1.connection.port","COM2");
       boost::property_tree::write_xml(CONFIG_FILENAME, config);
+      
+      config.put("devices.relais1.name","Relais 1");
+      config.put("devices.relais1.type","Relais");
+      config.put("devices.relais1.connection.type","serial");
+      config.put("devices.relais1.connection.mode","async");
+      config.put("devices.relais1.connection.port","COM3");
+      boost::property_tree::write_xml(CONFIG_FILENAME, config);
     }
     
     //TODO Make a loop which iterates over declared devices
     
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
-//     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
       connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
       connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
-//       connection3->port_name = std::string("COM3");
+      connection3->port_name = std::string(config.get<std::string>("devices.relais1.connection.port"));
 
       boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
       boost::shared_ptr<Device> RFG1(new RFG);
+      boost::shared_ptr<Device> relais1(new Relais);
 // // //       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
       flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
       RFG1->setName(config.get<std::string>("devices.rfg1.name"));
-//       temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+      Relais->setName(config.get<std::string>("devices.relais1.name"));
       
       if(!flowcontroll1->connect(connection1))
 	std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll1!!!" << std::endl;
       if(!RFG1->connect(connection2))
-	std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;;
+	std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
+            if(!relais1->connect(connection3))
+	std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
 //       temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
 //   std::cout<< pressureMonitor1->getName()<<std::endl;
 //     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(RFG1->getName(), RFG1));
-//   deviceMap.insert(deviceMapPair(temperatureMonitor1->getName(), temperatureMonitor1));
+  deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
   
   
       dbo::backend::Sqlite3 sqlite3("test.db");
   boost::shared_ptr<dbo::Session> session(new dbo::Session);
   boost::shared_ptr<dbo::Session> session1(new dbo::Session);
+//   boost::shared_ptr<dbo::Session> session2(new dbo::Session);
   boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
@@ -130,6 +141,8 @@ int main(int argc, char **argv)
   session->mapClass<measuredDBValue>("measuredValue");
   session1->setConnection(sqlite3);
   session1->mapClass<measuredDBValue>("measuredValue");
+//   session1->setConnection(sqlite3);
+//   session1->mapClass<measuredDBValue>("measuredValue");
   try 
   {
     session->createTables();
