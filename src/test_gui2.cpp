@@ -42,6 +42,8 @@ boost::shared_ptr<Device> makeInstance(std::string typeIdentifier)
     return boost::shared_ptr<Device>(new RFG);
   else if (typeIdentifier == std::string("bronkhorst"))
     return boost::shared_ptr<Device>(new bronkhorst);
+    else if (typeIdentifier == std::string("relais"))
+    return boost::shared_ptr<Device>(new Relais);
 }
 
 int main(int argc, char **argv)
@@ -78,6 +80,12 @@ int main(int argc, char **argv)
       config.put("devices.flowcontroll1.connection.type","serial");
       config.put("devices.flowcontroll1.connection.mode","async");
       config.put("devices.flowcontroll1.connection.port","COM1");
+      
+      config.put("devices.flowcontroll2.name","Flow Controll 2");
+      config.put("devices.flowcontroll2.type","bronkhorst");
+      config.put("devices.flowcontroll2.connection.type","serial");
+      config.put("devices.flowcontroll2.connection.mode","async");
+      config.put("devices.flowcontroll2.connection.port","COM4");
       //
       config.put("devices.rfg1.name","RFG 1");
       config.put("devices.rfg1.type","RFG");
@@ -87,7 +95,7 @@ int main(int argc, char **argv)
       boost::property_tree::write_xml(CONFIG_FILENAME, config);
       
       config.put("devices.relais1.name","Relais 1");
-      config.put("devices.relais1.type","Relais");
+      config.put("devices.relais1.type","relais");
       config.put("devices.relais1.connection.type","serial");
       config.put("devices.relais1.connection.mode","async");
       config.put("devices.relais1.connection.port","COM3");
@@ -99,12 +107,15 @@ int main(int argc, char **argv)
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
      
-      connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
-      connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
-      connection3->port_name = std::string(config.get<std::string>("devices.relais1.connection.port"));
+    connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
+    connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
+    connection3->port_name = std::string(config.get<std::string>("devices.relais1.connection.port"));
+    connection4->port_name = std::string(config.get<std::string>("devices.flowcontroll2.connection.port"));
 
       boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
+      boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
       boost::shared_ptr<Device> RFG1(new RFG);
       boost::shared_ptr<Device> relais1(new Relais);
 // // //       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
@@ -112,18 +123,23 @@ int main(int argc, char **argv)
       
         
       flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
+      flowcontroll2->setName(config.get<std::string>("devices.flowcontroll2.name"));
       RFG1->setName(config.get<std::string>("devices.rfg1.name"));
-      Relais->setName(config.get<std::string>("devices.relais1.name"));
+      relais1->setName(config.get<std::string>("devices.relais1.name"));
       
       if(!flowcontroll1->connect(connection1))
 	std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll1!!!" << std::endl;
+      if(!flowcontroll2->connect(connection4))
+	std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll2!!!" << std::endl;
       if(!RFG1->connect(connection2))
 	std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
+       if(!relais1->connect(connection2))
             if(!relais1->connect(connection3))
 	std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
 //       temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
+  deviceMap.insert(deviceMapPair(flowcontroll2->getName(), flowcontroll2));
 //   std::cout<< pressureMonitor1->getName()<<std::endl;
 //     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(RFG1->getName(), RFG1));
@@ -161,12 +177,15 @@ int main(int argc, char **argv)
 //   rfg.setExecuteTimes(Task::Execute::infinite);
 //   rfg.start();
   
-  BronkhorstTest horst(session, taskExecutor,flowcontroll1);
-  horst.setEvery(boost::posix_time::seconds(1));
-  horst.setExecuteTimes(Task::Execute::infinite);
-  horst.start();
+  BronkhorstTest horst1(session, taskExecutor,flowcontroll1);
+  horst1.setEvery(boost::posix_time::seconds(1));
+  horst1.setExecuteTimes(Task::Execute::infinite);
+  horst1.start();
   
-  
+    BronkhorstTest horst2(session, taskExecutor,flowcontroll2);
+  horst2.setEvery(boost::posix_time::seconds(1));
+  horst2.setExecuteTimes(Task::Execute::infinite);
+  horst2.start();
   
   /*
    * Your main method may set up some shared resources, but should then

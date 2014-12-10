@@ -52,35 +52,42 @@ int main(int argc, char **argv)
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
-     
+    boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );  
+    
      #ifdef WIN32 
       connection1->port_name = std::string("COM1");
-      connection2->port_name = std::string("COM2");
-      connection3->port_name = std::string("COM3");
+      connection2->port_name = std::string("COM4");
+      connection3->port_name = std::string("COM5");
+      connection4->port_name = std::string("COM6");
 
      #else
       connection1->port_name = std::string("/dev/ttyUSB2");
       connection2->port_name = std::string("/dev/ttyUSB1");
       connection3->port_name = std::string("/dev/ttyUSB0");
+      connection4->port_name = std::string("/dev/ttyUSB3");
     #endif
       
       
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
+      boost::shared_ptr<Device> compressor2(new coolpak6000);
       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
       compressor1->setName(std::string("Compressor 1"));
+      compressor1->setName(std::string("Compressor 2"));
       pressureMonitor1->setName(std::string("Pressure Monitor 1"));
       temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
       
       compressor1->connect(connection1);
+      compressor2->connect(connection4);
       pressureMonitor1->connect(connection2);
       temperatureMonitor1->connect(connection3);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
+    deviceMap.insert(deviceMapPair(compressor2->getName(), compressor2));
   std::cout<< pressureMonitor1->getName()<<std::endl;
     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
