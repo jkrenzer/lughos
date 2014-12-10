@@ -71,25 +71,25 @@ int main(int argc, char **argv)
       config.put("devices.compressor1.type","coolpak6000");
       config.put("devices.compressor1.connection.type","serial");
       config.put("devices.compressor1.connection.mode","async");
-      config.put("devices.compressor1.connection.port","COM1");
+      config.put("devices.compressor1.connection.port","COM5");
       //
       config.put("devices.compressor2.name","Compressor 2");
       config.put("devices.compressor2.type","coolpak6000");
       config.put("devices.compressor2.connection.type","serial");
       config.put("devices.compressor2.connection.mode","async");
-      config.put("devices.compressor2.connection.port","COM2");
+      config.put("devices.compressor2.connection.port","COM6");
       
       config.put("devices.pressuremonitor1.name","Pressure Monitor 1");
       config.put("devices.pressuremonitor1.type","maxigauge");
       config.put("devices.pressuremonitor1.connection.type","serial");
       config.put("devices.pressuremonitor1.connection.mode","async");
-      config.put("devices.pressuremonitor1.connection.port","COM3");
+      config.put("devices.pressuremonitor1.connection.port","COM4");
       
-      config.put("devices.keithley1.name","Keithley 1");
+      config.put("devices.keithley1.name","Temperature Monitor 1");
       config.put("devices.keithley1.type","keithley");
       config.put("devices.keithley1.connection.type","serial");
       config.put("devices.keithley1.connection.mode","async");
-      config.put("devices.keithley1.connection.port","COM4");
+      config.put("devices.keithley1.connection.port","COM1");
       boost::property_tree::write_xml(CONFIG_FILENAME, config);
     }
   

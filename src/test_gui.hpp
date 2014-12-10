@@ -838,6 +838,7 @@ namespace lughos
     DeviceView(WContainerWidget* parent = 0)
     {
       this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 1")] ));
+      this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 2")] ));
       this->addWidget(new DeviceUI<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
     }
