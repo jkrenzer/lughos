@@ -54,6 +54,7 @@ class fug : public Device
 	double getI();
 	double getU();
 	std::string getLastError();
+	std::string getIDN();
 
 protected:
 	std::string lastError;

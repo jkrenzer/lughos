@@ -13,9 +13,10 @@
 
 
 
-Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), resolver(*io_service),resolver_async(*io_service), socket(*io_service),socket_async(*io_service),request(), response()
+Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
+this->connected = false;
 }
 
 
@@ -35,10 +36,9 @@ bool Connection<tcpContext>::start()
 	}
 //     server=server_name;
     std::cout << "server: "<<server_name<<" port: "<<port_name << std::endl;
+    resolver= boost::shared_ptr<tcp::resolver>(new tcp::resolver(*this->io_service_));
     query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
-    query_async= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name,port_name));
-
-
+    socket= boost::shared_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(*this->io_service_));
     return true;
     
   
@@ -57,9 +57,8 @@ void Connection<tcpContext>::stop()
 
     try
     {
-	resolver_async.cancel();
-	resolver.cancel();
-      if (query_async) 
+	resolver->cancel();
+      if (query) 
 	{  
 
 	}

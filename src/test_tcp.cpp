@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
      std::map< std::string, boost::shared_ptr<Device> > deviceMap;
 	      
      boost::shared_ptr<tcpAsync> connection3(new tcpAsync(io_service) );
-     connection3->server_name = std::string("192.168.178.47");
+     connection3->server_name = std::string("192.168.178.46");
      connection3->set_port("2101");
      boost::shared_ptr<Device> kith(new fug);
      
@@ -59,10 +59,15 @@ int main(int argc, char **argv) {
 	boost::shared_ptr<fug> rfg = boost::dynamic_pointer_cast<fug>(kith);
 //      std::cout << "Write="<< rfg->get_channel(1).getvalue()<< std::endl;
 // 	rfg->input("/LICENSE_1_0.txt\n");
-    std::cout << "Write="<< rfg->setI(0.15)<< std::endl;
+// 	std::cout << "Write="<< rfg->getIDN()<< std::endl;
+//      std::cout << "Error="<< rfg->getLastError()<< std::endl;
+//      	std::cout << "Write="<< rfg->getIDN()<< std::endl;
+//      std::cout << "Error="<< rfg->getLastError()<< std::endl;
+//     std::cout << "Write="<< rfg->setI(0.15)<< std::endl;
+//     std::cout << "Error="<< rfg->getLastError()<< std::endl;
 // 	 std::cout << "Write="<< rfg->inputOutput("")<< std::endl;
      std::cout << "Write="<< rfg->getI()<< std::endl;
-     std::cout << "Write="<< rfg->getLastError()<< std::endl;
+     std::cout << "Error="<< rfg->getLastError()<< std::endl;
 //      boost::shared_ptr<Device> horst1(new bronkhorst);
 //      
 //      horst1->setName(std::string("RFG 1"));
@@ -80,8 +85,7 @@ int main(int argc, char **argv) {
     io_service.reset();
       std::cout << thread.joinable() << std::endl;
       work.reset();
-//       thread.join();
-//       if(thread.joinable()) thread.timed_join( boost::posix_time::seconds(3) );
+      if(thread.joinable()) thread.timed_join( boost::posix_time::seconds(3) );
    std::cout << "IOService stopped..." << std::endl;
 	return 0;
 }

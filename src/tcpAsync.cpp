@@ -21,22 +21,43 @@ tcpAsync::~tcpAsync(void)
   stop();
 }
 
-
-
-int tcpAsync::write(std::string query)
-{    
-
-        std::ostream request_stream(&request);
-      request_stream<<query;
-//  tcpAsync::handle_resolve(this, boost::asio::placeholders::error, boost::asio::placeholders::iterator);
- resolver.async_resolve(*this->query_async, boost::bind(&tcpAsync::handle_resolve, this,
+bool tcpAsync::connect()
+{
+  resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
-	  io_service_->poll();
-	  
-  return 1;
-  
 }
 
+bool tcpAsync::disconnect()
+{
+}
+
+int tcpAsync::write(std::string query)
+{ 
+//   if(!this->connected)
+//   {
+    this->connect();
+//     boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //Wait half a second for the connection
+//     if(!this->connected)
+//       return -1; //Still not connected, we abort!
+//   }
+  std::ostream request_stream(&request);
+  request_stream<<query;
+  if (!writeonly)
+  {
+    // The connection was successful. Send the request.
+    boost::asio::async_write(*socket, request,
+	boost::bind(&tcpAsync::handle_write_request, this,
+	  boost::asio::placeholders::error));
+  }
+  else
+  {
+    // The connection was successful. Send the request.
+    boost::asio::async_write(*socket, request,
+	boost::bind(&tcpAsync::handle_write_only_request, this,
+	  boost::asio::placeholders::error));
+  }
+  return 0;
+}
 
 int tcpAsync::write_only(std::string query)
 {
@@ -50,88 +71,74 @@ int tcpAsync::write_only(std::string query)
 //-------
 void tcpAsync::handle_resolve(const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
+{
+
+  if (!err)
   {
 
-    if (!err)
-    {
-
-      tcp::endpoint endpoint = *endpoint_iterator;
-      socket.async_connect(endpoint,
-          boost::bind(&tcpAsync::handle_connect, this,
-            boost::asio::placeholders::error, ++endpoint_iterator));
-
-    }
-    else
-    {
-      std::cout << "Error: " << err.message() << "\n";
-    }
-    
-
+    tcp::endpoint endpoint = *endpoint_iterator;
+    socket->async_connect(endpoint,
+	boost::bind(&tcpAsync::handle_connect, this,
+	  boost::asio::placeholders::error, ++endpoint_iterator));
+  }
+  else
+  {
+    std::cout << "Error: " << err.message() << "\n";
   }
 
- void tcpAsync::handle_connect(const boost::system::error_code& err,
+}
+
+void tcpAsync::handle_connect(const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
-  { 
-
-    if (!err&&!writeonly)
-    {
-      // The connection was successful. Send the request.
-      boost::asio::async_write(socket, request,
-          boost::bind(&tcpAsync::handle_write_request, this,
-            boost::asio::placeholders::error));
-    }
-    
-    else if (!err&&writeonly)
-    {
-      // The connection was successful. Send the request.
-      boost::asio::async_write(socket, request,
-          boost::bind(&tcpAsync::handle_write_only_request, this,
-            boost::asio::placeholders::error));
-    }
-    else if (endpoint_iterator != tcp::resolver::iterator())
-    {
-      // The connection failed. Try the next endpoint in the list.
-      socket.close();
-      tcp::endpoint endpoint = *endpoint_iterator;
-      socket.async_connect(endpoint,
-          boost::bind(&tcpAsync::handle_connect, this,
-            boost::asio::placeholders::error, ++endpoint_iterator));
-    }
-    else
-    {
-      std::cout << "Error: " << err.message() << "\n";
-    }
-    
-
+{ 
+  if(!err)
+  {
+    this->connected = true;
+    return;
   }
+  if (endpoint_iterator != tcp::resolver::iterator())
+  {
+    // The connection failed. Try the next endpoint in the list.
+    socket.reset(new boost::asio::ip::tcp::socket(*this->io_service_));
+    tcp::endpoint endpoint = *endpoint_iterator;
+    socket->async_connect(endpoint,
+	boost::bind(&tcpAsync::handle_connect, this,
+	  boost::asio::placeholders::error, ++endpoint_iterator));
+  }
+  else
+  {
+    std::cout << "Error: " << err.message() << "\n";
+    return;
+  }
+}
 
 void tcpAsync::handle_write_request(const boost::system::error_code& err)
-  {
+{
 
-    if (!err)
-    {
-      // Read the response status line.
-      boost::asio::async_read_until(socket, response, "\n",
-          boost::bind(&tcpAsync::handle_read_content, this,
-            boost::asio::placeholders::error));
-    }
-  else
-    {
-      std::cout << "Error: " << err.message() << "\n";
-    }
+  if (!err)
+  {
+    // Read the response status line.
+    boost::asio::async_read_until(*socket, response, "\n",
+	boost::bind(&tcpAsync::handle_read_content, this,
+	  boost::asio::placeholders::error));
   }
+else
+  {
+    std::cout << "Error: " << err.message() << "\n";
+  }
+}
   
-  void tcpAsync::handle_write_only_request(const boost::system::error_code& err)
-  {
+void tcpAsync::handle_write_only_request(const boost::system::error_code& err)
+{
 
-    if (!err)
-    {   
-    }
-    else
-    {
-      std::cout << "Error Async write only: " << err.message() << "\n";
-    }
+  if (!err)
+  {   
   }
+  else
+  {
+    std::cout << "Error Async write only: " << err.message() << "\n";
+  }
+}
 
 
 //   void tcpAsync::handle_read_status_line(const boost::system::error_code& err)
@@ -142,7 +149,7 @@ void tcpAsync::handle_write_request(const boost::system::error_code& err)
 // 
 //       tcpAsync::handle_read_check_response(err);
 //       // Read the response headers, which are terminated by a blank line.
-//       boost::asio::async_read_until(socket, response, "\r\n\r\n",
+//       boost::asio::async_read_until(*socket, response, "\r\n\r\n",
 //           boost::bind(&tcpAsync::handle_read_headers, this,
 //             boost::asio::placeholders::error));
 // 
@@ -162,7 +169,7 @@ void tcpAsync::handle_write_request(const boost::system::error_code& err)
 //       Connection< tcpContext >::handle_read_headers_process();
 // 
 //       // Start reading remaining data until EOF.
-//       boost::asio::async_read(socket, response,
+//       boost::asio::async_read(*socket, response,
 //           boost::asio::transfer_at_least(1),
 //           boost::bind(&tcpAsync::handle_read_content, this,
 //             boost::asio::placeholders::error));
@@ -184,18 +191,16 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
       // Write all of the data that has been read so far.
 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
-      boost::asio::async_read(socket, response,
+      boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
           boost::bind(&tcpAsync::handle_read_content, this,
             boost::asio::placeholders::error));
       
     }
-    else if (err != boost::asio::error::eof)
+    else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
     {
       std::cout << "Error: " << err << "\n";
     }
-    
-            
 	response_string_stream<< &response;
       	this->notifyWaitingClient();
   }   
