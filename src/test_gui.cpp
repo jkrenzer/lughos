@@ -11,7 +11,11 @@
 // #include "coolpak6000.hpp"
 // #include "MaxiGauge.hpp"
 // #include "MaxiGauge.hpp"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <boost/thread/thread.hpp>
+
+#define CONFIG_FILENAME "config.xml"
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
@@ -49,36 +53,74 @@ int main(int argc, char **argv)
     ofs.close();
   std::cout << "IOService started and running..." << std::endl;
   
+  /* preparing configuration */
+    using boost::property_tree::ptree;
+    ptree config;
+    
+    /* Try to load configuration from file */
+    
+    try
+    {
+      boost::property_tree::read_xml(CONFIG_FILENAME, config);
+    }
+    catch(...) // If we cannot open the configuration, we generate a new one
+    {
+      std::cout << "No configuration foung! Generating default! Check if it is sane!!" << std::endl;
+      
+      config.put("devices.compressor1.name","Compressor 1");
+      config.put("devices.compressor1.type","coolpak6000");
+      config.put("devices.compressor1.connection.type","serial");
+      config.put("devices.compressor1.connection.mode","async");
+      config.put("devices.compressor1.connection.port","COM1");
+      //
+      config.put("devices.compressor2.name","Compressor 2");
+      config.put("devices.compressor2.type","coolpak6000");
+      config.put("devices.compressor2.connection.type","serial");
+      config.put("devices.compressor2.connection.mode","async");
+      config.put("devices.compressor2.connection.port","COM2");
+      
+      config.put("devices.pressuremonitor1.name","Pressure Monitor 1");
+      config.put("devices.pressuremonitor1.type","maxigauge");
+      config.put("devices.pressuremonitor1.connection.type","serial");
+      config.put("devices.pressuremonitor1.connection.mode","async");
+      config.put("devices.pressuremonitor1.connection.port","COM3");
+      
+      config.put("devices.keithley1.name","Keithley 1");
+      config.put("devices.keithley1.type","keithley");
+      config.put("devices.keithley1.connection.type","serial");
+      config.put("devices.keithley1.connection.mode","async");
+      config.put("devices.keithley1.connection.port","COM4");
+      boost::property_tree::write_xml(CONFIG_FILENAME, config);
+    }
+  
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
      
-     #ifdef WIN32 
-      connection1->port_name = std::string("COM1");
-      connection2->port_name = std::string("COM2");
-      connection3->port_name = std::string("COM3");
+    connection1->port_name = config.get<std::string>("devices.compressor1.connection.port");
+    connection2->port_name = config.get<std::string>("devices.compressor2.connection.port");
+    connection3->port_name = config.get<std::string>("devices.pressuremonitor1.connection.port");
+    connection4->port_name = config.get<std::string>("devices.keithley1.connection.port");
 
-     #else
-      connection1->port_name = std::string("/dev/ttyUSB2");
-      connection2->port_name = std::string("/dev/ttyUSB1");
-      connection3->port_name = std::string("/dev/ttyUSB0");
-    #endif
-      
       
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
+      boost::shared_ptr<Device> compressor2(new coolpak6000);
       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
-      compressor1->setName(std::string("Compressor 1"));
-      pressureMonitor1->setName(std::string("Pressure Monitor 1"));
-      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+      compressor1->setName(config.get<std::string>("devices.compressor1.name"));
+      compressor2->setName(config.get<std::string>("devices.compressor2.name"));
+      pressureMonitor1->setName(config.get<std::string>("devices.pressuremonitor1.name"));
+      temperatureMonitor1->setName(config.get<std::string>("devices.keithley1.name"));
       
       compressor1->connect(connection1);
-      pressureMonitor1->connect(connection2);
-      temperatureMonitor1->connect(connection3);
+      compressor2->connect(connection2);
+      pressureMonitor1->connect(connection3);
+      temperatureMonitor1->connect(connection4);
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
   std::cout<< pressureMonitor1->getName()<<std::endl;

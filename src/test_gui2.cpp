@@ -100,9 +100,9 @@ int main(int argc, char **argv)
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
      
-      connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
-      connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
-      connection3->port_name = std::string(config.get<std::string>("devices.relais1.connection.port"));
+      connection1->port_name = config.get<std::string>("devices.flowcontroll1.connection.port");
+      connection2->port_name = config.get<std::string>("devices.rfg1.connection.port");
+      connection3->port_name = config.get<std::string>("devices.relais1.connection.port");
 
       boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
       boost::shared_ptr<Device> RFG1(new RFG);
