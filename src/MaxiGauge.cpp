@@ -98,16 +98,19 @@ std::string MaxiGauge::interpretAnswer(std::string s)
 
    bool MaxiGauge::sensor_on(int sensor)
 {
+   int j=0;
   int check_bench[6];
   std::string response_string=this->inputOutput("SEN,0,0,0,0,0,0").c_str();
 //   static const boost::regex e("(\\d)");
 //   boost::cmatch res;
 //     boost::regex_search(  this->inputOutput("SEN,0,0,0,0,0,0").c_str(), res, e);
 //   for(int i=0;i<6;i++) sensor_bench[i]=boost::lexical_cast< int >(res[i+1]);
+  j=0;
   for ( std::string::iterator it=response_string.begin(); it!=response_string.end(); ++it)
   {
-    sensor_bench[i]=std::stoi(*it);
+    sensor_bench[j]=(int)*it;
      if(it!=response_string.end()) it++;
+     j++;
   } 	
 
   std::string request= "SEN,";
@@ -122,10 +125,14 @@ std::string MaxiGauge::interpretAnswer(std::string s)
    
 //   boost::regex_search(  this->inputOutput(request).c_str(), res, e);
 //   for(int i=0;i<6;i++) check_bench[i]=boost::lexical_cast< int >(res[i+1]);
+    j=0;
     for ( std::string::iterator it=response_string.begin(); it!=response_string.end(); ++it){
-    check_bench[i]=std::stoi(*it);
+     
+    check_bench[j]=(int)*it;
      if(it!=response_string.end()) it++;
-  } 
+    j++;
+      
+    } 
   
   for(int i=0;i<6;i++){
       if(i!=sensor&&check_bench[i]==sensor_bench[i])
@@ -138,21 +145,26 @@ std::string MaxiGauge::interpretAnswer(std::string s)
   }
       for(int i=0;i<6;i++) sensor_bench[i]=check_bench[i];
   return true;
+ 
+  
   
 }
 
 bool MaxiGauge::sensor_off(int sensor)
 {
+   int j=0;
   int check_bench[6];
   std::string response_string=this->inputOutput("SEN,0,0,0,0,0,0").c_str();
 //   static const boost::regex e("(\\d)");
 //   boost::cmatch res;
 //     boost::regex_search(  this->inputOutput("SEN,0,0,0,0,0,0").c_str(), res, e);
 //   for(int i=0;i<6;i++) sensor_bench[i]=boost::lexical_cast< int >(res[i+1]);
+  j=0;
   for ( std::string::iterator it=response_string.begin(); it!=response_string.end(); ++it)
   {
-    sensor_bench[i]=std::stoi(*it);
+    sensor_bench[j]=(int)*it;
      if(it!=response_string.end()) it++;
+     j++;
   } 	
 
   std::string request= "SEN,";
@@ -167,10 +179,14 @@ bool MaxiGauge::sensor_off(int sensor)
    
 //   boost::regex_search(  this->inputOutput(request).c_str(), res, e);
 //   for(int i=0;i<6;i++) check_bench[i]=boost::lexical_cast< int >(res[i+1]);
+    j=0;
     for ( std::string::iterator it=response_string.begin(); it!=response_string.end(); ++it){
-    check_bench[i]=std::stoi(*it);
+     
+    check_bench[j]=(int)*it;
      if(it!=response_string.end()) it++;
-  } 
+    j++;
+      
+    } 
   
   for(int i=0;i<6;i++){
       if(i!=sensor&&check_bench[i]==sensor_bench[i])
