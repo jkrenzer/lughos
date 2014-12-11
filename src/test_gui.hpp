@@ -72,6 +72,7 @@ namespace lughos
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
     }
+    
   };
   
   //------------------------
@@ -212,9 +213,18 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = 1").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");
       model->addColumn("timestamp");
+      
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = 2").bind("Pressure Monitorl 1").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value1");
+      model->addColumn("timestamp1");
+      
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = 3").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value2");
+      model->addColumn("timestamp2");
+      
       transaction.commit();
 	
 //       	WTableView *view = new WTableView();

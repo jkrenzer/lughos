@@ -157,7 +157,15 @@ int main(int argc, char **argv)
   std::cout << "Starting task-execution" << std::endl;
   
   PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
-  press.setEvery(boost::posix_time::seconds(5));
+  press.setEvery(boost::posix_time::seconds(1));
+  press.setExecuteTimes(Task::Execute::infinite);
+  press.start();
+  PressureMonitor press(session1,taskExecutor,pressureMonitor1,2);
+  press.setEvery(boost::posix_time::seconds(1));
+  press.setExecuteTimes(Task::Execute::infinite);
+  press.start();
+  PressureMonitor press(session1,taskExecutor,pressureMonitor1,3);
+  press.setEvery(boost::posix_time::seconds(1));
   press.setExecuteTimes(Task::Execute::infinite);
   press.start();
   

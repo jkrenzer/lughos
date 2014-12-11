@@ -79,7 +79,6 @@ class PressureMonitor : public Task
 	try
 	{
 	  measuredValue measure = this->maxiGauge->getPressure(1);
-
 	  dbo::Transaction transaction(*session);
 	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), maxiGauge->getName()+std::to_string(sensor))));
 	  transaction.commit();
