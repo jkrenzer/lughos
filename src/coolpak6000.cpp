@@ -53,7 +53,7 @@ std::string coolpak6000::composeRequest(std::string query)
     requestString+=std::string("\x02");
     requestString+=query;
     requestString+=std::string("\r");
-
+std::cout<<query<<std::endl;
     return requestString;
   
 }
@@ -65,7 +65,8 @@ std::string coolpak6000::composeRequest(std::string query)
 }
 
 std::string coolpak6000::interpretAnswer(std::string s)
-{       
+{  
+  std::cout<<"answer: "<<s<<std::endl;
   return s;  
 
 }

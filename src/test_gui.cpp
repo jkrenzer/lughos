@@ -89,7 +89,7 @@ int main(int argc, char **argv)
       config.put("devices.keithley1.type","keithley");
       config.put("devices.keithley1.connection.type","serial");
       config.put("devices.keithley1.connection.mode","async");
-      config.put("devices.keithley1.connection.port","COM1");
+      config.put("devices.keithley1.connection.port","/dev/ttyUSB0");
       boost::property_tree::write_xml(CONFIG_FILENAME, config);
     }
   
@@ -156,18 +156,18 @@ int main(int argc, char **argv)
   
   std::cout << "Starting task-execution" << std::endl;
   
-  PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
-  press.setEvery(boost::posix_time::seconds(1));
-  press.setExecuteTimes(Task::Execute::infinite);
-  press.start();
-  PressureMonitor press(session1,taskExecutor,pressureMonitor1,2);
-  press.setEvery(boost::posix_time::seconds(1));
-  press.setExecuteTimes(Task::Execute::infinite);
-  press.start();
-  PressureMonitor press(session1,taskExecutor,pressureMonitor1,3);
-  press.setEvery(boost::posix_time::seconds(1));
-  press.setExecuteTimes(Task::Execute::infinite);
-  press.start();
+//   PressureMonitor press(session1,taskExecutor,pressureMonitor1,1);
+//   press.setEvery(boost::posix_time::seconds(1));
+//   press.setExecuteTimes(Task::Execute::infinite);
+//   press.start();
+//   PressureMonitor press1(session1,taskExecutor,pressureMonitor1,2);
+//   press1.setEvery(boost::posix_time::seconds(1));
+//   press1.setExecuteTimes(Task::Execute::infinite);
+//   press1.start();
+//   PressureMonitor press2(session1,taskExecutor,pressureMonitor1,3);
+//   press2.setEvery(boost::posix_time::seconds(1));
+//   press2.setExecuteTimes(Task::Execute::infinite);
+//   press2.start();
   
   KeithleyTest keithley(session, taskExecutor,temperatureMonitor1);
   keithley.setEvery(boost::posix_time::seconds(10));
