@@ -198,17 +198,17 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");
       model->addColumn("timestamp");
       
-//       model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = 2").bind("Pressure Monitorl 1").limit(100).orderBy("timestamp DESC"));
-//       model->addColumn("value1");
-//       model->addColumn("timestamp1");
-//       
-//       model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = 3").bind("Pressure Monitor 1").limit(100).orderBy("timestamp DESC"));
-//       model->addColumn("value2");
-//       model->addColumn("timestamp2");
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitorl 12").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value");
+      model->addColumn("timestamp");
+// //       
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 13").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value");
+      model->addColumn("timestamp");
       
       transaction.commit();
 	
@@ -220,9 +220,15 @@ namespace lughos
       chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
       
 //       Add the curves
-      Wt::Chart::WDataSeries s(0, Wt::Chart::LineSeries);
-      s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-      chart->addSeries(s);
+      Wt::Chart::WDataSeries s1(0, Wt::Chart::LineSeries);
+      s1.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      Wt::Chart::WDataSeries s2(2, Wt::Chart::LineSeries);
+      s2.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+//       Wt::Chart::WDataSeries s3(3, Wt::Chart::LineSeries);
+//       s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      chart->addSeries(s1);
+      chart->addSeries(s2);
+//       chart->addSeries(s3);
       chart->resize(1024, 800);
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
 //       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
@@ -598,7 +604,7 @@ namespace lughos
 	}
 	
       }
-      state=enabled+disabled;
+      state=enabled+std::string(" ")+disabled;
      
       if(communicationEstablished)
       {
