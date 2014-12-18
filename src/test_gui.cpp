@@ -83,13 +83,13 @@ int main(int argc, char **argv)
       config.put("devices.pressuremonitor1.type","maxigauge");
       config.put("devices.pressuremonitor1.connection.type","serial");
       config.put("devices.pressuremonitor1.connection.mode","async");
-      config.put("devices.pressuremonitor1.connection.port","COM4");
+      config.put("devices.pressuremonitor1.connection.port","/dev/ttyUSB0");
       
       config.put("devices.keithley1.name","Temperature Monitor 1");
       config.put("devices.keithley1.type","keithley");
       config.put("devices.keithley1.connection.type","serial");
       config.put("devices.keithley1.connection.mode","async");
-      config.put("devices.keithley1.connection.port","/dev/ttyUSB0");
+      config.put("devices.keithley1.connection.port","COM1");
       boost::property_tree::write_xml(CONFIG_FILENAME, config);
     }
   

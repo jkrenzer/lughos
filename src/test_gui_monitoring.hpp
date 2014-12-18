@@ -86,18 +86,22 @@ class PressureMonitor : public Task
 	    dbo::Transaction transaction(*session);
 	    this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), maxiGauge->getName()+std::to_string(sensor))));
 	    transaction.commit();
-// 	    std::cout << "[*] MaxiGauge " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+	    std::cout << "[*] MaxiGauge " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+// 	  	    std::cout << "[*] MaxiGauge " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+
+	    
 	  }
 	  else  if(sensor==0)
 	  { 
+	    measuredValue measure;
 	    for (int i=1;i<4;i++)
 	    {
-	      measuredValue measure = this->maxiGauge->getPressure(i);
+// 	       measure = this->maxiGauge->getPressure(i);
 	      dbo::Transaction transaction(*session);
-// 	      measuredValue measure= measuredValue(1.0,"a",boost::posix_time::second_clock::local_time(), std::to_string(i));
+	      measure= measuredValue(1.0,"a",boost::posix_time::second_clock::local_time(), std::to_string(i));
 	      this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), maxiGauge->getName()+std::to_string(i))));
 	      transaction.commit();
-// 	      std::cout << "[*] MaxiGauge " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+	      std::cout << "[*] MaxiGauge " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
 	    }
 	      
 	   }

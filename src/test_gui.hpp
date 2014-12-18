@@ -150,6 +150,22 @@ namespace lughos
       intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
       intervalTimer->start();
       this->addWidget(chart);
+
+      
+      	    Wt::WTableView *table = new Wt::WTableView();
+      table->setModel(model);
+      table->setSortingEnabled(false);
+      table->setColumnResizeEnabled(true);
+      table->setAlternatingRowColors(true);
+      table->setColumnAlignment(0, Wt::AlignCenter);
+      table->setHeaderAlignment(0, Wt::AlignCenter);
+      table->setRowHeight(28);
+      table->setHeaderHeight(28);
+      table->setColumnWidth(0, 80);
+      for (int column = 1; column < model->columnCount(); ++column)
+	  table->setColumnWidth(column, 90);
+      table->resize(783, 200);
+      this->addWidget(table);      
     }
     
   };
@@ -187,8 +203,10 @@ namespace lughos
       dbo::Transaction transaction(*this->session);
       dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
       
+      typedef boost::tuple<double, boost::posix_time::ptime> QuerryItem;
+      typedef boost::tuple< Wt::WDateTime, double, Wt::WDateTime, double, Wt::WDateTime, double> Item;
 //       typedef boost::tuple<double, boost::posix_time::ptime> Item;
-      typedef boost::tuple<double, Wt::WDateTime> Item;
+
       dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
@@ -198,37 +216,53 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
-      model->addColumn("value");
-      model->addColumn("timestamp");
+      model->setQuery(this->session->query<Item>("select t1.timestamp as [TS 11], t1.value as [PM 11], t2.timestamp as [TS 12], t2.value as [PM 12], t3.timestamp as [TS 13], t3.value as [PM 13] from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy("TS 11 DESC").orderBy("TS 12 DESC").limit(300));
+//  , sensor2.timestamp, sensor2.value , ( SELECT timestamp, value FROM `measuredValues` WHERE sensorName = `Pressure Monitor 12`) sensor2
+//       model->setQuery(this->session->query<Item>("SELECT sensor1.timestamp, sensor1.value FROM ( SELECT timestamp, value FROM `measuredValue`) sensor1").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
+//       model->setQuery(this->session->query<Item>("SELECT value AS value1, timestamp AS timestamp1 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 12").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("TS 11");
+      model->addColumn("PM 11");
+      model->addColumn("TS 12");
+      model->addColumn("PM 12");
+      model->addColumn("TS 13");
+      model->addColumn("PM 13");
+//       model->addColumn("t2");
+//       model->addColumn("v2"); 
+//       model->addColumn("t1");
+//       model->addColumn("v1");    
+
+
       
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitorl 12").limit(100).orderBy("timestamp DESC"));
-      model->addColumn("value");
-      model->addColumn("timestamp");
-// //       
-      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 13").limit(100).orderBy("timestamp DESC"));
-      model->addColumn("value");
-      model->addColumn("timestamp");
+//       model->setQuery(this->session->query<Item>("SELECT value AS value2, timestamp AS timestamp2 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitorl 12").limit(100).orderBy("timestamp DESC"));
+//       model->addColumn("value2");
+//       model->addColumn("timestamp2");
+// // //       
+//       model->setQuery(this->session->query<Item>("SELECT value AS value3, timestamp AS timestamp3 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 13").limit(100).orderBy("timestamp DESC"));
+//       model->addColumn("value3");
+//       model->addColumn("timestamp3");
       
       transaction.commit();
 	
       chart->setModel(model);
-      this->chart->setXSeriesColumn(1);
+//       this->chart->setXSeriesColumn(0);
       this->chart->setLegendEnabled(true);
-      this-> chart->setType(Wt::Chart::ScatterPlot);
+      this->chart->setType(Wt::Chart::ScatterPlot);
       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
       chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
       
 //       Add the curves
-      Wt::Chart::WDataSeries s1(0, Wt::Chart::LineSeries);
+      Wt::Chart::WDataSeries s1(1, Wt::Chart::PointSeries);
+      s1.setXSeriesColumn(0);
       s1.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-      Wt::Chart::WDataSeries s2(2, Wt::Chart::LineSeries);
+      Wt::Chart::WDataSeries s2(3, Wt::Chart::PointSeries);
+      s2.setXSeriesColumn(2);
       s2.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-//       Wt::Chart::WDataSeries s3(3, Wt::Chart::LineSeries);
-//       s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      Wt::Chart::WDataSeries s3(5, Wt::Chart::PointSeries);
+      s3.setXSeriesColumn(4);
+      s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       chart->addSeries(s1);
       chart->addSeries(s2);
-//       chart->addSeries(s3);
+      chart->addSeries(s3);
       chart->resize(1024, 800);
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
 //       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
@@ -237,7 +271,24 @@ namespace lughos
       intervalTimer->setInterval(5000);
       intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
       intervalTimer->start();
+      
+	    Wt::WTableView *table = new Wt::WTableView();
+      table->setModel(model);
+      table->setSortingEnabled(false);
+      table->setColumnResizeEnabled(true);
+      table->setAlternatingRowColors(true);
+      table->setColumnAlignment(0, Wt::AlignCenter);
+      table->setHeaderAlignment(0, Wt::AlignCenter);
+      table->setRowHeight(28);
+      table->setHeaderHeight(28);
+      table->setColumnWidth(0, 80);
+      for (int column = 1; column < model->columnCount(); ++column)
+	  table->setColumnWidth(column, 90);
+      table->resize(783, 200);
+
+      
       this->addWidget(chart);
+      this->addWidget(table);
     }
   };
   
