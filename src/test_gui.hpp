@@ -216,16 +216,21 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("select t1.timestamp as [TS 11], t1.value as [PM 11], t2.timestamp as [TS 12], t2.value as [PM 12], t3.timestamp as [TS 13], t3.value as [PM 13] from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy("TS 11 DESC").orderBy("TS 12 DESC").limit(300));
+      model->setQuery(this->session->query<Item>("select t1.timestamp, t1.value, t2.timestamp, t2.value, t3.timestamp, t3.value from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy(" t1.timestamp DESC").orderBy(" t2.timestamp DESC").orderBy(" t3.timestamp DESC").limit(300));
 //  , sensor2.timestamp, sensor2.value , ( SELECT timestamp, value FROM `measuredValues` WHERE sensorName = `Pressure Monitor 12`) sensor2
 //       model->setQuery(this->session->query<Item>("SELECT sensor1.timestamp, sensor1.value FROM ( SELECT timestamp, value FROM `measuredValue`) sensor1").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
 //       model->setQuery(this->session->query<Item>("SELECT value AS value1, timestamp AS timestamp1 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 12").limit(100).orderBy("timestamp DESC"));
-      model->addColumn("TS 11");
-      model->addColumn("PM 11");
-      model->addColumn("TS 12");
-      model->addColumn("PM 12");
-      model->addColumn("TS 13");
-      model->addColumn("PM 13");
+      model->addColumn("t1.timestamp");
+      model->addColumn("t1.value");
+            model->addColumn("t2.timestamp");
+      model->addColumn("t2.value");
+            model->addColumn("t3.timestamp");
+      model->addColumn("t3.value");
+      
+//       model->addColumn("TS 12");
+//       model->addColumn("PM 12");
+//       model->addColumn("TS 13");
+//       model->addColumn("PM 13");
 //       model->addColumn("t2");
 //       model->addColumn("v2"); 
 //       model->addColumn("t1");

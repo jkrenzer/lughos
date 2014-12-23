@@ -72,7 +72,7 @@ using namespace lughos;
     
     Wt::WTextArea *responseField;
 //     Wt::WPushButton * stopB;
-    boost::shared_ptr<dbo::Session> session;
+    boost::shared_ptr<Wt::Dbo::Session> session;
 //     dbo::backend::Sqlite3 dbBackend;
     
     

@@ -52,12 +52,12 @@ using namespace lughos;
   protected:
     boost::shared_ptr<bronkhorst> horst;
     Wt::Chart::WCartesianChart *chart;
-    boost::shared_ptr<dbo::Session> session;
-    dbo::backend::Sqlite3 dbBackend;
+    boost::shared_ptr<Wt::Dbo::Session> session;
+    Wt::Dbo::backend::Sqlite3 dbBackend;
 
   public:
     
-    ScatterPlot< bronkhorst >(boost::shared_ptr<Device> horst) : horst(boost::dynamic_pointer_cast<bronkhorst>(horst)), session(new dbo::Session), dbBackend("test.db")
+    ScatterPlot< bronkhorst >(boost::shared_ptr<Device> horst) : horst(boost::dynamic_pointer_cast<bronkhorst>(horst)), session(new Wt::Dbo::Session), dbBackend("test.db")
     {
 
       this->init();
@@ -72,12 +72,12 @@ using namespace lughos;
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
       
-      dbo::Transaction transaction(*this->session);
-      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      Wt::Dbo::Transaction transaction(*this->session);
+      Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
       
 //       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       typedef boost::tuple<double, Wt::WDateTime> Item;
-      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
+      Wt::Dbo::QueryModel<Item> *model = new Wt::Dbo::QueryModel<Item>();
       
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 

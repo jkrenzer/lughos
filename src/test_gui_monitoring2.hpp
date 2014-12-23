@@ -21,7 +21,7 @@ class BronkhorstTest : public Task
   protected:
   
     boost::shared_ptr<bronkhorst> horst;
-    boost::shared_ptr<dbo::Session> session;
+    boost::shared_ptr<Wt::Dbo::Session> session;
   
     virtual void run()
     { 
@@ -30,7 +30,7 @@ class BronkhorstTest : public Task
 	try{
 	  measuredValue measure = this->horst->get_value();
 
-	  dbo::Transaction transaction(*session);
+	  Wt::Dbo::Transaction transaction(*session);
 	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), horst->getName())));
 	  transaction.commit();
 	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
@@ -58,7 +58,7 @@ class BronkhorstTest : public Task
     }
 public:
   
-    BronkhorstTest(boost::shared_ptr<dbo::Session> session,boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> horst) : session(session),Task(executionQueuePtr), horst(boost::dynamic_pointer_cast<bronkhorst>(horst))
+    BronkhorstTest(boost::shared_ptr<Wt::Dbo::Session> session,boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> horst) : session(session),Task(executionQueuePtr), horst(boost::dynamic_pointer_cast<bronkhorst>(horst))
     {
     
     }
@@ -70,7 +70,7 @@ class RFGTest : public Task
   protected:
   
     boost::shared_ptr<RFG> rfg;
-    boost::shared_ptr<dbo::Session> session;
+    boost::shared_ptr<Wt::Dbo::Session> session;
     int sensor;
   
     virtual void run()
@@ -80,7 +80,7 @@ class RFGTest : public Task
 	try{
 	  measuredValue measure = this->rfg->get_channel(sensor);
 
-	  dbo::Transaction transaction(*session);
+	  Wt::Dbo::Transaction transaction(*session);
 	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), rfg->getName())));
 	  transaction.commit();
 // 	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
@@ -108,7 +108,7 @@ class RFGTest : public Task
     }
 public:
   
-    RFGTest(boost::shared_ptr<dbo::Session> session,boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> rfg, int sensor) : session(session),Task(executionQueuePtr), rfg(boost::dynamic_pointer_cast<RFG>(rfg))
+    RFGTest(boost::shared_ptr<Wt::Dbo::Session> session,boost::shared_ptr< boost::asio::io_service > executionQueuePtr, boost::shared_ptr<Device> rfg, int sensor) : session(session),Task(executionQueuePtr), rfg(boost::dynamic_pointer_cast<RFG>(rfg))
     {
           this->sensor = sensor; 
     }
