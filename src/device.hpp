@@ -3,13 +3,15 @@
 
 #include <ostream>
 
-
+#include <Wt/Dbo/Dbo>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
+#include "measuredDBValue.hpp"
+
 
 
 namespace lughos
@@ -146,12 +148,21 @@ namespace lughos
 //     {
 //       
 //     }
-//     
+// 
+    
   };
   
   class Device : public DeviceImpl
   {
   public:
+
+  template<class Action>
+  
+    void persist(Action& a)
+    {
+      Wt::Dbo::field(a, name, "name");
+//       Wt::Dbo::hasMany(a, Channel, Wt::Dbo::ManyToOne, "device");
+    }
     
     Device()
     {
@@ -163,5 +174,22 @@ namespace lughos
     
   };
 
+//   class measuredDBValue;
+ 
+  class Channel : public basicObject
+  {
+    
+    public:
+    Wt::Dbo::ptr<Device> device;
+    Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue> > measuredDBvalue;
+    template<class Action>
+    void persist(Action& a)
+    {
+      Wt::Dbo::field(a, name, "name");
+//       Wt::Dbo::belongsTo(a, DeviceDB, "device");
+      Wt::Dbo::hasMany(a, measuredDBvalue, Wt::Dbo::ManyToOne, "measuredDBValue");
+    }
+  };
+  
 } //namespace lughos
 #endif
