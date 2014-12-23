@@ -81,13 +81,13 @@ namespace lughos
   protected:
     boost::shared_ptr<kithleighSerial> kithleigh;
           Wt::Chart::WCartesianChart *chart;
-	  boost::shared_ptr<Wt::Dbo::Session> session;
-	  Wt::Dbo::backend::Sqlite3 dbBackend;
+	  boost::shared_ptr<dbo::Session> session;
+	  dbo::backend::Sqlite3 dbBackend;
 	  
 
   public:
     
-    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh)), session(new Wt::Dbo::Session), dbBackend("test.db")
+    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
@@ -110,12 +110,12 @@ namespace lughos
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
       
-      Wt::Dbo::Transaction transaction(*this->session);
-      Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
       
 //       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       typedef boost::tuple<double, Wt::WDateTime> Item;
-      Wt::Dbo::QueryModel<Item> *model = new Wt::Dbo::QueryModel<Item>();
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
@@ -180,12 +180,12 @@ namespace lughos
   protected:
     boost::shared_ptr<MaxiGauge> maxigauge;
     Wt::Chart::WCartesianChart *chart;
-    boost::shared_ptr<Wt::Dbo::Session> session;
-    Wt::Dbo::backend::Sqlite3 dbBackend;
+    boost::shared_ptr<dbo::Session> session;
+    dbo::backend::Sqlite3 dbBackend;
 
   public:
     
-    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge)), session(new Wt::Dbo::Session), dbBackend("test.db")
+    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
@@ -200,14 +200,14 @@ namespace lughos
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
       
-      Wt::Dbo::Transaction transaction(*this->session);
-      Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
       
       typedef boost::tuple<double, boost::posix_time::ptime> QuerryItem;
       typedef boost::tuple< Wt::WDateTime, double, Wt::WDateTime, double, Wt::WDateTime, double> Item;
 //       typedef boost::tuple<double, boost::posix_time::ptime> Item;
 
-      Wt::Dbo::QueryModel<Item> *model = new Wt::Dbo::QueryModel<Item>();
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
       
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
@@ -216,16 +216,20 @@ namespace lughos
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
 //       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
 //   
-      model->setQuery(this->session->query<Item>("select timestamp as t1, value as v1, timestamp as t2, 0.0 as v2, timestamp as t3, 0.0 as v3 from measuredValue where sensorName = 'Pressure Monitor 11' union all select timestamp, 0, timestamp, value, timestamp, 0 from measuredValue where sensorName = 'Pressure Monitor 12' union all select timestamp, 0, timestamp, 0, timestamp, value from measuredValue where sensorName = 'Pressure Monitor 13'").orderBy("t1 DESC").orderBy("t2 DESC").orderBy("t3 DESC").limit(300));
+      model->setQuery(this->session->query<Item>("select t1.timestamp as [TS 11], t1.value as [PM 11], t2.timestamp as [TS 12], t2.value as [PM 12], t3.timestamp as [TS 13], t3.value as [PM 13] from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy("TS 11 DESC").orderBy("TS 12 DESC").limit(300));
 //  , sensor2.timestamp, sensor2.value , ( SELECT timestamp, value FROM `measuredValues` WHERE sensorName = `Pressure Monitor 12`) sensor2
 //       model->setQuery(this->session->query<Item>("SELECT sensor1.timestamp, sensor1.value FROM ( SELECT timestamp, value FROM `measuredValue`) sensor1").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
 //       model->setQuery(this->session->query<Item>("SELECT value AS value1, timestamp AS timestamp1 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 12").limit(100).orderBy("timestamp DESC"));
-      model->addColumn("t1");
-      model->addColumn("v1");
-      model->addColumn("t2");
-      model->addColumn("v2"); 
-      model->addColumn("t3");
-      model->addColumn("v3");    
+      model->addColumn("TS 11");
+      model->addColumn("PM 11");
+      model->addColumn("TS 12");
+      model->addColumn("PM 12");
+      model->addColumn("TS 13");
+      model->addColumn("PM 13");
+//       model->addColumn("t2");
+//       model->addColumn("v2"); 
+//       model->addColumn("t1");
+//       model->addColumn("v1");    
 
 
       
@@ -244,23 +248,18 @@ namespace lughos
       this->chart->setLegendEnabled(true);
       this->chart->setType(Wt::Chart::ScatterPlot);
       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
-      this->chart->axis(Wt::Chart::YAxis).setScale(Wt::Chart::LogScale);
-            this->chart->axis(Wt::Chart::YAxis).setMinimum(1.0e-9);
       chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
       
 //       Add the curves
       Wt::Chart::WDataSeries s1(1, Wt::Chart::PointSeries);
       s1.setXSeriesColumn(0);
-      s1.setMarkerSize(1);
-     //       s1.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      s1.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       Wt::Chart::WDataSeries s2(3, Wt::Chart::PointSeries);
       s2.setXSeriesColumn(2);
-      s2.setMarkerSize(1);
-//       s2.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      s2.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       Wt::Chart::WDataSeries s3(5, Wt::Chart::PointSeries);
       s3.setXSeriesColumn(4);
-      s3.setMarkerSize(1);
-//       s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
       chart->addSeries(s1);
       chart->addSeries(s2);
       chart->addSeries(s3);

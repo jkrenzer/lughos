@@ -8,32 +8,23 @@
 #include <boost/asio/io_service.hpp>
 #include "measuredValue.hpp"
 #include "jobQueue.hpp"
-#include "device.hpp"
-
-
 
 using namespace std;
-namespace lughos
-{
+using namespace lughos;
+namespace dbo = Wt::Dbo;
 
-class Channel;
 class measuredDBValue : public measuredValue
 {
 public:
   
-  Wt::Dbo::ptr<Channel> channel;
-//   Wt::Dbo::collection< Wt::Dbo::ptr<Channel> > channel;
   template<class Action>
-  
   void persist(Action& a)
   {
-    Wt::Dbo::field(a, timestamp,     "timestamp");
-    Wt::Dbo::field(a, sensorName, "sensorName");
-    Wt::Dbo::field(a, unit,     "unit");
-    Wt::Dbo::field(a, value,    "value");
-//     Wt::Dbo::belongsTo(a, channel, "measuredDBValue");
+    dbo::field(a, timestamp,     "timestamp");
+    dbo::field(a, sensorName, "sensorName");
+    dbo::field(a, unit,     "unit");
+    dbo::field(a, value,    "value");
   }
-
 };
-}
+
 #endif

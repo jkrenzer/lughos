@@ -133,9 +133,9 @@ int main(int argc, char **argv)
   
   //Start logging
   
-    Wt::Dbo::backend::Sqlite3 sqlite3("test.db");
-  boost::shared_ptr<Wt::Dbo::Session> session(new Wt::Dbo::Session);
-  boost::shared_ptr<Wt::Dbo::Session> session1(new Wt::Dbo::Session);
+    dbo::backend::Sqlite3 sqlite3("test.db");
+  boost::shared_ptr<dbo::Session> session(new dbo::Session);
+  boost::shared_ptr<dbo::Session> session1(new dbo::Session);
   boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
 //   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
