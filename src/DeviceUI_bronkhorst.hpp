@@ -201,13 +201,14 @@ using namespace lughos;
   
     void init()
     {
-
       if(numberOfHorsts==1)  this->init1();
-      if(numberOfHorsts==2)  this->init2();
+      else if(numberOfHorsts==2)  this->init2();
+      else this->init1();
     }
     
        void init1()
     {
+      std::cout << "Brankhorst init1 running... numberOfHorsts: " << numberOfHorsts << std::endl;
      this->name=horst1->getName();
 //      this->setWidth(500);
      this->addWidget(new Wt::WText(this->name.c_str()));
@@ -236,6 +237,7 @@ using namespace lughos;
     
  void init2()
     {
+      std::cout << "Brankhorst init2 running... numberOfHorsts: " << numberOfHorsts << std::endl;
      this->name=horst1->getName();
      this->addWidget(new Wt::WText(this->name.c_str()));
      this->stateF1 = new Wt::WLineEdit("Initializing...");
@@ -276,7 +278,7 @@ using namespace lughos;
      this->flowField2->setDisabled(true);
      
      
-     this->responseField =  new Wt::WTextArea("");
+     this->responseField = new Wt::WTextArea("");
      this->responseField->setReadOnly(true); 
      this->addWidget(responseField);
      this->checkConnected(2);
@@ -321,7 +323,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
+      this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getFlow();
 //     
       
@@ -338,8 +340,6 @@ using namespace lughos;
     {
       this->getFlow(horst);
     }
-    
-    
     
     void start()
     {
