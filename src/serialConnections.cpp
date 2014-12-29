@@ -76,7 +76,7 @@ bool Connection<serialContext>::start()
 		  std::cout << "error : port_->open() failed...com_port_name="
 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
 // 		  ofs << "error : port_->open() failed...com_port_name="
-			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+// 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
 // 			  ofs.close();
 		  stop();
 		  return false;
