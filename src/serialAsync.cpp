@@ -38,8 +38,15 @@ int serialAsync::write(std::string query)
 	  boost::asio::async_write(*port_, request,
           boost::bind(&serialAsync::handle_write_request, this,
           boost::asio::placeholders::error));
-
-	  io_service_->poll();
+	
+	  try 
+	  {
+	    io_service_->poll();
+	  }
+	  catch(...)
+	  {
+	    std::cout << "write(): io_service exception!" << std::endl;
+	  }
 
 
 	  if (port_.get() == NULL || !port_->is_open())	std::cout<<"port is somehow closed again"<<std::endl;
@@ -66,7 +73,14 @@ int serialAsync::write_only(std::string query)
           boost::bind(&serialAsync::handle_write_only, this,
           boost::asio::placeholders::error));
 
-	  io_service_->poll();
+	   try 
+	  {
+	    io_service_->poll();
+	  }
+	  catch(...)
+	  {
+	    std::cout << "write_only(): io_service exception!" << std::endl;
+	  }
 
 
   
@@ -142,7 +156,14 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
 
 void serialAsync::abort()
 {
-  this->port_->cancel();
+  try
+  {
+    this->port_->cancel();
+  }
+  catch(...)
+  {
+    std::cout << "abort(): exception caught!" << std::endl;
+  }
 }
 
 
