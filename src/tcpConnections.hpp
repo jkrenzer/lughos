@@ -25,9 +25,19 @@
 
 using boost::asio::ip::tcp;
 
+/**
+ * @class tcpContext
+ * @brief context for tcp connection, contains hardwarebit definition
+ * 
+ */
 class tcpContext
 {
 };
+/**
+ * @class Connection<tcpContext>
+ * @brief class for a tcp connection
+ * 
+  */
 template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 {
   private:
