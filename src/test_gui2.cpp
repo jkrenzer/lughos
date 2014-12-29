@@ -148,7 +148,7 @@ int main(int argc, char **argv)
   deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
   
   
-      Wt::Dbo::backend::Sqlite3 sqlite3("test.db1");
+      Wt::Dbo::backend::Sqlite3 sqlite3("test.db");
   boost::shared_ptr<Wt::Dbo::Session> session(new Wt::Dbo::Session);
   boost::shared_ptr<Wt::Dbo::Session> session1(new Wt::Dbo::Session);
 //   boost::shared_ptr<Wt::Dbo::Session> session2(new Wt::Dbo::Session);

@@ -67,15 +67,27 @@ bool Connection<serialContext>::start()
 // 		return false;
 	}
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
-	port_->open(port_name.c_str(), ec);
-	if (ec) {
-		std::cout << "error : port_->open() failed...com_port_name="
-			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-		ofs << "error : port_->open() failed...com_port_name="
-			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-			ofs.close();
-		stop();
-		return false;
+	
+	/* As windows is volatile with it's serial ports we have to be prepared for anything. So try and catch as if running for your life! */
+	
+	try { 
+	  port_->open(port_name.c_str(), ec); //Keep your fingers crossed...
+	  if (ec) { // Boost gave us an error-message
+		  std::cout << "error : port_->open() failed...com_port_name="
+			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+		  ofs << "error : port_->open() failed...com_port_name="
+			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+			  ofs.close();
+		  stop();
+		  return false;
+	  }
+	}
+	catch(...)
+	{ // Unfortunatle we got an arbitrary system-exception. :/
+	  std::cout << "error : port_->open() failed...com_port_name="
+			  << port_name.c_str() << ", system threw an exception!"  << std::endl;
+	  stop();
+	  return false;
 	}
 	
 // 	this->reset();
@@ -128,9 +140,6 @@ bool Connection<serialContext>::start()
 	  {
 	      ofs << "flow_control problems" << std::endl;
 	  }
-	
-
-
 
 	ofs << "start is fine" << std::endl;
 	ofs.flush();
@@ -303,8 +312,7 @@ void Connection<serialContext>::stop()
     {
 	if (port_) 
 	{  
-// 		std::cout<<"open port found"<<std::endl;
-
+		std::cout<<"Closing port"<<std::endl;
 		port_->cancel();
 		port_->close();
 		port_.reset();
@@ -448,7 +456,12 @@ bool Connection<serialContext>::testconnection()
      }
      if(ConnectionEstablished)
      {
-       this->stop();
+       try 
+       {
+	this->stop();
+       }
+       catch(...)
+       {}
      }
      return ConnectionEstablished;
 }
