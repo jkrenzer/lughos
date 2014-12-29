@@ -24,6 +24,12 @@ typedef boost::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 enum flow_constroll_bit {off, software, hardware};
 enum parity_bit { none, odd, even };
 enum stop_bits_num { one, onepointfive, two };
+
+/**
+ * @class serialContext
+ * @brief context for serial connection, contains hardwarebit definition
+ * 
+ */
 class serialContext
 {
   public:
@@ -40,6 +46,11 @@ class serialContext
   }
 };
 
+/**
+ * @class Connection<serialContext>
+ * @brief class for a serial connection
+ * 
+  */
 template <> class Connection<serialContext>: public ConnectionTemplate<serialContext>
 {
   protected:
@@ -64,8 +75,26 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 private:
   	Connection(const Connection &p);
 	Connection &operator=(const Connection &p); 
+	/**
+	 * @brief waits for callback
+	 * 
+	 * @param port_ boost::asio::serial_port& for callback 
+	 * @param error ...
+	 * @return void
+	 */
 	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
+	/**
+	 * @brief returns end of line charakter
+	 * 
+	 * @return char end_of_line_char
+	 */
 	char end_of_line_char() const;
+	/**
+	 * @brief sets end of line charakter
+	 * 
+	 * @param c end of line charakter
+	 * @return void
+	 */
 	void end_of_line_char(const char &c);
 
 
@@ -91,12 +120,47 @@ private:
 // 	int write(const std::string &buf);
 // 	int write_async(const std::string &buf);
 
+	/**
+	 * @brief sets baud rate, please check device manual
+	 * 
+	 * @param baud_rate integer for boud rate
+	 * @return void
+	 */
 	void set_baud_rate(const int baud_rate);
+	/**
+	 * @brief sets charakter size of the request, please check device manual
+	 * 
+	 * @param character_size int, number of charakters
+	 * @return void
+	 */
 	void set_character_size(const int character_size);
+	/**
+	 * @brief sets flow controll of the request one of {off, software, hardware}, please check device manual
+	 * 
+	 * @param controll_type flow_constroll_bit {off, software, hardware}
+	 * @return void
+	 */
 	void set_flow_controll(flow_constroll_bit controll_type);
+	/**
+	 * @brief parity type of the request one of { none, odd, even }, please check device manual
+	 * 
+	 * @param parity_type one of { none, odd, even }
+	 * @return void
+	 */
 	void set_parity(parity_bit parity_type);
+	/**
+	 * @brief number of stop bits. one of { one, onepointfive, two }, please check device manual
+	 * 
+	 * @param stop { one, onepointfive, two }
+	 * @return void
+	 */
 	void set_stop_bits(stop_bits_num stop);
 	std::string port_name;
+	/**
+	 * @brief sets default parameters
+	 * 
+	 * @return void
+	 */
 	virtual void set_default();
 		int exp_lenght=1;
 		

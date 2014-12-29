@@ -143,7 +143,7 @@ bool Connection<serialContext>::start()
 
 // 	ofs << "start is fine" << std::endl;
 // 	ofs.flush();
-// 	ofs.close();
+// 	/*/*/*/*ofs*/*/*/*/.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
 //   io_service_->run();
 	return true;
