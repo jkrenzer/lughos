@@ -41,20 +41,20 @@ void Connection<serialContext>::end_of_line_char(const char &c)
 
 bool Connection<serialContext>::start()
 {
-  std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
-	ofs << "ready to set following options" << std::endl;
-	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
-	ofs << "character_size: "<<character_size.value() << std::endl;
-	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
-	ofs << "parity: "<<parity.value() << std::endl;
-	ofs << "flow_control: "<<flow_control.value() << std::endl;
+//   std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
+// 	ofs << "ready to set following options" << std::endl;
+// 	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
+// 	ofs << "character_size: "<<character_size.value() << std::endl;
+// 	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
+// 	ofs << "parity: "<<parity.value() << std::endl;
+// 	ofs << "flow_control: "<<flow_control.value() << std::endl;
 
   std::cout<<"port name: "<< port_name<< std::endl;
-  ofs<< character_size.value() << std::endl;
+//   ofs<< character_size.value() << std::endl;
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
-		ofs<< "please set port name before start" << std::endl;
-		ofs.close();
+// 		ofs<< "please set port name before start" << std::endl;
+// 		ofs.close();
 		stop();
 		return false;
 	}
@@ -75,9 +75,9 @@ bool Connection<serialContext>::start()
 	  if (ec) { // Boost gave us an error-message
 		  std::cout << "error : port_->open() failed...com_port_name="
 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-		  ofs << "error : port_->open() failed...com_port_name="
+// 		  ofs << "error : port_->open() failed...com_port_name="
 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-			  ofs.close();
+// 			  ofs.close();
 		  stop();
 		  return false;
 	  }
@@ -100,7 +100,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "baud rate problems" << std::endl;
+// 	      ofs << "baud rate problems" << std::endl;
 	  }
 
 	  try 
@@ -109,7 +109,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "character_size problems" << std::endl;
+// 	      ofs << "character_size problems" << std::endl;
 	  }
 
 	  try 
@@ -119,7 +119,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "stop_bits problems" << std::endl;
+// 	      ofs << "stop_bits problems" << std::endl;
 	  }
 	
 	
@@ -130,7 +130,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "parity problems" << std::endl;
+// 	      ofs << "parity problems" << std::endl;
 	  }
 	
 	  try 
@@ -138,12 +138,12 @@ bool Connection<serialContext>::start()
 	    port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));	  }
 	  catch(...)
 	  {
-	      ofs << "flow_control problems" << std::endl;
+// 	      ofs << "flow_control problems" << std::endl;
 	  }
 
-	ofs << "start is fine" << std::endl;
-	ofs.flush();
-	ofs.close();
+// 	ofs << "start is fine" << std::endl;
+// 	ofs.flush();
+// 	ofs.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
 //   io_service_->run();
 	return true;
