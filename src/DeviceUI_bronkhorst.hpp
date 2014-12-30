@@ -150,8 +150,8 @@ using namespace lughos;
 // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
 	this->sendB1->setDisabled(false);
 	this->flowField1->setDisabled(false);
-        this->sendB1->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
-	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
+	this->sendB1->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::setFlow, this, this->horst1));
+	this->stateB1->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::getState, this, this->horst1));
 	this->getState(this->horst1);
 
       }
@@ -160,7 +160,7 @@ using namespace lughos;
 	this->stateF1->setText("Not connected!");
 // 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB1->setText("Try again");
- 	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::checkConnected);
+ 	this->stateB1->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::checkConnected,this, 1));
 // 	this->startB->setDisabled(true);
 // 	this->stopB->setDisabled(true);
 
@@ -179,8 +179,8 @@ using namespace lughos;
   // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
 	  this->sendB2->setDisabled(false);
 	  this->flowField2->setDisabled(false);
-	  this->sendB2->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
-	  this->stateB2->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
+	this->sendB2->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::setFlow,this, this->horst2));
+	this->stateB2->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::getState,this, this->horst2));
 	  this->getState(this->horst2);
 
 	}
@@ -189,8 +189,7 @@ using namespace lughos;
 	  this->stateF2->setText("Not connected!");
   // 	this->stateF->setText(std::to_string(coolpak->isConnected()));
 	  this->stateB2->setText("Try again");
-	  this->stateB2->clicked().connect(this,&DeviceUI<bronkhorst>::checkConnected);
-  // 	this->startB->setDisabled(true);
+ 	this->stateB2->clicked().connect(boost::bind(&DeviceUI<bronkhorst>::checkConnected,this, 2));  // 	this->startB->setDisabled(true);
   // 	this->stopB->setDisabled(true);
 
 	}
@@ -264,7 +263,7 @@ using namespace lughos;
      this->stateF2->setReadOnly(true);
      this->stateL2 = new Wt::WLabel("Status:");
      this->flowL2 = new Wt::WLabel("Set Flow:");
-     this->stateL2->setBuddy(stateF1);
+     this->stateL2->setBuddy(stateF2);
      this->flowField2 =  new  Wt::WLineEdit("0.0");
      this->sendB2 = new Wt::WPushButton("Send");
      this->stateB2 = new Wt::WPushButton("Status");
@@ -276,13 +275,10 @@ using namespace lughos;
      this->addWidget(stateB2);
      this->sendB2->setDisabled(true);
      this->flowField2->setDisabled(true);
-     
-     
+     this->checkConnected(2);
      this->responseField = new Wt::WTextArea("");
      this->responseField->setReadOnly(true); 
      this->addWidget(responseField);
-     this->checkConnected(2);
-
     }
     
     void setFlow()
@@ -295,7 +291,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-//       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
+      responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
       this->getFlow();
 //     
       
@@ -304,7 +300,7 @@ using namespace lughos;
     void getFlow()
     {
       measuredValue v = this->horst1->get_value();
-//       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
+      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowField1->setText(std::string(v.getStringValue()));
     }
     
@@ -313,7 +309,7 @@ using namespace lughos;
       this->getFlow();
     }
     
-        void setFlow(boost::shared_ptr<bronkhorst> horst)
+    void setFlow(boost::shared_ptr<bronkhorst> horst)
     {
 //       
       stringstream sstr; 
@@ -323,7 +319,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-//       this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
+      this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getFlow();
 //     
       
@@ -332,7 +328,7 @@ using namespace lughos;
     void getFlow(boost::shared_ptr<bronkhorst> horst)
     {
       measuredValue v = horst->get_value();
-//       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
+      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowField1->setText(std::string(v.getStringValue()));
     }
     
