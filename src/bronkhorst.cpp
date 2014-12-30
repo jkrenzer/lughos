@@ -85,8 +85,8 @@ measuredValue bronkhorst::get_value()
   int node;
   int chained;
   int type;
-  float value=0;
-  unsigned int protovalue;
+  float value;
+  union { float fValue ; std::uint32_t iValue ; };
 //     std::cout<<s<<std::endl;
   std::stringstream(s.substr(0,2)) >> wordlen;
 //     std::cout<<"wordlen: "<<wordlen<<std::endl;
@@ -108,8 +108,10 @@ measuredValue bronkhorst::get_value()
   {
     if(type==40)
     {
-      std::stringstream(s.substr(0,4)) >> std::hex>>protovalue;  
-      value=reinterpret_cast<float&>(protovalue);
+      std::stringstream(s.substr(0,4)) >> std::hex>> iValue;  
+      if(fValue < std::numeric_limits<float>::infinity() && fValue != std::numeric_limits<float>::quiet_NaN())
+	value = fValue;
+	
     }
   }
   catch(std::exception& e)
@@ -151,10 +153,15 @@ std::string bronkhorst::set_flow(float value)
 {
   
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
-   int* input_int = (int*)&value;
-   
+  union { float fValue ; std::uint32_t iValue ; };
+  fValue = value ;
+  
+  static_assert( std::numeric_limits<float>::is_iec559,
+                   "For the bronkhorst communication-classes to work properly your computer must support IEEE standard-conformant float values!!" ) ;
+  
     std::ostringstream request;
-    request << std::hex << input_int;
+    request << std::hex << std::uppercase << iValue;
+    std::cout << "I told the bronkhorst to set flow to " << value << " (" << std::hex << std::uppercase << iValue << ")" << std::endl;
     std::string s = request.str();
     
       
