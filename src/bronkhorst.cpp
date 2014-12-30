@@ -11,19 +11,6 @@ bronkhorst::bronkhorst()
   set_default();
 }
 
-template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
-{
-  try
-  {
-    return boost::lexical_cast<T>(source);
-  }
-  catch(boost::bad_lexical_cast e)
-  {
-    return saveDefault;
-  }
-  
-}
-
 template <class T> void bronkhorst::setDefaultImpl(T& connection)
 {
 }
@@ -75,7 +62,8 @@ measuredValue bronkhorst::get_value()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
-  std::string s = this->inputOutput(":06030421402140\r\n");
+//   std::string s = this->inputOutput(":06030421402140\r\n"); //old version
+    std::string s = this->inputOutput(":06030401410140\r\n");
   std::string debugs = s;
   s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
@@ -108,7 +96,7 @@ measuredValue bronkhorst::get_value()
   {
     if(type==40)
     {
-      std::stringstream(s.substr(0,4)) >> std::hex>> iValue;  
+      std::stringstream(s.substr(0,8)) >> std::hex>> iValue;  
       if(fValue < std::numeric_limits<float>::infinity() && fValue != std::numeric_limits<float>::quiet_NaN())
 	value = fValue;
 	
@@ -160,11 +148,10 @@ std::string bronkhorst::set_flow(float value)
                    "For the bronkhorst communication-classes to work properly your computer must support IEEE standard-conformant float values!!" ) ;
   
     std::ostringstream request;
-    request << std::hex << std::uppercase << iValue;
-    std::cout << "I told the bronkhorst to set flow to " << value << " (" << std::hex << std::uppercase << iValue << ")" << std::endl;
+    request << std::hex << std::uppercase << std::setfill('0') << std::setw (8) << iValue;
     std::string s = request.str();
-    
-      
+    std::cout << "I told the bronkhorst to set flow to " << value << " (" << s << ")" << std::endl;
+          
   return this->inputOutput(":0803022143"+s+"\r\n");
   
 }

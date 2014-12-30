@@ -18,6 +18,7 @@
 #include <boost/array.hpp>
 #include "device.hpp"
 #include "measuredValue.hpp"
+#include "utils.hpp"
 
 using namespace lughos;
 

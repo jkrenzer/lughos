@@ -291,11 +291,9 @@ using namespace lughos;
 //       
       stringstream sstr; 
       string str = flowField1->text().toUTF8(); 
-      float f; 
-      sstr<<str; 
-      sstr>>f;
+      float f = lughos::save_lexical_cast<float>(str,0.0);
 
-      this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
+      this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
       this->getFlow();
 //     
