@@ -93,7 +93,8 @@ std::string Relais::write_channels(std::string channels)
     {
       counter++;
        if (*i!= '0'&&*i!= '1') return "Input error";
-       else if (*i= '1') input_int+= std::pow(2,counter);
+       else if (*i= '1') input_int+= std::pow(2,counter-1);
+//        std::cout<<std::pow(2,counter-1)<<" "<< std::hex<<input_int<<std::endl;
     }
 
     std::ostringstream request;
@@ -113,7 +114,7 @@ std::string Relais::write_channel(int channel, bool onoff)
     for (int i=1; i<9; i++)
     {
        if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
-       else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i);
+       else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
        else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
     }
 

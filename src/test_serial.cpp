@@ -55,10 +55,13 @@ int main(int argc, char **argv) {
      
      relais1->setName(std::string("relais 1"));
      relais1->connect(connection3);
+//      connection3->end_of_line_char('$');
      deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
-     boost::shared_ptr<Relais> relais = boost::dynamic_pointer_cast<Relais>(relais);
+     boost::shared_ptr<Relais> relais = boost::dynamic_pointer_cast<Relais>(relais1);
      std::cout << "Write="<< relais->read_channels()<< std::endl;
-     std::cout << "Write="<< relais->inputOutput("")<< std::endl;
+     std::cout << "Write="<< relais->write_channels("11111111")<< std::endl;  
+          std::cout << "Write="<< relais->read_channels()<< std::endl;  
+//      std::cout << "Write="<< relais->inputOutput("")<< std::endl;
 //      boost::shared_ptr<Device> horst1(new bronkhorst);
 //      
 //      horst1->setName(std::string("RFG 1"));

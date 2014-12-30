@@ -105,6 +105,12 @@ using namespace lughos;
 	std::cout<<"not f*cking connected!"<<std::endl;
 	this->changeChannelsB->setDisabled(true);
 	this->channelStateB->setDisabled(true);
+	
+	    for (unsigned i = 0; i < 8; ++i) 
+	    {
+	      rbOn[i]->setDisabled(true);
+	      rbOff[i]->setDisabled(true);
+	    }
 // 	this->sendUB->setDisabled(true);
 // 	this->uMinField->setDisabled(true);
 // 	this->uMaxField->setDisabled(true);
@@ -176,7 +182,6 @@ using namespace lughos;
       for (int i; i<8;i++)
       {
 	ss = this->relais->read_channels();
-// 	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
       }
       
 

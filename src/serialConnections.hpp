@@ -67,7 +67,7 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 	void handle_read_headers_process();
 	virtual void compose_request(const std::string &buf);
 	std::stringstream response_string_stream;
-	
+
 	bool start();
 	void stop();
 
@@ -88,6 +88,7 @@ private:
 	 * 
 	 * @return char end_of_line_char
 	 */
+
 	char end_of_line_char() const;
 	/**
 	 * @brief sets end of line charakter
@@ -95,7 +96,7 @@ private:
 	 * @param c end of line charakter
 	 * @return void
 	 */
-	void end_of_line_char(const char &c);
+
 
 
 
@@ -103,8 +104,8 @@ private:
   public:
 	Connection(boost::shared_ptr<boost::asio::io_service> io_service) ;
 	~Connection(void);
-	
-	char end_of_line_char_;
+	void end_of_line_char(const char &c);	
+	char end_of_line_char_;	
 	
 	boost::asio::streambuf response;
 	boost::asio::streambuf request;
