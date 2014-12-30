@@ -151,7 +151,14 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
       return;
     }
     //std::cout << " Timed out.";
-    port_.cancel();  // will cause read_callback to fire with an error
+    try
+    {
+      this->port_->cancel();
+    }
+    catch(...)
+    {
+      std::cout << "wait_callback(): exception caught!" << std::endl;
+    }
   } 
 
 void serialAsync::abort()

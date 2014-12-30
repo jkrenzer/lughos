@@ -104,10 +104,18 @@ measuredValue bronkhorst::get_value()
 //   std::cout<<type<<std::endl;
   std::cout << "Bronkhorst answered: " << debugs << std::endl;
   std::cout << "I understood: Length" << ": "<< wordlen << " Node:" << node << " Type:" << type << std::endl;
-  if(type==40)
+  try
   {
-    std::stringstream(s.substr(0,4)) >> std::hex>>protovalue;  
-    value=reinterpret_cast<float&>(protovalue);
+    if(type==40)
+    {
+      std::stringstream(s.substr(0,4)) >> std::hex>>protovalue;  
+      value=reinterpret_cast<float&>(protovalue);
+    }
+  }
+  catch(std::exception& e)
+  {
+    std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
+    value=0.0;
   }
   
 //    static const boost::regex e("(.*))");

@@ -295,7 +295,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-//       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
+      responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
       this->getFlow();
 //     
       
@@ -304,7 +304,7 @@ using namespace lughos;
     void getFlow()
     {
       measuredValue v = this->horst1->get_value();
-//       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
+      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowField1->setText(std::string(v.getStringValue()));
     }
     
@@ -323,7 +323,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-//       this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
+      this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getFlow();
 //     
       
@@ -332,7 +332,7 @@ using namespace lughos;
     void getFlow(boost::shared_ptr<bronkhorst> horst)
     {
       measuredValue v = horst->get_value();
-//       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
+      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowField1->setText(std::string(v.getStringValue()));
     }
     
