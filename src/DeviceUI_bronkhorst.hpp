@@ -97,6 +97,9 @@ using namespace lughos;
     {
       numberOfHorsts=2;
            std::cout<<"Number of Horsts c: "<<numberOfHorsts<<std::endl;
+	   std::cout<<"Address of pointer to horst1: "<< this->horst1.get() <<std::endl;
+	   std::cout<<"Address of pointer to horst2: "<< this->horst2.get() <<std::endl;
+	   
       this->init();
     }
 //     
@@ -104,6 +107,8 @@ using namespace lughos;
     {
       numberOfHorsts=2;
             std::cout<<"Number of Horsts d: "<<numberOfHorsts<<std::endl;
+	    std::cout<<"Address of pointer to horst1: "<< this->horst1.get() <<std::endl;
+	    std::cout<<"Address of pointer to horst2: "<< this->horst2.get() <<std::endl;
       this->init();
     }
 //     
@@ -255,7 +260,6 @@ using namespace lughos;
      this->addWidget(stateB1);
      this->sendB1->setDisabled(true);
      this->flowField1->setDisabled(true);
-     this->checkConnected(1);
      this->addWidget(new Wt::WBreak);
      this->name=horst2->getName();
      this->addWidget(new Wt::WText(this->name.c_str()));
@@ -275,10 +279,11 @@ using namespace lughos;
      this->addWidget(stateB2);
      this->sendB2->setDisabled(true);
      this->flowField2->setDisabled(true);
-     this->checkConnected(2);
      this->responseField = new Wt::WTextArea("");
      this->responseField->setReadOnly(true); 
      this->addWidget(responseField);
+     this->checkConnected(1);
+     this->checkConnected(2);
     }
     
     void setFlow()
@@ -286,11 +291,9 @@ using namespace lughos;
 //       
       stringstream sstr; 
       string str = flowField1->text().toUTF8(); 
-      float f; 
-      sstr<<str; 
-      sstr>>f;
+      float f = lughos::save_lexical_cast<float>(str,0.0);
 
-      this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
+      this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
       this->getFlow();
 //     
