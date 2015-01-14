@@ -294,6 +294,7 @@ using namespace lughos;
       float f = lughos::save_lexical_cast<float>(str,0.0);
 
       this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
+
       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
       this->getFlow();
 //     
