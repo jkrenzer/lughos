@@ -21,24 +21,92 @@
 
 
 
+/**
+ * @class serialAsync
+ * @brief Class describing asynchronous serial connections
+ * 
+ */
+
 class serialAsync : virtual public Connection<serialContext>
 {
   private:
-	serialAsync(const serialAsync &p);
-	serialAsync &operator=(const serialAsync &p); 
+    /**
+    * @brief Copy Constructor
+    * 
+    * @param p 
+    */
 
-	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
-
+    serialAsync(const serialAsync &p);
+    
+    /**
+      * @brief Asignment operator
+      * 
+      * @param p ...
+      * @return serialAsync&
+      */
+    
+    serialAsync &operator=(const serialAsync &p); 
+    
+    /**
+      * @brief Wait-callback
+      * Called at timeout.
+      * 
+      * @param port_ ...
+      * @param error ...
+      * @return void
+      */
+    
+    void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
 
   protected:
     
-	virtual void handle_write_only(const boost::system::error_code& err);
-	int write_some(const char *buf, const int &size);
-	int write_some_async(const char *buf, const int &size);
-	
-	
-	void handle_write_request(const boost::system::error_code& err);
-	void handle_read_content(const boost::system::error_code& err);
+    /**
+     * @brief Callback for write-only operations
+     * 
+     * @param err ...
+     * @return void
+     */
+    
+    virtual void handle_write_only(const boost::system::error_code& err);
+    
+    /**
+     * @brief Function for writing data to port
+     * 
+     * @param buf ...
+     * @param size ...
+     * @return int
+     */
+    
+    int write_some(const char *buf, const int &size);
+    
+    /**
+      * @brief Function to write data to port asynchonously
+      * 
+      * @param buf ...
+      * @param size ...
+      * @return int
+      */
+    
+    
+    int write_some_async(const char *buf, const int &size);
+        
+    /**
+      * @brief Callback for read-write-request
+      * 
+      * @param err ...
+      * @return void
+      */
+    
+    void handle_write_request(const boost::system::error_code& err);
+    
+    /**
+      * @brief Callback for reading answer from port
+      * 
+      * @param err ...
+      * @return void
+      */
+    
+    void handle_read_content(const boost::system::error_code& err);
 
 
 	

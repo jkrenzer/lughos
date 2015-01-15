@@ -139,9 +139,6 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
 
   } 
 
-
-
-
   void serialAsync::wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error)
   {
     //std::cout << " Calling wait-handler.";
