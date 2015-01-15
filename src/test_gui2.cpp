@@ -139,7 +139,8 @@ int main(int argc, char **argv)
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll2!!!" << std::endl;
         if(!RFG1->connect(connection2))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
-        if(!relais1->connect(connection2))
+//         if(!relais1->connect(connection2))
+	connection3->end_of_line_char('$');
             if(!relais1->connect(connection3))
                 std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
 //       temperatureMonitor1->connect(connection3);

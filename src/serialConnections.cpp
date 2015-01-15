@@ -17,7 +17,7 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_(end_of_line_char()),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
 
@@ -48,7 +48,7 @@ bool Connection<serialContext>::start()
 // 	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
 // 	ofs << "parity: "<<parity.value() << std::endl;
 // 	ofs << "flow_control: "<<flow_control.value() << std::endl;
-
+  std::cout<<"eolc: "<< end_of_line_char()<< std::endl;
   std::cout<<"port name: "<< port_name<< std::endl;
 //   ofs<< character_size.value() << std::endl;
   	if (port_name.empty()) {
