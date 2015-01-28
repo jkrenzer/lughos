@@ -11,7 +11,6 @@
 #include "test_gui_monitoring2.hpp"
 #include "RFG.hpp"
 #include "Relais.hpp"
-// #include "MaxiGauge.hpp"
 #include <boost/thread/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -124,9 +123,6 @@ int main(int argc, char **argv)
         boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
         boost::shared_ptr<Device> RFG1(new RFG);
         boost::shared_ptr<Device> relais1(new Relais);
-// // //       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
-//       MaxiGauge* pressureMonitor1 = new MaxiGauge;
-
 
         flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
         flowcontroll2->setName(config.get<std::string>("devices.flowcontroll2.name"));
@@ -143,12 +139,10 @@ int main(int argc, char **argv)
 	connection3->end_of_line_char('$');
             if(!relais1->connect(connection3))
                 std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
-//       temperatureMonitor1->connect(connection3);
-//       deviceMap[compressor1->getName()]=compressor1;
+
+	//Adding devices to map
         deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
         deviceMap.insert(deviceMapPair(flowcontroll2->getName(), flowcontroll2));
-//   std::cout<< pressureMonitor1->getName()<<std::endl;
-//     std::cout<< pressureMonitor1.get()<<std::endl;
         deviceMap.insert(deviceMapPair(RFG1->getName(), RFG1));
         deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
 

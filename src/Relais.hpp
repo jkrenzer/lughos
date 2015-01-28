@@ -16,6 +16,7 @@
 #include "serialAsync.hpp"
 
 #include <iostream>
+#include <bitset>
 #include <boost/array.hpp>
 #include "device.hpp"
 
@@ -49,7 +50,7 @@ class Relais :public Device
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	int channel_bench[8];
+	std::bitset<8> channel_bench;
 };
 
 

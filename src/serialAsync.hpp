@@ -111,13 +111,50 @@ class serialAsync : virtual public Connection<serialContext>
 
 	
   public:
-	serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
-	~serialAsync(void);
-	
-	int write(std::string query);
-	int write_only(std::string query);
-	void abort();
-protected:
+    
+    
+    /**
+     * @brief Constructor
+     * 
+     * @param io_service ...
+     */
+    
+      serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
+      /**
+	* @brief Destructor
+	* 
+	* @param  ...
+	*/
+      
+      
+      ~serialAsync(void);
+      
+      /**
+	* @brief Write to serial port and wait for answer
+	* 
+	* @param query ...
+	* @return int
+	*/
+      int write(std::string query);
+      
+      /**
+	* @brief Write to serial port and retur immediatly
+	* 
+	* @param query ...
+	* @return int
+	*/
+      
+      int write_only(std::string query);
+      
+      /**
+	* @brief Abort operation
+	* 
+	* @return void
+	*/
+      
+      void abort();
+      
+  protected:
 /////////////
 	std::deque<char> write_msgs_;
 	void do_close(const boost::system::error_code& error);

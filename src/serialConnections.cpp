@@ -20,6 +20,7 @@
 Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_(end_of_line_char()),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
+this->end_of_line_char_ = '\n';
 
 }
 
@@ -59,7 +60,7 @@ bool Connection<serialContext>::start()
 		return false;
 	}
   
-	this->end_of_line_char(end_of_line_char_);
+// 	this->end_of_line_char(end_of_line_char_);
 	boost::system::error_code ec;
 
 	if (port_) {

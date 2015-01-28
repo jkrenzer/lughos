@@ -1,6 +1,6 @@
 // #include "StdAfx.h"
 
-#include <ostream>
+#include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialSync.hpp"
 #include "Relais.hpp"
@@ -68,42 +68,51 @@ std::string Relais::composeRequest(std::string query)
 
 std::string Relais::read_channels()
 {
-      std::string responseString="";
 
   std::string state = this->inputOutput("\x0f");
-  int a;
-  std::stringstream str;
-  str << state;
-  str>>std::hex>>a;
-  for(int i=0; i<8; i++)
-  {
-    channel_bench[i]=(a&i);
-    responseString += std::to_string(channel_bench[i]);
-  }
+  int i = static_cast<int>(state[0]);
+  channel_bench = std::bitset<8>(i);
+
+  std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() << ")" << std::endl; 
   
- return    responseString;
+ return  channel_bench.to_string();
 }
 
 std::string Relais::write_channels(std::string channels)
 {
-    int input_int=0; 
-    std::string::iterator i;
-    int counter=0;
-    for (i=channels.begin(); i!=channels.end(); i++)
+//     int input_int=0; 
+//     std::string::iterator i;
+//     int counter=0;
+//     for (i=channels.begin(); i!=channels.end(); i++)
+//     {
+//       counter++;
+//        if (*i!= '0'&&*i!= '1') return "Input error";
+//        else if (*i= '1') input_int+= std::pow(2,counter-1);
+// //        std::cout<<std::pow(2,counter-1)<<" "<< std::hex<<input_int<<std::endl;
+//     }
+  
+    this->channel_bench = std::bitset<8>(channels);
+
+    std::string s;
+    s.clear();
+    s = "\xf0";
+    s += static_cast<char>(this->channel_bench.to_ulong());
+    this->inputOutput(s);
+    
+    std::bitset<8> helper;
+    helper.reset();
+    std::string debugString;
+    debugString.clear();
+    for (int i = 0; i < s.size(); i++)
     {
-      counter++;
-       if (*i!= '0'&&*i!= '1') return "Input error";
-       else if (*i= '1') input_int+= std::pow(2,counter-1);
-//        std::cout<<std::pow(2,counter-1)<<" "<< std::hex<<input_int<<std::endl;
+      helper = static_cast<long unsigned int>(s[i]);
+      debugString += helper.to_string();
     }
-
-    std::ostringstream request;
-    request << std::hex << input_int;
-
-    std::string s = request.str();
-  this->inputOutput("\xf0"+s);
- 
- return    read_channels();
+    
+    
+ std::cout << "Relais: SET COMMAND: " << s << " = " << debugString << " (" << channels << " = "  << channel_bench.to_string() << " = " << static_cast<char>(this->channel_bench.to_ulong()) << ")" << std::endl;
+ //return  read_channels();
+ return channel_bench.to_string();
 }
 
 std::string Relais::write_channel(int channel, bool onoff)
@@ -111,19 +120,22 @@ std::string Relais::write_channel(int channel, bool onoff)
     int input_int=0; 
 //     string::iterator i;
 //     int counter=0;
-    for (int i=1; i<9; i++)
+//     for (int i=1; i<9; i++)
+//     {
+//        if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
+//        else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
+//        else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
+//     }
+    if (channel < 8 || channel > -1)
     {
-       if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
-       else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
-       else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
+      this->channel_bench[channel] = onoff;
+
+      std::string s;
+      s.clear();
+      s = "\xf0";
+      s += static_cast<char>(this->channel_bench.to_ulong());
+      this->inputOutput(s);
     }
-
-    std::ostringstream request;
-    request << std::hex << input_int;
-
-    std::string s = request.str();
-    this->inputOutput("\xf0"+s);
- 
  return    read_channels();
 }
 

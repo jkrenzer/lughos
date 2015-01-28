@@ -7,6 +7,10 @@
 #include <sstream>
 #include <boost/current_function.hpp>
 
+#define DEBUG_THRESHOLD_CERR 10.0
+#define DEBUG_THRESHOLD_FILE 10.0
+#define DEBUG_THRESHOLD_DB 10.0
+
 namespace lughos 
 {
   
@@ -33,13 +37,14 @@ namespace lughos
     
   };
   
-  void debugLog(std::string message)
+  void debugLog(double severity, std::string message)
   {
     
   }
   
-  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, std::string message)
+  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, double severity, std::string message)
   {
+    //TODO Implement simultanious output to FILE, DB and CERR
     
   }
   

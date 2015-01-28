@@ -90,20 +90,18 @@ private:
 	 */
 
 	char end_of_line_char() const;
-	/**
-	 * @brief sets end of line charakter
-	 * 
-	 * @param c end of line charakter
-	 * @return void
-	 */
-
-
-
-
+	
 	
   public:
 	Connection(boost::shared_ptr<boost::asio::io_service> io_service) ;
 	~Connection(void);
+	/**
+	 * @brief Set end-of-line-character
+	 * 
+	 * @param c New char as EOL-char
+	 * @return void
+	 */
+	
 	void end_of_line_char(const char &c);	
 	char end_of_line_char_;	
 	

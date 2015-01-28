@@ -12,7 +12,7 @@
     std::string name;
     DeviceUIInterface()
     {
-      this->setStyleClass("DeviceContainer");
+      setStyleClass("DeviceContainer");
     }
   };
   

@@ -95,13 +95,12 @@ using namespace lughos;
       {
 	this->stateF->setText("Connected!");
         this->stateB->setText("Status");
+	this->stateB->clicked().connect(this,&DeviceUI<RFG>::getState);
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
 	this->uMinField->setDisabled(false);
 	this->uMaxField->setDisabled(false);
-// 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
-// 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
         this->sendUB->clicked().connect(this,&DeviceUI<RFG>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setI);
 	this->getState();
@@ -111,9 +110,7 @@ using namespace lughos;
       {
 
 	this->stateF->setText("Not connected!");
-// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
         this->stateB->setText("Try again");
-// 	this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
@@ -184,9 +181,9 @@ using namespace lughos;
 //       this->sendUB->setDisabled(true);
 //       this->uMinField->setDisabled(true);
 //       this->uMaxField->setDisabled(true);
-  //      this->responseField =  new Wt::WTextArea("");
-  //      this->responseField->setReadOnly(true); 
-  //      this->addWidget(responseField);
+      this->responseField =  new Wt::WTextArea("");
+      this->responseField->setReadOnly(true); 
+      this->addWidget(responseField);
       this->checkConnected();
 
     }
@@ -196,12 +193,16 @@ using namespace lughos;
 //       
       
       stringstream sstr; 
-      string str = iField->text().toUTF8(); 
+      string str = uMinField->text().toUTF8(); 
       float f; 
       sstr<<str; 
       sstr>>f;
-
-      this->stateF->setText("Voltage set:"+iField->text().toUTF8());
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
+      
+      str = uMaxField->text().toUTF8();
+      sstr<<str; 
+      sstr>>f;
+      this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
       

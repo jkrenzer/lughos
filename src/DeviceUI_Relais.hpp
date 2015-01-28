@@ -127,7 +127,7 @@ using namespace lughos;
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
       this->changeChannelsB = new Wt::WPushButton("Send");
-      this->channelStateB = new Wt::WPushButton("Refresh");
+      this->channelStateB = new Wt::WPushButton("Get states");
       this->stateL = new Wt::WLabel("Status:");
       this->stateL->setBuddy(stateF);
       

@@ -35,12 +35,12 @@ template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<se
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);//unconfirmed
-    connection.end_of_line_char_='\n';//unconfirmed
+    connection.end_of_line_char_='\x00';//unconfirmed
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
     for (int i=0;i<8;i++)
     {
-      channel_output[1].setunitvalue(0,"");
+      channel_output[i].setunitvalue(0,"");
     }
 }
 
@@ -125,7 +125,7 @@ float RFG::set_voltage_max(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("U"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00U"+std::string(request)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
@@ -138,7 +138,7 @@ float RFG::set_voltage_min(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("M"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00M"+std::string(request)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
@@ -149,7 +149,7 @@ float RFG::set_current_lim(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("I"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00I"+std::string(request)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
@@ -171,10 +171,10 @@ bool RFG::readout()
 {
   int value=0;
   std::stringstream stream;
-  std::string s = this->inputOutput("\x32");
+  std::string s = this->inputOutput("\x00\x32\x00");
 //   this->inputOutput("\r");
   boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-  std::cout<<"S: "<<std::hex<<s<<std::endl;
+  std::cout<<"S: "<<s<<std::endl;
   static const boost::regex e("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
   boost::cmatch res;
   boost::regex_search(s.c_str(), res, e);

@@ -8,7 +8,7 @@
 
 /**
  * @class ConnectionImpl
- * @brief class discribing an abstract connection
+ * @brief class describing an abstract connection
  * 
  */
 class ConnectionImpl
@@ -50,7 +50,7 @@ public:
   /**
    * @brief sends query, does not wait for resonse
    * 
-   * @param query tring with pure command without end of line caracter
+   * @param query string with pure command without end of line caracter
    * @return int returns 1 if succeeded
    */
   virtual int  write_only(std::string query)=0;
