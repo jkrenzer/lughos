@@ -14,6 +14,7 @@
 serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<serialContext>(io_service)
 {
   if(this->end_of_line_char_=='\r')  std::cout<<"End of line char: "<<"CR"<<std::endl;
+  else if(this->end_of_line_char_=='\n') std::cout<<"End of line char: "<<"CR"<<std::endl;
   else std::cout<<"End of line char:"<<this->end_of_line_char_<<std::endl;
      start(); 
 }
