@@ -67,6 +67,7 @@ std::string RFG::interpretAnswer(std::string s)
 { 
 //   s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
 //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+      std::cout<<"Answer: "<<s<<std::endl;
   return s;
 }
 
