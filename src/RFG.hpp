@@ -59,7 +59,7 @@ class RFG :public Device
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	string voltage_max;
+	float voltage_max;
 	float voltage_min;
 	float current_max;
 	bool mode;

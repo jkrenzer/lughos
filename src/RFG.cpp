@@ -121,7 +121,7 @@ float RFG::getLimitMaxCurrent()
 
 float RFG::set_voltage_max(std::string f)
 {
-  if(voltage_min>f) return 0;
+//   if(voltage_min>f) return 0;
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
@@ -134,7 +134,7 @@ float RFG::set_voltage_max(std::string f)
 
 float RFG::set_voltage_min(std::string  f)
 {
-  if(voltage_max<f) return 0;
+//   if(voltage_max<f) return 0;
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
