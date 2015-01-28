@@ -72,7 +72,7 @@ std::string RFG::interpretAnswer(std::string s)
 }
 
 void RFG::set_default()
-{
+{ 
   
    this->setDefaultImpl(*(this->connection.get()));
    this->voltage_max =12;
