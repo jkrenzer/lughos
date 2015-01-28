@@ -35,7 +35,7 @@ template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<se
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);//unconfirmed
-    connection.end_of_line_char_='\x00';//unconfirmed
+    connection.end_of_line_char_='\r';//unconfirmed
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
     for (int i=0;i<8;i++)
@@ -65,8 +65,8 @@ std::string RFG::composeRequest(std::string query)
 
 std::string RFG::interpretAnswer(std::string s)
 { 
-  s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
-  s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+//   s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
+//   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
   return s;
 }
 
@@ -171,6 +171,7 @@ bool RFG::readout()
 {
   int value=0;
   std::stringstream stream;
+  std::cout<<"S: "<<s<<std::endl;
   std::string s = this->inputOutput("\x00\x20\x00");
 //   this->inputOutput("\r");
   boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
