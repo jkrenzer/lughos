@@ -171,7 +171,7 @@ bool RFG::readout()
 {
   int value=0;
   std::stringstream stream;
-  std::cout<<"S: "<<s<<std::endl;
+//   std::cout<<"S: "<<s<<std::endl;
   std::string s = this->inputOutput("\x00\x20\x00");
 //   this->inputOutput("\r");
   boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
