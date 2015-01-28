@@ -119,37 +119,37 @@ float RFG::getLimitMaxCurrent()
   return this->current_max;
 }
 
-float RFG::set_voltage_max(float f)
+float RFG::set_voltage_max(std::string f)
 {
   if(voltage_min>f) return 0;
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00U"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00U"+std::string(f)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
 }
 
 
-float RFG::set_voltage_min(float f)
+float RFG::set_voltage_min(std::string  f)
 {
   if(voltage_max<f) return 0;
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00M"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00M"+std::string(f)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
 }
 
-float RFG::set_current_lim(float f)
+float RFG::set_current_lim(std::string  f)
 {
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00I"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00I"+std::string(f)+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
