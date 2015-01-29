@@ -56,7 +56,7 @@ int serialAsync::write(std::string query)
 
 
 	  if (port_.get() == NULL || !port_->is_open())	lughos::debugLog(port_name + std::string(" is closed despite writing?!"));
-	  if(io_service_->io_service::stopped() lughos::debugLog(std::string("I/O-Service was stopped after or during writing on port ") + port_name);
+	  if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on port ") + port_name);
 
   
   return 1;
