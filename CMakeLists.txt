@@ -320,6 +320,9 @@ add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp
 target_link_libraries(test_tcp ${Boost_LIBRARIES} unitValue measuredValue boost_chrono)
 endif()
 
+### Test for stringstreams
+add_executable(test_stringstream src/test_stringstream.cpp)
+
 #### Installation
 
 ### Installation directives

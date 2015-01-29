@@ -2,10 +2,13 @@
 #define LOG_HPP
 
 #include <iostream>
+#include <sstream>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include <Wt/Dbo/Dbo>
 #include <string>
 #include <sstream>
 #include <boost/current_function.hpp>
+#include <boost/date_time/tim
 
 #define DEBUG_THRESHOLD_CERR 10.0
 #define DEBUG_THRESHOLD_FILE 10.0
@@ -13,6 +16,36 @@
 
 namespace lughos 
 {
+  
+  boost::mutex soutMutex;
+  boost::mutex logMutex;
+
+  /** 
+  * @class soutObj
+  * @brief An ostream-class which uses boost-mutex for threadsave output to cout.
+  */
+
+  class soutObj
+  {
+    public:
+
+
+    template <class T>
+    soutObj& operator<< (T val)
+    {
+      soutMutex.lock();
+      std::cout << val;
+      soutMutex.unlock();
+      return *this;
+    }
+    soutObj& operator<< (ostream& (*pfun) (ostream&))
+    {
+	pfun(std::cout);
+	return *this;
+    }
+  };
+
+  soutObj sout;
   
   class debugLogEntry
   {
@@ -37,16 +70,25 @@ namespace lughos
     
   };
   
-  void debugLog(double severity, std::string message)
+  void debugLog(std::string message, double severity = 1.0)
   {
     
   }
   
-  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, double severity, std::string message)
+  
+  
+  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, std::string message, double severity = 1.0)
   {
     //TODO Implement simultanious output to FILE, DB and CERR
-    
+    boost::date_time::ptime now = boost::date_time::microsec_clock::local_time();
+    std::stringstream ss;
+    ss << "[" << boost::posix_time::to_iso_extended_string(now) <<  "] <" << severity << "> (" << functionName << "@" << fileName << ":" << lineNumber << " - " << message << std::endl;
+    std::string logMessage = ss.str();
+    sout << logMessage;
   }
+  
+  #undef debugLog(x)
+  #define debugLog(x) debugLogImpl(__FUNCTION__, __FILE__, __LINE__,x)
   
 } //namespace lughos
 
