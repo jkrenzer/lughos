@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <ostream>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include <string>
 #include <sstream>
@@ -36,7 +37,8 @@ namespace lughos
       soutMutex.unlock();
       return *this;
     }
-    soutObj& operator<< (ostream& (*pfun) (ostream&))
+    
+    soutObj& operator<< (std::ostream& (*pfun) (std::ostream&))
     {
 	pfun(std::cout);
 	return *this;
