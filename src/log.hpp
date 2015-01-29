@@ -4,11 +4,9 @@
 #include <iostream>
 #include <sstream>
 #include "boost/date_time/posix_time/posix_time.hpp"
-#include <Wt/Dbo/Dbo>
 #include <string>
 #include <sstream>
 #include <boost/current_function.hpp>
-#include <boost/date_time/tim
 
 #define DEBUG_THRESHOLD_CERR 10.0
 #define DEBUG_THRESHOLD_FILE 10.0
@@ -47,28 +45,28 @@ namespace lughos
 
   soutObj sout;
   
-  class debugLogEntry
-  {
-  public:
-    std::string functionName;
-    std::string fileName;
-    long int lineNumber;
-    std::string message;
-    
-    debugLogEntry(std::string functionName, std::string fileName, long int lineNumber, std::string message) : functionName(functionName), fileName(fileName), lineNumber(lineNumber), message(message)
-    {
-      
-    }
-    
-    std::String toString()
-    {
-      std::stringstream ss;
-      ss << this->functionName << this->fileName << this->lineNumber << this->message << std::endl;
-      return
-    }
-    
-    
-  };
+//   class debugLogEntry
+//   {
+//   public:
+//     std::string functionName;
+//     std::string fileName;
+//     long int lineNumber;
+//     std::string message;
+//     
+//     debugLogEntry(std::string functionName, std::string fileName, long int lineNumber, std::string message) : functionName(functionName), fileName(fileName), lineNumber(lineNumber), message(message)
+//     {
+//       
+//     }
+//     
+//     std::String toString()
+//     {
+//       std::stringstream ss;
+//       ss << this->functionName << this->fileName << this->lineNumber << this->message << std::endl;
+//       return
+//     }
+//     
+//     
+//   };
   
   void debugLog(std::string message, double severity = 1.0)
   {
