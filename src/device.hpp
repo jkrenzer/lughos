@@ -39,7 +39,7 @@ namespace lughos
     
     virtual std::string inputOutputImplementation(std::string query)
     {
-      connection->write(this->composeRequest(query), this->connection->end_of_line_char_);
+      connection->write(this->composeRequest(query));
       connection->waitForCompletion();
       return this->interpretAnswer(connection->read());
     }

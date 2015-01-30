@@ -27,13 +27,14 @@ serialAsync::~serialAsync(void)
 
 
 
-int serialAsync::write(std::string query, boost::regex regExpr)
+int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 {    
   this->queryDone = false;
 //       start();
       std::ostream request_stream(&request);
       request_stream<<query;
-
+	if(regExpr.empty())
+	  regExpr = boost::regex(end_of_line_char_);
 	boost::system::error_code ec;
  
 	if (port_.get() == NULL || !port_->is_open()) start();
