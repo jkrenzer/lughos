@@ -150,7 +150,7 @@ float RFG::set_voltage_max(float f)
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
-  cout << "#### DEBUG: " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << strea.str() << std::endl;
+  std::cout << "#### DEBUG: " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << strea.str() << std::endl;
   std::string request= stream.str();
   std::string answer = this->inputOutput("\x00U"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
   boost::regex exp1("(\\d\\d\\d\\d)");
