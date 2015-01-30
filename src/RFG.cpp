@@ -237,8 +237,8 @@ bool RFG::readoutChannels()
 
 bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
 {
-  std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex("\\w\\w\\w\\w$")); //Provoke Error to get setting
-  static const boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)$"));
+  std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("(\\w\\w\\w\\w)"))); //Provoke Error to get setting
+  static const boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
   unsigned int value;
