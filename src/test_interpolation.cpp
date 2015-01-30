@@ -32,6 +32,11 @@ int main()
     cout << "x=" << a << " y=" << t.xToY(a) << std::endl;
      
   }
-  cout << "--> x=" << strtol("0x0F00", NULL, 0) << " y=" << t.xToY(strtol("0x0E00", NULL, 0)) << std::endl;
+  cout << "--> x=" << strtol("0xFFFF", NULL, 0) << " y=" << t.xToY(strtol("0x0E00", NULL, 0)) << std::endl;
+  for (int i = 1; i < 39; i++)
+  {
+    cout << "y=" << i << " x=" << t.yToX(i*1.0) << std::endl;
+     
+  }
   return 0;
 }
