@@ -235,21 +235,21 @@ bool RFG::readoutChannels()
   return true;
 }
 
-bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
+bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
 {
   std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w"))); //Provoke Error to get setting
   boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
-  unsigned int value = 0;
+  unsigned int valueTemp = 0;
   std::stringstream stream;
   if(!res1.empty())
   {
     stream << res1[1];
-    stream >> std::hex >> value;
-    std::cout << "RECEIVED: " << res1[1] << " - " << value << " -- " << exp1.str() << " - " << answerChar <<  std::endl;
-    this->maxVoltage.setvalue(unitsToVoltage.xToY(value));
-    this->maxVoltage.setunit(unit);
+    stream >> std::hex >> valueTemp;
+    value.setvalue(unitsToVoltage.xToY(valueTemp));
+    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getStringValue() <<  std::endl;
+    value.setunit(unit);
   }
 }
 

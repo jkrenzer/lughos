@@ -72,7 +72,7 @@ protected:
 	SplineTransformation unitsToVoltage;
 // 	SplineTransformation currentToHex;
 // 	SplineTransformation PowerToHex;
-	bool readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
+	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
 	bool readoutChannels();
 
 	
