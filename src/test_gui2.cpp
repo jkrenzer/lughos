@@ -178,15 +178,15 @@ int main(int argc, char **argv)
 //   rfg.setExecuteTimes(Task::Execute::infinite);
 //   rfg.start();
 
-        BronkhorstTest horst1(session, taskExecutor,flowcontroll1);
-        horst1.setEvery(boost::posix_time::seconds(1));
-        horst1.setExecuteTimes(Task::Execute::infinite);
-        horst1.start();
-
-        BronkhorstTest horst2(session, taskExecutor,flowcontroll2);
-        horst2.setEvery(boost::posix_time::seconds(1));
-        horst2.setExecuteTimes(Task::Execute::infinite);
-        horst2.start();
+//         BronkhorstTest horst1(session, taskExecutor,flowcontroll1);
+//         horst1.setEvery(boost::posix_time::seconds(1));
+//         horst1.setExecuteTimes(Task::Execute::infinite);
+//         horst1.start();
+// 
+//         BronkhorstTest horst2(session, taskExecutor,flowcontroll2);
+//         horst2.setEvery(boost::posix_time::seconds(1));
+//         horst2.setExecuteTimes(Task::Execute::infinite);
+//         horst2.start();
 
         /*
          * Your main method may set up some shared resources, but should then
