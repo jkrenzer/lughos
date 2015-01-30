@@ -194,16 +194,16 @@ using namespace lughos;
       
       stringstream sstr; 
       string str = uMinField->text().toUTF8(); 
-      float f; 
+      float f = 0.0; 
       sstr<<str; 
       sstr>>f;
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(str)));
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
       
       str = uMaxField->text().toUTF8();
       sstr<<str; 
       sstr>>f;
       this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(str)));
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
       
     }
@@ -214,12 +214,12 @@ using namespace lughos;
       
       stringstream sstr; 
       string str = iField->text().toUTF8(); 
-      float f; 
+      float f = 0.0; 
       sstr<<str; 
       sstr>>f;
 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(str)));
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
 //     
       
     }

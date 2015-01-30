@@ -47,10 +47,10 @@ class RFG :public Device
 	void use_power_controler();
 	void switch_on();
 	void switch_off();
-	float set_voltage_max(std::string f);
-	float set_voltage_min(std::string f);
-	float set_current_lim(std::string f);
-	int set_power_lim(int i);
+	float set_voltage_max(float f);
+	float set_voltage_min(float f);
+	float set_current_lim(float f);
+	int set_power_lim(float f);
 	measuredValue get_channel(int i, bool force=false);
 
 	float getLimitMaxVoltage();
@@ -58,8 +58,6 @@ class RFG :public Device
 	float getLimitMinVoltage();
 
 	bool readout();
-	bool readoutSetting(std::string unit, std::string controlchar, SplineTransformation& transformation);
-	bool readoutChannels();
 	
 protected:
 	std::string interpretAnswer(std::string query);
@@ -74,6 +72,9 @@ protected:
 	SplineTransformation unitsToVoltage;
 // 	SplineTransformation currentToHex;
 // 	SplineTransformation PowerToHex;
+	bool readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
+	bool readoutChannels();
+
 	
   
 };

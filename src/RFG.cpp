@@ -89,11 +89,7 @@ std::string RFG::interpretAnswer(std::string s)
 
 void RFG::set_default()
 { 
-  
    this->setDefaultImpl(*(this->connection.get()));
-   this->voltage_max =12;
-   this->voltage_min =7;
-   this->current_max =2;
 }
 
 void RFG::power_supply_mode()
@@ -136,17 +132,17 @@ void RFG::switch_off()
 
 float RFG::getLimitMaxVoltage()
 {
-  return this->voltage_max;
+  return this->maxVoltage.getvalue();
 }
 
 float RFG::getLimitMinVoltage()
 {
-  return this->voltage_min;
+  return this->minVoltage.getvalue();
 }
 
 float RFG::getLimitMaxCurrent()
 {
-  return this->current_max;
+  return this->maxCurrent.getvalue();
 }
 
 float RFG::set_voltage_max(float f)
@@ -187,9 +183,8 @@ float RFG::set_current_lim(float  f)
 
 int RFG::set_power_lim(float f)
 {
-  if(!(i>=0&&i<=7))return 0;
   std::stringstream stream;
-  stream << std::hex << i;
+  stream << std::hex << f;
   std::string request= stream.str();
   stream << this->inputOutput("\x00P"+request+"\r").erase(0,1);
   int value;
@@ -225,7 +220,7 @@ bool RFG::readoutChannels()
 
 bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
 {
-  std::String s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r")); //Provoke Error to get setting
+  std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r")); //Provoke Error to get setting
   static const boost::regex exp1(answerChar + std::string("(\\d\\d\\d\\d)"));
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
