@@ -152,8 +152,8 @@ float RFG::set_voltage_max(float f)
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   std::string request= stream.str();
-  std::string answer = this->inputOutput("\x00U"+request+"\r",boost::regex("\\w\\w\\w\\w$"));
-  boost::regex exp1("(\\w\\w\\w\\w)$");
+  std::string answer = this->inputOutput("\x00U"+request+"\r",boost::regex("A\\w\\w\\w\\w"));
+  boost::regex exp1("A(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
   int value;
@@ -169,8 +169,8 @@ float RFG::set_voltage_min(float  f)
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
- std::string answer = this->inputOutput("\x00M"+request+"\r",boost::regex("\\w\\w\\w\\w$"));
-  boost::regex exp1("(\\w\\w\\w\\w)$");
+ std::string answer = this->inputOutput("\x00M"+request+"\r",boost::regex("B\\w\\w\\w\\w"));
+  boost::regex exp1("B(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
   int value;
@@ -184,8 +184,8 @@ float RFG::set_current_lim(float  f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  std::string answer = this->inputOutput("\x00I"+request+"\r",boost::regex("\\w\\w\\w\\w$"));
-  boost::regex exp1("(\\w\\w\\w\\w)$");
+  std::string answer = this->inputOutput("\x00I"+request+"\r",boost::regex("C\\w\\w\\w\\w"));
+  boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
   int value;
@@ -199,8 +199,8 @@ int RFG::set_power_lim(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  std::string answer = this->inputOutput("\x00P"+request+"\r",boost::regex("\\w\\w\\w\\w$"));
-  boost::regex exp1("(\\w\\w\\w\\w)$");
+  std::string answer = this->inputOutput("\x00P"+request+"\r",boost::regex("D\\w\\w\\w\\w"));
+  boost::regex exp1("D(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
   int value;
