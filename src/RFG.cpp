@@ -150,9 +150,9 @@ float RFG::set_voltage_max(float f)
 {
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
-  std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
+  std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (uint16_t) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   union Request { char chars[3]; uint16_t value;  } request;
-  
+  request.value = (uint16_t) unitsToVoltage.yToX(f);
   std::string answer = this->inputOutput(std::string("\x00")+"U"+std::string(request.chars,2)+"\r",boost::regex("A\\w\\w\\w\\w"));
   boost::regex exp1("A(\\w\\w\\w\\w)");
   boost::cmatch res1;
