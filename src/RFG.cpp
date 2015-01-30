@@ -5,7 +5,6 @@
 #include "serialSync.hpp"
 #include "serialAsync.hpp"
 #include "RFG.hpp"
-#include "log.hpp"
 
 RFG::RFG()
 {
