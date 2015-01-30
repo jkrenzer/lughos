@@ -5,6 +5,7 @@
 #include "serialSync.hpp"
 #include "serialAsync.hpp"
 #include "RFG.hpp"
+#include "log.hpp"
 
 RFG::RFG()
 {
@@ -151,7 +152,7 @@ float RFG::set_voltage_max(float f)
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00U"+request+"\r").erase(0,1);
+  stream << this->inputOutput("\x00U"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
@@ -164,7 +165,7 @@ float RFG::set_voltage_min(float  f)
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00M"+request+"\r").erase(0,1);
+  stream << this->inputOutput("\x00M"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
@@ -175,7 +176,7 @@ float RFG::set_current_lim(float  f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00I"+request+"\r").erase(0,1);
+  stream << this->inputOutput("\x00I"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
   float value;
   stream >> std::hex >> value;
   return value; 
@@ -186,7 +187,7 @@ int RFG::set_power_lim(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00P"+request+"\r").erase(0,1);
+  stream << this->inputOutput("\x00P"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
   int value;
   stream >> std::hex >> value;
  return value; 
@@ -220,11 +221,11 @@ bool RFG::readoutChannels()
 
 bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
 {
-  std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r")); //Provoke Error to get setting
+  std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex("\\d\\d\\d\\d")); //Provoke Error to get setting
   static const boost::regex exp1(answerChar + std::string("(\\d\\d\\d\\d)"));
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
-  int value;
+  unsigned int value;
   std::stringstream stream;
   if(!res1.empty())
   {
@@ -266,7 +267,9 @@ measuredValue RFG::get_channel(int i, bool force)
 
 void RFG::initImplementation()
 {
-this->input(std::string("\x00")+std::string("AF")+std::string("\r"));//
+std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
+if(initStr == std::string("@"))
+  debugLog("RFG answered correctly! YAY!!!!");
 this->mode=true;
 controler =0;
 }
