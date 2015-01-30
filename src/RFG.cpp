@@ -25,6 +25,7 @@ RFG::RFG()
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0C00", NULL, 0),37.471));
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0D00", NULL, 0),39.489));
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0E00", NULL, 0),39.490));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 39.5));
   unitsToVoltage.init();
 }
 
