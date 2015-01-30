@@ -215,6 +215,7 @@ using namespace lughos;
     {
       measuredValue v;
       std::stringstream ss;
+      this->rfg->readout();
       for (int i; i<8;i++)
       {
 	v = this->rfg->get_channel(i);

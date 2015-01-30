@@ -273,7 +273,7 @@ bool RFG::readout()
 
 measuredValue RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(1))
+ if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(3))
   {
     return channel_output[i];
   }
