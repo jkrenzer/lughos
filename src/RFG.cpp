@@ -241,7 +241,7 @@ bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string 
   static const boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
-  unsigned int value;
+  unsigned int value = 0;
   std::stringstream stream;
   if(!res1.empty())
   {
