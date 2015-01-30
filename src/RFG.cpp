@@ -153,7 +153,7 @@ float RFG::set_voltage_max(float f)
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (uint16_t) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   union Request { char chars[2]; uint16_t value;  } request;
   request.value = (uint16_t) (unitsToVoltage.yToX(f));
-  std::string answer = this->inputOutput(std::string("\x00")+"U"+std::string(request.chars,2)+"\r",boost::regex("A\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"U"+std::string(request.chars,2).swap()+"\r",boost::regex("A\\w\\w\\w\\w"));
   boost::regex exp1("A(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -169,10 +169,9 @@ float RFG::set_voltage_min(float  f)
 //   if(voltage_max<f) return 0;
   std::stringstream stream;
   uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)+1];
+  char request[sizeof(uint16_t)];
   memcpy(request,&tmp,sizeof(uint16_t));
-  request[sizeof(uint16_t)] = '\0';
-  std::string answer = this->inputOutput(std::string("\x00")+"M"+std::string(request)+"\r",boost::regex("B\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"M"+std::string(request,2)+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
