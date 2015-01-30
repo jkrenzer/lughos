@@ -197,7 +197,7 @@ float RFG::set_current_lim(float  f)
 int RFG::set_power_lim(float f)
 {
   std::stringstream stream;
-  stream << std::hex << std::setw(4) << std::setfill(0) << f;
+  stream << std::hex << std::setw(4) << std::setfill('0') << f;
   std::string request= stream.str();
   std::string answer = this->inputOutput("P"+request+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
