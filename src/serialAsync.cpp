@@ -34,7 +34,7 @@ int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
       std::ostream request_stream(&request);
       request_stream<<query;
 	if(regExpr.empty())
-	  regExpr = boost::regex(end_of_line_char_);
+	  regExpr = boost::regex(std::string(1,end_of_line_char_));
 	boost::system::error_code ec;
  
 	if (port_.get() == NULL || !port_->is_open()) start();
