@@ -234,6 +234,8 @@ using namespace lughos;
 	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
       }
       this->stateF->setText(ss.str());
+      this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
+      this->uMinField->setValue(this->rfg->getLimitMinVoltage());
     }
     
 //     void start()
