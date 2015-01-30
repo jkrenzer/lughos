@@ -247,6 +247,7 @@ bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string 
   {
     stream << res1[1];
     stream >> std::hex >> value;
+    std::cout << "RECEIVED: " << res1[1] << " - " << value << std::endl;
     this->maxVoltage.setvalue(unitsToVoltage.xToY(value));
     this->maxVoltage.setunit(unit);
   }
