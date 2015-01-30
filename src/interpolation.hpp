@@ -79,9 +79,9 @@ namespace lughos
       try 
       {
 	this->xToYSplineAcc = gsl_interp_accel_alloc ();
-	this->xToYSpline = gsl_spline_alloc (gsl_interp_cspline, count);
+	this->xToYSpline = gsl_spline_alloc (gsl_interp_linear, count);
 	this->yToXSplineAcc = gsl_interp_accel_alloc ();
-	this->yToXSpline = gsl_spline_alloc (gsl_interp_cspline, count);
+	this->yToXSpline = gsl_spline_alloc (gsl_interp_linear, count);
 	gsl_spline_init (this->xToYSpline, x, y, count);
 	gsl_spline_init (this->yToXSpline, y, x, count);
 	this->isInitialized = true;
