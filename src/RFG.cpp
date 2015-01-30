@@ -153,7 +153,7 @@ float RFG::set_voltage_max(float f)
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   union requestUnion
   {
-    float number;
+    uint16_t number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
@@ -174,7 +174,7 @@ float RFG::set_voltage_min(float  f)
   std::stringstream stream;
   union requestUnion
   {
-    float number;
+    uint16_t number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
@@ -193,11 +193,11 @@ float RFG::set_current_lim(float  f)
   std::stringstream stream;
   union requestUnion
   {
-    float number;
+    uint16_t number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
-  std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(request.chars)+"\r",boost::regex("C\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(2,request.chars)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -212,7 +212,7 @@ int RFG::set_power_lim(float f)
   std::stringstream stream;
   union requestUnion
   {
-    float number;
+    uint16_t number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
