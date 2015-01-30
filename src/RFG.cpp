@@ -153,7 +153,7 @@ float RFG::set_voltage_max(float f)
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   union requestUnion
   {
-    double number;
+    float number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
@@ -174,7 +174,7 @@ float RFG::set_voltage_min(float  f)
   std::stringstream stream;
   union requestUnion
   {
-    double number;
+    float number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
@@ -193,7 +193,7 @@ float RFG::set_current_lim(float  f)
   std::stringstream stream;
   union requestUnion
   {
-    double number;
+    float number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
@@ -212,7 +212,7 @@ int RFG::set_power_lim(float f)
   std::stringstream stream;
   union requestUnion
   {
-    double number;
+    float number;
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
