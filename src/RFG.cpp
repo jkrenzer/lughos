@@ -153,8 +153,9 @@ float RFG::set_voltage_max(float f)
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
  
   uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)];
+  char request[sizeof(uint16_t)+1];
   memcpy(request,&tmp,sizeof(uint16_t));
+  request[sizeof(uint16_t)] = '\0';
   std::string answer = this->inputOutput(std::string("\x00")+"U"+std::string(request)+"\r",boost::regex("A\\w\\w\\w\\w"));
   boost::regex exp1("A(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -171,8 +172,9 @@ float RFG::set_voltage_min(float  f)
 //   if(voltage_max<f) return 0;
   std::stringstream stream;
   uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)];
+  char request[sizeof(uint16_t)+1];
   memcpy(request,&tmp,sizeof(uint16_t));
+  request[sizeof(uint16_t)] = '\0';
   std::string answer = this->inputOutput(std::string("\x00")+"M"+std::string(request)+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -187,8 +189,9 @@ float RFG::set_current_lim(float  f)
 {
   std::stringstream stream;
   uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)];
+  char request[sizeof(uint16_t)+1];
   memcpy(request,&tmp,sizeof(uint16_t));
+  request[sizeof(uint16_t)] = '\0';
   std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(request)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -203,8 +206,9 @@ int RFG::set_power_lim(float f)
 {
   std::stringstream stream;
   uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)];
+  char request[sizeof(uint16_t)+1];
   memcpy(request,&tmp,sizeof(uint16_t));
+  request[sizeof(uint16_t)] = '\0';
   std::string answer = this->inputOutput(std::string("\x00")+"P"+std::string(request)+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
   boost::cmatch res1;
