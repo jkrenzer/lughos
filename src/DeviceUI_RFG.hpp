@@ -194,7 +194,7 @@ using namespace lughos;
 
       float f = uMinField->value(); 
       responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
-      f = uMaxField->text().value();
+      f = uMaxField->value();
       this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
