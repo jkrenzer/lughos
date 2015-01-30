@@ -149,7 +149,7 @@ float RFG::set_voltage_max(float f)
 {
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
-  stream << std::hex << std::setw(4) << std::setfill('0') << (int) unitsToVoltage.yToX(f);
+  stream << static_cast<char>(static_cast<float>(unitsToVoltage.yToX(f)));
   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (int) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
   std::string request= stream.str();
   std::string answer = this->inputOutput("U"+request+"\r",boost::regex("A\\w\\w\\w\\w"));
@@ -167,7 +167,7 @@ float RFG::set_voltage_min(float  f)
 {
 //   if(voltage_max<f) return 0;
   std::stringstream stream;
-  stream << std::hex << std::setw(4) << std::setfill('0') << (int) unitsToVoltage.yToX(f);
+  stream << static_cast<char>(static_cast<float>(unitsToVoltage.yToX(f)));
   std::string request= stream.str();
  std::string answer = this->inputOutput("M"+request+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
