@@ -197,7 +197,7 @@ float RFG::set_current_lim(float  f)
     char chars[2];
   } request;
   request.number = unitsToVoltage.yToX(f);
-  std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(2,request.chars)+"\r",boost::regex("C\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(request.chars)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
