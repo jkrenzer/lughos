@@ -259,8 +259,8 @@ bool RFG::readout()
   try
   {
     result = this->readoutChannels() && result;
-    result = this->readoutSetting("V","U","A",this->unitsToVoltage) && result;
-    result = this->readoutSetting("V","M","B",this->unitsToVoltage) && result;
+    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage) && result;
+    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage) && result;
   }
   catch(...)
   {
