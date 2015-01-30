@@ -154,7 +154,7 @@ float RFG::set_voltage_max(float f)
   union requestUnion
   {
     uint16_t number;
-    char chars[2];
+    char chars[3];
   } request;
   request.chars = "XX";
   request.number = unitsToVoltage.yToX(f);
@@ -176,7 +176,7 @@ float RFG::set_voltage_min(float  f)
   union requestUnion
   {
     uint16_t number;
-    char chars[2];
+    char chars[3];
   } request;
   request.chars = "XX";
   request.number = unitsToVoltage.yToX(f);
@@ -196,7 +196,7 @@ float RFG::set_current_lim(float  f)
   union requestUnion
   {
     uint16_t number;
-    char chars[2];
+    char chars[3];
   } request;
   request.chars = "XX";
   request.number = unitsToVoltage.yToX(f);
@@ -216,7 +216,7 @@ int RFG::set_power_lim(float f)
   union requestUnion
   {
     uint16_t number;
-    char chars[2];
+    char chars[3];
   } request;
   request.chars = "XX";
   request.number = unitsToVoltage.yToX(f);
