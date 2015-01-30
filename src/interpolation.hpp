@@ -55,6 +55,7 @@ namespace lughos
     
     bool init()
     {
+      gsl_set_error_handler_off();
       XToYMap& x2y = this->valueMap.left;
       int count = x2y.size();
       if (count < 2)
