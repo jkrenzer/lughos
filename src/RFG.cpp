@@ -151,8 +151,12 @@ float RFG::set_voltage_max(float f)
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00U"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
-  float value;
+  std::string answer = this->inputOutput("\x00U"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
+  boost::regex exp1("(\\d\\d\\d\\d)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
   stream >> std::hex >> value;
  return value; 
 }
@@ -164,8 +168,12 @@ float RFG::set_voltage_min(float  f)
   std::stringstream stream;
   stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00M"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
-  float value;
+ std::string answer = this->inputOutput("\x00M"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
+  boost::regex exp1("(\\d\\d\\d\\d)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
   stream >> std::hex >> value;
  return value; 
 }
@@ -175,8 +183,12 @@ float RFG::set_current_lim(float  f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00I"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
-  float value;
+  std::string answer = this->inputOutput("\x00I"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
+  boost::regex exp1("(\\d\\d\\d\\d)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
   stream >> std::hex >> value;
   return value; 
 }
@@ -186,8 +198,12 @@ int RFG::set_power_lim(float f)
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00P"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
+  std::string answer = this->inputOutput("\x00P"+request+"\r",boost::regex("\\d\\d\\d\\d")).erase(0,1);
+  boost::regex exp1("(\\d\\d\\d\\d)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
   int value;
+  stream << res1[1];
   stream >> std::hex >> value;
  return value; 
 }
