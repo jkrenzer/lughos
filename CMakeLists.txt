@@ -323,6 +323,10 @@ endif()
 ### Test for stringstreams
 add_executable(test_stringstream src/test_stringstream.cpp)
 
+### Test for interpolation
+add_executable(test_interpolation src/test_interpolation.cpp)
+target_link_libraries(test_interpolation gsl gslcblas)
+
 #### Installation
 
 ### Installation directives

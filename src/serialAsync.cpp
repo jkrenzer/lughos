@@ -27,7 +27,7 @@ serialAsync::~serialAsync(void)
 
 
 
-int serialAsync::write(std::string query)
+int serialAsync::write(std::string query, boost::regex regExpr)
 {    
   this->queryDone = false;
 //       start();
@@ -40,7 +40,7 @@ int serialAsync::write(std::string query)
 	if (port_.get() == NULL || !port_->is_open()) return 0;
 
 	  boost::asio::async_write(*port_, request,
-          boost::bind(&serialAsync::handle_write_request, this,
+          boost::bind(&serialAsync::handle_write_request, this, regExpr,
           boost::asio::placeholders::error));
 	
 	lughos::debugLog(std::string("\"")+query+std::string("\" written to port ")+port_name);
@@ -108,16 +108,16 @@ void serialAsync::handle_write_only(const boost::system::error_code& err)
     }
   }
 
-void serialAsync::handle_write_request(const boost::system::error_code& err)
+void serialAsync::handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
   {
 
     if (!err)
     {
       // Read the response status line.
-      boost::asio::async_read_until(*port_, response, end_of_line_char_,
+      boost::asio::async_read_until(*port_, response, regExpr,
           boost::bind(&serialAsync::handle_read_content, this,
             boost::asio::placeholders::error));
-      lughos::debugLog(std::string("Reading until from ") + port_name);
+      lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + port_name);
       
     }
     else

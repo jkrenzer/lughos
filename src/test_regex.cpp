@@ -7,9 +7,9 @@ using namespace std;
 
 int main()
 {
-  string str("Blah/Blubb/Bell/Gurgel");
+  string str("Blah/\nBlubb/Bell\n/Gurgel");
   const int subs[] = {1};
-  boost::regex r("(([^/]*)/?)");
+  boost::regex r("(\n)");
   cout << "Analyzing: " << endl << str << endl;
   cout << "Found matches:" << endl;
   boost::sregex_token_iterator j;

@@ -97,7 +97,7 @@ class serialAsync : virtual public Connection<serialContext>
       * @return void
       */
     
-    void handle_write_request(const boost::system::error_code& err);
+    void handle_write_request(boost::regex regExpr, const boost::system::error_code& err);
     
     /**
       * @brief Callback for reading answer from port
@@ -135,7 +135,7 @@ class serialAsync : virtual public Connection<serialContext>
 	* @param query ...
 	* @return int
 	*/
-      int write(std::string query);
+      int write(std::string query, boost::regex regExpr);
       
       /**
 	* @brief Write to serial port and retur immediatly

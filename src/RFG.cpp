@@ -6,10 +6,26 @@
 #include "serialAsync.hpp"
 #include "RFG.hpp"
 
-
 RFG::RFG()
 {
   set_default();
+  SplineTransformation::XToYMap& x2y = unitsToVoltage.valueMap.left;
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.645));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0100", NULL, 0), 3.270));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0200", NULL, 0), 6.373));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0300", NULL, 0), 9.489));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0400", NULL, 0),12.592));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0500", NULL, 0),15.702));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0600", NULL, 0),18.817));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0700", NULL, 0),21.919));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0800", NULL, 0),25.028));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0900", NULL, 0),28.137));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0A00", NULL, 0),31.247));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0B00", NULL, 0),34.355));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0C00", NULL, 0),37.471));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0D00", NULL, 0),39.489));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0E00", NULL, 0),39.490));
+  unitsToVoltage.init();
 }
 
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
@@ -92,17 +108,30 @@ void RFG::bcc_mode()
 
 void RFG::use_voltage_controler()
 {
- if(controler!=0)this->input("F"); 
+ this->input("F");
+ this->controler=0;
 }
 
 void RFG::use_current_controler()
 {
- if(controler!=1)this->input("G"); 
+ this->input("G");
+ this->controler=1;
 }
 
 void RFG::use_power_controler()
 {
- if(controler!=2)this->input("H"); 
+ this->input("H");
+ this->controler=2;
+}
+
+void RFG::switch_on()
+{
+  this->input("N");
+}
+
+void RFG::switch_off()
+{
+  this->input("O");
 }
 
 float RFG::getLimitMaxVoltage()
@@ -120,55 +149,55 @@ float RFG::getLimitMaxCurrent()
   return this->current_max;
 }
 
-float RFG::set_voltage_max(std::string f)
+float RFG::set_voltage_max(float f)
 {
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
-  stream << std::hex << f;
+  stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00U"+std::string(f)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00U"+request+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
 }
 
 
-float RFG::set_voltage_min(std::string  f)
+float RFG::set_voltage_min(float  f)
 {
 //   if(voltage_max<f) return 0;
   std::stringstream stream;
-  stream << std::hex << f;
+  stream << std::hex << (int) unitsToVoltage.yToX(f);
   std::string request= stream.str();
-  stream << this->inputOutput("\x00M"+std::string(f)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00M"+request+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
  return value; 
 }
 
-float RFG::set_current_lim(std::string  f)
+float RFG::set_current_lim(float  f)
 {
   std::stringstream stream;
   stream << std::hex << f;
   std::string request= stream.str();
-  stream << this->inputOutput("\x00I"+std::string(f)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00I"+request+"\r").erase(0,1);
   float value;
   stream >> std::hex >> value;
- return value; 
+  return value; 
 }
 
-int RFG::set_controler_chanel(int i)
+int RFG::set_power_lim(float f)
 {
   if(!(i>=0&&i<=7))return 0;
   std::stringstream stream;
   stream << std::hex << i;
   std::string request= stream.str();
-  stream << this->inputOutput("P"+std::string(request)+"\r").erase(0,1);
+  stream << this->inputOutput("\x00P"+request+"\r").erase(0,1);
   int value;
   stream >> std::hex >> value;
  return value; 
 }
 
-bool RFG::readout()
+bool RFG::readoutChannels()
 {
   int value=0;
   std::stringstream stream;
@@ -177,12 +206,12 @@ bool RFG::readout()
 //   this->inputOutput("\r");
   boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
   std::cout<<"S: "<<s<<std::endl;
-  static const boost::regex e("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
-  boost::cmatch res;
-  boost::regex_search(s.c_str(), res, e);
+  static const boost::regex exp1("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
+  boost::cmatch res1;
+  boost::regex_search(s.c_str(), res1, exp1);
   for(int i =0;i<8;i++)
   {
-    stream <<res[i+1];
+    stream <<res1[i+1];
     stream >> value;
     channel_output[i].setvalue(value);
     if (controler==0)channel_output[i].setunit("V");
@@ -190,9 +219,43 @@ bool RFG::readout()
     if (controler==2)channel_output[i].setunit("Watt");
     channel_output[i].settimestamp(now);
   }
-
- return true; 
+  
+  return true;
 }
+
+bool RFG::readoutSetting(std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
+{
+  std::String s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r")); //Provoke Error to get setting
+  static const boost::regex exp1(answerChar + std::string("(\\d\\d\\d\\d)"));
+  boost::cmatch res1;
+  boost::regex_search(s.c_str(), res1, exp1);
+  int value;
+  std::stringstream stream;
+  if(!res1.empty())
+  {
+    stream << res1[1];
+    stream >> std::hex >> value;
+    this->maxVoltage.setvalue(unitsToVoltage.xToY(value));
+    this->maxVoltage.setunit(unit);
+  }
+}
+
+bool RFG::readout()
+{
+  bool result;
+  try
+  {
+    result = this->readoutChannels() && result;
+    result = this->readoutSetting("V","U","A",this->unitsToVoltage) && result;
+    result = this->readoutSetting("V","M","B",this->unitsToVoltage) && result;
+  }
+  catch(...)
+  {
+    return false;
+  }
+  return result;
+}
+
 
 measuredValue RFG::get_channel(int i, bool force)
 {
@@ -208,7 +271,7 @@ measuredValue RFG::get_channel(int i, bool force)
 
 void RFG::initImplementation()
 {
-this->inputOutput(std::string("\x0d")+std::string("AF")+std::string("\r"));//
+this->input(std::string("\x00")+std::string("AF")+std::string("\r"));//
 this->mode=true;
 controler =0;
 }

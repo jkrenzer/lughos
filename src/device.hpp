@@ -5,6 +5,7 @@
 
 
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/regex.hpp>
 
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
@@ -38,7 +39,14 @@ namespace lughos
     
     virtual std::string inputOutputImplementation(std::string query)
     {
-      connection->write(this->composeRequest(query));
+      connection->write(this->composeRequest(query), this->connection->end_of_line_char_);
+      connection->waitForCompletion();
+      return this->interpretAnswer(connection->read());
+    }
+    
+    virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
+    {
+      connection->write(this->composeRequest(query), regExpr);
       connection->waitForCompletion();
       return this->interpretAnswer(connection->read());
     }
@@ -124,6 +132,15 @@ namespace lughos
       GUARD
       if(this->connected)
 	return this->inputOutputImplementation(query);
+      else
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+    }
+    
+    std::string inputOutput(std::string query, boost::regex regExpr)
+    {
+      GUARD
+      if(this->connected)
+	return this->inputOutputImplementation(query,regExpr);
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
