@@ -269,7 +269,7 @@ void RFG::initImplementation()
 {
 std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
 if(initStr == std::string("@"))
-  debugLog("RFG answered correctly! YAY!!!!");
+  std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
 this->mode=true;
 controler =0;
 }
