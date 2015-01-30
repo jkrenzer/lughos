@@ -156,7 +156,7 @@ float RFG::set_voltage_max(float f)
     uint16_t number;
     char chars[3];
   } request;
-  request.chars = "XX";
+  request.chars[2] = "\0";
   request.number = unitsToVoltage.yToX(f);
   std::string answer = this->inputOutput(std::string("\x00")+"U"+std::string(request.chars)+"\r",boost::regex("A\\w\\w\\w\\w"));
   boost::regex exp1("A(\\w\\w\\w\\w)");
@@ -178,7 +178,7 @@ float RFG::set_voltage_min(float  f)
     uint16_t number;
     char chars[3];
   } request;
-  request.chars = "XX";
+  request.chars[2] = "\0";
   request.number = unitsToVoltage.yToX(f);
   std::string answer = this->inputOutput(std::string("\x00")+"M"+std::string(request.chars)+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
@@ -198,7 +198,7 @@ float RFG::set_current_lim(float  f)
     uint16_t number;
     char chars[3];
   } request;
-  request.chars = "XX";
+  request.chars[2] = "\0";
   request.number = unitsToVoltage.yToX(f);
   std::string answer = this->inputOutput(std::string("\x00")+"I"+std::string(request.chars)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
@@ -218,7 +218,7 @@ int RFG::set_power_lim(float f)
     uint16_t number;
     char chars[3];
   } request;
-  request.chars = "XX";
+  request.chars[2] = "\0";
   request.number = unitsToVoltage.yToX(f);
   std::string answer = this->inputOutput(std::string("\x00")+"P"+std::string(request.chars)+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
