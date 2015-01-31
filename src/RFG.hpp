@@ -70,10 +70,11 @@ protected:
 	measuredValue maxCurrent;
 	measuredValue maxPower;
 	SplineTransformation unitsToVoltage;
-// 	SplineTransformation currentToHex;
-// 	SplineTransformation PowerToHex;
+ 	SplineTransformation unitsToCurrent;
+ 	SplineTransformation unitsToPower;
 	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
 	bool readoutChannels();
+	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
 
 	
   
