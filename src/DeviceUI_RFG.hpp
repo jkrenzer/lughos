@@ -177,6 +177,9 @@ using namespace lughos;
       this->pMaxField->setMaximum(190);
       this->sendIB = new Wt::WPushButton("Send");
       this->sendUB = new Wt::WPushButton("Send");
+      this->sendOnB = new Wt::WPushButton("On");
+      this->sendOffB = new Wt::WPushButton("Off");
+      this->sendPB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
 
       this->addWidget(iOutL);      
