@@ -71,6 +71,10 @@ using namespace lughos;
     Wt::WPushButton *sendUB;
     Wt::WDoubleSpinBox *uMinField;
     Wt::WDoubleSpinBox *uMaxField;
+    Wt::WDoubleSpinBox *pMaxField;
+    Wt::WPushButton *sendPB;
+    Wt::WPushButton *sendOnB;
+    Wt::WPushButton *sendOffB;
     Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
@@ -99,10 +103,18 @@ using namespace lughos;
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
+	this->sendPB->setDisabled(false);
+	this->sendOnB->setDisabled(false);
+	this->sendOffB->setDisabled(false);
 	this->uMinField->setDisabled(false);
 	this->uMaxField->setDisabled(false);
+	this->pMaxField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<RFG>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setI);
+	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setP);
+        this->sendOnB->clicked().connect(this,&DeviceUI<RFG>::switchOn);
+	this->sendOffB->clicked().connect(this,&DeviceUI<RFG>::switchOff);
+        
 	this->getState();
 
       }
@@ -114,8 +126,12 @@ using namespace lughos;
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
+	this->sendPB->setDisabled(true);
+	this->sendOnB->setDisabled(true);
+	this->sendOffB->setDisabled(true);
 	this->uMinField->setDisabled(true);
 	this->uMaxField->setDisabled(true);
+	this->pMaxField->setDisabled(true);
 
       }
     }
@@ -148,14 +164,17 @@ using namespace lughos;
       this->pOutField->setReadOnly(true);  
       
       this->iField =  new  Wt::WDoubleSpinBox(0);
-      this->iField->setMaximum(this->rfg->getLimitMaxCurrent());
+      this->iField->setMaximum(5);
       this->iField->setMinimum(0);
       this->uMinField =  new  Wt::WDoubleSpinBox(0);
       this->uMinField->setMinimum(0);
-      this->uMinField->setMaximum(this->rfg->getLimitMinVoltage());
+      this->uMinField->setMaximum(40);
       this->uMaxField =  new  Wt::WDoubleSpinBox(0);
-      this->uMaxField->setMinimum(this->rfg->getLimitMinVoltage());
-      this->uMaxField->setMaximum(this->rfg->getLimitMaxVoltage());
+      this->uMaxField->setMinimum(0);
+      this->uMaxField->setMaximum(40);
+      this->pMaxField = new  Wt::WDoubleSpinBox(0);
+      this->pMaxField->setMinimum(0);
+      this->pMaxField->setMaximum(190);
       this->sendIB = new Wt::WPushButton("Send");
       this->sendUB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
@@ -175,6 +194,11 @@ using namespace lughos;
       this->addWidget(new Wt::WBreak);
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
+      this->addWidget(pMaxField);
+      this->addWidget(sendPB); 
+      this->addWidget(new Wt::WBreak);
+      this->addWidget(sendOnB);
+      this->addWidget(sendOffB);
       this->addWidget(stateB);
 //       this->sendIB->setDisabled(true);
 //       this->iField->setDisabled(true);
@@ -211,6 +235,25 @@ using namespace lughos;
       
     }
     
+    void setP()
+    {
+      float f = pMaxField->value(); 
+      this->stateF->setText("Power set:"+iField->text().toUTF8());
+      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_power_lim(f)));
+    }
+    
+    void switchOn()
+    {
+      rfg->switch_on();
+      this->stateF->setText("Switched to ON.");
+    }
+    
+    void switchOff()
+    {
+      rfg->switch_off();
+      this->stateF->setText("Switched to OFF.");
+    }
+    
     void getState()
     {
       measuredValue v;
@@ -224,6 +267,8 @@ using namespace lughos;
       this->stateF->setText(ss.str());
       this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
+      this->iField->setValue(this->rfg->getLimitMaxCurrent());
+      this->pMaxField->setValue(this->rfg->getPower());
     }
     
 //     void start()

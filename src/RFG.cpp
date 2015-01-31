@@ -154,6 +154,11 @@ float RFG::getLimitMaxCurrent()
   return this->maxCurrent.getvalue();
 }
 
+float RFG::getPower()
+{
+  return this->maxPower.getvalue();
+}
+
 std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
 {
   uint16_t tmp = transformation.yToX(f); //Convert between arbitrary units and volts
