@@ -211,7 +211,7 @@ namespace lughos
 	  case ParameterType::String : std::string s = value; 
 					for (std::string::const_iterator it = s.begin(); it != s.end(); it++)
 					{
-					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (uint8_t) it*;
+					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (uint8_t) *it;
 					}
 					break;
 	}
