@@ -3,43 +3,31 @@
 #include <ostream>
 #include "tcpAsync.hpp"
 #include "FUGNetzteil.hpp"
+#include "utils.hpp"
 
 #include <string>     // std::string, std::stoi
-fug::fug()
+FUGNetzteil::FUGNetzteil()
 {
   set_default();
 }
 
-template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
-{
-  try
-  {
-    return boost::lexical_cast<T>(source);
-  }
-  catch(boost::bad_lexical_cast e)
-  {
-    return saveDefault;
-  }
-  
-}
-
-template <class T> void fug::setDefaultImpl(T& connection)
+template <class T> void FUGNetzteil::setDefaultImpl(T& connection)
 {
 }
 
-template <> void fug::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
+template <> void FUGNetzteil::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
 {
   serverName= connection.server_name;  
 }
 
-fug::~fug(void)
+FUGNetzteil::~FUGNetzteil(void)
 {
 
 }
 
 
 
-std::string fug::composeRequest(std::string query)
+std::string FUGNetzteil::composeRequest(std::string query)
 {
     std::string requestString="";
 //   std::string host_path=std::string("/scpi_response.html?cmd=");
@@ -61,11 +49,11 @@ std::string fug::composeRequest(std::string query)
 }
 
 
-void fug::set_default()
+void FUGNetzteil::set_default()
 {
 
 }
-std::string fug::interpretAnswer(std::string s)
+std::string FUGNetzteil::interpretAnswer(std::string s)
 {     
 
 //  static const boost::regex e("<body>(.*)</body>");
@@ -78,16 +66,22 @@ std::string fug::interpretAnswer(std::string s)
 
 }
 
-void fug::initImplementation()
+void FUGNetzteil::initImplementation()
 {
 }
     
 
-void fug::shutdownImplementation()
+void FUGNetzteil::shutdownImplementation()
 {
 }
 
-measuredValue fug::getMeasure(bool force)
+bool FUGNetzteil::isConnectedImplementation()
+{
+  return true;
+}
+
+
+measuredValue FUGNetzteil::getMeasure(bool force)
 {
   if(!force &&!storedMeasure.gettimestamp().is_not_a_date_time()&& storedMeasure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {
@@ -129,7 +123,7 @@ measuredValue fug::getMeasure(bool force)
 }
 
 
-int fug::switchVoltage(int i)
+int FUGNetzteil::switchVoltage(int i)
 {
   int success=0;
   std::string command="F";
@@ -141,7 +135,7 @@ int fug::switchVoltage(int i)
   
 }
 
-int fug::setI(double I)
+int FUGNetzteil::setI(double I)
 {
   int success=0;
   std::string command="I";
@@ -160,7 +154,7 @@ int fug::setI(double I)
 }
 
 
-int fug::setU(double U)
+int FUGNetzteil::setU(double U)
 {
   int success=0;
   std::string command="U";
@@ -177,19 +171,19 @@ int fug::setU(double U)
   
 }
 
-std::string fug::getLastError()
+std::string FUGNetzteil::getLastError()
 {
   return lastError;
   
 }
 
-std::string fug::getIDN()
+std::string FUGNetzteil::getIDN()
 {
   return inputOutput("?");
 }
 
 
-double fug::getI()
+double FUGNetzteil::getI()
 {
   int success=0;
   std::string answer="";
@@ -211,7 +205,7 @@ double fug::getI()
   
 }
 
-double fug::getU()
+double FUGNetzteil::getU()
 {
   int success=0;
   std::string answer="";
@@ -231,7 +225,7 @@ double fug::getU()
   
 }
 
-void fug::setError(std::string command, std::string error)
+void FUGNetzteil::setError(std::string command, std::string error)
 {
   if (error=="E0") return;
   lastError ="";

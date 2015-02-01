@@ -46,6 +46,7 @@
 #include "Relais.hpp"
 #include "DeviceUI_bronkhorst.hpp"
 #include "DeviceUI_RFG.hpp"
+#include "DeviceUI_FUG.hpp"
 #include "DeviceUI_Relais.hpp"
 #include "DeviceUI.hpp"
 #include "ScatterPlot.hpp"

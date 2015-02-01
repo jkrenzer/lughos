@@ -22,47 +22,46 @@
 #include "httpDict.hpp"
 #include "measuredValue.hpp"
 
-using namespace lughos;
 using boost::asio::ip::tcp;
 
-class fug : public Device
-{
+using namespace lughos;
 
 
-  
-  private:
-	fug(const fug &p);
-	fug &operator=(const fug &p);
-	
-	template <class T> void setDefaultImpl(T& connection);
-	virtual void set_default();
-	void initImplementation();
-	void shutdownImplementation();
-	measuredValue storedMeasure;
-	int switchVoltage(int onof );
+  class FUGNetzteil : public Device
+  {    
+    private:
+	  FUGNetzteil(const FUGNetzteil &p);
+	  FUGNetzteil &operator=(const FUGNetzteil &p);
+	  
+	  template <class T> void setDefaultImpl(T& connection);
+	  virtual void set_default();
+	  void initImplementation();
+	  void shutdownImplementation();
+	  bool isConnectedImplementation();
+
+	  measuredValue storedMeasure;
+	  int switchVoltage(int onof );
 
 
-	int voltagesOnOf=3;
-	std::string serverName;
-	
-  public:
-	fug(void);
-	~fug(void);
-	measuredValue getMeasure(bool force=false);	
-	int setI(double I );
-	int setU(double I );
-	double getI();
-	double getU();
-	std::string getLastError();
-	std::string getIDN();
+	  int voltagesOnOf=3;
+	  std::string serverName;
+	  
+    public:
+	  FUGNetzteil(void);
+	  ~FUGNetzteil(void);
+	  measuredValue getMeasure(bool force=false);	
+	  int setI(double I );
+	  int setU(double I );
+	  double getI();
+	  double getU();
+	  std::string getLastError();
+	  std::string getIDN();
 
-protected:
-	std::string lastError;
-	void setError(std::string command, std::string error);
-	std::string interpretAnswer(std::string query);
-	std::string composeRequest(std::string query);
-};
-
-
-
+  protected:
+	  std::string lastError;
+	  void setError(std::string command, std::string error);
+	  std::string interpretAnswer(std::string query);
+	  std::string composeRequest(std::string query);
+	  
+  };
 #endif
