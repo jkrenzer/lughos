@@ -251,7 +251,7 @@ namespace lughos
     void fromString(std::string message)
     {
       boost::regex exp1(":(..)*\r");
-      boost::cmatch res1;
+      boost::smatch res1;
       boost::regex_search(message.c_str(), res1, exp1);
       std::cout << "GOT MATCHES: " << res1.size() << " - " << res1[0] << " - " << res1[1] << std::endl;
       this->message = res1[0];
