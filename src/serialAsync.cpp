@@ -64,51 +64,6 @@ int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 }
 
 
-int serialAsync::write_only(std::string query)
-{
-  this->queryDone = false;
-//       start();
-      std::ostream request_stream(&request);
-      request_stream<<query;
-
-	boost::system::error_code ec;
- 
-	if (port_.get() == NULL || !port_->is_open()) start();
-	if (port_.get() == NULL || !port_->is_open()) return 0;
-
-	  boost::asio::async_write(*port_, request,
-          boost::bind(&serialAsync::handle_write_only, this,
-          boost::asio::placeholders::error));
-	
-	lughos::debugLog(std::string("\"")+query+std::string("\" written to port ")+port_name+ std::string(" and no answer accepted."));
-
-	   try 
-	  {
-	    io_service_->poll();
-	  }
-	  catch(...)
-	  {
-	    lughos::debugLog(std::string("I/O-Service exception while polling for port ") + port_name);
-	  }
-
-
-  
-  return 1;
-}
-
-
-void serialAsync::handle_write_only(const boost::system::error_code& err)
-  {
-
-    if (!err)
-    {   
-    }
-    else
-    {
-      lughos::debugLog(std::string("Error while writing oneway to ") + port_name);
-    }
-  }
-
 void serialAsync::handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
   {
 
@@ -148,7 +103,7 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
     }
 
   } 
-
+  
   void serialAsync::wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error)
   {
     //std::cout << " Calling wait-handler.";

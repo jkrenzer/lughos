@@ -67,16 +67,6 @@ class serialAsync : virtual public Connection<serialContext>
      * @return void
      */
     
-    virtual void handle_write_only(const boost::system::error_code& err);
-    
-    /**
-     * @brief Function for writing data to port
-     * 
-     * @param buf ...
-     * @param size ...
-     * @return int
-     */
-    
     int write_some(const char *buf, const int &size);
     
     /**
@@ -107,6 +97,7 @@ class serialAsync : virtual public Connection<serialContext>
       */
     
     void handle_read_content(const boost::system::error_code& err);
+    
 
 
 	
@@ -142,14 +133,6 @@ class serialAsync : virtual public Connection<serialContext>
 	* 
 	* @param query ...
 	* @return int
-	*/
-      
-      int write_only(std::string query);
-      
-      /**
-	* @brief Abort operation
-	* 
-	* @return void
 	*/
       
       void abort();

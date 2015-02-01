@@ -53,11 +53,6 @@ namespace lughos
       return this->interpretAnswer(connection->read());
     }
     
-    virtual void inputImplementation(std::string query)
-    {
-      connection->write_only(this->composeRequest(query));
-      return;
-    }
   public:
     
     /**
@@ -145,15 +140,6 @@ namespace lughos
 	return this->inputOutputImplementation(query,regExpr);
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
-    }
-    
-   void input(std::string query)
-    {
-      GUARD
-      if(this->connected)
-	this->inputImplementation(query);
-      else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("input_without_connection")) << errorTitle("Input was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     DeviceImpl() : connection()

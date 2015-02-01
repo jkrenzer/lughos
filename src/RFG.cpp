@@ -103,40 +103,40 @@ void RFG::set_default()
 
 void RFG::power_supply_mode()
 {
- if(mode==false)this->input("A"); 
+ if(mode==false)this->inputOutput("A"); 
 }
 
 void RFG::bcc_mode()
 {
- if(mode==true)this->input("B"); 
+ if(mode==true)this->inputOutput("B"); 
 }
 
 void RFG::use_voltage_controler()
 {
- this->input("F");
+ this->inputOutput("F");
  this->controler=0;
 }
 
 void RFG::use_current_controler()
 {
- this->input("G");
+ this->inputOutput("G");
  this->controler=1;
 }
 
 void RFG::use_power_controler()
 {
- this->input("H");
+ this->inputOutput("H");
  this->controler=2;
 }
 
 void RFG::switch_on()
 {
-  this->input("N");
+  this->inputOutput("N");
 }
 
 void RFG::switch_off()
 {
-  this->input("O");
+  this->inputOutput("O");
 }
 
 float RFG::getLimitMaxVoltage()
