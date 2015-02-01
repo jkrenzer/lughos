@@ -210,6 +210,8 @@ namespace lughos
      
      std::string getValueString() const
      {
+	if(this->parameterType == ParameterType::String)
+	  return charValue;
 	std::stringstream returnStream;
 	std::cout << "getValueString HEXVALUE: " << this->hexValue << std::endl;
 	long unsigned int value;
@@ -220,7 +222,6 @@ namespace lughos
 	  case ParameterType::Character : char c; memcpy(&c,&value,sizeof(c)); returnStream << c; break;
 	  case ParameterType::Float : float f; memcpy(&f,&value,sizeof(f)); returnStream << f; break;
 	  case ParameterType::Integer : uint16_t i; memcpy(&i,&value,sizeof(i)); returnStream << i; break;
-	  case ParameterType::String : return this->charValue; break;
 	  default: return std::string("ERROR");
 	}
 	std::cout << "getValueString STRING: " << value << std::endl;
