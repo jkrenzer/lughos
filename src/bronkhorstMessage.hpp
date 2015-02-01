@@ -256,10 +256,11 @@ namespace lughos
 	return;
       else
 	message = res1[1];
+      
       boost::regex exp2("([a-fA-F0-9]{2})");
       boost::cmatch res2;
       boost::regex_search(message.c_str(), res2, exp2);
-      std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << std::endl;
+      std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res1[1] << std::endl;
       this->message = res2[0];
       std::stringstream(res2[2]) >> std::hex >> this->node;
       std::stringstream(res2[3]) >> std::hex >> this->type;
