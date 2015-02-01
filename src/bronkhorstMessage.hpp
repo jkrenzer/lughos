@@ -234,8 +234,8 @@ namespace lughos
       switch (type) 
       {
 	case 1:
-	case 2: ss << std::setw(2) << std::setfill('0') << std::hex  << this->node << this->type << this->getProcessByte() << this->getParameterByte() << this->hexValue  ; break;
-	case 4: ss << std::setw(2) << std::setfill('0') << std::hex  <<  this->node << this->type << this->getProcessByte() << this->getParameterByte() << this->process << this->parameter;
+	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue  ; break;
+	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->process << std::setw(2) << this->parameter;
 		if(this->type == bronkhorstMessage::ParameterType::String) 
 		  ss << std::hex << std::setw(2) << std::setfill('0') << this->expectedStringLength;
 		break;
