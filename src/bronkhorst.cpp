@@ -81,7 +81,7 @@ measuredValue bronkhorst::get_value()
     {
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
-      setpoint = (iSetpoint/32767)*this->maxCapacity;
+      setpoint = ((float)iSetpoint/32767.0)*this->maxCapacity;
       std::cout << "Setpoint is: " << iSetpoint << " of 32767 which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
