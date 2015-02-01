@@ -217,8 +217,9 @@ namespace lughos
 	  case ParameterType::Float : float f; std::stringstream(this->hexValue) >> std::hex >> f; returnStream << f; break;
 	  case ParameterType::Integer : uint16_t i; std::stringstream(this->hexValue) >> std::hex >> i; returnStream << i; break;
 	  case ParameterType::String : return this->charValue; break;
-	  default: return std::string("");
+	  default: return std::string("ERROR");
 	}
+	return returnStream.str();
      }
      
      template <class T> void setValueString(T value)
