@@ -258,8 +258,12 @@ namespace lughos
 	message = res1[1];
       
       boost::regex exp2("([a-fA-F0-9]{2})");
-      boost::cmatch res2;
-      boost::regex_search(message.c_str(), res2, exp2);
+      boost::sregex_token_iterator nomatchIt;
+      std::vector<std::string> res2;
+      for (boost::sregex_token_iterator matchIt(message.begin(), message.end(), exp2, 1); matchIt != nomatchIt; matchIt++)
+      {
+	res2.push_back(*matchIt);
+      }
       std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res1[1] << std::endl;
       this->message = res2[0];
       std::stringstream(res2[2]) >> std::hex >> this->node;
@@ -275,7 +279,7 @@ namespace lughos
 		std::stringstream(res2[4]) >> std::hex >> byte; setProcessByte(byte);
 		std::stringstream(res2[5]) >> std::hex >> byte; setParameterByte(byte);
 		char c = '\x00';
-		for(boost::cmatch::const_iterator it = res2.begin() + 6; it != res2.end(); it++)
+		for(std::vector<std::string>::const_iterator it = res2.begin() + 6; it != res2.end(); it++)
 		{
 		  std::stringstream(*it) >> this->hexValue;
 		  std::stringstream(*it) >> std::hex >> c; 
