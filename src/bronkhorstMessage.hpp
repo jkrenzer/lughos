@@ -103,7 +103,7 @@ namespace lughos
     
     void setParameter(int parameter)
     {
-      if (this->parameter > 0 && this->parameter < 32 )
+      if (parameter > 0 && parameter < 32 )
 	this->parameter = parameter;
     }
     
