@@ -231,7 +231,7 @@ namespace lughos
      template <class T> void setValueString(T newValue)
      {
        std::stringstream returnStream;
-       long unsigned int value;
+       long unsigned int value = 0;
        
 	switch(this->parameterType)
 	{
@@ -255,7 +255,7 @@ namespace lughos
       switch (type) 
       {
 	case 1:
-	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue  ; break;
+	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue; break;
 	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->getProcessByte(true) << std::setw(2) << this->getParameterByte(true);
 		if(this->type == bronkhorstMessage::ParameterType::String) 
 		  ss << std::hex << std::setw(2) << std::setfill('0') << this->expectedStringLength;
