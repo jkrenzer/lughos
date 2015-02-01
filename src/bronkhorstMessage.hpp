@@ -232,7 +232,7 @@ namespace lughos
 	default:	return std::string("ERROR!"); break;
       }
       std::string s = ss.str();
-      std::cout << "STRING: " << this->node << this->type << this->getProcessByte() << this->getParameterByte() << this->process << this->parameter << std::endl;
+      std::cout << "STRING: " << (int) this->node << (int) this->type << this->getProcessByte() << this->getParameterByte() << this->process << this->parameter << std::endl;
       ss.str("");
       ss << std::setw(1) << ":" << std::hex << std::setw(2) << std::setfill('0') << ( s.size() / 2) << s << "\r\n";
       return ss.str();
