@@ -139,7 +139,7 @@ namespace lughos
 	bs[7] = true;
       else
 	bs[7] = false;
-      return ((uint8_t) bs.to_ulong()) | ((uint8_t) this->parameterType);
+      return bs.to_ulong() + this->parameterType;
     }
     
     void setParameterByte(int parameterType)
