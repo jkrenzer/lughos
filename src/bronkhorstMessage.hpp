@@ -211,6 +211,7 @@ namespace lughos
      std::string getValueString() const
      {
 	std::stringstream returnStream;
+	std::cout << "getValueString HEXVALUE: " << this->hexValue;
 	switch(this->parameterType)
 	{
 	  case ParameterType::Character : char c; std::stringstream(this->hexValue) >> std::hex >> c; returnStream << c; break;
@@ -238,6 +239,7 @@ namespace lughos
 					break;
 	}
 	this->hexValue = returnStream.str();
+	std::cout << "setValueString HEXVALUE: " << this->hexValue;
      }
     
     std::string toString() const
