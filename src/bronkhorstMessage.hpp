@@ -160,7 +160,7 @@ namespace lughos
       std::bitset<8> pbs = bs.to_ulong() & 31;
       this->parameterType = tbs.to_ulong();
       this->parameter = pbs.to_ulong();
-      cout << "PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
+      std::cout << "PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
     }
     
     unsigned int getProcessByte(bool ommitChained = false) const
@@ -179,7 +179,7 @@ namespace lughos
       this->processChained = bs[7];
       bs[7] = false;
       this->process = bs.to_ulong();
-      cout << "PROCESSBYTE: " << processType << " - " << bs.to_ulong() << std::endl;
+      std::cout << "PROCESSBYTE: " << processType << " - " << bs.to_ulong() << std::endl;
     }
     
     unsigned int getExpectedStringLength() const
