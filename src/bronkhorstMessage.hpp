@@ -139,6 +139,7 @@ namespace lughos
 	bs[7] = true;
       else
 	bs[7] = false;
+      std::cout << bs.to_ulong() + this->parameterType << " = " << bs.to_ulong() << " + " << this->parameterType << std::endl;
       return bs.to_ulong() + this->parameterType;
     }
     
