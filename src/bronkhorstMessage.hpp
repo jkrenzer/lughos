@@ -34,6 +34,10 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
+      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
+      message.clear();
+      hexValue.clear();
+      charValue.clear();
     }
     
     bronkhorstMessage(std::string s)
@@ -41,6 +45,10 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
+      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
+      message.clear();
+      hexValue.clear();
+      charValue.clear();
       this->fromString(s);
     }
     
@@ -264,8 +272,8 @@ namespace lughos
       {
 	res2.push_back(*matchIt);
       }
-      std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res1[1] << std::endl;
-      this->message = res2[0];
+      std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res2[2] << " - " << res1[1] << std::endl;
+      this->message = message;
       std::stringstream(res2[2]) >> std::hex >> this->node;
       std::stringstream(res2[3]) >> std::hex >> this->type;
       switch(this->type)
