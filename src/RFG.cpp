@@ -314,7 +314,7 @@ measuredValue RFG::get_channel(int i, bool force)
 
 void RFG::initImplementation()
 {
-if(checkConnected())
+if(isConnected())
   std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
 this->mode=true;
 controler =0;

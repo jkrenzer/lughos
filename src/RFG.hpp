@@ -58,7 +58,6 @@ class RFG :public Device
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
 	float getPower();
-	bool checkConnected();
 	bool readout();
 	
 protected:
