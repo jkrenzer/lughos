@@ -132,10 +132,10 @@ namespace lughos
       return this->message.size() - 2;
     }
     
-    unsigned int getParameterByte() const
+    unsigned int getParameterByte(bool ommitChained = false) const
     {
       std::bitset<8> bs(this->parameter);
-      if(this->parameterChained)
+      if(this->parameterChained && !ommitChained)
 	bs[7] = true;
       else
 	bs[7] = false;
@@ -154,10 +154,10 @@ namespace lughos
       this->parameter = pbs.to_ulong();
     }
     
-    unsigned int getProcessByte() const
+    unsigned int getProcessByte(bool ommitChained = false) const
     {
       std::bitset<8> bs(this->process);
-      if(this->processChained)
+      if(this->processChained && !ommitChained)
 	bs[7] = true;
       else
 	bs[7] = false;
@@ -236,7 +236,7 @@ namespace lughos
       {
 	case 1:
 	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue  ; break;
-	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->process << std::setw(2) << this->parameter;
+	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->getProcessByte(true) << std::setw(2) << this->getParameterByte(true);
 		if(this->type == bronkhorstMessage::ParameterType::String) 
 		  ss << std::hex << std::setw(2) << std::setfill('0') << this->expectedStringLength;
 		break;
