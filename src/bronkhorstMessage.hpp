@@ -12,20 +12,20 @@ namespace lughos
   class bronkhorstMessage
   {
   protected:
-    int type;
-    int node;
-    int parameterType;
-    int process;
-    int parameter;
-    int expectedStringLength;
+    unsigned int type;
+    unsigned int node;
+    unsigned int parameterType;
+    unsigned int process;
+    unsigned int parameter;
+    unsigned int expectedStringLength;
     bool processChained;
     bool parameterChained;
     bool isStatus;
     std::string message;
     std::string hexValue;
     std::string charValue;
-    int statusCode;
-    int statusSubjectFirstByte;
+    unsigned int statusCode;
+    unsigned int statusSubjectFirstByte;
     
   public:
     
@@ -54,7 +54,7 @@ namespace lughos
       
     }
     
-    int getType() const
+    unsigned int getType() const
     {
       return this->type;
     }
@@ -65,7 +65,7 @@ namespace lughos
 	this->type = type;
     }
     
-    int getParameterType() const
+    unsigned int getParameterType() const
     {
       return this->parameterType;
     }
@@ -76,7 +76,7 @@ namespace lughos
 	this->parameterType = varType;
     }
     
-    int getNode() const
+    unsigned int getNode() const
     {
       return this->node;
     }
@@ -86,7 +86,7 @@ namespace lughos
       this->node = node;
     }
     
-    int getProcess() const
+    unsigned int getProcess() const
     {
       return this->getProcess();
     }
@@ -96,7 +96,7 @@ namespace lughos
       this->process = process;
     }
     
-    int getParameter() const
+    unsigned int getParameter() const
     {
       return this->parameter;
     }
@@ -127,19 +127,19 @@ namespace lughos
       this->parameterChained = parameterChained;
     }
     
-    int getlength() const
+    unsigned int getlength() const
     {
       return this->message.size() - 2;
     }
     
-    int getParameterByte() const
+    unsigned int getParameterByte() const
     {
       std::bitset<8> bs(this->parameter);
       if(this->parameterChained)
 	bs[7] = true;
       else
 	bs[7] = false;
-      return bs.to_ulong() | this->parameterType;
+      return ((uint8_t) bs.to_ulong()) | ((uint8_t) this->parameterType);
     }
     
     void setParameterByte(int parameterType)
@@ -153,7 +153,7 @@ namespace lughos
       this->parameter = pbs.to_ulong();
     }
     
-    int getProcessByte() const
+    unsigned int getProcessByte() const
     {
       std::bitset<8> bs(this->process);
       if(this->processChained)
@@ -171,7 +171,7 @@ namespace lughos
       this->process = bs.to_ulong();
     }
     
-    int getExpectedStringLength() const
+    unsigned int getExpectedStringLength() const
     {
       return this->expectedStringLength;
     }
@@ -192,7 +192,7 @@ namespace lughos
       return this->isStatus && this->statusCode != '\x00';
     }
     
-     int getStatusCode() const
+     unsigned int getStatusCode() const
      {
        return this->statusCode;
      }
@@ -261,7 +261,7 @@ namespace lughos
 		std::stringstream(res1[4]) >> std::hex >> this->statusCode;
 		std::stringstream(res1[3]) >> std::hex >> this->statusSubjectFirstByte;
 		break;
-	case 2: int byte;
+	case 2: unsigned int byte;
 		this->isStatus = false;
 		std::stringstream(res1[4]) >> std::hex >> byte; setProcessByte(byte);
 		std::stringstream(res1[5]) >> std::hex >> byte; setParameterByte(byte);
