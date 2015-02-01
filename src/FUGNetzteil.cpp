@@ -193,8 +193,8 @@ double fug::getI()
 {
   int success=0;
   std::string answer="";
-  answer=inputOutput(">S1?");
-//    std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
+//   answer=inputOutput(">S1?");
+   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
       std::cout<<"i/O: "<<iO<<std::endl;
       std::cout<<"answer: "<<answer<<std::endl;
   if (answer[0]=='S')
