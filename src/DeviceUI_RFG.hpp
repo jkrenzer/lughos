@@ -114,7 +114,6 @@ using namespace lughos;
 	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setP);
         this->sendOnB->clicked().connect(this,&DeviceUI<RFG>::switchOn);
 	this->sendOffB->clicked().connect(this,&DeviceUI<RFG>::switchOff);
-        
 	this->getState();
 
       }
@@ -123,6 +122,7 @@ using namespace lughos;
 
 	this->stateF->setText("Not connected!");
         this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<RFG>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
@@ -262,6 +262,8 @@ using namespace lughos;
       measuredValue v;
       std::stringstream ss;
       this->rfg->readout();
+      if (this->rfg->checkConnected())
+	
       for (int i; i<8;i++)
       {
 	v = this->rfg->get_channel(i);

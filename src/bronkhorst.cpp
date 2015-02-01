@@ -1,6 +1,7 @@
 // #include "StdAfx.h"
 
 #include <ostream>
+#include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialAsync.hpp"
 #include "bronkhorst.hpp"
@@ -62,50 +63,74 @@ measuredValue bronkhorst::get_value()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
-//   std::string s = this->inputOutput(":06030421402140\r\n"); //old version
-    std::string s = this->inputOutput(":06030401410140\r\n");
-  std::string debugs = s;
-  s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
-  s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
-  
-  s.erase(0,1);
-  int wordlen;
-  int node;
-  int chained;
-  int type;
-  float value;
-  union { float fValue ; std::uint32_t iValue ; };
-//     std::cout<<s<<std::endl;
-  std::stringstream(s.substr(0,2)) >> wordlen;
-//     std::cout<<"wordlen: "<<wordlen<<std::endl;
-  s.erase(0,2);
-//       std::cout<<s<<std::endl;
-  std::stringstream(s.substr(0,2)) >> node;
-//       std::cout<<"node: "<<node<<std::endl;
-  s.erase(0,2);
-//       std::cout<<s<<std::endl;
-  s.erase(0,2); //command "02"
-  s.erase(0,2); //process 
-  std::stringstream(s.substr(0,2)) >> type;
-  s.erase(0,2); //parameter
+    bronkhorstMessage m1, m2, a1, a2;
+    m1.setNode(3);
+    m1.setType(4);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
+    m2.setNode(3);
+    m2.setType(4);
+    m2.setProcess(1);
+    m2.setParameter(bronkhorstMessage::Parameter::Capacity);
+    m2.setParameterType(bronkhorstMessage::ParameterType::Float);
+    a1(this->inputOutput(m1));
+    a2(this->inputOutput(m2));
+//     std::string setpointStr = this->inputOutput(":06030401210121\r\n");
+//     std::string capacityStr = this->inputOutput(":060304012D012D\r\n");
+//   std::string debugs = setpointStr;
+//   setpointStr.erase( std::remove(setpointStr.begin(), setpointStr.end(), '\r'), setpointStr.end() );
+//   setpointStr.erase( std::remove(setpointStr.begin(), setpointStr.end(), '\n'), setpointStr.end() );
+//   
+//   setpointStr.erase(0,1);
+//   int wordlen;
+//   int node;
+//   int chained;
+//   int type;
+//   uint16_t value;
+// //     std::cout<<s<<std::endl;
+//   std::stringstream(setpointStr.substr(0,2)) >> wordlen;
+// //     std::cout<<"wordlen: "<<wordlen<<std::endl;
+//   setpointStr.erase(0,2);
+// //       std::cout<<s<<std::endl;
+//   std::stringstream(setpointStr.substr(0,2)) >> node;
+// //       std::cout<<"node: "<<node<<std::endl;
+//   setpointStr.erase(0,2);
+// //       std::cout<<s<<std::endl;
+//   setpointStr.erase(0,2); //command "02"
+//   setpointStr.erase(0,2); //process 
+//   std::stringstream(setpointStr.substr(0,2)) >> type;
+//   setpointStr.erase(0,2); //parameter
 //       std::cout<<s<<std::endl;
 //   std::cout<<type<<std::endl;
-  std::cout << "Bronkhorst answered: " << debugs << std::endl;
-  std::cout << "I understood: Length" << ": "<< wordlen << " Node:" << node << " Type:" << type << std::endl;
+  
+  
+  
+//   std::cout << "Bronkhorst answered: " << debugs << std::endl;
+  std::cout << "I asked: " << m1.toString() << std::endl;
+  std::cout << "I asked: " << m2.toString() << std::endl;
+  std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
+  std::cout << "I understood: Length" << ": "<< a2.getlength() << " Node:" << a2.getNode() << " Type:" << a2.getType() << " valueType:" << a2.getParameterType() << " value:" << a2.getValueString() << std::endl;
+  float capacity;
+  double setpoint;
   try
   {
-    if(type==40)
+    if(!a1.isStatusMessage())
     {
-      std::stringstream(s.substr(0,8)) >> std::hex>> iValue;  
-      if(fValue < std::numeric_limits<float>::infinity() && fValue != std::numeric_limits<float>::quiet_NaN())
-	value = fValue;
-	
+      int iSetpoint;
+      std::stringstream(a1.getValueString()) >>  iSetpoint;
+      setpoint = (iSetpoint/32767)*capacity;
+      std::stringstream(a2.getValueString()) >> capacity;
+      std::cout << "Setpoint is: " << iSetpoint << " of 32767 which calculates to " << setpoint << " of " << capacity << std::endl;
     }
+    else
+      std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
   }
   catch(std::exception& e)
   {
     std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
-    value=0.0;
+    setpoint=0.0;
+    capacity=0.0;
   }
   
 //    static const boost::regex e("(.*))");
@@ -131,7 +156,7 @@ measuredValue bronkhorst::get_value()
 //     storedMeasure=value;
 //   }
   returnvalue.settimestamp(now);
-  returnvalue.setvalue(value);
+  returnvalue.setvalue(setpoint);
   returnvalue.setunit("sccm");
   return returnvalue;
   
@@ -160,7 +185,11 @@ void bronkhorst::initImplementation()
 {
   this->input(":050301000A52\r\n:050302010412\r\n:070304006000600F\r\n");
 }
-    
+
+bool bronkhorst::isConnectedImplementation()
+{
+  return true;
+}
 
 void bronkhorst::shutdownImplementation()
 {

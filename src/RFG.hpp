@@ -39,6 +39,7 @@ class RFG :public Device
 	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
 	void initImplementation();
+	bool isConnectedImplementation();
 	void shutdownImplementation();
 	void power_supply_mode();
 	void bcc_mode();
@@ -57,7 +58,7 @@ class RFG :public Device
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
 	float getPower();
-
+	bool checkConnected();
 	bool readout();
 	
 protected:

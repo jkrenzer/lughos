@@ -31,6 +31,8 @@ namespace lughos
     
     virtual void initImplementation() = 0;
     
+    virtual bool isConnectedImplementation() = 0;
+    
     virtual void shutdownImplementation() = 0;
     
     virtual std::string composeRequest(std::string query) = 0;
@@ -104,8 +106,8 @@ namespace lughos
 	this->init();
       else if (!currentlyConnected && this->connected)
 	this->initialized = false;
-      this->connected = currentlyConnected;
-      return currentlyConnected;
+      this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      return this->connected;
     }
     
     bool isInitialized()

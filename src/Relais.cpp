@@ -154,3 +154,8 @@ void Relais::shutdownImplementation()
 {
 }
 
+bool Relais::isConnectedImplementation()
+{
+  return true;
+}
+

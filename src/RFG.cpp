@@ -29,11 +29,11 @@ RFG::RFG()
   unitsToVoltage.init();
   x2y = unitsToCurrent.valueMap.left;
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFFFF", NULL, 0), 5));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5));
   unitsToCurrent.init();
   x2y = unitsToPower.valueMap.left;
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFFFF", NULL, 0), 190));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190));
   unitsToPower.init();
 }
 
@@ -314,13 +314,19 @@ measuredValue RFG::get_channel(int i, bool force)
 
 void RFG::initImplementation()
 {
-std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
-if(initStr == std::string("@"))
+if(checkConnected())
   std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
 this->mode=true;
 controler =0;
 }
     
+bool RFG::isConnectedImplementation()
+{
+  std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
+  this->connected = initStr == std::string("@");
+  return this->connected;
+}
+
 
 void RFG::shutdownImplementation()
 {

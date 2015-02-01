@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <boost/array.hpp>
+#include "bronkhorstMessage.hpp"
 #include "device.hpp"
 #include "measuredValue.hpp"
 #include "utils.hpp"
@@ -37,6 +38,7 @@ public:
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
+	bool isConnectedImplementation();
 	measuredValue get_value();
 	std::string set_flow(float value);
 protected:
