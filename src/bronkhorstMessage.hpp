@@ -49,9 +49,9 @@ namespace lughos
       return this->toString();
     }
     
-    void operator()(std::string)
+    void operator()(std::string s)
     {
-      
+      this->fromString(s);
     }
     
     unsigned int getType() const
