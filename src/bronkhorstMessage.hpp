@@ -199,10 +199,28 @@ namespace lughos
 	  default: return std::string("");
 	}
      }
+     
+     template <class T> void setValueString(T value)
+     {
+       std::stringstream returnStream;
+	switch(this->parameterType)
+	{
+	  case ParameterType::Character : char c = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  <<  c; break;
+	  case ParameterType::Float : float f = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  << f; break;
+	  case ParameterType::Integer : uint16_t i = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  << i; break;
+	  case ParameterType::String : std::string s = value; 
+					for (std::string::const_iterator it = s.begin(); it != s.end(); it++)
+					{
+					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (uint8_t) it*;
+					}
+					break;
+	}
+	this->hexValue = returnStream.str();
+     }
     
     std::string toString() const
     {
-      std::stringstream ss;
+      std::stringstream ss("");
       switch (type) 
       {
 	case 1:
@@ -211,11 +229,12 @@ namespace lughos
 		if(this->type == bronkhorstMessage::ParameterType::String) 
 		  ss << std::hex << std::setw(2) << std::setfill('0') << this->expectedStringLength;
 		break;
-	default:	return std::string("ERROR!");
+	default:	return std::string("ERROR!"); break;
       }
       std::string s = ss.str();
+      std::cout << "STRING: " << s << std::endl;
       ss.str("");
-      ss << std::setw(1) << ":" << std::hex << std::setw(2) << std::setfill('0') << ( s.size() / 2) - 2 << s << "\r\n";
+      ss << std::setw(1) << ":" << std::hex << std::setw(2) << std::setfill('0') << ( s.size() / 2) << s << "\r\n";
       return ss.str();
     }
     
