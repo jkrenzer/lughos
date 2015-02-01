@@ -44,6 +44,7 @@ public:
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
+	float maxCapacity;
 	
 	measuredValue storedMeasure;
 };

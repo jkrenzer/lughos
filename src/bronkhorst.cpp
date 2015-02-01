@@ -69,13 +69,8 @@ measuredValue bronkhorst::get_value()
     m1.setProcess(1);
     m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
     m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
-    m2.setNode(3);
-    m2.setType(4);
-    m2.setProcess(1);
-    m2.setParameter(bronkhorstMessage::Parameter::Capacity);
-    m2.setParameterType(bronkhorstMessage::ParameterType::Float);
+    
     a1(this->inputOutput(m1));
-    a2(this->inputOutput(m2));
 //     std::string setpointStr = this->inputOutput(":06030401210121\r\n");
 //     std::string capacityStr = this->inputOutput(":060304012D012D\r\n");
 //   std::string debugs = setpointStr;
@@ -108,10 +103,7 @@ measuredValue bronkhorst::get_value()
   
 //   std::cout << "Bronkhorst answered: " << debugs << std::endl;
   std::cout << "I asked: " << m1.toString() << std::endl;
-  std::cout << "I asked: " << m2.toString() << std::endl;
   std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
-  std::cout << "I understood: Length" << ": "<< a2.getlength() << " Node:" << a2.getNode() << " Type:" << a2.getType() << " valueType:" << a2.getParameterType() << " value:" << a2.getValueString() << std::endl;
-  float capacity;
   double setpoint;
   try
   {
@@ -119,9 +111,8 @@ measuredValue bronkhorst::get_value()
     {
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
-      setpoint = (iSetpoint/32767)*capacity;
-      std::stringstream(a2.getValueString()) >> capacity;
-      std::cout << "Setpoint is: " << iSetpoint << " of 32767 which calculates to " << setpoint << " of " << capacity << std::endl;
+      setpoint = (iSetpoint/32767)*this->maxCapacity;
+      std::cout << "Setpoint is: " << iSetpoint << " of 32767 which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
@@ -130,7 +121,6 @@ measuredValue bronkhorst::get_value()
   {
     std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
     setpoint=0.0;
-    capacity=0.0;
   }
   
 //    static const boost::regex e("(.*))");
@@ -166,18 +156,18 @@ std::string bronkhorst::set_flow(float value)
 {
   
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
-  union { float fValue ; std::uint32_t iValue ; };
-  fValue = value ;
-  
-  static_assert( std::numeric_limits<float>::is_iec559,
-                   "For the bronkhorst communication-classes to work properly your computer must support IEEE standard-conformant float values!!" ) ;
-  
-    std::ostringstream request;
-    request << std::hex << std::uppercase << std::setfill('0') << std::setw (8) << iValue;
-    std::string s = request.str();
-    std::cout << "I told the bronkhorst to set flow to " << value << " (" << s << ")" << std::endl;
-          
-  return this->inputOutput(":0803022143"+s+"\r\n");
+  int iSetpoint = (value/this->maxCapacity)*32767;
+  bronkhorstMessage m1;
+  std::string s;
+  m1.setNode(3);
+    m1.setType(2);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
+    m1.setValueString(iSetpoint);
+    s = this->inputOutput(m1);
+    std::cout << "I told the bronkhorst to set flow to " << iSetpoint << " (" << m1.toString() << ")" << std::endl;
+  return s;
   
 }
 
@@ -186,6 +176,16 @@ void bronkhorst::initImplementation()
   this->inputOutput(":050301000A52\r\n");
   this->inputOutput("050302010412\r\n");
   this->inputOutput(":070304006000600F\r\n");
+  bronkhorstMessage m1,a1;
+  m1.setNode(3);
+    m1.setType(4);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Capacity);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Float);
+    a1(this->inputOutput(m1));
+    if(!a1.isStatusMessage())
+      std::stringstream(a1.getValueString()) >> this->maxCapacity;
+
 }
 
 bool bronkhorst::isConnectedImplementation()

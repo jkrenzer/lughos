@@ -228,26 +228,23 @@ namespace lughos
 	return returnStream.str();
      }
      
-     template <class T> void setValueString(T value)
+     template <class T> void setValueString(T newValue)
      {
        std::stringstream returnStream;
+       if(this->parameterType == ParameterType::String)
+ 	  return;
+       long unsigned int value;
 	switch(this->parameterType)
 	{
-	  case ParameterType::Character : char c = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  <<  c; break;
-	  case ParameterType::Float : float f = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  << f; break;
-	  case ParameterType::Integer : uint16_t i = value; returnStream << std::setw(2) << std::setfill('0') << std::hex  << i; break;
-	  case ParameterType::String : std::string s = value; 
-					for (std::string::const_iterator it = s.begin(); it != s.end(); it++)
-					{
-					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (int) *it;
-					}
-					break;
+	  case ParameterType::Character : memcpy(&value,&newValue,sizeof(char)); returnStream << std::hex << std::setw(sizeof(char)) << std::setfill('0') << value;  break;
+	  case ParameterType::Float : memcpy(&value,&newValue,sizeof(float)); returnStream << std::hex << std::setw(sizeof(float)) << std::setfill('0') << value;  break;
+	  case ParameterType::Integer : memcpy(&value,&newValue,sizeof(int)); returnStream << std::hex << std::setw(sizeof(int)) << std::setfill('0') << value;  break;
 	}
 	this->hexValue = returnStream.str();
 	std::cout << "setValueString HEXVALUE: " << this->hexValue;
      }
-    
-    std::string toString() const
+     
+     std::string toString() const
     {
       std::stringstream ss("");
       switch (type) 
@@ -311,6 +308,17 @@ namespace lughos
     enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
     enum Parameter {Setpoint = 1, Capacity = 13};
   };
+  
+  template <> void bronkhorstMessage::setValueString<std::string>(std::string newValue)
+     {
+       std::stringstream returnStream;
+       for (std::string::const_iterator it = newValue.begin(); it != newValue.end(); it++)
+	  {
+	    returnStream << std::setw(2) << std::setfill('0') << std::hex  << (int) *it;
+	  }
+	this->hexValue = returnStream.str();
+	std::cout << "setValueString HEXVALUE: " << this->hexValue;
+     }
   
 }//namespace lughos
 
