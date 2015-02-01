@@ -220,6 +220,10 @@ add_library(Relais src/Relais.cpp)
 target_link_libraries(Relais serialAsync unitValue serialConnections errorHandling)
 add_dependencies(Relais serialAsync unitValue serialConnections errorHandling)
 
+add_library(FUGNetzteil src/FUGNetzteil.cpp)
+target_link_libraries(FUGNetzteil serialAsync unitValue serialConnections errorHandling)
+add_dependencies(FUGNetzteil serialAsync unitValue serialConnections errorHandling)
+
 add_library(RFG src/RFG.cpp)
 target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling)
 add_dependencies(RFG serialAsync unitValue serialConnections errorHandling)
@@ -268,12 +272,16 @@ endif()
 ### Test for wt2
 # Add executbales and libraries if dependencies are found
 add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
+<<<<<<< HEAD
 add_dependencies(test_gui2 bronkhorst Relais RFG)
+=======
+add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil)
+>>>>>>> eec6951374b293f2d6d9f8c5fb32307821ec705f
 
 if(${Windows})
-target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
 else()
-target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
 endif()
 
 ### Test for wt-plots

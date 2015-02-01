@@ -8,6 +8,7 @@
 #include "serialAsync.hpp"
 #include "device.hpp"
 #include "bronkhorst.hpp"
+#include "FUGNetzteil.hpp"
 #include "test_gui_monitoring2.hpp"
 #include "RFG.hpp"
 #include "Relais.hpp"
@@ -48,6 +49,8 @@ boost::shared_ptr<Device> makeInstance(std::string typeIdentifier)
         return boost::shared_ptr<Device>(new bronkhorst);
     else if (typeIdentifier == std::string("relais"))
         return boost::shared_ptr<Device>(new Relais);
+    else if (typeIdentifier == std::string("fug"))
+        return boost::shared_ptr<Device>(new FUGNetzteil);
 }
 
 int main(int argc, char **argv)
@@ -103,6 +106,20 @@ int main(int argc, char **argv)
             config.put("devices.relais1.connection.mode","async");
             config.put("devices.relais1.connection.port","COM3");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
+	    
+	    config.put("devices.fug1.name","FUGNetzteil 1");
+            config.put("devices.fug1.type","fug");
+            config.put("devices.fug1.connection.type","serial");
+            config.put("devices.fug1.connection.mode","async");
+            config.put("devices.fug1.connection.port","COM3");
+            boost::property_tree::write_xml(CONFIG_FILENAME, config);
+	    
+	    config.put("devices.fug2.name","FUGNetzteil 2");
+            config.put("devices.fug2.type","fug");
+            config.put("devices.fug2.connection.type","serial");
+            config.put("devices.fug2.connection.mode","async");
+            config.put("devices.fug2.connection.port","COM3");
+            boost::property_tree::write_xml(CONFIG_FILENAME, config);
         }
 
         //TODO Make a loop which iterates over declared devices
@@ -111,23 +128,32 @@ int main(int argc, char **argv)
         boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection5(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection6(new serialAsync(lughos::ioService) );
+	
 
 
         connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
         connection2->port_name = std::string(config.get<std::string>("devices.rfg1.connection.port"));
         connection3->port_name = std::string(config.get<std::string>("devices.relais1.connection.port"));
         connection4->port_name = std::string(config.get<std::string>("devices.flowcontroll2.connection.port"));
-
+        connection5->port_name = std::string(config.get<std::string>("devices.fug1.connection.port"));
+	connection6->port_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
 
         boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
         boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
         boost::shared_ptr<Device> RFG1(new RFG);
         boost::shared_ptr<Device> relais1(new Relais);
+	 boost::shared_ptr<Device> fug1(new FUGNetzteil);
+        boost::shared_ptr<Device> fug2(new FUGNetzteil);
 
         flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
         flowcontroll2->setName(config.get<std::string>("devices.flowcontroll2.name"));
         RFG1->setName(config.get<std::string>("devices.rfg1.name"));
         relais1->setName(config.get<std::string>("devices.relais1.name"));
+	fug1->setName(config.get<std::string>("devices.fug1.name"));
+        fug2->setName(config.get<std::string>("devices.fug2.name"));
+	
 
         if(!flowcontroll1->connect(connection1))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll1!!!" << std::endl;
@@ -139,12 +165,18 @@ int main(int argc, char **argv)
 	connection3->end_of_line_char('$');
             if(!relais1->connect(connection3))
                 std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
+	            if(!fug1->connect(connection5))
+            std::cout << ">>>>>>>>>>>>>>>> Could not connect to fug1!!!" << std::endl;
+        if(!fug2->connect(connection6))
+            std::cout << ">>>>>>>>>>>>>>>> Could not connect to fug2!!!" << std::endl;
 
 	//Adding devices to map
         deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
         deviceMap.insert(deviceMapPair(flowcontroll2->getName(), flowcontroll2));
         deviceMap.insert(deviceMapPair(RFG1->getName(), RFG1));
         deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
+        deviceMap.insert(deviceMapPair(fug1->getName(), fug1));
+        deviceMap.insert(deviceMapPair(fug2->getName(), fug2));
 
 
         Wt::Dbo::backend::Sqlite3 sqlite3("test.db");

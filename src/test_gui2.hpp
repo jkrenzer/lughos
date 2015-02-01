@@ -42,6 +42,7 @@
 #include "jobQueue.hpp"
 #include "bronkhorst.hpp"
 #include "RFG.hpp"
+#include "FUGNetzteil.hpp"
 #include "Relais.hpp"
 #include "DeviceUI_bronkhorst.hpp"
 #include "DeviceUI_RFG.hpp"
@@ -116,6 +117,8 @@ namespace lughos
 //       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));  
       this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] )); 
+      this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUG 1")]));
+      this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUG 2")]));
     }
 
   };
