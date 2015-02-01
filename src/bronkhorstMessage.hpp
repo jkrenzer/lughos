@@ -276,20 +276,20 @@ namespace lughos
       }
       std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res2[2] << " - " << res1[1] << std::endl;
       this->message = message;
-      std::stringstream(res2[2]) >> std::hex >> this->node;
-      std::stringstream(res2[3]) >> std::hex >> this->type;
+      std::stringstream(res2[1]) >> std::hex >> this->node;
+      std::stringstream(res2[2]) >> std::hex >> this->type;
       switch(this->type)
       {
 	case 0: this->isStatus = true;
-		std::stringstream(res2[4]) >> std::hex >> this->statusCode;
-		std::stringstream(res2[3]) >> std::hex >> this->statusSubjectFirstByte;
+		std::stringstream(res2[3]) >> std::hex >> this->statusCode;
+		std::stringstream(res2[4]) >> std::hex >> this->statusSubjectFirstByte;
 		break;
 	case 2: unsigned int byte;
 		this->isStatus = false;
-		std::stringstream(res2[4]) >> std::hex >> byte; setProcessByte(byte);
-		std::stringstream(res2[5]) >> std::hex >> byte; setParameterByte(byte);
+		std::stringstream(res2[3]) >> std::hex >> byte; setProcessByte(byte);
+		std::stringstream(res2[4]) >> std::hex >> byte; setParameterByte(byte);
 		char c = '\x00';
-		for(std::vector<std::string>::const_iterator it = res2.begin() + 6; it != res2.end(); it++)
+		for(std::vector<std::string>::const_iterator it = res2.begin() + 5; it != res2.end(); it++)
 		{
 		  std::stringstream(*it) >> this->hexValue;
 		  std::stringstream(*it) >> std::hex >> c; 
