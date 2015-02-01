@@ -1,6 +1,7 @@
 // #include "StdAfx.h"
 
 #include <ostream>
+#include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
 #include "serialAsync.hpp"
 #include "bronkhorst.hpp"
@@ -62,76 +63,38 @@ measuredValue bronkhorst::get_value()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
-//   std::string s = this->inputOutput(":06030421402140\r\n"); //old version
-    std::string s = this->inputOutput(":06030401410140\r\n");
-  std::string debugs = s;
-  s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
-  s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
-  
-  s.erase(0,1);
-  int wordlen;
-  int node;
-  int chained;
-  int type;
-  float value;
-  union { float fValue ; std::uint32_t iValue ; };
-//     std::cout<<s<<std::endl;
-  std::stringstream(s.substr(0,2)) >> wordlen;
-//     std::cout<<"wordlen: "<<wordlen<<std::endl;
-  s.erase(0,2);
-//       std::cout<<s<<std::endl;
-  std::stringstream(s.substr(0,2)) >> node;
-//       std::cout<<"node: "<<node<<std::endl;
-  s.erase(0,2);
-//       std::cout<<s<<std::endl;
-  s.erase(0,2); //command "02"
-  s.erase(0,2); //process 
-  std::stringstream(s.substr(0,2)) >> type;
-  s.erase(0,2); //parameter
-//       std::cout<<s<<std::endl;
-//   std::cout<<type<<std::endl;
-  std::cout << "Bronkhorst answered: " << debugs << std::endl;
-  std::cout << "I understood: Length" << ": "<< wordlen << " Node:" << node << " Type:" << type << std::endl;
+    bronkhorstMessage m1, m2, a1, a2;
+    m1.setNode(3);
+    m1.setType(4);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
+    
+    a1(this->inputOutput(m1));
+ 
+  std::cout << "I asked: " << m1.toString() << std::endl;
+  std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
+  double setpoint;
   try
   {
-    if(type==40)
+    if(!a1.isStatusMessage())
     {
-      std::stringstream(s.substr(0,8)) >> std::hex>> iValue;  
-      if(fValue < std::numeric_limits<float>::infinity() && fValue != std::numeric_limits<float>::quiet_NaN())
-	value = fValue;
-	
+      int iSetpoint;
+      std::stringstream(a1.getValueString()) >>  iSetpoint;
+      setpoint = ((float)iSetpoint/32767.0)*this->maxCapacity;
+      std::cout << "Setpoint is: " << iSetpoint << " of 32767 which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
+    else
+      std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
   }
   catch(std::exception& e)
   {
     std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
-    value=0.0;
+    setpoint=0.0;
   }
   
-//    static const boost::regex e("(.*))");
-// 
-//   boost::cmatch res;
-//   boost::regex_search(s.c_str(), res, e);
-//   double number = save_lexical_cast<double>(res[0],-1);
-// 
-//   s=res[0];
-
-// 
-//     if(s.empty() && number == 0)
-//   {
-//     value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-//     value.setunit("sccm");
-//     storedMeasure=value;    
-//   }
-//   else 
-//   {
-//     value.setvalue(number);
-//     value.setunit("sccm");
-//     value.settimestamp(boost::posix_time::second_clock::local_time());
-//     storedMeasure=value;
-//   }
   returnvalue.settimestamp(now);
-  returnvalue.setvalue(value);
+  returnvalue.setvalue(setpoint);
   returnvalue.setunit("sccm");
   return returnvalue;
   
@@ -141,26 +104,49 @@ std::string bronkhorst::set_flow(float value)
 {
   
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
-  union { float fValue ; std::uint32_t iValue ; };
-  fValue = value ;
-  
-  static_assert( std::numeric_limits<float>::is_iec559,
-                   "For the bronkhorst communication-classes to work properly your computer must support IEEE standard-conformant float values!!" ) ;
-  
-    std::ostringstream request;
-    request << std::hex << std::uppercase << std::setfill('0') << std::setw (8) << iValue;
-    std::string s = request.str();
-    std::cout << "I told the bronkhorst to set flow to " << value << " (" << s << ")" << std::endl;
-          
-  return this->inputOutput(":0803022143"+s+"\r\n");
+  int iSetpoint = (value/this->maxCapacity)*32767;
+  bronkhorstMessage m1;
+  std::string s;
+  m1.setNode(3);
+    m1.setType(2);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
+    m1.setValueString(iSetpoint);
+    s = this->inputOutput(m1);
+    std::cout << "I told the bronkhorst to set flow to " << iSetpoint << " (" << m1.toString() << ")" << std::endl;
+  return s;
   
 }
 
 void bronkhorst::initImplementation()
 {
-  this->input(":050301000A52\r\n:050302010412\r\n:070304006000600F\r\n");
-}
+  this->inputOutput(":050301000A52\r\n");
+  this->inputOutput("050302010412\r\n");
+  this->inputOutput(":070304006000600F\r\n");
+  this->maxCapacity = 1.0;
+  bronkhorstMessage m1,a1;
+  m1.setNode(3);
+    m1.setType(4);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Capacity);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Float);
+    a1(this->inputOutput(m1));
+    if(!a1.isStatusMessage())
+    {
+      std::stringstream(a1.getValueString()) >> this->maxCapacity;
+      std::cout << "MAXCAPACITY: " << this->maxCapacity;
+    }
+    else
+      std::cout << "UNABLE TO SET CAPACITY! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     
+
+}
+
+bool bronkhorst::isConnectedImplementation()
+{
+  return true;
+}
 
 void bronkhorst::shutdownImplementation()
 {

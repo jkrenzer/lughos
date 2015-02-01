@@ -111,7 +111,8 @@ namespace lughos
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
-      this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")], deviceMap[std::string("Flow Controll 2")] ));
+      this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
+      this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
 //       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));  
       this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] )); 
@@ -150,7 +151,7 @@ namespace lughos
       bootstrapTheme->setResponsive(true);
       this->setTheme(bootstrapTheme);
       // load the default bootstrap3 (sub-)theme
-      this->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
+      this->useStyleSheet("/usr/share/Wt/resources/themes/bootstrap/3/bootstrap-theme.min.css");
       setTitle("Lughos System Control");
 // 		    ofs.close();
       Wt::WContainerWidget *container = new Wt::WContainerWidget();

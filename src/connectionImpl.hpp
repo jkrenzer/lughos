@@ -5,6 +5,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/detail/thread.hpp>
 #include <boost/chrono.hpp>
+#include <boost/regex.hpp>
 
 /**
  * @class ConnectionImpl
@@ -46,7 +47,7 @@ public:
    * @param query string with pure command without end of line caracter
    * @return int returns 1 if succeeded
    */
-  virtual int  write(std::string query)=0;
+  virtual int  write(std::string query, boost::regex regExpr = boost::regex())=0;
   /**
    * @brief sends query, does not wait for resonse
    * 

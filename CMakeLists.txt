@@ -271,9 +271,9 @@ add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConn
 add_dependencies(test_gui2 bronkhorst)
 
 if(${Windows})
-target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32)
+target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
 else()
-target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread)
+target_link_libraries(test_gui2 bronkhorst Relais RFG measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
 endif()
 
 ### Test for wt-plots
@@ -319,6 +319,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/FUGNetzteil.cpp)
 target_link_libraries(test_tcp ${Boost_LIBRARIES} unitValue measuredValue boost_chrono)
 endif()
+
+### Test for stringstreams
+add_executable(test_stringstream src/test_stringstream.cpp)
+
+### Test for interpolation
+add_executable(test_interpolation src/test_interpolation.cpp)
+target_link_libraries(test_interpolation gsl gslcblas)
 
 #### Installation
 

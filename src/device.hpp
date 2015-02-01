@@ -5,6 +5,7 @@
 
 
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/regex.hpp>
 
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
@@ -30,6 +31,8 @@ namespace lughos
     
     virtual void initImplementation() = 0;
     
+    virtual bool isConnectedImplementation() = 0;
+    
     virtual void shutdownImplementation() = 0;
     
     virtual std::string composeRequest(std::string query) = 0;
@@ -43,11 +46,13 @@ namespace lughos
       return this->interpretAnswer(connection->read());
     }
     
-    virtual void inputImplementation(std::string query)
+    virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
     {
-      connection->write_only(this->composeRequest(query));
-      return;
+      connection->write(this->composeRequest(query), regExpr);
+      connection->waitForCompletion();
+      return this->interpretAnswer(connection->read());
     }
+    
   public:
     
     /**
@@ -96,8 +101,8 @@ namespace lughos
 	this->init();
       else if (!currentlyConnected && this->connected)
 	this->initialized = false;
-      this->connected = currentlyConnected;
-      return currentlyConnected;
+      this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      return this->connected;
     }
     
     bool isInitialized()
@@ -128,13 +133,13 @@ namespace lughos
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
-   void input(std::string query)
+    std::string inputOutput(std::string query, boost::regex regExpr)
     {
       GUARD
       if(this->connected)
-	this->inputImplementation(query);
+	return this->inputOutputImplementation(query,regExpr);
       else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("input_without_connection")) << errorTitle("Input was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     DeviceImpl() : connection()

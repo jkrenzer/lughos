@@ -37,6 +37,7 @@ class Relais :public Device
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
+	bool isConnectedImplementation();
 	
 	virtual std::string read_channels();
 	virtual std::string write_channels(std::string channels);

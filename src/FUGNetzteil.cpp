@@ -69,7 +69,7 @@ std::string fug::interpretAnswer(std::string s)
 {     
 
 //  static const boost::regex e("<body>(.*)</body>");
-  static const boost::regex e("(.*)");
+ boost::regex e("(.*)");
 //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
  boost::cmatch res;
  boost::regex_search(s.c_str(), res, e);
@@ -96,7 +96,7 @@ measuredValue fug::getMeasure(bool force)
     
 
   std::string s = this->inputOutput("READ?");
-  static const boost::regex e("([\\d\\.+-]*[E][\\d\\.+-]*)([\\w]*)");
+  boost::regex e("([\\d\\.+-]*[E][\\d\\.+-]*)([\\w]*)");
 
   boost::cmatch res;
   boost::regex_search(s.c_str(), res, e);
