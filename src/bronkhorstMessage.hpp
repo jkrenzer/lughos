@@ -134,7 +134,12 @@ namespace lughos
     
     int getParameterByte() const
     {
-      return this->parameter + this->parameterType + this->parameterChained ? '\x80' : 0;
+      std::bitset<8> bs(this->parameter);
+      if(this->parameterChained)
+	bs[7] = true;
+      else
+	bs[7] = false;
+      return bs.to_ulong() | this->parameterType;
     }
     
     void setParameterByte(int parameterType)
@@ -150,7 +155,12 @@ namespace lughos
     
     int getProcessByte() const
     {
-      return this->process + this->processChained ? '\x80' : 0; 
+      std::bitset<8> bs(this->process);
+      if(this->processChained)
+	bs[7] = true;
+      else
+	bs[7] = false;
+      return bs.to_ulong();
     }
     
     void setProcessByte(int processType)
