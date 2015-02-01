@@ -129,7 +129,7 @@ namespace lughos
     
     unsigned int getlength() const
     {
-      return this->message.size() - 2;
+      return (this->message.size() - 2)/2;
     }
     
     unsigned int getParameterByte(bool ommitChained = false) const
@@ -253,6 +253,7 @@ namespace lughos
       boost::regex exp1(":(..)*\r");
       boost::cmatch res1;
       boost::regex_search(message.c_str(), res1, exp1);
+      std::cout << "GOT MATCHES: " << res1.size() << " - " << res1[0] << " - " << res1[1] << std::endl;
       this->message = res1[0];
       std::stringstream(res1[2]) >> std::hex >> this->node;
       std::stringstream(res1[3]) >> std::hex >> this->type;
