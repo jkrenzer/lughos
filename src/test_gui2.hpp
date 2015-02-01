@@ -156,8 +156,8 @@ namespace lughos
 // 		    ofs.close();
       Wt::WContainerWidget *container = new Wt::WContainerWidget();
       Wt::WContainerWidget *headContainer = new Wt::WContainerWidget();
-      Wt::WImage *logo = new WImage("resources/logo.png");
-      Wt::WImage *branding = new WImage("resources/branding.png");
+      Wt::WImage *logo = new WImage("./resources/logo.png");
+      Wt::WImage *branding = new WImage("./resources/branding.png");
       Wt::WText *headText = new WText("<h1>Lughos System Control</h1>");
       logo->setHeight(100);
       branding->setHeight(100);
