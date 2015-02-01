@@ -213,8 +213,8 @@ namespace lughos
 		break;
 	default:	return std::string("ERROR!");
       }
-      std::string s;
-      ss >> s;
+      std::string s = ss.str();
+      ss.str("");
       ss << std::setw(1) << ":" << std::hex << std::setw(2) << std::setfill('0') << ( s.size() / 2) - 2 << s << "\r\n";
       return ss.str();
     }
