@@ -183,7 +183,9 @@ std::string bronkhorst::set_flow(float value)
 
 void bronkhorst::initImplementation()
 {
-  this->inputOutput(":050301000A52\r\n:050302010412\r\n:070304006000600F\r\n");
+  this->inputOutput(":050301000A52\r\n");
+  this->inputOutput("050302010412\r\n");
+  this->inputOutput(":070304006000600F\r\n");
 }
 
 bool bronkhorst::isConnectedImplementation()

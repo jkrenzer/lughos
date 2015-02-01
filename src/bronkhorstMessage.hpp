@@ -224,7 +224,7 @@ namespace lughos
 	  case ParameterType::Integer : uint16_t i; memcpy(&i,&value,sizeof(i)); returnStream << i; break;
 	  default: return std::string("ERROR");
 	}
-	std::cout << "getValueString STRING: " << value << std::endl;
+	std::cout << "getValueString STRING: " << returnStream.str() << std::endl;
 	return returnStream.str();
      }
      
