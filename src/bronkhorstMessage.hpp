@@ -294,7 +294,7 @@ namespace lughos
 		char c = '\x00';
 		for(std::vector<std::string>::const_iterator it = res2.begin() + 5; it != res2.end(); it++)
 		{
-		  std::stringstream(*it) >> this->hexValue;
+		  this->hexValue += *it;
 		  std::stringstream(*it) >> std::hex >> c; 
 		  this->charValue += c;
 		}
