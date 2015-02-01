@@ -262,7 +262,7 @@ using namespace lughos;
       measuredValue v;
       std::stringstream ss;
       this->rfg->readout();
-      if (this->rfg->checkConnected())
+      if (this->rfg->isConnected())
 	
       for (int i; i<8;i++)
       {
