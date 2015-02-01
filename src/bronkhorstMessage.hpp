@@ -12,20 +12,20 @@ namespace lughos
   class bronkhorstMessage
   {
   protected:
-    uint8_t type;
-    uint8_t node;
-    uint8_t parameterType;
-    uint8_t process;
-    uint8_t parameter;
-    uint8_t expectedStringLength;
+    int type;
+    int node;
+    int parameterType;
+    int process;
+    int parameter;
+    int expectedStringLength;
     bool processChained;
     bool parameterChained;
     bool isStatus;
     std::string message;
     std::string hexValue;
     std::string charValue;
-    uint8_t statusCode;
-    uint8_t statusSubjectFirstByte;
+    int statusCode;
+    int statusSubjectFirstByte;
     
   public:
     
@@ -54,54 +54,54 @@ namespace lughos
       
     }
     
-    uint8_t getType() const
+    int getType() const
     {
       return this->type;
     }
     
-    void setType(uint8_t type)
+    void setType(int type)
     {
       if(type > 0 && type < 10)
 	this->type = type;
     }
     
-    uint8_t getParameterType() const
+    int getParameterType() const
     {
       return this->parameterType;
     }
     
-    void setParameterType(uint8_t varType)
+    void setParameterType(int varType)
     {
       if (varType == '\x00' || varType == '\x20' || varType == '\x40' || varType == '\x60' )
 	this->parameterType = varType;
     }
     
-    uint8_t getNode() const
+    int getNode() const
     {
       return this->node;
     }
     
-    void setNode(uint8_t node)
+    void setNode(int node)
     {
       this->node = node;
     }
     
-    uint8_t getProcess() const
+    int getProcess() const
     {
       return this->getProcess();
     }
     
-    void setProcess(uint8_t process)
+    void setProcess(int process)
     {
       this->process = process;
     }
     
-    uint8_t getParameter() const
+    int getParameter() const
     {
       return this->parameter;
     }
     
-    void setParameter(uint8_t parameter)
+    void setParameter(int parameter)
     {
       if (this->parameter > 0 && this->parameter < 32 )
 	this->parameter = parameter;
@@ -127,17 +127,17 @@ namespace lughos
       this->parameterChained = parameterChained;
     }
     
-    uint8_t getlength() const
+    int getlength() const
     {
       return this->message.size() - 2;
     }
     
-    uint8_t getParameterByte() const
+    int getParameterByte() const
     {
       return this->parameter + this->parameterType + this->parameterChained ? '\x80' : 0;
     }
     
-    void setParameterByte(uint8_t parameterType)
+    void setParameterByte(int parameterType)
     {
       std::bitset<8> bs(parameterType);
       this->processChained = bs[7];
@@ -148,12 +148,12 @@ namespace lughos
       this->parameter = pbs.to_ulong();
     }
     
-    uint8_t getProcessByte() const
+    int getProcessByte() const
     {
       return this->process + this->processChained ? '\x80' : 0; 
     }
     
-    void setProcessByte(uint8_t processType)
+    void setProcessByte(int processType)
     {
       std::bitset<8> bs(processType);
       this->processChained = bs[7];
@@ -161,12 +161,12 @@ namespace lughos
       this->process = bs.to_ulong();
     }
     
-    uint8_t getExpectedStringLength() const
+    int getExpectedStringLength() const
     {
       return this->expectedStringLength;
     }
     
-    void setExpectedStringLength(uint8_t expectedStringLength)
+    void setExpectedStringLength(int expectedStringLength)
     {
       if(expectedStringLength > 1)
 	this->expectedStringLength = expectedStringLength;
@@ -182,7 +182,7 @@ namespace lughos
       return this->isStatus && this->statusCode != '\x00';
     }
     
-     uint8_t getStatusCode() const
+     int getStatusCode() const
      {
        return this->statusCode;
      }
@@ -211,7 +211,7 @@ namespace lughos
 	  case ParameterType::String : std::string s = value; 
 					for (std::string::const_iterator it = s.begin(); it != s.end(); it++)
 					{
-					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (uint8_t) *it;
+					  returnStream << std::setw(2) << std::setfill('0') << std::hex  << (int) *it;
 					}
 					break;
 	}
@@ -232,7 +232,6 @@ namespace lughos
 	default:	return std::string("ERROR!"); break;
       }
       std::string s = ss.str();
-      std::cout << "STRING: " << (int) this->node << (int) this->type << this->getProcessByte() << this->getParameterByte() << this->process << this->parameter << std::endl;
       ss.str("");
       ss << std::setw(1) << ":" << std::hex << std::setw(2) << std::setfill('0') << ( s.size() / 2) << s << "\r\n";
       return ss.str();
@@ -252,7 +251,7 @@ namespace lughos
 		std::stringstream(res1[4]) >> std::hex >> this->statusCode;
 		std::stringstream(res1[3]) >> std::hex >> this->statusSubjectFirstByte;
 		break;
-	case 2: uint8_t byte;
+	case 2: int byte;
 		this->isStatus = false;
 		std::stringstream(res1[4]) >> std::hex >> byte; setProcessByte(byte);
 		std::stringstream(res1[5]) >> std::hex >> byte; setParameterByte(byte);
