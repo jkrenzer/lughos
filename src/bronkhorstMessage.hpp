@@ -250,25 +250,31 @@ namespace lughos
     
     void fromString(std::string message)
     {
-      boost::regex exp1(":(..)*\r");
-      boost::smatch res1;
-      boost::regex_search(message.c_str(), res1, exp1);
-      std::cout << "GOT MATCHES: " << res1.size() << " - " << res1[0] << " - " << res1[1] << std::endl;
-      this->message = res1[0];
-      std::stringstream(res1[2]) >> std::hex >> this->node;
-      std::stringstream(res1[3]) >> std::hex >> this->type;
+      boost::regex exp1(":(([a-fA-F0-9]{2})*)\r");
+      boost::cmatch res1;
+      if(!boost::regex_search(message.c_str(), res1, exp1))
+	return;
+      else
+	message = res1[1];
+      boost::regex exp2("([a-fA-F0-9]{2})");
+      boost::cmatch res2;
+      boost::regex_search(message.c_str(), res2, exp2);
+      std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << std::endl;
+      this->message = res2[0];
+      std::stringstream(res2[2]) >> std::hex >> this->node;
+      std::stringstream(res2[3]) >> std::hex >> this->type;
       switch(this->type)
       {
 	case 0: this->isStatus = true;
-		std::stringstream(res1[4]) >> std::hex >> this->statusCode;
-		std::stringstream(res1[3]) >> std::hex >> this->statusSubjectFirstByte;
+		std::stringstream(res2[4]) >> std::hex >> this->statusCode;
+		std::stringstream(res2[3]) >> std::hex >> this->statusSubjectFirstByte;
 		break;
 	case 2: unsigned int byte;
 		this->isStatus = false;
-		std::stringstream(res1[4]) >> std::hex >> byte; setProcessByte(byte);
-		std::stringstream(res1[5]) >> std::hex >> byte; setParameterByte(byte);
+		std::stringstream(res2[4]) >> std::hex >> byte; setProcessByte(byte);
+		std::stringstream(res2[5]) >> std::hex >> byte; setParameterByte(byte);
 		char c = '\x00';
-		for(boost::cmatch::const_iterator it = res1.begin() + 6; it != res1.end(); it++)
+		for(boost::cmatch::const_iterator it = res2.begin() + 6; it != res2.end(); it++)
 		{
 		  std::stringstream(*it) >> this->hexValue;
 		  std::stringstream(*it) >> std::hex >> c; 
