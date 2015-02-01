@@ -152,6 +152,7 @@ namespace lughos
       this->setTheme(bootstrapTheme);
       // load the default bootstrap3 (sub-)theme
       this->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
+      this->useStyleSheet("lughos.css");
       setTitle("Lughos System Control");
 // 		    ofs.close();
       Wt::WContainerWidget *container = new Wt::WContainerWidget();
