@@ -189,7 +189,6 @@ using namespace lughos;
 //       this->addWidget(uMinField);
       this->addWidget(uMaxField);
       this->addWidget(sendUB); 
-      this->addWidget(getUB);
       this->addWidget(new Wt::WBreak);
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
