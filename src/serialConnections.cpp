@@ -43,16 +43,16 @@ void Connection<serialContext>::end_of_line_char(const char &c)
 bool Connection<serialContext>::start()
 {
 //   std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
-// 	ofs << "ready to set following options" << std::endl;
-// 	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
-// 	ofs << "character_size: "<<character_size.value() << std::endl;
-// 	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
-// 	ofs << "parity: "<<parity.value() << std::endl;
-// 	ofs << "flow_control: "<<flow_control.value() << std::endl;
+ 	std::cout << "### Starting connection! ###" << std::endl;
+ 	std::cout << "baud_rate: "<<baud_rate.value() << std::endl;
+ 	std::cout << "character_size: "<<character_size.value() << std::endl;
+ 	std::cout << "stop_bits: "<<stop_bits.value()<< std::endl;
+ 	std::cout << "parity: "<<parity.value() << std::endl;
+ 	std::cout << "flow_control: "<<flow_control.value() << std::endl;
   std::cout<<"eolc: "<< end_of_line_char()<< std::endl;
   std::cout<<"port name: "<< port_name<< std::endl;
-  std::cout << "speed: " << baud_rate.value() << std::endl;
-//   ofs<< character_size.value() << std::endl;
+  std::cout << "#############################" << std::endl;
+
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
 // 		ofs<< "please set port name before start" << std::endl;
