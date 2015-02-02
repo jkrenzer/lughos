@@ -12,8 +12,9 @@ bronkhorst::bronkhorst()
   set_default();
 }
 
-template <class T> void bronkhorst::setDefaultImpl(T& connection)
+template <class T> void bronkhorst::setDefaultImpl(Connection<T>& connection)
 {
+  
 }
 
 
@@ -56,7 +57,7 @@ std::string bronkhorst::interpretAnswer(std::string s)
 
 void bronkhorst::set_default()
 {
-   this->setDefaultImpl(*(this->connection.get()));
+   this->setDefaultImpl(*this->connection);
 }
 
 measuredValue bronkhorst::get_value()
