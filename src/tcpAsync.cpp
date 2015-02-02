@@ -13,7 +13,8 @@
 
 tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service)
 {
-  start(); 
+  start();
+  this->end_of_line_char_ = '\n';
 }
 
 tcpAsync::~tcpAsync(void)
@@ -31,8 +32,10 @@ bool tcpAsync::disconnect()
 {
 }
 
-int tcpAsync::write(std::string query)
+int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
+  if(regExpr.empty())
+	  regExpr = boost::regex(std::string(1, end_of_line_char_));
 //   if(!this->connected)
 //   {
     this->connect();
@@ -46,7 +49,7 @@ int tcpAsync::write(std::string query)
   {
     // The connection was successful. Send the request.
     boost::asio::async_write(*socket, request,
-	boost::bind(&tcpAsync::handle_write_request, this,
+	boost::bind(&tcpAsync::handle_write_request, this, regExpr,
 	  boost::asio::placeholders::error));
   }
   else
@@ -112,13 +115,13 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
   }
 }
 
-void tcpAsync::handle_write_request(const boost::system::error_code& err)
+void handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
 {
 
   if (!err)
   {
     // Read the response status line.
-    boost::asio::async_read_until(*socket, response, "\n",
+    boost::asio::async_read_until(*socket, response, regExpr,
 	boost::bind(&tcpAsync::handle_read_content, this,
 	  boost::asio::placeholders::error));
   }

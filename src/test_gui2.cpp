@@ -85,40 +85,42 @@ int main(int argc, char **argv)
             config.put("devices.flowcontroll1.type","bronkhorst");
             config.put("devices.flowcontroll1.connection.type","serial");
             config.put("devices.flowcontroll1.connection.mode","async");
-            config.put("devices.flowcontroll1.connection.port","COM1");
+            config.put("devices.flowcontroll1.connection.port","/dev/ttyMUE10");
 
             config.put("devices.flowcontroll2.name","Flow Controll 2");
             config.put("devices.flowcontroll2.type","bronkhorst");
             config.put("devices.flowcontroll2.connection.type","serial");
             config.put("devices.flowcontroll2.connection.mode","async");
-            config.put("devices.flowcontroll2.connection.port","COM4");
+            config.put("devices.flowcontroll2.connection.port","/dev/ttyMUE11");
             //
             config.put("devices.rfg1.name","RFG 1");
             config.put("devices.rfg1.type","RFG");
             config.put("devices.rfg1.connection.type","serial");
             config.put("devices.rfg1.connection.mode","async");
-            config.put("devices.rfg1.connection.port","COM2");
+            config.put("devices.rfg1.connection.port","/dev/ttyMUE8");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
 
             config.put("devices.relais1.name","Relais 1");
             config.put("devices.relais1.type","relais");
             config.put("devices.relais1.connection.type","serial");
             config.put("devices.relais1.connection.mode","async");
-            config.put("devices.relais1.connection.port","COM3");
+            config.put("devices.relais1.connection.port","/dev/ttyMUE3");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
 	    
 	    config.put("devices.fug1.name","FUGNetzteil 1");
             config.put("devices.fug1.type","fug");
-            config.put("devices.fug1.connection.type","serial");
+            config.put("devices.fug1.connection.type","tcp");
             config.put("devices.fug1.connection.mode","async");
-            config.put("devices.fug1.connection.port","COM3");
+	    config.put("devices.fug1.connection.server","192.168.178.46");
+            config.put("devices.fug1.connection.port","2101");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
 	    
 	    config.put("devices.fug2.name","FUGNetzteil 2");
             config.put("devices.fug2.type","fug");
-            config.put("devices.fug2.connection.type","serial");
+            config.put("devices.fug2.connection.type","tcp");
             config.put("devices.fug2.connection.mode","async");
-            config.put("devices.fug2.connection.port","COM3");
+	    config.put("devices.fug2.connection.server","192.168.178.46");
+            config.put("devices.fug2.connection.port","2101");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
         }
 
@@ -128,8 +130,8 @@ int main(int argc, char **argv)
         boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection5(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection6(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<tcpAsync> connection5(new tcpAsync(lughos::ioService) );
+        boost::shared_ptr<tcpAsync> connection6(new tcpAsync(lughos::ioService) );
 	
 
 
@@ -139,6 +141,8 @@ int main(int argc, char **argv)
         connection4->port_name = std::string(config.get<std::string>("devices.flowcontroll2.connection.port"));
         connection5->port_name = std::string(config.get<std::string>("devices.fug1.connection.port"));
 	connection6->port_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
+	connection5->server_name = std::string(config.get<std::string>("devices.fug1.connection.port"));
+	connection6->server_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
 
         boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
         boost::shared_ptr<Device> flowcontroll2(new bronkhorst);

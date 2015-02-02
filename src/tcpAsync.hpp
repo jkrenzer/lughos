@@ -39,13 +39,14 @@ class tcpAsync : virtual public Connection<tcpContext>
 //     	boost::asio::io_service io_service_;
 	void handle_resolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
 	void handle_connect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
-	void handle_write_request(const boost::system::error_code& err);
+	void handle_write_request(boost::regex regExpr, const boost::system::error_code& err);
 	void handle_write_only_request(const boost::system::error_code& err);
 // 	void handle_read_status_line(const boost::system::error_code& err);
 // 	void handle_read_headers(const boost::system::error_code& err);
 	void handle_read_content(const boost::system::error_code& err);
 	bool connect();
 	bool disconnect();
+	char end_of_line_char_;
 
 	
 
@@ -54,7 +55,7 @@ class tcpAsync : virtual public Connection<tcpContext>
 	tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service);
 	~tcpAsync(void);
 	
-	int write(std::string query);
+	int write(std::string query, boost::regex regExpr = boost::regex());
 	int write_only(std::string query);
 	
 	void abort();

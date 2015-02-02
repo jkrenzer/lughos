@@ -221,8 +221,8 @@ target_link_libraries(Relais serialAsync unitValue serialConnections errorHandli
 add_dependencies(Relais serialAsync unitValue serialConnections errorHandling)
 
 add_library(FUGNetzteil src/FUGNetzteil.cpp)
-target_link_libraries(FUGNetzteil serialAsync unitValue serialConnections errorHandling)
-add_dependencies(FUGNetzteil serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(FUGNetzteil tcpAsync unitValue serialConnections errorHandling)
+add_dependencies(FUGNetzteil tcpAsync unitValue serialConnections errorHandling)
 
 add_library(RFG src/RFG.cpp)
 target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling)
