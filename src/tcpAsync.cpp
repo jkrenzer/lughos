@@ -115,7 +115,7 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
   }
 }
 
-void handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
+void tcpAsync::handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
 {
 
   if (!err)
