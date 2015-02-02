@@ -61,7 +61,6 @@ using namespace lughos;
     Wt::WLabel* iL;
     Wt::WLabel* measFlowL;
     Wt::WPushButton *sendIB;
-    Wt::WPushButton *getIB;
     Wt::WLabel* iOutL;
     Wt::WLabel* uOutL;
     Wt::WLabel* pOutL;
@@ -70,7 +69,6 @@ using namespace lughos;
     Wt::WLineEdit *pOutField;
     Wt::WDoubleSpinBox *iField;
     Wt::WPushButton *sendUB;
-    Wt::WPushButton *getUB;
     Wt::WDoubleSpinBox *uMinField;
     Wt::WDoubleSpinBox *uMaxField;
     Wt::WTextArea *responseField;
@@ -108,16 +106,13 @@ using namespace lughos;
         this->stateB->setText("Status");
 	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getMeasure);
 	this->sendIB->setDisabled(false);
-	this->getIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
-	this->getUB->setDisabled(false);
 	this->uMinField->setDisabled(false);
 	this->uMaxField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
-	this->getUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getU);
-        this->getIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getI);
+
 	this->getState();
 
       }
@@ -129,8 +124,7 @@ using namespace lughos;
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
-	this->getUB->setDisabled(true);
-	this->getIB->setDisabled(true);
+
 	this->uMinField->setDisabled(true);
 	this->uMaxField->setDisabled(true);
 
@@ -181,7 +175,6 @@ using namespace lughos;
       this->addWidget(iL);
       this->addWidget(iField);
       this->addWidget(sendIB);
-      this->addWidget(getIB);
       this->addWidget(new Wt::WBreak); 
       this->addWidget(uOutL);    
       this->addWidget(uOutField);
