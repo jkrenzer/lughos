@@ -113,6 +113,7 @@ namespace lughos
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
+      this->addStyleClass("DeviceView");
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
 //       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
