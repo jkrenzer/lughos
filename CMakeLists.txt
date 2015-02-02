@@ -196,6 +196,8 @@ add_library(errorHandling src/errorHandling.cpp)
 
 add_library(serialConnections src/serialConnections.cpp)
 
+add_library(tcpConnections src/tcpConnections.cpp)
+
 add_library(kithleighSerial src/kithleighSerial.cpp)
 target_link_libraries(kithleighSerial serialAsync unitValue serialConnections errorHandling)
 add_dependencies(kithleighSerial serialAsync unitValue serialConnections errorHandling)
@@ -233,6 +235,9 @@ add_dependencies(serialSync serialConnections)
 
 add_library(serialAsync src/serialAsync.cpp)
 add_dependencies(serialAsync serialConnections)
+
+add_library(tcpAsync src/tcpAsync.cpp)
+add_dependencies(tcpAsync tcpConnections)
 
 add_library(unitValue src/unitValue.cpp)
 

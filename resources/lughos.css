@@ -1,2 +1,17 @@
 /* CSS Stylesheet for lughos applications */
 
+.DeviceView {
+	flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+
+}
+
+
+.DeviceContainer {
+	width: 15em; 
+	margin: 1em;
+}
+
+
+
