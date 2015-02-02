@@ -51,6 +51,7 @@ bool Connection<serialContext>::start()
 // 	ofs << "flow_control: "<<flow_control.value() << std::endl;
   std::cout<<"eolc: "<< end_of_line_char()<< std::endl;
   std::cout<<"port name: "<< port_name<< std::endl;
+  std::cout << "speed: " << baud_rate << std::endl;
 //   ofs<< character_size.value() << std::endl;
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
