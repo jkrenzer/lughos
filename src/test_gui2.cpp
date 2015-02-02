@@ -141,8 +141,8 @@ int main(int argc, char **argv)
         connection4->port_name = std::string(config.get<std::string>("devices.flowcontroll2.connection.port"));
         connection5->port_name = std::string(config.get<std::string>("devices.fug1.connection.port"));
 	connection6->port_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
-	connection5->server_name = std::string(config.get<std::string>("devices.fug1.connection.port"));
-	connection6->server_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
+	connection5->server_name = std::string(config.get<std::string>("devices.fug1.connection.server"));
+	connection6->server_name = std::string(config.get<std::string>("devices.fug2.connection.server"));
 
         boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
         boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
