@@ -12,9 +12,8 @@ bronkhorst::bronkhorst()
   set_default();
 }
 
-template <class T> void bronkhorst::setDefaultImpl(Connection<T>& connection)
+template <class T> void bronkhorst::setDefaultImpl(T& connection)
 {
-  
 }
 
 
@@ -26,7 +25,7 @@ bronkhorst::~bronkhorst(void)
 
 template <> void bronkhorst::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
 {
-    std::cout << "@==================> Setting connection-parameters <===================@" << std::endl;
+    std::cout << "########################## Setting connection-parameters" << std::endl;
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);
@@ -57,7 +56,7 @@ std::string bronkhorst::interpretAnswer(std::string s)
 
 void bronkhorst::set_default()
 {
-   this->setDefaultImpl(*this->connection);
+   this->setDefaultImpl(*(this->connection.get()));
 }
 
 measuredValue bronkhorst::get_value()
