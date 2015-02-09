@@ -23,9 +23,9 @@ bronkhorst::~bronkhorst(void)
 
 }
 
-template <> void bronkhorst::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+template <> void bronkhorst::setDefaultImpl<serialAsync> (serialAsync& connection)
 {
-    std::cout << "########################## Setting connection-parameters" << std::endl;
+    std::cout << "########################## Setting connection-parameters!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);
