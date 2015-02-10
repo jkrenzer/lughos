@@ -42,7 +42,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     this->connect();
     boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //Wait half a second for the connection
     if(!this->connected)
-      return -1; //Still not connected, we abort!
+      throw std::string("Booya!!"); //Still not connected, we abort!
   }
   std::ostream request_stream(&request);
   request_stream<<query;
@@ -67,6 +67,7 @@ int tcpAsync::write_only(std::string query)
 {
     writeonly=true;
     this->write(query);
+    writeonly = false;
 
   return 1;
 }
