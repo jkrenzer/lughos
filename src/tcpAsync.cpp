@@ -51,32 +51,28 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
   }
   std::ostream request_stream(&request);
   request_stream<<query;
-  if (!writeonly)
-  {
     // The connection was successful. Send the request.
     boost::asio::async_write(*socket, request,
 	boost::bind(&tcpAsync::handle_write_request, this, regExpr,
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name);
-  }
-  else
+  
+ 
+  lughos::debugLog(std::string("\"")+query+std::string("\" written to port ")+port_name);
+
+  try 
   {
-    // The connection was successful. Send the request.
-    boost::asio::async_write(*socket, request,
-	boost::bind(&tcpAsync::handle_write_only_request, this,
-	  boost::asio::placeholders::error));
-    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name+std::string(" and not waiting for answers!"));
+    io_service_->poll();
   }
+  catch(...)
+  {
+    lughos::debugLog(std::string("I/O-Service exception while polling for port ") + port_name);
+  }
+
+
+  if (socket.get() == NULL || !socket->is_open())	lughos::debugLog(server_name + std::string("'s socket is closed despite writing?!"));
+	if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
   return 0;
-}
-
-int tcpAsync::write_only(std::string query)
-{
-    writeonly=true;
-    this->write(query);
-    writeonly = false;
-
-  return 1;
 }
 
 
@@ -145,19 +141,6 @@ else
   }
 }
   
-void tcpAsync::handle_write_only_request(const boost::system::error_code& err)
-{
-
-  if (!err)
-  {   
-  }
-  else
-  {
-    lughos::debugLog(std::string("Unable to one-way-write to server ")+server_name+std::string(". Got error: ")+err.message());
-  }
-}
-
-
 //   void tcpAsync::handle_read_status_line(const boost::system::error_code& err)
 //   {
 // 
