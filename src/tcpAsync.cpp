@@ -24,7 +24,8 @@ tcpAsync::~tcpAsync(void)
 
 bool tcpAsync::connect()
 {
-  resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
+  if (!this->connected)
+    resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
 }
 
@@ -36,13 +37,13 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
   if(regExpr.empty())
 	  regExpr = boost::regex(std::string(1, end_of_line_char_));
-//   if(!this->connected)
-//   {
+  if(!this->connected)
+  {
     this->connect();
-//     boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //Wait half a second for the connection
-//     if(!this->connected)
-//       return -1; //Still not connected, we abort!
-//   }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //Wait half a second for the connection
+    if(!this->connected)
+      return -1; //Still not connected, we abort!
+  }
   std::ostream request_stream(&request);
   request_stream<<query;
   if (!writeonly)
