@@ -43,7 +43,7 @@ public:
 	  bool isConnectedImplementation();
 
 	  measuredValue storedMeasure;
-	  int switchVoltage(int onof );
+	  
 
 
 	  int voltagesOnOf=3;
@@ -59,6 +59,7 @@ public:
 	  double getU();
 	  std::string getLastError();
 	  std::string getIDN();
+	  int switchVoltage(int onof );
 
   protected:
 	  std::string lastError;
