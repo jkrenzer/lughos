@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 	connection1->baud_rate = boost::asio::serial_port_base::baud_rate(38400);
         if(!flowcontroll2->connect(connection4))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll2!!!" << std::endl;
-	connection2->baud_rate = boost::asio::serial_port_base::baud_rate(38400);
+	connection4->baud_rate = boost::asio::serial_port_base::baud_rate(38400);
         if(!RFG1->connect(connection2))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
 //         if(!relais1->connect(connection2))
