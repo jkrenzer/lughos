@@ -114,7 +114,8 @@ using namespace lughos;
 	this->uMaxField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
-	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::)
+	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOn);
+	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
 	this->getState();
       }
       else
