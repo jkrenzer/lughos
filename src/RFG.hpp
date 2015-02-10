@@ -38,7 +38,7 @@ class RFG :public Device
 	
   public:
 	RFG(void);
-	~RFG(void);
+	virtual ~RFG(void);
 
 	void initImplementation();
 	bool isConnectedImplementation();

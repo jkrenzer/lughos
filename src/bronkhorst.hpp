@@ -38,7 +38,7 @@ class bronkhorst : public Device
 	
 public:
 	bronkhorst();
-	~bronkhorst(void);
+	virtual ~bronkhorst(void);
 
 	void initImplementation();
 	void shutdownImplementation();

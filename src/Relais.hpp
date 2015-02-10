@@ -37,7 +37,7 @@ class Relais :public Device
 	
   public:
 	Relais();
-	~Relais(void);
+	virtual ~Relais(void);
 
 	void initImplementation();
 	void shutdownImplementation();

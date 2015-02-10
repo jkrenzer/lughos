@@ -37,9 +37,7 @@ public:
     private:
 	  FUGNetzteil(const FUGNetzteil &p);
 	  FUGNetzteil &operator=(const FUGNetzteil &p);
-	  
-	  template <class T> void setDefaultImpl(T& connection);
-	  virtual void set_default();
+
 	  void initImplementation();
 	  void shutdownImplementation();
 	  bool isConnectedImplementation();
@@ -53,7 +51,7 @@ public:
 	  
     public:
 	  FUGNetzteil(void);
-	  ~FUGNetzteil(void);
+	  virtual ~FUGNetzteil(void);
 	  measuredValue getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
