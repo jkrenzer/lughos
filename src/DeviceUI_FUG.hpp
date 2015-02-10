@@ -75,6 +75,8 @@ using namespace lughos;
 //     Wt::WPushButton * startB;
     std::string LastError;
     Wt::WPushButton * stateB;
+    Wt::WPushButton * onB;
+    Wt::WPushButton * offB;
 //     Wt::WPushButton * stopB;
     
   public:
