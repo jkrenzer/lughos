@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <boost/current_function.hpp>
+#include <boost/thread/mutex.hpp>
 
 #define DEBUG_THRESHOLD_CERR 10.0
 #define DEBUG_THRESHOLD_FILE 10.0

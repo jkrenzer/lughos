@@ -20,18 +20,18 @@ namespace lughos
       std::stringstream ss;
       ss << "[" << boost::posix_time::to_iso_extended_string(now) <<  "] <" << severity << "> (" << functionName << "@" << fileName << ":" << lineNumber << " - " << message << std::endl;
       std::string logMessage = ss.str();
-      sout << logMessage;
+      lughos::sout << logMessage;
   }
 
-  soutObj& soutObj::operator<<(T val)
+  lughos::soutObj& lughos::soutObj::operator<<(T val)
   {
-      soutMutex.lock();
+      lughos::soutMutex.lock();
       std::cout << val;
-      soutMutex.unlock();
+      lughos::soutMutex.unlock();
       return *this;
   }
 
-  lughos::soutObj& soutObj::operator<< (std::ostream& (*pfun) (std::ostream&))
+  lughos::soutObj& lughos::soutObj::operator<< (std::ostream& (*pfun) (std::ostream&))
   {
 	  pfun(std::cout);
 	  return *this;
