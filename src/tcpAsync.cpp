@@ -55,10 +55,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     boost::asio::async_write(*socket, request,
 	boost::bind(&tcpAsync::handle_write_request, this, regExpr,
 	  boost::asio::placeholders::error));
-    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name);
-  
- 
-  lughos::debugLog(std::string("\"")+query+std::string("\" written to port ")+port_name);
+    lughos::debugLog(std::string("\"")+query+std::string("\" written to ")+server_name+std::string(":")+port_name);
 
   try 
   {
@@ -66,7 +63,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
   }
   catch(...)
   {
-    lughos::debugLog(std::string("I/O-Service exception while polling for port ") + port_name);
+    lughos::debugLog(std::string("I/O-Service exception while polling for ") +server_name+std::string(":")+port_name);
   }
 
 
@@ -189,6 +186,7 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
     {
 //       response_string_stream.str(std::string(""));
       // Write all of the data that has been read so far.
+      response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
@@ -208,6 +206,14 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
   
   void tcpAsync::abort()
 {
-  lughos::debugLog(std::string("Aborting action on server ") + server_name);
+ try
+  {
+    this->port_->cancel();
+    lughos::debugLog(std::string("Requested abort on ") + server_name + std::string(":") + port_name);
+  }
+  catch(...)
+  {
+    lughos::debugLog(std::string("Error while trying to perform requested abort on ") + server_name + std::string(":") + port_name);
+  }
 }
 

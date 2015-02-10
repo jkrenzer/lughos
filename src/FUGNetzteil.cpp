@@ -46,12 +46,14 @@ std::string FUGNetzteil::interpretAnswer(std::string s)
 {     
 
 //  static const boost::regex e("<body>(.*)</body>");
- boost::regex e("(.*)");
-//   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
- boost::cmatch res;
- boost::regex_search(s.c_str(), res, e);
+//  boost::regex e("(.*)");
+// //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+//  boost::cmatch res;
+//  boost::regex_search(s.c_str(), res, e);
+//   
+//   return res[1];  
   
-  return res[1];  
+  return s;
 
 }
 
