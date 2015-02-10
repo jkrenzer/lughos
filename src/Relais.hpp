@@ -22,6 +22,12 @@
 
 using namespace lughos;
 
+class RelaisConnection : public serialAsync
+{
+public:
+    RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
+
 class Relais :public Device
 {
   private:
@@ -33,8 +39,6 @@ class Relais :public Device
 	Relais();
 	~Relais(void);
 
-	template <class T> void setDefaultImpl(T& connection);
-	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
