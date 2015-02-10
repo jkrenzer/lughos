@@ -7,12 +7,7 @@ namespace lughos
     boost::mutex logMutex;
     soutObj sout;
     
-  void debugLog(std::string message, double severity)
-  {
-
-  }
-
-    
+  
   void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, std::string message, double severity)
   {
       //TODO Implement simultanious output to FILE, DB and CERR
@@ -23,7 +18,7 @@ namespace lughos
       lughos::sout << logMessage;
   }
 
-  lughos::soutObj& lughos::soutObj::operator<<(T val)
+  template <class T> lughos::soutObj& lughos::soutObj::operator<<(T val)
   {
       lughos::soutMutex.lock();
       std::cout << val;
