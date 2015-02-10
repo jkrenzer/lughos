@@ -208,7 +208,7 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
 {
  try
   {
-    this->port_->cancel();
+    this->socket->cancel();
     lughos::debugLog(std::string("Requested abort on ") + server_name + std::string(":") + port_name);
   }
   catch(...)
