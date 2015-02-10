@@ -30,6 +30,7 @@ bool tcpAsync::connect()
     this->connectionTimer.expires_from_now(boost::posix_time::seconds(5));
     resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
+    lughos::debugLog(std::string("Trying to connect to ") + server_name);
   }
 }
 
@@ -64,7 +65,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     boost::asio::async_write(*socket, request,
 	boost::bind(&tcpAsync::handle_write_only_request, this,
 	  boost::asio::placeholders::error));
-    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name);
+    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name+std::string(" and not waiting for answers!"));
   }
   return 0;
 }
@@ -91,10 +92,11 @@ void tcpAsync::handle_resolve(const boost::system::error_code& err,
     socket->async_connect(endpoint,
 	boost::bind(&tcpAsync::handle_connect, this,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
+    lughos::debugLog(std::string("Resolved address of server ")+server_name);
   }
   else
   {
-    std::cout << "Error: " << err.message() << "\n";
+    lughos::debugLog(std::string("Unable to resolve address of server ")+server_name+std::string(". Got error: ")+err.message());
   }
 
 }
@@ -106,6 +108,7 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
   {
     this->connected = true;
     this->connectionTimer.expires_from_now(boost::posix_time::seconds(0));
+    lughos::debugLog(std::string("Connected successfully to ")+server_name);
     return;
   }
   if (endpoint_iterator != tcp::resolver::iterator())
@@ -116,10 +119,11 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
     socket->async_connect(endpoint,
 	boost::bind(&tcpAsync::handle_connect, this,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
+    lughos::debugLog(std::string("Connection failed, trying next possible resolve of ")+server_name);
   }
   else
   {
-    std::cout << "Error: " << err.message() << "\n";
+    lughos::debugLog(std::string("Unable to connect to server ")+server_name+std::string(". Got error: ")+err.message());
     return;
   }
 }
@@ -137,7 +141,7 @@ void tcpAsync::handle_write_request(boost::regex regExpr, const boost::system::e
   }
 else
   {
-    std::cout << "Error: " << err.message() << "\n";
+    lughos::debugLog(std::string("Unable to write to server ")+server_name+std::string(". Got error: ")+err.message());
   }
 }
   
@@ -149,7 +153,7 @@ void tcpAsync::handle_write_only_request(const boost::system::error_code& err)
   }
   else
   {
-    std::cout << "Error Async write only: " << err.message() << "\n";
+    lughos::debugLog(std::string("Unable to one-way-write to server ")+server_name+std::string(". Got error: ")+err.message());
   }
 }
 
@@ -203,17 +207,17 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
 //       response_string_stream.str(std::string(""));
       // Write all of the data that has been read so far.
 	response_string_stream<< &response;
-	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
           boost::bind(&tcpAsync::handle_read_content, this,
             boost::asio::placeholders::error));
+      lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
       
     }
     else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
     {
-      std::cout << "Error: " << err << "\n";
+      lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
     }
 	response_string_stream<< &response;
       	this->notifyWaitingClient();
@@ -221,6 +225,6 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
   
   void tcpAsync::abort()
 {
-
+  lughos::debugLog(std::string("Aborting action on server ") + server_name);
 }
 
