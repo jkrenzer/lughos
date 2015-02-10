@@ -194,41 +194,43 @@ add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 add_library(errorHandling src/errorHandling.cpp)
 
+add_library(log src/log.cpp)
+
 add_library(serialConnections src/serialConnections.cpp)
 
 add_library(tcpConnections src/tcpConnections.cpp)
 
 add_library(kithleighSerial src/kithleighSerial.cpp)
-target_link_libraries(kithleighSerial serialAsync unitValue serialConnections errorHandling)
-add_dependencies(kithleighSerial serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(kithleighSerial serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(kithleighSerial serialAsync unitValue serialConnections errorHandling log)
 
 add_library(MaxiGauge src/MaxiGauge.cpp)
-target_link_libraries(MaxiGauge serialAsync measuredValue unitValue serialConnections errorHandling)
-add_dependencies(MaxiGauge serialAsync measuredValue serialConnections errorHandling)
+target_link_libraries(MaxiGauge serialAsync measuredValue unitValue serialConnections errorHandling log)
+add_dependencies(MaxiGauge serialAsync measuredValue serialConnections errorHandling log)
 
 add_library(coolpak6000 src/coolpak6000.cpp)
-target_link_libraries(coolpak6000 serialAsync unitValue serialConnections errorHandling)
-add_dependencies(coolpak6000 serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(coolpak6000 serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(coolpak6000 serialAsync unitValue serialConnections errorHandling log)
 
 add_library(bronkhorst src/bronkhorst.cpp)
-target_link_libraries(bronkhorst serialAsync unitValue serialConnections errorHandling)
-add_dependencies(bronkhorst serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(bronkhorst serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(bronkhorst serialAsync unitValue serialConnections errorHandling log)
 
 add_library(PSANetzteil src/PSANetzteil.cpp)
-target_link_libraries(PSANetzteil serialAsync unitValue serialConnections errorHandling)
-add_dependencies(PSANetzteil serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(PSANetzteil serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(PSANetzteil serialAsync unitValue serialConnections errorHandling log)
 
 add_library(Relais src/Relais.cpp)
-target_link_libraries(Relais serialAsync unitValue serialConnections errorHandling)
-add_dependencies(Relais serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(Relais serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(Relais serialAsync unitValue serialConnections errorHandling log)
 
 add_library(FUGNetzteil src/FUGNetzteil.cpp)
-target_link_libraries(FUGNetzteil tcpAsync unitValue serialConnections errorHandling)
-add_dependencies(FUGNetzteil tcpAsync unitValue tcpConnections errorHandling)
+target_link_libraries(FUGNetzteil tcpAsync unitValue serialConnections errorHandling log)
+add_dependencies(FUGNetzteil tcpAsync unitValue tcpConnections errorHandling log)
 
 add_library(RFG src/RFG.cpp)
-target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling)
-add_dependencies(RFG serialAsync unitValue serialConnections errorHandling)
+target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(RFG serialAsync unitValue serialConnections errorHandling log)
 
 add_library(serialSync src/serialSync.cpp)
 add_dependencies(serialSync serialConnections)
