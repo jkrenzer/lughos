@@ -117,7 +117,7 @@ int FUGNetzteil::switchVoltage(int i)
   int success=0;
   std::string command="F";
   command +=std::to_string(i);
-  command=inputOutput(command);
+  command=inputOutput(command,boost::regex("E\\d"));
   if (command=="E0"){ success = i;  voltagesOnOf=i;}
   else success = 3;
   return success;
@@ -130,7 +130,7 @@ int FUGNetzteil::setI(double I)
   std::string command="I";
   std::string answer="";
   command +=std::to_string(I);
-  answer=inputOutput(command);
+  answer=inputOutput(command,boost::regex("E\\d"));
   std::cout<<"setI answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
@@ -150,7 +150,7 @@ int FUGNetzteil::setU(double U)
   std::string command="U";
   std::string answer="";
   command +=std::to_string(U);
-  answer=inputOutput(command);
+  answer=inputOutput(command,boost::regex("E\\d"));
   std::cout<<"setU answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
@@ -178,7 +178,7 @@ double FUGNetzteil::getI()
 {
   int success=0;
   std::string answer="";
-  answer=inputOutput(">S1?");
+  answer=inputOutput(">S1?",boost::regex("S1:(.*\\d)\\n"));
 //   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
 //      std::cout<<"i/O: "<<iO<<std::endl;
       std::cout<<"getI answer: "<<answer<<std::endl;
@@ -201,7 +201,7 @@ double FUGNetzteil::getU()
   int success=0;
   std::string answer="";
 
-  answer=inputOutput(">M0?");
+  answer=inputOutput(">M0?",boost::regex("M0:(.*\\d)\\n"));
   std::cout<<"getU answer: "<<answer<<std::endl;
   if (answer[0]=='M')
   {
