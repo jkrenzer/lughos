@@ -102,9 +102,9 @@ using namespace lughos;
 // 	std::string getLastError();
 // 	std::string getIDN();
 	
-	this->stateF->setText("Connected!");
+	this->stateF->setText(fug->getIDN());
         this->stateB->setText("Status");
-	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getMeasure);
+	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
@@ -112,9 +112,7 @@ using namespace lughos;
 	this->uMaxField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
-
 	this->getState();
-
       }
       else
       {
