@@ -8,16 +8,10 @@
 #include <string>     // std::string, std::stoi
 FUGNetzteil::FUGNetzteil()
 {
-  set_default();
 }
 
-template <class T> void FUGNetzteil::setDefaultImpl(T& connection)
+FUGNetzteilConnection::FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service): tcpAsync(io_service), Connection<tcpContext>(io_service)
 {
-}
-
-template <> void FUGNetzteil::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
-{
-  serverName= connection.server_name;  
 }
 
 FUGNetzteil::~FUGNetzteil(void)
@@ -48,11 +42,6 @@ std::string FUGNetzteil::composeRequest(std::string query)
   
 }
 
-
-void FUGNetzteil::set_default()
-{
-
-}
 std::string FUGNetzteil::interpretAnswer(std::string s)
 {     
 

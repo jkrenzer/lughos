@@ -26,6 +26,10 @@ using boost::asio::ip::tcp;
 
 using namespace lughos;
 
+class FUGNetzteilConnection : public tcpAsync
+{
+    FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
 
   class FUGNetzteil : public Device
   {    
