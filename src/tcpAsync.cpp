@@ -67,6 +67,20 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name+std::string(" and not waiting for answers!"));
   }
+  lughos::debugLog(std::string("\"")+query+std::string("\" written to port ")+port_name);
+
+  try 
+  {
+    io_service_->poll();
+  }
+  catch(...)
+  {
+    lughos::debugLog(std::string("I/O-Service exception while polling for port ") + port_name);
+  }
+
+
+  if (socket.get() == NULL || !socket->is_open())	lughos::debugLog(server_name + std::string("'s socket is closed despite writing?!"));
+	if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
   return 0;
 }
 
