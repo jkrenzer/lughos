@@ -181,7 +181,7 @@ double FUGNetzteil::getI()
   answer=inputOutput(">S1?");
 //   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
 //      std::cout<<"i/O: "<<iO<<std::endl;
-      std::cout<<"get I answer: "<<answer<<std::endl;
+      std::cout<<"getI answer: "<<answer<<std::endl;
   if (answer[0]=='S')
   {
    answer= answer.erase(0, 3);
@@ -202,7 +202,7 @@ double FUGNetzteil::getU()
   std::string answer="";
 
   answer=inputOutput(">M0?");
-  std::cout<<"get U answer: "<<answer<<std::endl;
+  std::cout<<"getU answer: "<<answer<<std::endl;
   if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);

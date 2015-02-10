@@ -9,6 +9,7 @@
 #include "tcpConnections.hpp"
 #include "Dict.hpp"
 #include "tcpAsync.hpp"
+#include "log.hpp"
 
 
 tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service), connectionTimer(*io_service,boost::posix_time::seconds(5))
@@ -45,7 +46,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     this->connect();
     this->connectionTimer.wait();
     if(!this->connected)
-      std::cout << "############### TCP not connected !! #########" << std::endl; ; //Still not connected, we abort!
+      lughos::debugLog(std::string("Could not connect to server ")+server_name); //Still not connected, we abort!
   }
   std::ostream request_stream(&request);
   request_stream<<query;
@@ -55,6 +56,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     boost::asio::async_write(*socket, request,
 	boost::bind(&tcpAsync::handle_write_request, this, regExpr,
 	  boost::asio::placeholders::error));
+    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name);
   }
   else
   {
@@ -62,6 +64,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
     boost::asio::async_write(*socket, request,
 	boost::bind(&tcpAsync::handle_write_only_request, this,
 	  boost::asio::placeholders::error));
+    lughos::debugLog(std::string("\"")+query+std::string("\" written to server ")+server_name);
   }
   return 0;
 }
@@ -130,6 +133,7 @@ void tcpAsync::handle_write_request(boost::regex regExpr, const boost::system::e
     boost::asio::async_read_until(*socket, response, regExpr,
 	boost::bind(&tcpAsync::handle_read_content, this,
 	  boost::asio::placeholders::error));
+    lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
 else
   {
@@ -199,6 +203,7 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
 //       response_string_stream.str(std::string(""));
       // Write all of the data that has been read so far.
 	response_string_stream<< &response;
+	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
