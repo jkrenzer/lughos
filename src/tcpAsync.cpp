@@ -11,7 +11,7 @@
 #include "tcpAsync.hpp"
 
 
-tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service)
+tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service), connectionTimer(*io_service,boost::posix_time::seconds(5))
 {
   start();
   this->end_of_line_char_ = '\n';
@@ -25,8 +25,11 @@ tcpAsync::~tcpAsync(void)
 bool tcpAsync::connect()
 {
   if (!this->connected)
+  {
+    this->connectionTimer.expires_from_now(boost::posix_time::seconds(5));
     resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
+  }
 }
 
 bool tcpAsync::disconnect()
@@ -40,7 +43,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
   if(!this->connected)
   {
     this->connect();
-    boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //Wait half a second for the connection
+    this->connectionTimer.wait();
     if(!this->connected)
       std::cout << "############### TCP not connected !! #########" << std::endl; ; //Still not connected, we abort!
   }
@@ -99,6 +102,7 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
   if(!err)
   {
     this->connected = true;
+    this->connectionTimer.expires_from_now(boost::posix_time::seconds(0));
     return;
   }
   if (endpoint_iterator != tcp::resolver::iterator())

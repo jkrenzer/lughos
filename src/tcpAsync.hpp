@@ -47,7 +47,8 @@ class tcpAsync : virtual public Connection<tcpContext>
 	bool connect();
 	bool disconnect();
 	char end_of_line_char_;
-
+    
+	boost::asio::deadline_timer connectionTimer;
 	
 
 	
