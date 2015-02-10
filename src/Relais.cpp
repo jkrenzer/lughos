@@ -54,7 +54,7 @@ std::string Relais::composeRequest(std::string query)
 std::string Relais::read_channels()
 {
 
-  std::string state = this->inputOutput("\x0f");
+  std::string state = this->inputOutput(std::string('\x0f',1));
   int i = static_cast<int>(state[0]);
   channel_bench = std::bitset<8>(i);
 
