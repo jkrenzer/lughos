@@ -23,6 +23,11 @@
 
 using namespace lughos;
 
+class bronkhorstConnection : public serialAsync
+{
+    bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);
+};
+
 class bronkhorst : public Device
 {
   private:
@@ -33,9 +38,7 @@ class bronkhorst : public Device
 public:
 	bronkhorst();
 	~bronkhorst(void);
-	
-	template <class T> void setDefaultImpl(T& connection);
-	virtual void set_default();
+
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();

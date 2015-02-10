@@ -9,29 +9,22 @@
 
 bronkhorst::bronkhorst()
 {
-  set_default();
 }
-
-template <class T> void bronkhorst::setDefaultImpl(T& connection)
-{
-}
-
-
 
 bronkhorst::~bronkhorst(void)
 {
 
 }
 
-template <> void bronkhorst::setDefaultImpl<serialAsync> (serialAsync& connection)
+bronkhorstConnection::bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service) : serialAsync(io_service), Connection<serialContext>(io_service)
 {
     std::cout << "########################## Setting connection-parameters!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-    connection.baud_rate=boost::asio::serial_port_base::baud_rate(38400);
-    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
-    connection.character_size=boost::asio::serial_port_base::character_size(8);
-    connection.end_of_line_char_='\r';
-    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
-    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+    this->baud_rate=boost::asio::serial_port_base::baud_rate(38400);
+    this->flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+    this->character_size=boost::asio::serial_port_base::character_size(8);
+    this->end_of_line_char_='\r';
+    this->parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
 
     
 }
@@ -52,11 +45,6 @@ std::string bronkhorst::interpretAnswer(std::string s)
 	 return s;   
     
 
-}
-
-void bronkhorst::set_default()
-{
-   this->setDefaultImpl(*(this->connection.get()));
 }
 
 measuredValue bronkhorst::get_value()
