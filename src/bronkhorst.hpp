@@ -25,6 +25,7 @@ using namespace lughos;
 
 class bronkhorstConnection : public serialAsync
 {
+public:
     bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);
 };
 

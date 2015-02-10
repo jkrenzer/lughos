@@ -126,10 +126,10 @@ int main(int argc, char **argv)
 
         //TODO Make a loop which iterates over declared devices
 
-        boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection1(new bronkhorstConnection(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection4(new bronkhorstConnection(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection5(new tcpAsync(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection6(new tcpAsync(lughos::ioService) );
 	
