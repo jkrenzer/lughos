@@ -131,6 +131,7 @@ int FUGNetzteil::setI(double I)
   std::string answer="";
   command +=std::to_string(I);
   answer=inputOutput(command);
+  std::cout<<"setI answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
   {
@@ -147,9 +148,10 @@ int FUGNetzteil::setU(double U)
 {
   int success=0;
   std::string command="U";
-  std::string answer="U";
+  std::string answer="";
   command +=std::to_string(U);
   answer=inputOutput(command);
+  std::cout<<"setU answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
   {
@@ -179,7 +181,7 @@ double FUGNetzteil::getI()
   answer=inputOutput(">S1?");
 //   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
 //      std::cout<<"i/O: "<<iO<<std::endl;
-      std::cout<<"answer: "<<answer<<std::endl;
+      std::cout<<"get I answer: "<<answer<<std::endl;
   if (answer[0]=='S')
   {
    answer= answer.erase(0, 3);
@@ -200,7 +202,7 @@ double FUGNetzteil::getU()
   std::string answer="";
 
   answer=inputOutput(">M0?");
-  std::cout<<"answer: "<<answer<<std::endl;
+  std::cout<<"get U answer: "<<answer<<std::endl;
   if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);
