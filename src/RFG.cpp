@@ -56,7 +56,7 @@ template <class T> void RFG::setDefaultImpl(T& connection)
 
 template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
 {
-  
+  std::cout << "--------------------->>>>>>>>>>>>>>>>> !!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<------------------------" << std::endl << std::endl << std::endl;
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);//unconfirmed
