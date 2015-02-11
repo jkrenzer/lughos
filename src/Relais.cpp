@@ -78,7 +78,8 @@ std::string Relais::write_channels(std::string channels)
 //        else if (*i= '1') input_int+= std::pow(2,counter-1);
 // //        std::cout<<std::pow(2,counter-1)<<" "<< std::hex<<input_int<<std::endl;
 //     }
-  
+    std::string tmp(channels.rbegin(),channels.rend()); //Reverse to keep the endian straight!
+    channels = tmp;
     this->channel_bench = std::bitset<8>(channels);
 
     std::string s;
@@ -120,8 +121,8 @@ std::string Relais::write_channel(int channel, bool onoff)
 //     }
     if (channel < 8 && channel > -1)
     {
-      this->channel_bench[channel] = onoff;
-
+      this->channel_bench[7-channel] = onoff; //reversed logic!
+      
       std::string s;
       s.clear();
       s = "\xf0";

@@ -237,7 +237,6 @@ bool RFG::readoutChannels()
 //   std::cout<<"S: "<<s<<std::endl;
   std::string s = this->inputOutput("\x00\x20\x00");
 //   this->inputOutput("\r");
-  boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
   std::cout<<"S: "<<s<<std::endl;
   boost::regex exp1("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
   boost::cmatch res1;
@@ -250,7 +249,7 @@ bool RFG::readoutChannels()
     if (controler==0)channel_output[i].setunit("V");
     if (controler==1)channel_output[i].setunit("I");
     if (controler==2)channel_output[i].setunit("Watt");
-    channel_output[i].settimestamp(now);
+    channel_output[i].settimestamp(boost::posix_time::second_clock::local_time());
   }
   
   return true;
@@ -295,7 +294,7 @@ bool RFG::readout()
 
 measuredValue RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(3))
+ if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(3))
   {
     return channel_output[i];
   }
