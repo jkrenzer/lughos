@@ -88,7 +88,7 @@ ExternalProject_Add(
 
 
 ExternalProject_Add(
-    wt
+    Wt
     DEPENDS libharu
     PREFIX ${CMAKE_SYSTEM_NAME}
     PATCH_COMMAND git reset --hard && git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/wt.patch

@@ -17,10 +17,19 @@
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
+#include "measuredValue.hpp"
+#include "interpolation.hpp"
 
+using namespace lughos;
 
-class RFG :virtual public serialSync, virtual public serialAsync
+class RFGConnection : public serialAsync
+{
+public:
+    RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
+
+class RFG :public Device
 {
   private:
 	RFG(const RFG &p);
@@ -29,13 +38,49 @@ class RFG :virtual public serialSync, virtual public serialAsync
 	
   public:
 	RFG(void);
-	~RFG(void);
+	virtual ~RFG(void);
+
+	void initImplementation();
+	bool isConnectedImplementation();
+	void shutdownImplementation();
+	void power_supply_mode();
+	void bcc_mode();
+	void use_voltage_controler();
+	void use_current_controler();
+	void use_power_controler();
+	void switch_on();
+	void switch_off();
+	float set_voltage_max(float f);
+	float set_voltage_min(float f);
+	float set_current_lim(float f);
+	int set_power_lim(float f);
+	measuredValue get_channel(int i, bool force=false);
+
+	float getLimitMaxVoltage();
+	float getLimitMaxCurrent();
+	float getLimitMinVoltage();
+	float getPower();
+	bool readout();
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
-	virtual void set_default();
 protected:
-  	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
+	bool mode;
+	int controler;
+	measuredValue channel_output[8];
+	measuredValue maxVoltage;
+	measuredValue minVoltage;
+	measuredValue maxCurrent;
+	measuredValue maxPower;
+	SplineTransformation unitsToVoltage;
+ 	SplineTransformation unitsToCurrent;
+ 	SplineTransformation unitsToPower;
+	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
+	bool readoutChannels();
+	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
+
+	
+  
 };
 
 

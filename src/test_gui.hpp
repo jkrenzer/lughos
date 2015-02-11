@@ -24,17 +24,26 @@
 #include <Wt/WAbstractItemModel>
 #include <Wt/WAbstractItemView>
 #include <Wt/WDate>
+#include <Wt/WDateTime>
+#include <Wt/WLocalDateTime>
 #include <Wt/WPaintedWidget>
 #include <Wt/WItemDelegate>
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
 #include <Wt/WTableView>
+#include <Wt/WTimer>
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/QueryModel>
+#include <Wt/Dbo/WtSqlTraits>
 #include <functional>
+#include "measuredValue.hpp"
+#include "measuredDBValue.hpp"
+#include "jobQueue.hpp"
 #include "coolpak6000.hpp"
 #include "MaxiGauge.hpp"
 #include "kithleighSerial.hpp"
 
-#include "../build/resources/CsvUtil.h"
 namespace lughos 
 {
 
@@ -63,55 +72,228 @@ namespace lughos
       this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
     }
+    
   };
+  
+  //------------------------
+      template <> class ScatterPlot<kithleighSerial> : public ScatterPlotWidget
+  {
+  protected:
+    boost::shared_ptr<kithleighSerial> kithleigh;
+          Wt::Chart::WCartesianChart *chart;
+	  boost::shared_ptr<dbo::Session> session;
+	  dbo::backend::Sqlite3 dbBackend;
+	  
+
+  public:
+    
+    ScatterPlot< kithleighSerial >(boost::shared_ptr<Device> kithleigh) : kithleigh(boost::dynamic_pointer_cast<kithleighSerial>(kithleigh)), session(new dbo::Session), dbBackend("test.db")
+    {
+
+      this->init();
+    }
+    
+    ~ScatterPlot< kithleighSerial >()
+    {
+      
+    }
+    
+    
+    void init()
+    {	
+      this->session->setConnection(this->dbBackend);
+      this->session->mapClass<measuredDBValue>("measuredValue");
+      this->name=kithleigh->getName();
+//      this->setWidth(500);
+      this->addWidget(new Wt::WText(this->name.c_str()));
+           this->name=kithleigh->getName();
+      this->chart = new Wt::Chart::WCartesianChart();
+      this->chart->setBackground(Wt::WColor(220, 220, 220));
+      
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      
+//       typedef boost::tuple<double, boost::posix_time::ptime> Item;
+      typedef boost::tuple<double, Wt::WDateTime> Item;
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
+      
+      std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
+
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//   
+      model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Temperature Monitor 1").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("value");
+      model->addColumn("timestamp");
+      transaction.commit();
+	
+	
+      chart->setModel(model);
+      this->chart->setXSeriesColumn(1);
+      this->chart->setLegendEnabled(true);
+      this-> chart->setType(Wt::Chart::ScatterPlot);
+      this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
+      chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
+      
+//       Add the curves
+      Wt::Chart::WDataSeries s(0, Wt::Chart::LineSeries);
+      s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      chart->addSeries(s);
+      chart->resize(1024, 800);
+      chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+//       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
+//       chart->axis(Wt::Chart::YAxis).setAutoLimits(Wt::Chart::MinimumValue | Wt::Chart::MaximumValue);
+      Wt::WTimer *intervalTimer = new Wt::WTimer(this);
+      intervalTimer->setInterval(5000);
+      intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
+      intervalTimer->start();
+      this->addWidget(chart);
+
+      
+      	    Wt::WTableView *table = new Wt::WTableView();
+      table->setModel(model);
+      table->setSortingEnabled(false);
+      table->setColumnResizeEnabled(true);
+      table->setAlternatingRowColors(true);
+      table->setColumnAlignment(0, Wt::AlignCenter);
+      table->setHeaderAlignment(0, Wt::AlignCenter);
+      table->setRowHeight(28);
+      table->setHeaderHeight(28);
+      table->setColumnWidth(0, 80);
+      for (int column = 1; column < model->columnCount(); ++column)
+	  table->setColumnWidth(column, 90);
+      table->resize(783, 200);
+      this->addWidget(table);      
+    }
+    
+  };
+  
+  
+
+  
+  //------------------------
   
     template <> class ScatterPlot<MaxiGauge> : public ScatterPlotWidget
   {
   protected:
     boost::shared_ptr<MaxiGauge> maxigauge;
-          Wt::Chart::WCartesianChart *chart;
+    Wt::Chart::WCartesianChart *chart;
+    boost::shared_ptr<dbo::Session> session;
+    dbo::backend::Sqlite3 dbBackend;
 
   public:
     
-    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge))
+    ScatterPlot< MaxiGauge >(boost::shared_ptr<Device> maxigauge) : maxigauge(boost::dynamic_pointer_cast<MaxiGauge>(maxigauge)), session(new dbo::Session), dbBackend("test.db")
     {
 
       this->init();
     }
         void init()
     {	
-     this->name=maxigauge->getName();
+     this->session->setConnection(this->dbBackend);
+      this->session->mapClass<measuredDBValue>("measuredValue");
+      this->name=maxigauge->getName();
 //      this->setWidth(500);
       this->addWidget(new Wt::WText(this->name.c_str()));
-           this->name=maxigauge->getName();
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
+      
+      dbo::Transaction transaction(*this->session);
+      dbo::collection< dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      
+      typedef boost::tuple<double, boost::posix_time::ptime> QuerryItem;
+      typedef boost::tuple< Wt::WDateTime, double, Wt::WDateTime, double, Wt::WDateTime, double> Item;
+//       typedef boost::tuple<double, boost::posix_time::ptime> Item;
 
-      Wt::WStandardItemModel *model = new Wt::WStandardItemModel(40, 2);
-      model->setHeaderData(0, Wt::WString("X"));
-      model->setHeaderData(1, Wt::WString("Y = sin(X)"));
-      for (unsigned i = 0; i < 40; ++i) 
-	{
-	    double x = (static_cast<double>(i) - 20) / 4;
+      dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();
+      
+      std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
-	    model->setData(i, 0, x);
-	    model->setData(i, 1, std::sin(x));
-	}	
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//   
+      model->setQuery(this->session->query<Item>("select t1.timestamp, t1.value, t2.timestamp, t2.value, t3.timestamp, t3.value from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy(" t1.timestamp DESC").orderBy(" t2.timestamp DESC").orderBy(" t3.timestamp DESC").limit(300));
+//  , sensor2.timestamp, sensor2.value , ( SELECT timestamp, value FROM `measuredValues` WHERE sensorName = `Pressure Monitor 12`) sensor2
+//       model->setQuery(this->session->query<Item>("SELECT sensor1.timestamp, sensor1.value FROM ( SELECT timestamp, value FROM `measuredValue`) sensor1").where("sensorName = ?").bind("Pressure Monitor 11").limit(100).orderBy("timestamp DESC"));
+//       model->setQuery(this->session->query<Item>("SELECT value AS value1, timestamp AS timestamp1 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 12").limit(100).orderBy("timestamp DESC"));
+      model->addColumn("t1.timestamp");
+      model->addColumn("t1.value");
+            model->addColumn("t2.timestamp");
+      model->addColumn("t2.value");
+            model->addColumn("t3.timestamp");
+      model->addColumn("t3.value");
+      
+//       model->addColumn("TS 12");
+//       model->addColumn("PM 12");
+//       model->addColumn("TS 13");
+//       model->addColumn("PM 13");
+//       model->addColumn("t2");
+//       model->addColumn("v2"); 
+//       model->addColumn("t1");
+//       model->addColumn("v1");    
+
+
+      
+//       model->setQuery(this->session->query<Item>("SELECT value AS value2, timestamp AS timestamp2 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitorl 12").limit(100).orderBy("timestamp DESC"));
+//       model->addColumn("value2");
+//       model->addColumn("timestamp2");
+// // //       
+//       model->setQuery(this->session->query<Item>("SELECT value AS value3, timestamp AS timestamp3 FROM measuredValue").where("sensorName = ?").bind("Pressure Monitor 13").limit(100).orderBy("timestamp DESC"));
+//       model->addColumn("value3");
+//       model->addColumn("timestamp3");
+      
+      transaction.commit();
+	
       chart->setModel(model);
-      this->chart->setXSeriesColumn(0);
+//       this->chart->setXSeriesColumn(0);
       this->chart->setLegendEnabled(true);
-      this-> chart->setType(Wt::Chart::ScatterPlot);
-//       this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
-      chart->setPlotAreaPadding(80, Wt::Left);
-      chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
-
-      // Add the curves
-      Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
-      s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-      chart->addSeries(s);
-      this->addWidget(chart);
-      chart->resize(800, 400);
+      this->chart->setType(Wt::Chart::ScatterPlot);
+      this->chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateTimeScale);
+      chart->setPlotAreaPadding(100, Wt::Left | Wt::Top | Wt::Bottom | Wt::Right);
+      
+//       Add the curves
+      Wt::Chart::WDataSeries s1(1, Wt::Chart::PointSeries);
+      s1.setXSeriesColumn(0);
+      s1.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      Wt::Chart::WDataSeries s2(3, Wt::Chart::PointSeries);
+      s2.setXSeriesColumn(2);
+      s2.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      Wt::Chart::WDataSeries s3(5, Wt::Chart::PointSeries);
+      s3.setXSeriesColumn(4);
+      s3.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+      chart->addSeries(s1);
+      chart->addSeries(s2);
+      chart->addSeries(s3);
+      chart->resize(1024, 800);
       chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+//       chart->axis(Wt::Chart::XAxis).setMinimum(Wt::WDateTime::currentDateTime().addSecs(-120));
+//       chart->axis(Wt::Chart::YAxis).setAutoLimits(Wt::Chart::MinimumValue | Wt::Chart::MaximumValue);
+      Wt::WTimer *intervalTimer = new Wt::WTimer(this);
+      intervalTimer->setInterval(5000);
+      intervalTimer->timeout().connect(boost::bind(&Wt::Dbo::QueryModel<Item>::reload,model)); // Reload model every 3 seconds
+      intervalTimer->start();
+      
+	    Wt::WTableView *table = new Wt::WTableView();
+      table->setModel(model);
+      table->setSortingEnabled(false);
+      table->setColumnResizeEnabled(true);
+      table->setAlternatingRowColors(true);
+      table->setColumnAlignment(0, Wt::AlignCenter);
+      table->setHeaderAlignment(0, Wt::AlignCenter);
+      table->setRowHeight(28);
+      table->setHeaderHeight(28);
+      table->setColumnWidth(0, 80);
+      for (int column = 1; column < model->columnCount(); ++column)
+	  table->setColumnWidth(column, 90);
+      table->resize(783, 200);
+
+      
+      this->addWidget(chart);
+      this->addWidget(table);
     }
   };
   
@@ -123,7 +305,7 @@ namespace lughos
     {
 //       this->addWidget(new ScatterPlot<S>());
       this->addWidget(new ScatterPlot<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
-//       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
+      this->addWidget(new ScatterPlot<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
     }
 
   };
@@ -478,7 +660,7 @@ namespace lughos
 	}
 	
       }
-      state=enabled+disabled;
+      state=enabled+std::string(" ")+disabled;
      
       if(communicationEstablished)
       {
@@ -494,7 +676,11 @@ namespace lughos
       for(int i=0;i<6;i++)
       {
 	maxigauge->sensor_on(i);
+	onB[i]->setDisabled(true);
+	offB[i]->setDisabled(false);
       }
+
+      
       this->getState();
     }
     
@@ -503,18 +689,30 @@ namespace lughos
       for(int i=0;i<6;i++)
       {
 	maxigauge->sensor_off(i);
+	onB[i]->setDisabled(false);
+	offB[i]->setDisabled(true);
       }
       this->getState();
     }
     
         void sensor_on(int i)
     {
-      this->stateF->setText(std::to_string(maxigauge->sensor_on(i)));
+      if(maxigauge->sensor_on(i))
+      {
+	this->stateF->setText("Sensor "+ std::to_string(i)+" enabled");
+	onB[i]->setDisabled(true);
+	offB[i]->setDisabled(false);
+      }
     }
         
      void sensor_off(int i)
     {
-      this->stateF->setText(std::to_string(maxigauge->sensor_off(i)));
+      if(maxigauge->sensor_off(i))
+      {
+	this->stateF->setText("Sensor "+ std::to_string(i)+" disabled");
+	onB[i]->setDisabled(false);
+	offB[i]->setDisabled(true);
+      }
     }
     
     
@@ -648,7 +846,8 @@ namespace lughos
 	{
 	  
 // 	  std::cout<<keithley->inputOutput(token)<<std::endl;
-	  responseField->setText(responseField->text().toUTF8()+keithley->inputOutput(token));   
+	  if (token.find_last_of("?")) responseField->setText(responseField->text().toUTF8()+keithley->inputOutput(token));   
+	  else keithley->input(token);  
 	  std::cout << token << std::endl;
 	}
         responseField->setText(responseField->text().toUTF8()+std::string("\n--------------------------\n")); 
@@ -680,6 +879,7 @@ namespace lughos
     DeviceView(WContainerWidget* parent = 0)
     {
       this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 1")] ));
+      this->addWidget(new DeviceUI<coolpak6000>(deviceMap[std::string("Compressor 2")] ));
       this->addWidget(new DeviceUI<MaxiGauge>(deviceMap[std::string("Pressure Monitor 1")] ));  
       this->addWidget(new DeviceUI<kithleighSerial>(deviceMap[std::string("Temperature Monitor 1")] )); 
     }

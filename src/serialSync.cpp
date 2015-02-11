@@ -49,12 +49,12 @@ int serialSync::write(std::string query)
   boost::asio::write(*port_, request);
 
 // Read the response status line.
-  if(end_of_line_char_=='\0'){
+  if(endOfLineRegExpr_=='\0'){
     boost::asio::read(*port_, response,
           boost::asio::transfer_at_least(4), error);
 //     boost::asio::read_until(*port_, response_, end_of_line_char_);  
   }
-  else  boost::asio::read_until(*port_, response, end_of_line_char_);
+  else  boost::asio::read_until(*port_, response, endOfLineRegExpr_);
 //     handle_read_check_response(error);
 //      boost::asio::read_until(*port_, response_, "K");
       handle_read_check_response(error);

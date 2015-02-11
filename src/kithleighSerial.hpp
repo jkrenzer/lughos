@@ -7,7 +7,6 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/logic/tribool.hpp> 
-
 #include <string>
 #include <vector>
 #include <cstring>
@@ -17,8 +16,10 @@
 #include <iostream>
 #include <boost/array.hpp>
 #include "device.hpp"
+#include "measuredValue.hpp"
+
 using namespace lughos;
-// #include "Dict.hpp"
+
 
 
 class kithleighSerial : public Device
@@ -31,11 +32,15 @@ class kithleighSerial : public Device
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
+	measuredValue storedMeasure;
 	
 	
   public:
 	kithleighSerial();
 	~kithleighSerial(void);
+	
+	measuredValue getMeasure(bool force=false);
+
 	
 protected:
 //   	void compose_request(const std::string &buf);

@@ -12,30 +12,45 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
 #include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "bronkhorstMessage.hpp"
+#include "device.hpp"
+#include "measuredValue.hpp"
+#include "utils.hpp"
 
+using namespace lughos;
 
-class bronkhorst :virtual public serialSync, virtual public serialAsync
+class bronkhorstConnection : public serialAsync
+{
+public:
+    bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);
+};
+
+class bronkhorst : public Device
 {
   private:
 	bronkhorst(const bronkhorst &p);
 	bronkhorst &operator=(const bronkhorst &p);
 	
 	
-  public:
-	bronkhorst(boost::asio::io_service* io_service);
-	~bronkhorst(void);
-	
-	virtual std::string inputoutput(const std::string input, const int async=0);
-	virtual void set_default();
+public:
+	bronkhorst();
+	virtual ~bronkhorst(void);
+
+	void initImplementation();
+	void shutdownImplementation();
+	bool isConnectedImplementation();
+	measuredValue get_value();
+	std::string set_flow(float value);
 protected:
-  	void compose_request(const std::string &buf);
-// 	void handle_read_check_response();
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
+	float maxCapacity;
+	
+	measuredValue storedMeasure;
 };
 
 

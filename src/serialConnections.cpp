@@ -17,70 +17,79 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_('\r'),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
+this->endOfLineRegExpr_ = boost::regex("\n");
 
 }
-
-
 
 Connection<serialContext>::~Connection(void)
 {
 	stop();
 }
 
-char Connection<serialContext>::end_of_line_char() const
+boost::regex Connection<serialContext>::endOfLineRegExpr() const
 {
-    return this->end_of_line_char_;
+    return this->endOfLineRegExpr_;
 }
 
-void Connection<serialContext>::end_of_line_char(const char &c)
+void Connection<serialContext>::endOfLineRegExpr(boost::regex c)
 {
-  this->end_of_line_char_ = c;
+  this->endOfLineRegExpr_ = c;
 }
 
 
 bool Connection<serialContext>::start()
 {
-  std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
-	ofs << "ready to set following options" << std::endl;
-	ofs << "baud_rate: "<<baud_rate.value() << std::endl;
-	ofs << "character_size: "<<character_size.value() << std::endl;
-	ofs << "stop_bits: "<<stop_bits.value()<< std::endl;
-	ofs << "parity: "<<parity.value() << std::endl;
-	ofs << "flow_control: "<<flow_control.value() << std::endl;
-
+//   std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
+ 	std::cout << "### Starting connection! ###" << std::endl;
+ 	std::cout << "baud_rate: "<<baud_rate.value() << std::endl;
+ 	std::cout << "character_size: "<<character_size.value() << std::endl;
+ 	std::cout << "stop_bits: "<<stop_bits.value()<< std::endl;
+ 	std::cout << "parity: "<<parity.value() << std::endl;
+ 	std::cout << "flow_control: "<<flow_control.value() << std::endl;
+  std::cout<<"eolc: "<< endOfLineRegExpr()<< std::endl;
   std::cout<<"port name: "<< port_name<< std::endl;
-  ofs<< character_size.value() << std::endl;
+  std::cout << "#############################" << std::endl;
+
   	if (port_name.empty()) {
 		std::cout << "please set port name before start" << std::endl;
-		ofs<< "please set port name before start" << std::endl;
-		ofs.close();
+// 		ofs<< "please set port name before start" << std::endl;
+// 		ofs.close();
 		stop();
 		return false;
 	}
   
-	this->end_of_line_char(end_of_line_char_);
+// 	this->end_of_line_char(end_of_line_char_);
 	boost::system::error_code ec;
 
 	if (port_) {
-		std::cout << "error : port is already opened..." << std::endl;
-		ofs << "error : port is already opened..." << std::endl;
-		ofs.close();
-		stop();
-		return false;
+// 		stop();
+// 		return false;
 	}
 	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
-	port_->open(port_name.c_str(), ec);
-	if (ec) {
-		std::cout << "error : port_->open() failed...com_port_name="
-			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-		ofs << "error : port_->open() failed...com_port_name="
-			<< port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-			ofs.close();
-		stop();
-		return false;
+	
+	/* As windows is volatile with it's serial ports we have to be prepared for anything. So try and catch as if running for your life! */
+	
+	try { 
+	  port_->open(port_name.c_str(), ec); //Keep your fingers crossed...
+	  if (ec) { // Boost gave us an error-message
+		  std::cout << "error : port_->open() failed...com_port_name="
+			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+// 		  ofs << "error : port_->open() failed...com_port_name="
+// 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
+// 			  ofs.close();
+		  stop();
+		  return false;
+	  }
+	}
+	catch(...)
+	{ // Unfortunatle we got an arbitrary system-exception. :/
+	  std::cout << "error : port_->open() failed...com_port_name="
+			  << port_name.c_str() << ", system threw an exception!"  << std::endl;
+	  stop();
+	  return false;
 	}
 	
 // 	this->reset();
@@ -93,7 +102,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "baud rate problems" << std::endl;
+// 	      ofs << "baud rate problems" << std::endl;
 	  }
 
 	  try 
@@ -102,7 +111,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "character_size problems" << std::endl;
+// 	      ofs << "character_size problems" << std::endl;
 	  }
 
 	  try 
@@ -112,7 +121,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "stop_bits problems" << std::endl;
+// 	      ofs << "stop_bits problems" << std::endl;
 	  }
 	
 	
@@ -123,7 +132,7 @@ bool Connection<serialContext>::start()
 	  }
 	  catch(...)
 	  {
-	      ofs << "parity problems" << std::endl;
+// 	      ofs << "parity problems" << std::endl;
 	  }
 	
 	  try 
@@ -131,15 +140,12 @@ bool Connection<serialContext>::start()
 	    port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));	  }
 	  catch(...)
 	  {
-	      ofs << "flow_control problems" << std::endl;
+// 	      ofs << "flow_control problems" << std::endl;
 	  }
-	
 
-
-
-	ofs << "start is fine" << std::endl;
-	ofs.flush();
-	ofs.close();
+// 	ofs << "start is fine" << std::endl;
+// 	ofs.flush();
+// 	/*/*/*/*ofs*/*/*/*/.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
 //   io_service_->run();
 	return true;
@@ -308,8 +314,7 @@ void Connection<serialContext>::stop()
     {
 	if (port_) 
 	{  
-// 		std::cout<<"open port found"<<std::endl;
-
+		std::cout<<"Closing port"<<std::endl;
 		port_->cancel();
 		port_->close();
 		port_.reset();
@@ -330,7 +335,7 @@ void Connection<serialContext>::compose_request(const std::string &buf)
 //   	                std::cout<<"wrong compose"<<std::endl;
 }
 
-void Connection<serialContext>::set_port()
+void Connection<serialContext>::set_port(std::string port)
 {
 
 }
@@ -345,18 +350,6 @@ void Connection<serialContext>::handle_read_check_response(const boost::system::
 
 void Connection<serialContext>::handle_read_headers_process()
 {
-        // Process the response headers.
-//       std::istream response_stream(&response_);
-//       std::string header;
-//       while (std::getline(response_stream, header) && header != "\r");
-// 	std::cout << header << "\n";
-//       std::cout << "\n";
-      
-     // Write whatever content we already have to output.
-//       if (response_.size() > 0) //response_string_stream<<&response_;
-//         std::cout << &response_;
-//       response_string_stream
-      
 
 }
 
@@ -465,12 +458,22 @@ bool Connection<serialContext>::testconnection()
      }
      if(ConnectionEstablished)
      {
-       this->stop();
+       try 
+       {
+	this->stop();
+       }
+       catch(...)
+       {}
      }
      return ConnectionEstablished;
 }
 
 int Connection<serialContext>::write(std::string query)
+{
+  return 0;  
+}
+
+int Connection<serialContext>::write_only(std::string query)
 {
   return 0;  
 }

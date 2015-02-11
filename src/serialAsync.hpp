@@ -21,40 +21,123 @@
 
 
 
+/**
+ * @class serialAsync
+ * @brief Class describing asynchronous serial connections
+ * 
+ */
+
 class serialAsync : virtual public Connection<serialContext>
 {
   private:
-	serialAsync(const serialAsync &p);
-	serialAsync &operator=(const serialAsync &p); 
+    /**
+    * @brief Copy Constructor
+    * 
+    * @param p 
+    */
 
-	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
-
+    serialAsync(const serialAsync &p);
+    
+    /**
+      * @brief Asignment operator
+      * 
+      * @param p ...
+      * @return serialAsync&
+      */
+    
+    serialAsync &operator=(const serialAsync &p); 
+    
+    /**
+      * @brief Wait-callback
+      * Called at timeout.
+      * 
+      * @param port_ ...
+      * @param error ...
+      * @return void
+      */
+    
+    void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
 
   protected:
     
-	virtual void async_read_some_();
-// 	virtual void on_receive_(const boost::system::error_code& ec, size_t bytes_transferred);
-// 	virtual void on_receive_(const std::string &data);
-	int write_some(const char *buf, const int &size);
-	int write_some_async(const char *buf, const int &size);
-	
-	
-	void handle_write_request(const boost::system::error_code& err);
-// 	void handle_read_status_line(const boost::system::error_code& err);
-// 	void handle_read_check_response(const boost::system::error_code& err);
-// 	void handle_read_headers(const boost::system::error_code& err);
-// 	void handle_read_headers_process();
-	void handle_read_content(const boost::system::error_code& err);
+    /**
+     * @brief Callback for write-only operations
+     * 
+     * @param err ...
+     * @return void
+     */
+    
+    int write_some(const char *buf, const int &size);
+    
+    /**
+      * @brief Function to write data to port asynchonously
+      * 
+      * @param buf ...
+      * @param size ...
+      * @return int
+      */
+    
+    
+    int write_some_async(const char *buf, const int &size);
+        
+    /**
+      * @brief Callback for read-write-request
+      * 
+      * @param err ...
+      * @return void
+      */
+    
+    void handle_write_request(boost::regex& regExpr, const boost::system::error_code& err);
+    
+    /**
+      * @brief Callback for reading answer from port
+      * 
+      * @param err ...
+      * @return void
+      */
+    
+    void handle_read_content(boost::regex& regExpr,const boost::system::error_code& err);
+    
 
 
 	
   public:
-	serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
-	~serialAsync(void);
-	
-	int write(std::string query);
-	void abort();
-protected:
+    
+    
+    /**
+     * @brief Constructor
+     * 
+     * @param io_service ...
+     */
+    
+      serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
+      /**
+	* @brief Destructor
+	* 
+	* @param  ...
+	*/
+      
+      
+      ~serialAsync(void);
+      
+      /**
+	* @brief Write to serial port and wait for answer
+	* 
+	* @param query ...
+	* @return int
+	*/
+      int write(std::string query, boost::regex regExpr);
+      
+      /**
+	* @brief Write to serial port and retur immediatly
+	* 
+	* @param query ...
+	* @return int
+	*/
+      
+      void abort();
+      
+  protected:
 /////////////
 	std::deque<char> write_msgs_;
 	void do_close(const boost::system::error_code& error);

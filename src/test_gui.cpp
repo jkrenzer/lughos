@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/QueryModel>
 #include "test_gui.hpp"
 #include "serialAsync.hpp"
 #include "device.hpp"
@@ -8,7 +11,11 @@
 // #include "coolpak6000.hpp"
 // #include "MaxiGauge.hpp"
 // #include "MaxiGauge.hpp"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <boost/thread/thread.hpp>
+
+#define CONFIG_FILENAME "config.xml"
 
 typedef std::pair<std::string, boost::shared_ptr<Device> > deviceMapPair;
 
@@ -46,38 +53,79 @@ int main(int argc, char **argv)
     ofs.close();
   std::cout << "IOService started and running..." << std::endl;
   
+  /* preparing configuration */
+    using boost::property_tree::ptree;
+    ptree config;
+    
+    /* Try to load configuration from file */
+    
+    try
+    {
+      boost::property_tree::read_xml(CONFIG_FILENAME, config);
+    }
+    catch(...) // If we cannot open the configuration, we generate a new one
+    {
+      std::cout << "No configuration foung! Generating default! Check if it is sane!!" << std::endl;
+      
+      config.put("devices.compressor1.name","Compressor 1");
+      config.put("devices.compressor1.type","coolpak6000");
+      config.put("devices.compressor1.connection.type","serial");
+      config.put("devices.compressor1.connection.mode","async");
+      config.put("devices.compressor1.connection.port","COM5");
+      //
+      config.put("devices.compressor2.name","Compressor 2");
+      config.put("devices.compressor2.type","coolpak6000");
+      config.put("devices.compressor2.connection.type","serial");
+      config.put("devices.compressor2.connection.mode","async");
+      config.put("devices.compressor2.connection.port","COM6");
+      
+      config.put("devices.pressuremonitor1.name","Pressure Monitor 1");
+      config.put("devices.pressuremonitor1.type","maxigauge");
+      config.put("devices.pressuremonitor1.connection.type","serial");
+      config.put("devices.pressuremonitor1.connection.mode","async");
+      config.put("devices.pressuremonitor1.connection.port","/dev/ttyUSB0");
+      
+      config.put("devices.keithley1.name","Temperature Monitor 1");
+      config.put("devices.keithley1.type","keithley");
+      config.put("devices.keithley1.connection.type","serial");
+      config.put("devices.keithley1.connection.mode","async");
+      config.put("devices.keithley1.connection.port","COM1");
+      boost::property_tree::write_xml(CONFIG_FILENAME, config);
+    }
+  
     boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
     boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+    boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
      
-     #ifdef WIN32 
-      connection1.port_name = std::string("COM1");
-      connection2.port_name = std::string("COM2");
-      connection2.port_name = std::string("COM3");
+    connection1->port_name = config.get<std::string>("devices.compressor1.connection.port");
+    connection2->port_name = config.get<std::string>("devices.compressor2.connection.port");
+    connection3->port_name = config.get<std::string>("devices.pressuremonitor1.connection.port");
+    connection4->port_name = config.get<std::string>("devices.keithley1.connection.port");
 
-     #else
-      connection1->port_name = std::string("/dev/ttyUSB2");
-      connection2->port_name = std::string("/dev/ttyUSB1");
-      connection3->port_name = std::string("/dev/ttyUSB0");
-    #endif
-      
-      
+
 
       boost::shared_ptr<Device> compressor1(new coolpak6000);
+      boost::shared_ptr<Device> compressor2(new coolpak6000);
       boost::shared_ptr<Device> pressureMonitor1(new MaxiGauge);
       boost::shared_ptr<Device> temperatureMonitor1(new kithleighSerial);
 //       MaxiGauge* pressureMonitor1 = new MaxiGauge;
       
         
-      compressor1->setName(std::string("Compressor 1"));
-      pressureMonitor1->setName(std::string("Pressure Monitor 1"));
-      temperatureMonitor1->setName(std::string("Temperature Monitor 1"));
+
+      compressor1->setName(config.get<std::string>("devices.compressor1.name"));
+      compressor2->setName(config.get<std::string>("devices.compressor2.name"));
+      pressureMonitor1->setName(config.get<std::string>("devices.pressuremonitor1.name"));
+      temperatureMonitor1->setName(config.get<std::string>("devices.keithley1.name"));
       
       compressor1->connect(connection1);
-      pressureMonitor1->connect(connection2);
-      temperatureMonitor1->connect(connection3);
+      compressor2->connect(connection2);
+      pressureMonitor1->connect(connection3);
+      temperatureMonitor1->connect(connection4);
+
 //       deviceMap[compressor1->getName()]=compressor1;
   deviceMap.insert(deviceMapPair(compressor1->getName(), compressor1));
+    deviceMap.insert(deviceMapPair(compressor2->getName(), compressor2));
   std::cout<< pressureMonitor1->getName()<<std::endl;
     std::cout<< pressureMonitor1.get()<<std::endl;
   deviceMap.insert(deviceMapPair(pressureMonitor1->getName(), pressureMonitor1));
@@ -85,17 +133,50 @@ int main(int argc, char **argv)
   
   //Start logging
   
+    dbo::backend::Sqlite3 sqlite3("test.db");
+  boost::shared_ptr<dbo::Session> session(new dbo::Session);
+  boost::shared_ptr<dbo::Session> session1(new dbo::Session);
+  boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
+//   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
+//   boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
+  session->setConnection(sqlite3);
+  session->mapClass<measuredDBValue>("measuredValue");
+  session1->setConnection(sqlite3);
+  session1->mapClass<measuredDBValue>("measuredValue");
+  try 
+  {
+    session->createTables();
+    session1->createTables();
+    std::cout << "Creating tables..." << endl;
+  }
+  catch(...)
+  {
+    std::cout << "Tables already created." << endl;
+  }
+  
   std::cout << "Starting task-execution" << std::endl;
   
-//   PressureMonitor press(taskExecutor,pressureMonitor1,1);
-//   press.setEvery(boost::posix_time::seconds(5));
-//   press.setExecuteTimes(Task::Execute::infinite);
-//   press.start();
+  PressureMonitor press(session1,taskExecutor,pressureMonitor1);
+  press.setEvery(boost::posix_time::seconds(1));
+  press.setExecuteTimes(Task::Execute::infinite);
+  press.start();
+//   PressureMonitor press1(session1,taskExecutor,pressureMonitor1,2);
+//   press1.setEvery(boost::posix_time::seconds(1));
+//   press1.setExecuteTimes(Task::Execute::infinite);
+//   press1.start();
+//   PressureMonitor press2(session1,taskExecutor,pressureMonitor1,3);
+//   press2.setEvery(boost::posix_time::seconds(1));
+//   press2.setExecuteTimes(Task::Execute::infinite);
+//   press2.start();
   
-//   KeithleyTest keithley(taskExecutor,temperatureMonitor1);
-//   keithley.setEvery(boost::posix_time::seconds(10));
-//   keithley.setExecuteTimes(Task::Execute::infinite);
-//   keithley.start();
+  KeithleyTest keithley(session, taskExecutor,temperatureMonitor1);
+  keithley.setEvery(boost::posix_time::seconds(10));
+  keithley.setExecuteTimes(Task::Execute::infinite);
+  keithley.start();
+  
+  
+  
+  
   
   /*
    * Your main method may set up some shared resources, but should then
@@ -138,6 +219,8 @@ int main(int argc, char **argv)
   lughos::ioService->stop();
 //    ofs<< "IOService stopping..." << std::endl;
   std::cout << "IOService stopping..." << std::endl;
+  
+  
   lughos::ioService->reset();
   thread.join();
   std::cout << "Everything cleaned up, quitting..." << std::endl;

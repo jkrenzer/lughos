@@ -16,11 +16,19 @@
 #include "serialAsync.hpp"
 
 #include <iostream>
+#include <bitset>
 #include <boost/array.hpp>
-// #include "Dict.hpp"
+#include "device.hpp"
 
+using namespace lughos;
 
-class Relais :virtual public serialSync, virtual public serialAsync
+class RelaisConnection : public serialAsync
+{
+public:
+    RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
+
+class Relais :public Device
 {
   private:
 	Relais(const Relais &p);
@@ -28,20 +36,27 @@ class Relais :virtual public serialSync, virtual public serialAsync
 	
 	
   public:
-	Relais(boost::asio::io_service* io_service);
-	~Relais(void);
+	Relais();
+	virtual ~Relais(void);
 
-	virtual std::string inputoutput(const std::string input, const int async=0);
-	virtual void set_default();
-	virtual std::string read();
+	void initImplementation();
+	void shutdownImplementation();
+	bool isConnectedImplementation();
+	
+	virtual std::string read_channels();
+	virtual std::string write_channels(std::string channels);
+	virtual std::string write_channel(int i,bool onoff);
+	
 	bool input_status(int sensor);
 	bool input_on(int sensor);
 	bool input_off(int sensor);
 	std::string input_read();
 	
 protected:
-  	void compose_request(const std::string &buf);
-	int input_bench[8];
+	std::string interpretAnswer(std::string query);
+	std::string composeRequest(std::string query);
+	std::bitset<8> channel_bench;
+	std::bitset<8> sensor_bench;
 };
 
 

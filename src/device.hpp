@@ -5,10 +5,12 @@
 
 
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/regex.hpp>
 
 #include "connectionImpl.hpp"
 #include "basicObject.hpp"
 #include "threadSafety.hpp"
+#include "errorHandling.hpp"
 
 
 namespace lughos
@@ -29,6 +31,8 @@ namespace lughos
     
     virtual void initImplementation() = 0;
     
+    virtual bool isConnectedImplementation() = 0;
+    
     virtual void shutdownImplementation() = 0;
     
     virtual std::string composeRequest(std::string query) = 0;
@@ -39,9 +43,13 @@ namespace lughos
     {
       connection->write(this->composeRequest(query));
       connection->waitForCompletion();
-//         std::ofstream ofs ("/home/irina/projects/coolpak6000_get_data.txt", std::ofstream::out);
-// 	ofs <<connection->read() << std::endl;
-// 	ofs.close();
+      return this->interpretAnswer(connection->read());
+    }
+    
+    virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
+    {
+      connection->write(this->composeRequest(query), regExpr);
+      connection->waitForCompletion();
       return this->interpretAnswer(connection->read());
     }
     
@@ -79,7 +87,8 @@ namespace lughos
     {
       GUARD
       this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-      if(this->connection->testconnection())
+      this->connected = this->connection->testconnection();
+      if(this->connected)
 	this->init();
       return this->connected;
     }
@@ -92,8 +101,8 @@ namespace lughos
 	this->init();
       else if (!currentlyConnected && this->connected)
 	this->initialized = false;
-      this->connected = currentlyConnected;
-      return currentlyConnected;
+      this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      return this->connected;
     }
     
     bool isInitialized()
@@ -118,7 +127,19 @@ namespace lughos
     std::string inputOutput(std::string query)
     {
       GUARD
-      return this->inputOutputImplementation(query);
+      if(this->connected)
+	return this->inputOutputImplementation(query);
+      else
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+    }
+    
+    std::string inputOutput(std::string query, boost::regex regExpr)
+    {
+      GUARD
+      if(this->connected)
+	return this->inputOutputImplementation(query,regExpr);
+      else
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     DeviceImpl() : connection()

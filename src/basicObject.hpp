@@ -1,6 +1,9 @@
 #ifndef BASIC_OBJECT_HPP
 #define BASIC_OBJECT_HPP
 
+#include <Wt/Dbo/Dbo>
+#include "device.hpp"
+
 namespace lughos
 {
 
@@ -35,6 +38,16 @@ public:
   {
     this->name = name;
   }
+  
+
+
+     Wt::Dbo::collection< Wt::Dbo::ptr<basicObject> > channel;
+    template<class Action>
+    void persist(Action& a)
+    {
+      Wt::Dbo::field(a, name, "name");
+      Wt::Dbo::hasMany(a, channel, Wt::Dbo::ManyToOne, "device");
+    } 
    
 };
 

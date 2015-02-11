@@ -35,7 +35,7 @@ template <> void coolpak6000::setDefaultImpl< Connection<serialContext> > (Conne
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(4800);
     connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     connection.character_size=boost::asio::serial_port_base::character_size(8);
-    connection.end_of_line_char_='\r';
+    connection.endOfLineRegExpr_='\r';
     connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
   
@@ -53,7 +53,7 @@ std::string coolpak6000::composeRequest(std::string query)
     requestString+=std::string("\x02");
     requestString+=query;
     requestString+=std::string("\r");
-
+std::cout<<query<<std::endl;
     return requestString;
   
 }
@@ -65,7 +65,8 @@ std::string coolpak6000::composeRequest(std::string query)
 }
 
 std::string coolpak6000::interpretAnswer(std::string s)
-{       
+{  
+  std::cout<<"answer: "<<s<<std::endl;
   return s;  
 
 }

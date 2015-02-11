@@ -35,7 +35,7 @@ class coolpak6000 : public Device
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
-	
+	bool isConnectedImplementation();
 	
 	bool compressor_on();
 	bool compressor_off();
