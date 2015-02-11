@@ -92,7 +92,12 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
       // Write all of the data that has been read so far.
         response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
-	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + port_name);
+	if(response_string_stream.str().empty())
+	{
+	  this->handle_write_request();
+	  lughos::debugLog(std::string("Discarded heartbeat from ") + server_name + std::string(":") + port_name);
+	}
+	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ")+ server_name + std::string(":") + port_name);
 	this->notifyWaitingClient();
 // 	std::cout<<response_string_stream<<std::endl;
 

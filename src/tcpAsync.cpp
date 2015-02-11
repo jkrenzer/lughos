@@ -40,6 +40,7 @@ bool tcpAsync::disconnect()
 
 int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
+  this->queryDone = false;
   if(regExpr.empty())
 	  regExpr = boost::regex(std::string(1, end_of_line_char_));
   if(!this->connected)
@@ -201,6 +202,7 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
     }
 	response_string_stream<< &response;
+	this->queryDone = true;
       	this->notifyWaitingClient();
   }   
   
