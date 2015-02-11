@@ -198,10 +198,11 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
     else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
     {
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
+      this->connected = false;
     }
     else
     {
-/       response_string_stream.str(std::string(""));
+        response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
 	this->queryDone = true;
