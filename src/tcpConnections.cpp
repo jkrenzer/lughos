@@ -23,7 +23,7 @@ this->connected = false;
 
 Connection<tcpContext>::~Connection(void)
 {
-	stop();
+// 	stop();
 }
 
 

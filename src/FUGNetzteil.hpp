@@ -55,8 +55,14 @@ public:
 	  measuredValue getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
+	  double getSetpointI();
+	  double getSetpointU();
 	  double getI();
 	  double getU();
+	  bool hasOvercurrent();
+	  bool currentLimitation();
+	  bool voltageLimitation();
+	  void resetOvercurrent();
 	  std::string getLastError();
 	  std::string getIDN();
 	  int switchVoltage(int onof );

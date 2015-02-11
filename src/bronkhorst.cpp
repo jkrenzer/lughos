@@ -16,6 +16,7 @@ bronkhorst::~bronkhorst(void)
 
 }
 
+
 bronkhorstConnection::bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service) : serialAsync(io_service), Connection<serialContext>(io_service)
 {
     std::cout << "########################## Setting connection-parameters!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
