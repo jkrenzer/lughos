@@ -56,6 +56,8 @@ std::string Relais::read_channels()
   std::string command;
   command += '\x0f';
   std::string state = this->inputOutput(command);
+  if(state.empty())
+    return channel_bench.to_string();
   u_int8_t i = static_cast<u_int8_t>(state[1]);
   channel_bench = std::bitset<8>(i);
   i = static_cast<u_int8_t>(state[0]);
