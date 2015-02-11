@@ -130,7 +130,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
     // Read the response status line.
     boost::asio::async_read_until(*socket, response, regExpr,
 	boost::bind(&tcpAsync::handle_read_content, this, regExpr,
-	  boost::asio::placeholders::error));
+	  _1));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
 else
