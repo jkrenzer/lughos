@@ -55,10 +55,12 @@ std::string Relais::read_channels()
 {
 
   std::string state = this->inputOutput(std::string('\x0f',1));
-  int i = static_cast<int>(state[0]);
+  int i = static_cast<int>(state[1]);
   channel_bench = std::bitset<8>(i);
+  i = static_cast<int>(state[0]);
+  sensor_bench = std::bitset<8>(i);
 
-  std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() << ")" << std::endl; 
+  std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() <<" , sensors: " << sensor_bench.to_string() << ")" << std::endl; 
   
  return  channel_bench.to_string();
 }
@@ -82,7 +84,9 @@ std::string Relais::write_channels(std::string channels)
     s.clear();
     s = "\xf0";
     s += static_cast<char>(this->channel_bench.to_ulong());
-    this->inputOutput(s);
+    std::string  answer=this->inputOutput(s);
+    if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answerd"  <<answer << std::endl;
+
     
     std::bitset<8> helper;
     helper.reset();
@@ -111,7 +115,7 @@ std::string Relais::write_channel(int channel, bool onoff)
 //        else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
 //        else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
 //     }
-    if (channel < 8 || channel > -1)
+    if (channel < 8 && channel > -1)
     {
       this->channel_bench[channel] = onoff;
 
@@ -119,7 +123,9 @@ std::string Relais::write_channel(int channel, bool onoff)
       s.clear();
       s = "\xf0";
       s += static_cast<char>(this->channel_bench.to_ulong());
-      this->inputOutput(s);
+      std::string  answer=this->inputOutput(s);
+      if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answerd"  <<answer << std::endl;
+
     }
  return    read_channels();
 }

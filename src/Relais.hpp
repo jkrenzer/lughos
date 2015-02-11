@@ -56,6 +56,7 @@ protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
 	std::bitset<8> channel_bench;
+	std::bitset<8> sensor_bench;
 };
 
 
