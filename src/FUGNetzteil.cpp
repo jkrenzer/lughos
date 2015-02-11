@@ -8,6 +8,16 @@
 #include <string>     // std::string, std::stoi
 FUGNetzteil::FUGNetzteil()
 {
+  this->getI.setReadFunction(boost::bind(&FUGNetzteil::readI,this));
+  this->getU.setReadFunction(boost::bind(&FUGNetzteil::readU,this));
+  this->getSetpointI.setReadFunction(boost::bind(&FUGNetzteil::readSetpointI,this));
+  this->getSetpointU.setReadFunction(boost::bind(&FUGNetzteil::readSetpointU,this));
+  this->getOvercurrent.setReadFunction(boost::bind(&FUGNetzteil::readOvercurrent,this));
+  this->getCurrentLimitation.setReadFunction(boost::bind(&FUGNetzteil::readCurrentLimitation,this));
+  this->getVoltageLimitation.setReadFunction(boost::bind(&FUGNetzteil::readVoltageLimitation,this));
+  this->getDigitalRemote.setReadFunction(boost::bind(&FUGNetzteil::readDigitalRemote,this));
+  this->getAnalogueRemote.setReadFunction(boost::bind(&FUGNetzteil::readAnalogueRemote,this));
+  this->getLocalControl.setReadFunction(boost::bind(&FUGNetzteil::readLocalControl,this));
 }
 
 FUGNetzteilConnection::FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service): tcpAsync(io_service), Connection<tcpContext>(io_service)
@@ -18,8 +28,6 @@ FUGNetzteil::~FUGNetzteil(void)
 {
 
 }
-
-
 
 std::string FUGNetzteil::composeRequest(std::string query)
 {
@@ -177,7 +185,7 @@ std::string FUGNetzteil::getIDN()
 }
 
 
-double FUGNetzteil::getI()
+double FUGNetzteil::readI()
 {
   int success=0;
   std::string answer="";
@@ -197,7 +205,7 @@ double FUGNetzteil::getI()
   
 }
 
-double FUGNetzteil::getU()
+double FUGNetzteil::readU()
 {
   int success=0;
   std::string answer="";
@@ -218,7 +226,7 @@ double FUGNetzteil::getU()
   
 }
 
-double FUGNetzteil::getSetpointI()
+double FUGNetzteil::readSetpointI()
 {
   int success=0;
   std::string answer="";
@@ -240,7 +248,7 @@ double FUGNetzteil::getSetpointI()
   
 }
 
-double FUGNetzteil::getSetpointU()
+double FUGNetzteil::readSetpointU()
 {
   int success=0;
   std::string answer="";
@@ -260,7 +268,7 @@ double FUGNetzteil::getSetpointU()
   
 }
 
-bool FUGNetzteil::hasOvercurrent()
+bool FUGNetzteil::readOvercurrent()
 {
   int success=0;
   std::string answer="";
@@ -279,7 +287,7 @@ bool FUGNetzteil::hasOvercurrent()
   return false;
 }
 
-bool FUGNetzteil::currentLimitation()
+bool FUGNetzteil::readCurrentLimitation()
 {
   int success=0;
   std::string answer="";
@@ -296,7 +304,7 @@ bool FUGNetzteil::currentLimitation()
   }
 }
 
-bool FUGNetzteil::voltageLimitation()
+bool FUGNetzteil::readVoltageLimitation()
 {
   int success=0;
   std::string answer="";
@@ -313,7 +321,7 @@ bool FUGNetzteil::voltageLimitation()
   }
 }
 
-bool FUGNetzteil::analogueRemote()
+bool FUGNetzteil::readAnalogueRemote()
 {
   int success=0;
   std::string answer="";
@@ -330,7 +338,7 @@ bool FUGNetzteil::analogueRemote()
   }
 }
 
-bool FUGNetzteil::digitalRemote()
+bool FUGNetzteil::readDigitalRemote()
 {
   int success=0;
   std::string answer="";
@@ -347,9 +355,9 @@ bool FUGNetzteil::digitalRemote()
   }
 }
 
-bool FUGNetzteil::localControl()
+bool FUGNetzteil::readLocalControl()
 {
-  return !this->digitalRemote() && !this->analogueRemote();
+  return !this->readDigitalRemote() && !this->readAnalogueRemote();
 }
 
 

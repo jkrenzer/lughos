@@ -303,8 +303,8 @@ using namespace lughos;
     
      void getRemoteState()
      {
-       bool analogue = this->fug->analogueRemote();
-       bool digital = this->fug->digitalRemote();
+       bool analogue = this->fug->getAnalogueRemote();
+       bool digital = this->fug->getDigitalRemote();
        bool local = !analogue && !digital;
        if (digital)
 	 this->stateF->setText("Remote on");
@@ -316,7 +316,7 @@ using namespace lughos;
      
      void getOC()
      {
-       if(this->fug->hasOvercurrent())
+       if(this->fug->getOvercurrent())
 	 this->stateF->setText("Overcurrent!!");
      }
      

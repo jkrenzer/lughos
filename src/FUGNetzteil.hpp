@@ -21,6 +21,7 @@
 #include "device.hpp"
 #include "httpDict.hpp"
 #include "measuredValue.hpp"
+#include "cachedFunction.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -34,6 +35,9 @@ public:
 
   class FUGNetzteil : public Device
   {    
+    friend cachedFunction<double>;
+    friend cachedFunction<bool>;
+    
     private:
 	  FUGNetzteil(const FUGNetzteil &p);
 	  FUGNetzteil &operator=(const FUGNetzteil &p);
@@ -41,13 +45,22 @@ public:
 	  void initImplementation();
 	  void shutdownImplementation();
 	  bool isConnectedImplementation();
-
-	  measuredValue storedMeasure;
 	  
-
-
+	  measuredValue storedMeasure;
 	  int voltagesOnOf=3;
 	  std::string serverName;
+	  
+	  double readI();
+	  double readU();
+	  bool readOvercurrent();
+	  double readSetpointU();
+	  double readSetpointI();
+	  bool readCurrentLimitation();
+	  bool readVoltageLimitation();
+	  bool readDigitalRemote();
+	  bool readAnalogueRemote();
+	  bool readLocalControl();
+
 	  
     public:
 	  FUGNetzteil(void);
@@ -55,16 +68,16 @@ public:
 	  measuredValue getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
-	  double getSetpointI();
-	  double getSetpointU();
-	  double getI();
-	  double getU();
-	  bool hasOvercurrent();
-	  bool currentLimitation();
-	  bool voltageLimitation();
-	  bool digitalRemote();
-	  bool analogueRemote();
-	  bool localControl();
+	  cachedFunction<double> getSetpointU;
+	  cachedFunction<double> getSetpointI;
+	  cachedFunction<double> getI;
+	  cachedFunction<double> getU;
+	  cachedFunction<bool> getOvercurrent;
+	  cachedFunction<bool> getCurrentLimitation;
+	  cachedFunction<bool> getVoltageLimitation;
+	  cachedFunction<bool> getDigitalRemote;
+	  cachedFunction<bool> getAnalogueRemote;
+	  cachedFunction<bool> getLocalControl;
 	  void resetOvercurrent();
 	  std::string getLastError();
 	  std::string getIDN();
