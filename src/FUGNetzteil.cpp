@@ -313,6 +313,46 @@ bool FUGNetzteil::voltageLimitation()
   }
 }
 
+bool FUGNetzteil::analogueRemote()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">DSA?");
+  if (answer[0]=='D')
+  {
+   answer= answer.erase(0, 4);
+  return std::stod(answer) == 1;
+  }
+  else if (answer[0]=='E')
+  {
+  setError("analogueRemote", answer);
+  }
+}
+
+bool FUGNetzteil::digitalRemote()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">DSD?");
+  if (answer[0]=='D')
+  {
+   answer= answer.erase(0, 4);
+  return std::stod(answer) == 1;
+  }
+  else if (answer[0]=='E')
+  {
+  setError("digitalRemote", answer);
+  }
+}
+
+bool FUGNetzteil::localControl()
+{
+  return !this->digitalRemote() && !this->analogueRemote();
+}
+
+
 void FUGNetzteil::resetOvercurrent()
 {
   inputOutput(">B1 1");

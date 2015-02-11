@@ -77,6 +77,8 @@ using namespace lughos;
     Wt::WPushButton * stateB;
     Wt::WPushButton * onB;
     Wt::WPushButton * offB;
+    Wt::WPushButton * resetOCB;
+    boost::shared_ptr<Wt::WTimer> intervalTimer;
 //     Wt::WPushButton * stopB;
     
   public:
@@ -116,11 +118,15 @@ using namespace lughos;
         this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
 	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOn);
 	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
+	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
 	this->getState();
+	intervalTimer->setInterval(2000);
+	intervalTimer->timeout().connect(boost::bind(DeviceUI< FUGNetzteil >::getState(),this)); // Reload state every 2 seconds
+	intervalTimer->start();
       }
       else
       {
-
+	intervalTimer->stop();
 	this->stateF->setText("Not connected!");
         this->stateB->setText("Try again");
 	this->sendIB->setDisabled(true);
@@ -128,6 +134,7 @@ using namespace lughos;
 	this->sendUB->setDisabled(true);
 	this->onB->setDisabled(true);
 	this->offB->setDisabled(true);
+	this->resetOCB->setDisabled(true);
 	this->uMinField->setDisabled(true);
 	this->uMaxField->setDisabled(true);
 
@@ -172,6 +179,7 @@ using namespace lughos;
       this->onB = new Wt::WPushButton("On");
       this->offB = new Wt::WPushButton("Off");
       this->stateB = new Wt::WPushButton("Status");
+      this->resetOCB = new Wt::WPushButton("Reset OC");
 
       this->addWidget(iOutL);      
       this->addWidget(iOutField);
@@ -191,6 +199,7 @@ using namespace lughos;
       this->addWidget(onB);
       this->addWidget(offB);
       this->addWidget(stateB);
+      this->addWidget(resetOCB);
 //       this->sendIB->setDisabled(true);
 //       this->iField->setDisabled(true);
 //       this->sendUB->setDisabled(true);
@@ -292,6 +301,31 @@ using namespace lughos;
       } 
     }
     
+     void getRemoteState()
+     {
+       bool analogue = this->fug->analogueRemote();
+       bool digital = this->fug->digitalRemote();
+       bool local = !analogue && !digital;
+       if (digital)
+	 this->stateF->setText("Remote on");
+       else if(analogue)
+	 this->stateF->setText("Analogue on");
+       else
+	 this->stateF->setText("Local control");
+     }
+     
+     void getOC()
+     {
+       if(this->fug->hasOvercurrent())
+	 this->stateF->setText("Overcurrent!!");
+     }
+     
+     void resetOC()
+     {
+       this->fug->resetOvercurrent();
+       this->getState();
+     }
+    
     void getMeasure()
     {
       measuredValue v;
@@ -325,6 +359,8 @@ using namespace lughos;
     {
       this->getU();
       this->getI();
+      this->getRemoteState();
+      this->getOC();
     }
     
   };

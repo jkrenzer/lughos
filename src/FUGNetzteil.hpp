@@ -62,6 +62,9 @@ public:
 	  bool hasOvercurrent();
 	  bool currentLimitation();
 	  bool voltageLimitation();
+	  bool digitalRemote();
+	  bool analogueRemote();
+	  bool localControl();
 	  void resetOvercurrent();
 	  std::string getLastError();
 	  std::string getIDN();
