@@ -120,9 +120,9 @@ using namespace lughos;
 	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
 	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
 	this->getState();
-	intervalTimer->setInterval(2000);
-	intervalTimer->timeout().connect(this,&DeviceUI< FUGNetzteil >::getState); // Reload state every 2 seconds
-	intervalTimer->start();
+// 	intervalTimer->setInterval(2000);
+// 	intervalTimer->timeout().connect(this,&DeviceUI< FUGNetzteil >::getState); // Reload state every 2 seconds
+// 	intervalTimer->start();
       }
       else
       {
