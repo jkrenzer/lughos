@@ -122,14 +122,14 @@ void tcpAsync::handle_connect(const boost::system::error_code& err,
   }
 }
 
-void tcpAsync::handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
+void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::error_code& err)
 {
 
   if (!err)
   {
     // Read the response status line.
     boost::asio::async_read_until(*socket, response, regExpr,
-	boost::bind(&tcpAsync::handle_read_content, this,
+	boost::bind(&tcpAsync::handle_read_content, this, regExpr,
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
@@ -180,7 +180,7 @@ else
 //     }
 //   }
 
-void tcpAsync::handle_read_content(const boost::system::error_code& err)
+void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::error_code& err)
   {
 
     if (!err)
@@ -192,8 +192,13 @@ void tcpAsync::handle_read_content(const boost::system::error_code& err)
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
-          boost::bind(&tcpAsync::handle_read_content, this,
+          boost::bind(&tcpAsync::handle_read_content, this, regExpr,
             boost::asio::placeholders::error));
+      if(response_string_stream.str().empty())
+	{
+	  this->handle_write_request(regExpr,err);
+	  lughos::debugLog(std::string("Discarded heartbeat from ") + server_name + std::string(":") + port_name);
+	}
       lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
       
     }

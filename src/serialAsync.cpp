@@ -64,14 +64,14 @@ int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 }
 
 
-void serialAsync::handle_write_request(boost::regex regExpr, const boost::system::error_code& err)
+void serialAsync::handle_write_request(boost::regex& regExpr, const boost::system::error_code& err)
   {
 
     if (!err)
     {
       // Read the response status line.
       boost::asio::async_read_until(*port_, response, regExpr,
-          boost::bind(&serialAsync::handle_read_content, this,
+          boost::bind(&serialAsync::handle_read_content, this, regExpr,
             boost::asio::placeholders::error));
       lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + port_name);
       
@@ -84,7 +84,7 @@ void serialAsync::handle_write_request(boost::regex regExpr, const boost::system
   
   
 
-void serialAsync::handle_read_content(const boost::system::error_code& err)
+void serialAsync::handle_read_content(boost::regex& regExpr, const boost::system::error_code& err)
   {
 //   	this->timeoutTimer.cancel();
     if (!err)
@@ -94,10 +94,10 @@ void serialAsync::handle_read_content(const boost::system::error_code& err)
 	response_string_stream<< &response;
 	if(response_string_stream.str().empty())
 	{
-	  this->handle_write_request();
-	  lughos::debugLog(std::string("Discarded heartbeat from ") + server_name + std::string(":") + port_name);
+	  this->handle_write_request(regExpr,err);
+	  lughos::debugLog(std::string("Discarded heartbeat from ") + port_name);
 	}
-	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ")+ server_name + std::string(":") + port_name);
+	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ")+ port_name);
 	this->notifyWaitingClient();
 // 	std::cout<<response_string_stream<<std::endl;
 
