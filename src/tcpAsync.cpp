@@ -192,7 +192,7 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
-          boost::bind(&tcpAsync::handle_read_content, this,
+          boost::bind(&tcpAsync::handle_read_content, this, regExpr,
             boost::asio::placeholders::error));
       
     }
