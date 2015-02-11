@@ -187,8 +187,8 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
     {
 //       response_string_stream.str(std::string(""));
       // Write all of the data that has been read so far.
-      response_string_stream.str(std::string(""));
-	response_string_stream<< &response;
+//       response_string_stream.str(std::string(""));
+// 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
       boost::asio::async_read(*socket, response,
           boost::asio::transfer_at_least(1),
