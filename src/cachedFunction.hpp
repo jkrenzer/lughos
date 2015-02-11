@@ -20,38 +20,18 @@ namespace lughos
     
     typedef R ReturnType;
     
-    cachedFunction<R>()
-    {
-      this->tainted = true;
-      this->interval = boost::posix_time::seconds(1);
-    }
+    cachedFunction<R>();
     
-    void taint()
-    {
-      this->tainted = true;
-    }
+    void taint();
     
-    bool isValid()
-    {
-      return (boost::posix_time::microsec_clock::local_time() - timestamp < interval ) && this->tainted;
-    }
+    bool isValid();
     
-    void setReadFunction(boost::function<R()> readFunction)
-    {
-      this->readFunction = readFunction;
-    }
+    void setReadFunction(boost::function<R()> readFunction);
     
-    R operator()()
-    {
-      if(!this->isValid() && readFunction)
-      {
-	this->tainted = false;
-	return readFunction();
-      }
-      else
-	return cachedValue;
-    }
+    R operator()();
    
   };
 }//namespace lughos
+
+#include "cachedFunction.tpp" //Necessary as templates cannot be generically instantiated from libraries!!
 #endif

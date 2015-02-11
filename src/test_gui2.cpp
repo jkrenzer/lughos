@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
         boost::shared_ptr<serialAsync> connection1(new bronkhorstConnection(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection2(new RFGConnection(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection3(new RelaisConnection(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection4(new bronkhorstConnection(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection5(new FUGNetzteilConnection(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection6(new FUGNetzteilConnection(lughos::ioService) );

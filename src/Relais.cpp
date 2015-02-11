@@ -85,7 +85,9 @@ std::string Relais::write_channels(std::string channels)
     s = "\xf0";
     s += static_cast<char>(this->channel_bench.to_ulong());
     std::string  answer=this->inputOutput(s);
-    if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answerd"  <<answer << std::endl;
+    std::bitset<8> answerBS;
+    answerBS = (long unsigned int) answer[0];
+    if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answered"  << answer << " (" << answerBS << ")" << std::endl;
 
     
     std::bitset<8> helper;
