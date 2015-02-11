@@ -177,29 +177,21 @@ using namespace lughos;
     
     void getState()
     {
-
-      std::string ss;
-      for (int i; i<8;i++)
-      {
-	ss = this->relais->read_channels();
-      }
+	std::string ss = this->relais->read_channels();
+	std::bitset<8> relais(ss);
       
 
-    std::string::iterator i;
-    int counter=0;
-    for (i=ss.begin(); i!=ss.end(); i++)
-    {
-      counter++;
-       if (*i== '1')
-       {
-	 this->rbOn[counter-1]->setChecked();
-       }
-       else if (*i== '0') 
-       {
-	 this->rbOff[counter-1]->setChecked();
-       }
-       else       this->stateF->setText("Error!");
-    }
+	for (int i = 0; i < 8; i++)
+	{
+	  if (relais[i])
+	  {
+	    this->rbOn[i]->setChecked();
+	  }
+	  else 
+	  {
+	    this->rbOff[i]->setChecked();
+	  }
+	}
 
       this->stateF->setText(ss);
     }
