@@ -42,7 +42,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
   this->queryDone = false;
   if(regExpr.empty())
-	  regExpr = boost::regex(std::string(1, end_of_line_char_));
+	  regExpr = boost::regex(std::string(1,end_of_line_char_));
   if(!this->connected)
   {
     this->connect();
@@ -130,7 +130,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
     // Read the response status line.
     boost::asio::async_read_until(*socket, response, regExpr,
 	boost::bind(&tcpAsync::handle_read_content, this, regExpr,
-	  _1));
+	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
 else
@@ -190,7 +190,10 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
       response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
-      this->handle_write_request(regExpr,err);
+      boost::asio::async_read(*socket, response,
+          boost::asio::transfer_at_least(1),
+          boost::bind(&tcpAsync::handle_read_content, this, regExpr,
+            boost::asio::placeholders::error));
       
     }
     else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
