@@ -23,6 +23,7 @@ namespace lughos
     cachedFunction<R>()
     {
       this->tainted = true;
+      this->interval = boost::posix_time::seconds(1);
     }
     
     void taint()
