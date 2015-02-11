@@ -267,7 +267,7 @@ bool FUGNetzteil::hasOvercurrent()
   std::string answer="";
 
   answer=inputOutput(">D3R?");
-  if (answer[0]=='D3R')
+  if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
   return std::stod(answer) == 1;
@@ -286,7 +286,7 @@ bool FUGNetzteil::currentLimitation()
   std::string answer="";
 
   answer=inputOutput(">DIR?");
-  if (answer[0]=='DIR')
+  if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
   return std::stod(answer) == 1;
@@ -302,7 +302,7 @@ bool FUGNetzteil::voltageLimitation()
   std::string answer="";
 
   answer=inputOutput(">DVR?");
-  if (answer[0]=='DVR')
+  if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
   return std::stod(answer) == 1;

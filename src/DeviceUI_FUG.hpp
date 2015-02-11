@@ -258,8 +258,10 @@ using namespace lughos;
         void getU()
     {
    
-      std::string str = std::to_string(fug->getU());
+      std::string str = std::to_string(fug->getSetpointU());
       this->uMaxField->setText(str);
+      str = std::to_string(fug->getU());
+      this->uOutField->setText(str);
       responseField->setText(responseField->text().toUTF8()+str);
 //     
       std::string Error;
@@ -273,14 +275,13 @@ using namespace lughos;
     
         void getI()
     {
-//       
-      
-      stringstream sstr; 
-      string str = std::to_string(fug->getI()); 
+      string str = std::to_string(fug->getSetpointI());
+      this->iField->setText(str);
+      str = std::to_string(fug->getI());
+      this->iOutField->setText(str);
 
 //       this->stateF->setText("Current set:"+iField->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+str);
-      this->iOutField->setText(str);
 //     
       std::string Error;
       Error = fug->getLastError();
