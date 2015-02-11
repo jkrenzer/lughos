@@ -83,7 +83,7 @@ using namespace lughos;
     
   public:
     
-    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : fug(boost::dynamic_pointer_cast<FUGNetzteil>(fug))
+    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : fug(boost::dynamic_pointer_cast<FUGNetzteil>(fug)), intervalTimer(new Wt::WTimer)
     {
 
       this->init();
