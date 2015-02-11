@@ -119,19 +119,19 @@ int main(int argc, char **argv)
             config.put("devices.fug2.type","fug");
             config.put("devices.fug2.connection.type","tcp");
             config.put("devices.fug2.connection.mode","async");
-	    config.put("devices.fug2.connection.server","192.168.178.46");
+	    config.put("devices.fug2.connection.server","192.168.178.47");
             config.put("devices.fug2.connection.port","2101");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
         }
 
         //TODO Make a loop which iterates over declared devices
 
-        boost::shared_ptr<serialAsync> connection1(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection2(new serialAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection1(new bronkhorstConnection(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection2(new RFGConnection(lughos::ioService) );
         boost::shared_ptr<serialAsync> connection3(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<serialAsync> connection4(new serialAsync(lughos::ioService) );
-        boost::shared_ptr<tcpAsync> connection5(new tcpAsync(lughos::ioService) );
-        boost::shared_ptr<tcpAsync> connection6(new tcpAsync(lughos::ioService) );
+        boost::shared_ptr<serialAsync> connection4(new bronkhorstConnection(lughos::ioService) );
+        boost::shared_ptr<tcpAsync> connection5(new FUGNetzteilConnection(lughos::ioService) );
+        boost::shared_ptr<tcpAsync> connection6(new FUGNetzteilConnection(lughos::ioService) );
 	
 
 
@@ -161,8 +161,10 @@ int main(int argc, char **argv)
 
         if(!flowcontroll1->connect(connection1))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll1!!!" << std::endl;
+	connection1->baud_rate = boost::asio::serial_port_base::baud_rate(38400);
         if(!flowcontroll2->connect(connection4))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to flowcontroll2!!!" << std::endl;
+	connection4->baud_rate = boost::asio::serial_port_base::baud_rate(38400);
         if(!RFG1->connect(connection2))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
 //         if(!relais1->connect(connection2))

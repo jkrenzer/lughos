@@ -9,10 +9,8 @@
 
 Relais::Relais()
 {
- 
-set_default();
-
 }
+
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 {
   try
@@ -26,26 +24,20 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
   
 }
 
-template <class T> void Relais::setDefaultImpl(T& connection)
-{
-}
-
-
-
 Relais::~Relais(void)
 {
 
 }
 
-template <> void Relais::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+RelaisConnection::RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
 {
   
-    connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
-    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
-    connection.character_size=boost::asio::serial_port_base::character_size(8);
-    connection.end_of_line_char_='$';
-    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
-    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
+    this->flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+    this->character_size=boost::asio::serial_port_base::character_size(8);
+    this->end_of_line_char_='$';
+    this->parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
 
 }
 
@@ -59,17 +51,10 @@ std::string Relais::composeRequest(std::string query)
   
 }
 
-
-
-  void Relais::set_default()
-{
-   this->setDefaultImpl(*(this->connection.get()));
-}
-
 std::string Relais::read_channels()
 {
 
-  std::string state = this->inputOutput("\x0f");
+  std::string state = this->inputOutput(std::string('\x0f',1));
   int i = static_cast<int>(state[0]);
   channel_bench = std::bitset<8>(i);
 

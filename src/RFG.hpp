@@ -23,7 +23,11 @@
 
 using namespace lughos;
 
-
+class RFGConnection : public serialAsync
+{
+public:
+    RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
 
 class RFG :public Device
 {
@@ -34,10 +38,8 @@ class RFG :public Device
 	
   public:
 	RFG(void);
-	~RFG(void);
-	
-	template <class T> void setDefaultImpl(T& connection);
-	virtual void set_default();
+	virtual ~RFG(void);
+
 	void initImplementation();
 	bool isConnectedImplementation();
 	void shutdownImplementation();

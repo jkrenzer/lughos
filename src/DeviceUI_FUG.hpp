@@ -75,6 +75,8 @@ using namespace lughos;
 //     Wt::WPushButton * startB;
     std::string LastError;
     Wt::WPushButton * stateB;
+    Wt::WPushButton * onB;
+    Wt::WPushButton * offB;
 //     Wt::WPushButton * stopB;
     
   public:
@@ -102,9 +104,9 @@ using namespace lughos;
 // 	std::string getLastError();
 // 	std::string getIDN();
 	
-	this->stateF->setText("Connected!");
+	this->stateF->setText(fug->getIDN());
         this->stateB->setText("Status");
-	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getMeasure);
+	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
@@ -112,9 +114,9 @@ using namespace lughos;
 	this->uMaxField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
-
+	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOn);
+	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
 	this->getState();
-
       }
       else
       {
@@ -124,7 +126,8 @@ using namespace lughos;
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
-
+	this->onB->setDisabled(true);
+	this->offB->setDisabled(true);
 	this->uMinField->setDisabled(true);
 	this->uMaxField->setDisabled(true);
 
@@ -166,8 +169,8 @@ using namespace lughos;
 
       this->sendIB = new Wt::WPushButton("Send");
       this->sendUB = new Wt::WPushButton("Send");
-      this->sendIB = new Wt::WPushButton("Get");
-      this->sendUB = new Wt::WPushButton("Get");
+      this->onB = new Wt::WPushButton("On");
+      this->offB = new Wt::WPushButton("Off");
       this->stateB = new Wt::WPushButton("Status");
 
       this->addWidget(iOutL);      
@@ -185,6 +188,8 @@ using namespace lughos;
       this->addWidget(new Wt::WBreak);
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
+      this->addWidget(onB);
+      this->addWidget(offB);
       this->addWidget(stateB);
 //       this->sendIB->setDisabled(true);
 //       this->iField->setDisabled(true);
@@ -305,6 +310,15 @@ using namespace lughos;
       }
     }
     
+    void switchOn()
+    {
+      this->fug->switchVoltage(1);
+    }
+    
+    void switchOff()
+    {
+      this->fug->switchVoltage(0);
+    }
    
     void getState()
     {

@@ -8,16 +8,10 @@
 #include <string>     // std::string, std::stoi
 FUGNetzteil::FUGNetzteil()
 {
-  set_default();
 }
 
-template <class T> void FUGNetzteil::setDefaultImpl(T& connection)
+FUGNetzteilConnection::FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service): tcpAsync(io_service), Connection<tcpContext>(io_service)
 {
-}
-
-template <> void FUGNetzteil::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
-{
-  serverName= connection.server_name;  
 }
 
 FUGNetzteil::~FUGNetzteil(void)
@@ -48,21 +42,18 @@ std::string FUGNetzteil::composeRequest(std::string query)
   
 }
 
-
-void FUGNetzteil::set_default()
-{
-
-}
 std::string FUGNetzteil::interpretAnswer(std::string s)
 {     
 
 //  static const boost::regex e("<body>(.*)</body>");
- boost::regex e("(.*)");
-//   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
- boost::cmatch res;
- boost::regex_search(s.c_str(), res, e);
+//  boost::regex e("(.*)");
+// //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
+//  boost::cmatch res;
+//  boost::regex_search(s.c_str(), res, e);
+//   
+//   return res[1];  
   
-  return res[1];  
+  return s;
 
 }
 
@@ -142,6 +133,7 @@ int FUGNetzteil::setI(double I)
   std::string answer="";
   command +=std::to_string(I);
   answer=inputOutput(command);
+  std::cout<<"setI answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
   {
@@ -158,9 +150,10 @@ int FUGNetzteil::setU(double U)
 {
   int success=0;
   std::string command="U";
-  std::string answer="U";
+  std::string answer="";
   command +=std::to_string(U);
   answer=inputOutput(command);
+  std::cout<<"setU answer: "<<answer<<std::endl;
   if (answer=="E0"){ success = 1;}
   else
   {
@@ -179,6 +172,7 @@ std::string FUGNetzteil::getLastError()
 
 std::string FUGNetzteil::getIDN()
 {
+  std::cout << "FIRST TRY: " << inputOutput("?") << std::endl;
   return inputOutput("?");
 }
 
@@ -187,8 +181,7 @@ double FUGNetzteil::getI()
 {
   int success=0;
   std::string answer="";
-//   answer=inputOutput(">S1?");
-   std::string iO = inputOutput(">M1?"); //Das Zwillingsparadoxon ?!?!
+   answer=inputOutput(">M1?");
       std::cout<<"i/O: "<<iO<<std::endl;
       std::cout<<"answer: "<<answer<<std::endl;
   if (answer[0]=='M')
@@ -211,6 +204,7 @@ double FUGNetzteil::getU()
   std::string answer="";
 
   answer=inputOutput(">M0?");
+  std::cout<<"getU answer: "<<answer<<std::endl;
   if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);

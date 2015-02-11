@@ -39,6 +39,7 @@ bool Connection<tcpContext>::start()
     resolver= boost::shared_ptr<tcp::resolver>(new tcp::resolver(*this->io_service_));
     query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
     socket= boost::shared_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(*this->io_service_));
+    this->connected = false;
     return true;
     
   

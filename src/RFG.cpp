@@ -8,7 +8,10 @@
 
 RFG::RFG()
 {
-  set_default();
+  for (int i=0;i<8;i++)
+    {
+      channel_output[i].setunitvalue(0,"");
+    }
   SplineTransformation::XToYMap& x2y = unitsToVoltage.valueMap.left;
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.645));
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0100", NULL, 0), 3.270));
@@ -50,23 +53,18 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
   
 }
 
-template <class T> void RFG::setDefaultImpl(T& connection)
-{
-}
 
-template <> void RFG::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+
+RFGConnection::RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
 {
-  
-    connection.baud_rate=boost::asio::serial_port_base::baud_rate(9600);
-    connection.flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
-    connection.character_size=boost::asio::serial_port_base::character_size(8);//unconfirmed
-    connection.end_of_line_char_='\x0d';//unconfirmed
-    connection.parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
-    connection.stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
-    for (int i=0;i<8;i++)
-    {
-      channel_output[i].setunitvalue(0,"");
-    }
+  std::cout << "--------------------->>>>>>>>>>>>>>>>> !!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<------------------------" << std::endl << std::endl << std::endl;
+    this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
+    this->flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
+    this->character_size=boost::asio::serial_port_base::character_size(8);//unconfirmed
+    this->end_of_line_char_='\x0d';//unconfirmed
+    this->parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+    this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+    
 }
 
 
@@ -94,11 +92,6 @@ std::string RFG::interpretAnswer(std::string s)
 //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
       std::cout<<"Answer: "<<s<<std::endl;
   return s;
-}
-
-void RFG::set_default()
-{ 
-   this->setDefaultImpl(*(this->connection.get()));
 }
 
 void RFG::power_supply_mode()

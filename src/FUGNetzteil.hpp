@@ -26,21 +26,24 @@ using boost::asio::ip::tcp;
 
 using namespace lughos;
 
+class FUGNetzteilConnection : public tcpAsync
+{
+public:
+    FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
 
   class FUGNetzteil : public Device
   {    
     private:
 	  FUGNetzteil(const FUGNetzteil &p);
 	  FUGNetzteil &operator=(const FUGNetzteil &p);
-	  
-	  template <class T> void setDefaultImpl(T& connection);
-	  virtual void set_default();
+
 	  void initImplementation();
 	  void shutdownImplementation();
 	  bool isConnectedImplementation();
 
 	  measuredValue storedMeasure;
-	  int switchVoltage(int onof );
+	  
 
 
 	  int voltagesOnOf=3;
@@ -48,7 +51,7 @@ using namespace lughos;
 	  
     public:
 	  FUGNetzteil(void);
-	  ~FUGNetzteil(void);
+	  virtual ~FUGNetzteil(void);
 	  measuredValue getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
@@ -62,6 +65,7 @@ using namespace lughos;
 	  void resetOvercurrent();
 	  std::string getLastError();
 	  std::string getIDN();
+	  int switchVoltage(int onof );
 
   protected:
 	  std::string lastError;
