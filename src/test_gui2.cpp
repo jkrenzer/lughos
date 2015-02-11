@@ -168,7 +168,7 @@ int main(int argc, char **argv)
         if(!RFG1->connect(connection2))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
 //         if(!relais1->connect(connection2))
-	connection3->end_of_line_char('$');
+	connection3->endOfLineRegExpr(boost::regex("\\$"));
             if(!relais1->connect(connection3))
                 std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
 	            if(!fug1->connect(connection5))

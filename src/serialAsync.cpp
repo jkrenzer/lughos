@@ -14,9 +14,9 @@
 
 serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<serialContext>(io_service)
 {
-  if(this->end_of_line_char_=='\r')  std::cout<<"End of line char: "<<"CR"<<std::endl;
-  else if(this->end_of_line_char_=='\n') std::cout<<"End of line char: "<<"CR"<<std::endl;
-  else std::cout<<"End of line char:"<<this->end_of_line_char_<<std::endl;
+  if(this->endOfLineRegExpr_== boost::regex("\r"))  std::cout<<"End of line char: "<<"CR"<<std::endl;
+  else if(this->endOfLineRegExpr_==boost::regex("\n")) std::cout<<"End of line char: "<<"NL"<<std::endl;
+  else std::cout<<"End of line char:"<<this->endOfLineRegExpr_<<std::endl;
      start(); 
 }
 
@@ -34,7 +34,7 @@ int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
       std::ostream request_stream(&request);
       request_stream<<query;
 	if(regExpr.empty())
-	  regExpr = boost::regex(std::string(1,end_of_line_char_));
+	  regExpr = endOfLineRegExpr_;
 	boost::system::error_code ec;
  
 	if (port_.get() == NULL || !port_->is_open()) start();

@@ -44,7 +44,7 @@ class tcpAsync : virtual public Connection<tcpContext>
 	void handle_read_content(boost::regex& regExpr,const boost::system::error_code& err);
 	bool connect();
 	bool disconnect();
-	char end_of_line_char_;
+	boost::regex endOfLineRegExpr_;
     
 	boost::asio::deadline_timer connectionTimer;
 	

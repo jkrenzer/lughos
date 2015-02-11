@@ -89,7 +89,7 @@ private:
 	 * @return char end_of_line_char
 	 */
 
-	char end_of_line_char() const;
+	boost::regex endOfLineRegExpr() const;
 	
 	
   public:
@@ -102,8 +102,8 @@ private:
 	 * @return void
 	 */
 	
-	void end_of_line_char(const char &c);	
-	char end_of_line_char_;	
+	void endOfLineRegExpr(boost::regex c);	
+	boost::regex endOfLineRegExpr_;	
 	
 	boost::asio::streambuf response;
 	boost::asio::streambuf request;

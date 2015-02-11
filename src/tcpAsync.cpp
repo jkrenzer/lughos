@@ -15,7 +15,7 @@
 tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service), connectionTimer(*io_service,boost::posix_time::seconds(5))
 {
   start();
-  this->end_of_line_char_ = '\n';
+  this->endOfLineRegExpr_ = boost::regex("\n");
 }
 
 tcpAsync::~tcpAsync(void)
@@ -42,7 +42,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
   this->queryDone = false;
   if(regExpr.empty())
-	  regExpr = boost::regex(std::string(1,end_of_line_char_));
+	  regExpr = endOfLineRegExpr_;
   if(!this->connected)
   {
     this->connect();

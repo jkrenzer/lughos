@@ -17,10 +17,10 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : end_of_line_char_(end_of_line_char()),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : endOfLineRegExpr_(endOfLineRegExpr()),  flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
 {
 this->io_service_= io_service;
-this->end_of_line_char_ = '\n';
+this->endOfLineRegExpr_ = boost::regex("\n");
 
 }
 
@@ -29,14 +29,14 @@ Connection<serialContext>::~Connection(void)
 	stop();
 }
 
-char Connection<serialContext>::end_of_line_char() const
+boost::regex Connection<serialContext>::endOfLineRegExpr() const
 {
-    return this->end_of_line_char_;
+    return this->endOfLineRegExpr_;
 }
 
-void Connection<serialContext>::end_of_line_char(const char &c)
+void Connection<serialContext>::endOfLineRegExpr(boost::regex c)
 {
-  this->end_of_line_char_ = c;
+  this->endOfLineRegExpr_ = c;
 }
 
 
@@ -49,7 +49,7 @@ bool Connection<serialContext>::start()
  	std::cout << "stop_bits: "<<stop_bits.value()<< std::endl;
  	std::cout << "parity: "<<parity.value() << std::endl;
  	std::cout << "flow_control: "<<flow_control.value() << std::endl;
-  std::cout<<"eolc: "<< end_of_line_char()<< std::endl;
+  std::cout<<"eolc: "<< endOfLineRegExpr()<< std::endl;
   std::cout<<"port name: "<< port_name<< std::endl;
   std::cout << "#############################" << std::endl;
 

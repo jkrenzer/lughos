@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
      boost::shared_ptr<Device> relais1(new Relais);
      
      relais1->setName(std::string("relais 1"));
-     connection3->end_of_line_char('$');
+     connection3->endOfLineRegExpr('$');
      relais1->connect(connection3);
      deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
      boost::shared_ptr<Relais> relais = boost::dynamic_pointer_cast<Relais>(relais1);
