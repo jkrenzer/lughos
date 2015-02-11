@@ -182,7 +182,6 @@ double FUGNetzteil::getI()
   int success=0;
   std::string answer="";
    answer=inputOutput(">M1?");
-      std::cout<<"i/O: "<<iO<<std::endl;
       std::cout<<"answer: "<<answer<<std::endl;
   if (answer[0]=='M')
   {
@@ -294,6 +293,7 @@ bool FUGNetzteil::currentLimitation()
   else if (answer[0]=='E')
   {
   setError("currentLimitation", answer);
+  }
 }
 
 bool FUGNetzteil::voltageLimitation()
@@ -310,6 +310,7 @@ bool FUGNetzteil::voltageLimitation()
   else if (answer[0]=='E')
   {
   setError("voltageLimitation", answer);
+  }
 }
 
 void FUGNetzteil::resetOvercurrent()
