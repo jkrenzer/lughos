@@ -190,10 +190,10 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
       response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
-      boost::asio::async_read(*socket, response,
-          boost::asio::transfer_at_least(1),
-          boost::bind(&tcpAsync::handle_read_content, this, regExpr,
-            boost::asio::placeholders::error));
+//       boost::asio::async_read(*socket, response,
+//           boost::asio::transfer_at_least(1),
+//           boost::bind(&tcpAsync::handle_read_content, this, regExpr,
+//             boost::asio::placeholders::error));
       if(response_string_stream.str().empty()  && err != boost::asio::error::eof)
 	{
 	  this->handle_write_request(regExpr,err);
