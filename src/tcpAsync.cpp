@@ -136,6 +136,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
 else
   {
     lughos::debugLog(std::string("Unable to write to server ")+server_name+std::string(". Got error: ")+err.message());
+    this->connected = false;
   }
 }
   
