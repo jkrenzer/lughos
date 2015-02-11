@@ -103,7 +103,7 @@ private:
 	 */
 	
 	void endOfLineRegExpr(boost::regex c);	
-	boost::regex endOfLineRegExpr_;	
+	boost::regex endOfLineRegExpr_;
 	
 	boost::asio::streambuf response;
 	boost::asio::streambuf request;
