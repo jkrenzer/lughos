@@ -53,11 +53,12 @@ std::string Relais::composeRequest(std::string query)
 
 std::string Relais::read_channels()
 {
-
-  std::string state = this->inputOutput(std::string('\x0f',1));
-  int i = static_cast<int>(state[1]);
+  std::string command;
+  command += '\x0f';
+  std::string state = this->inputOutput(command);
+  u_int8_t i = static_cast<u_int8_t>(state[1]);
   channel_bench = std::bitset<8>(i);
-  i = static_cast<int>(state[0]);
+  i = static_cast<u_int8_t>(state[0]);
   sensor_bench = std::bitset<8>(i);
 
   std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() <<" , sensors: " << sensor_bench.to_string() << ")" << std::endl; 
