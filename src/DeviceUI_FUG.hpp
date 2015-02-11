@@ -121,7 +121,7 @@ using namespace lughos;
 	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
 	this->getState();
 	intervalTimer->setInterval(2000);
-	intervalTimer->timeout().connect(boost::bind(DeviceUI< FUGNetzteil >::getState(),this)); // Reload state every 2 seconds
+	intervalTimer->timeout().connect(this,&DeviceUI< FUGNetzteil >::getState()); // Reload state every 2 seconds
 	intervalTimer->start();
       }
       else
