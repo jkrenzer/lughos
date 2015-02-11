@@ -12,7 +12,7 @@ bronkhorst::bronkhorst()
   set_default();
 }
 
-template <class T> void bronkhorst::setDefaultImpl(T& connection)
+template <class T> void bronkhorst::setDefaultImpl(Connection<T>& connection)
 {
 }
 
@@ -23,7 +23,7 @@ bronkhorst::~bronkhorst(void)
 
 }
 
-template <> void bronkhorst::setDefaultImpl< Connection<serialContext> > (Connection<serialContext>& connection)
+template <> void bronkhorst::setDefaultImpl< serialContext > (Connection<serialContext>& connection)
 {
     std::cout << "########################## Setting connection-parameters" << std::endl;
     connection.baud_rate=boost::asio::serial_port_base::baud_rate(38400);

@@ -34,7 +34,7 @@ public:
 	bronkhorst();
 	~bronkhorst(void);
 	
-	template <class T> void setDefaultImpl(T& connection);
+	template <class T> void setDefaultImpl(Connection<T>& connection);
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();

@@ -188,10 +188,10 @@ double FUGNetzteil::getI()
   int success=0;
   std::string answer="";
 //   answer=inputOutput(">S1?");
-   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
+   std::string iO = inputOutput(">M1?"); //Das Zwillingsparadoxon ?!?!
       std::cout<<"i/O: "<<iO<<std::endl;
       std::cout<<"answer: "<<answer<<std::endl;
-  if (answer[0]=='S')
+  if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);
   return std::stod(answer);
@@ -224,6 +224,105 @@ double FUGNetzteil::getU()
   return -1;
   
 }
+
+double FUGNetzteil::getSetpointI()
+{
+  int success=0;
+  std::string answer="";
+//   answer=inputOutput(">S1?");
+   std::string iO = inputOutput(">S1?"); //Das Zwillingsparadoxon ?!?!
+      std::cout<<"i/O: "<<iO<<std::endl;
+      std::cout<<"answer: "<<answer<<std::endl;
+  if (answer[0]=='S')
+  {
+   answer= answer.erase(0, 3);
+  return std::stod(answer);
+  }
+  else if (answer[0]=='E')
+  {
+  setError("getSetpointI", answer);
+  }
+
+  return -1;
+  
+}
+
+double FUGNetzteil::getSetpointU()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">S0?");
+  if (answer[0]=='S')
+  {
+   answer= answer.erase(0, 3);
+  return std::stod(answer);
+  }
+  else if (answer[0]=='E')
+  {
+  setError("getSetpointU", answer);
+  }
+
+  return -1;
+  
+}
+
+bool FUGNetzteil::hasOvercurrent()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">D3R?");
+  if (answer[0]=='D3R')
+  {
+   answer= answer.erase(0, 4);
+  return std::stod(answer) == 1;
+  }
+  else if (answer[0]=='E')
+  {
+  setError("hasOvercurrent", answer);
+  }
+
+  return false;
+}
+
+bool FUGNetzteil::currentLimitation()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">DIR?");
+  if (answer[0]=='DIR')
+  {
+   answer= answer.erase(0, 4);
+  return std::stod(answer) == 1;
+  }
+  else if (answer[0]=='E')
+  {
+  setError("currentLimitation", answer);
+}
+
+bool FUGNetzteil::voltageLimitation()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">DVR?");
+  if (answer[0]=='DVR')
+  {
+   answer= answer.erase(0, 4);
+  return std::stod(answer) == 1;
+  }
+  else if (answer[0]=='E')
+  {
+  setError("voltageLimitation", answer);
+}
+
+void FUGNetzteil::resetOvercurrent()
+{
+  inputOutput(">B1 1");
+}
+
 
 void FUGNetzteil::setError(std::string command, std::string error)
 {

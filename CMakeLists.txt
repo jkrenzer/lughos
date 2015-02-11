@@ -238,6 +238,7 @@ add_dependencies(serialAsync serialConnections)
 
 add_library(tcpAsync src/tcpAsync.cpp)
 add_dependencies(tcpAsync tcpConnections)
+target_link_libraries(tcpAsync tcpConnections)
 
 add_library(unitValue src/unitValue.cpp)
 
