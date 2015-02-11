@@ -190,16 +190,10 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
       response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
       // Continue reading remaining data until EOF.
-//       boost::asio::async_read(*socket, response,
-//           boost::asio::transfer_at_least(1),
-//           boost::bind(&tcpAsync::handle_read_content, this, regExpr,
-//             boost::asio::placeholders::error));
-      if(response_string_stream.str().empty()  && err != boost::asio::error::eof)
-	{
-	  this->handle_write_request(regExpr,err);
-	  lughos::debugLog(std::string("Discarded heartbeat from ") + server_name + std::string(":") + port_name);
-	}
-      lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
+      boost::asio::async_read(*socket, response,
+          boost::asio::transfer_at_least(1),
+          boost::bind(&tcpAsync::handle_read_content, this,
+            boost::asio::placeholders::error));
       
     }
     else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
@@ -207,6 +201,7 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
     }
 	response_string_stream<< &response;
+	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
 	this->queryDone = true;
       	this->notifyWaitingClient();
   }   
