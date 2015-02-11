@@ -133,7 +133,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
-else
+else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
   {
     lughos::debugLog(std::string("Unable to write to server ")+server_name+std::string(". Got error: ")+err.message());
     this->connected = false;
