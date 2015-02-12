@@ -198,7 +198,7 @@ using namespace lughos;
       this->modesL = new Wt::WLabel("Regulation Mode:");
       this->voltageControl = new Wt::WPushButton("Voltage");
       this->currentControl = new Wt::WPushButton("Current");
-      this->voltageControl = new Wt::WPushButton("Power");
+      this->powerControl = new Wt::WPushButton("Power");
 
       this->addWidget(iOutL);      
       this->addWidget(iOutField);
