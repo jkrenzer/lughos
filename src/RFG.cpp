@@ -32,11 +32,13 @@ RFG::RFG()
   unitsToVoltage.init();
   x2y = unitsToCurrent.valueMap.left;
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 2.5));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5.0));
   unitsToCurrent.init();
   x2y = unitsToPower.valueMap.left;
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 95.0));
+  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190.0));
   unitsToPower.init();
 }
 
@@ -96,30 +98,30 @@ std::string RFG::interpretAnswer(std::string s)
 
 void RFG::power_supply_mode()
 {
- if(mode==false)this->inputOutput("A"); 
+ if(bccMode==false)this->inputOutput("A"); 
 }
 
 void RFG::bcc_mode()
 {
- if(mode==true)this->inputOutput("B"); 
+ if(bccMode==true)this->inputOutput("B"); 
 }
 
 void RFG::use_voltage_controler()
 {
  this->inputOutput("F");
- this->controler=0;
+ this->controllerMode = ControllerMode::Voltage;
 }
 
 void RFG::use_current_controler()
 {
  this->inputOutput("G");
- this->controler=1;
+ this->controllerMode = ControllerMode::Current;
 }
 
 void RFG::use_power_controler()
 {
  this->inputOutput("H");
- this->controler=2;
+ this->controllerMode = ControllerMode::Power;
 }
 
 void RFG::switch_on()
@@ -147,7 +149,7 @@ float RFG::getLimitMaxCurrent()
   return this->maxCurrent.getvalue();
 }
 
-float RFG::getPower()
+float RFG::getTargetValue()
 {
   return this->maxPower.getvalue();
 }
@@ -216,11 +218,23 @@ float RFG::set_current_lim(float  f)
 int RFG::set_target_value(float f)
 {
   std::stringstream stream;
-  uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)+1];
-  memcpy(request,&tmp,sizeof(uint16_t));
-  request[sizeof(uint16_t)] = '\0';
-  std::string answer = this->inputOutput(std::string("\x00")+"P"+floatToBinaryStr(f,unitsToPower)+"\r",boost::regex("D\\w\\w\\w\\w"));
+  SplineTransformation* trafo;
+  switch (this->controllerMode)
+  {
+    case ControllerMode::Voltage:
+      trafo = &this->unitsToVoltage;
+      break;
+    case ControllerMode::Current:
+      trafo = &this->unitsToCurrent;
+      break;
+    case ControllerMode::Power:
+      trafo = &this->unitsToPower;
+      break;
+    default:
+      trafo = &this->unitsToVoltage;
+      break;
+  }
+  std::string answer = this->inputOutput(std::string("\x00")+"P"+floatToBinaryStr(f,*trafo)+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -246,9 +260,9 @@ bool RFG::readoutChannels()
     stream <<res1[i+1];
     stream >> value;
     channel_output[i].setvalue(value);
-    if (controler==0)channel_output[i].setunit("V");
-    if (controler==1)channel_output[i].setunit("I");
-    if (controler==2)channel_output[i].setunit("Watt");
+    if (this->controllerMode==ControllerMode::Voltage)channel_output[i].setunit("V");
+    if (this->controllerMode==ControllerMode::Current)channel_output[i].setunit("I");
+    if (this->controllerMode==ControllerMode::Power)channel_output[i].setunit("Watt");
     channel_output[i].settimestamp(boost::posix_time::second_clock::local_time());
   }
   
@@ -278,11 +292,27 @@ bool RFG::readout()
   bool result;
   try
   {
+    SplineTransformation* trafo;
+    switch (this->controllerMode)
+  {
+    case ControllerMode::Voltage:
+      trafo = &this->unitsToVoltage;
+      break;
+    case ControllerMode::Current:
+      trafo = &this->unitsToCurrent;
+      break;
+    case ControllerMode::Power:
+      trafo = &this->unitsToPower;
+      break;
+    default:
+      trafo = &this->unitsToVoltage;
+      break;
+  }
     result = this->readoutChannels() && result;
     result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage) && result;
     result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage) && result;
     result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrent) && result;
-    result = this->readoutSetting(this->maxPower,"W","P","D",this->unitsToPower) && result;
+    result = this->readoutSetting(this->maxPower,"W","P","D",*trafo) && result;
   }
   catch(...)
   {
@@ -308,8 +338,9 @@ void RFG::initImplementation()
 {
 if(isConnected())
   std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
-this->mode=true;
-controler =0;
+this->bccMode=true;
+this->controllerMode=ControllerMode::Voltage;
+  
 }
     
 bool RFG::isConnectedImplementation()

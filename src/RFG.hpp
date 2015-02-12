@@ -37,6 +37,9 @@ class RFG :public Device
 	
 	
   public:
+    
+	enum ControllerMode {Voltage, Current, Power};
+    
 	RFG(void);
 	virtual ~RFG(void);
 
@@ -59,14 +62,14 @@ class RFG :public Device
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
-	float getPower();
+	float getTargetValue();
 	bool readout();
 	
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	bool mode;
-	int controler;
+	bool bccMode;
+	ControllerMode controllerMode;
 	measuredValue channel_output[8];
 	measuredValue maxVoltage;
 	measuredValue minVoltage;
