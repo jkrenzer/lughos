@@ -196,7 +196,7 @@ using namespace lughos;
       this->stateB = new Wt::WPushButton("Status");
       this->voltageControl = new Wt::WPushButton("Voltage");
       this->currentControl = new Wt::WPushButton("Current");
-      this->voltageControl = new Wt::WPushButton("Power");
+      this->powerControl = new Wt::WPushButton("Power");
 
       this->addWidget(iOutL);      
       this->addWidget(iOutField);
