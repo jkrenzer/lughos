@@ -53,7 +53,7 @@ class RFG :public Device
 	float set_voltage_max(float f);
 	float set_voltage_min(float f);
 	float set_current_lim(float f);
-	int set_power_lim(float f);
+	int set_target_value(float f);
 	measuredValue get_channel(int i, bool force=false);
 
 	float getLimitMaxVoltage();

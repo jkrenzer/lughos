@@ -213,7 +213,7 @@ float RFG::set_current_lim(float  f)
   return value; 
 }
 
-int RFG::set_power_lim(float f)
+int RFG::set_target_value(float f)
 {
   std::stringstream stream;
   uint16_t tmp = unitsToVoltage.yToX(f);
