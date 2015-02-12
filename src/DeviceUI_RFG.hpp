@@ -76,6 +76,7 @@ using namespace lughos;
     Wt::WPushButton *sendPB;
     Wt::WPushButton *sendOnB;
     Wt::WPushButton *sendOffB;
+    Wt::WLabel* modesL;
     Wt::WPushButton *voltageControl;
     Wt::WPushButton *currentControl;
     Wt::WPushButton *powerControl;
@@ -115,7 +116,7 @@ using namespace lughos;
 	this->targetField->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<RFG>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setI);
-	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setP);
+	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setTargetValue);
         this->sendOnB->clicked().connect(this,&DeviceUI<RFG>::switchOn);
 	this->sendOffB->clicked().connect(this,&DeviceUI<RFG>::switchOff);
 	this->voltageControl->clicked().connect(this,&DeviceUI<RFG>::setTargetVoltage);
@@ -194,6 +195,7 @@ using namespace lughos;
       this->sendOffB = new Wt::WPushButton("Off");
       this->sendPB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
+      this->modesL = new Wt::WLabel("Regulation Mode:");
       this->voltageControl = new Wt::WPushButton("Voltage");
       this->currentControl = new Wt::WPushButton("Current");
       this->voltageControl = new Wt::WPushButton("Power");
@@ -213,9 +215,12 @@ using namespace lughos;
       this->addWidget(new Wt::WBreak);
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
+      this->addWidget(new Wt::WBreak);
+      this->addWidget(targetFieldL);
       this->addWidget(targetField);
       this->addWidget(sendPB); 
       this->addWidget(new Wt::WBreak);
+      
       this->addWidget(voltageControl);
       this->addWidget(currentControl);
       this->addWidget(powerControl);
@@ -258,7 +263,7 @@ using namespace lughos;
       
     }
     
-    void setP()
+    void setTargetValue()
     {
       float f = targetField->value(); 
       this->stateF->setText("Target set:"+iField->text().toUTF8());
@@ -311,7 +316,7 @@ using namespace lughos;
       this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
-      this->targetField->setValue(this->rfg->getPower());
+      this->targetField->setValue(this->rfg->getTargetValue());
     }
     
 //     void start()
