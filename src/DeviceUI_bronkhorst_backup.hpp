@@ -58,7 +58,7 @@ using namespace lughos;
     Wt::WLabel* flowL1;
     Wt::WLabel* measFlowL1;
     Wt::WPushButton *sendB1;
-    Wt::WLineEdit *flowField1;
+    Wt::WLineEdit *setpointField1;
     Wt::WTextArea *responseField;
     bool numberOfHorsts=1;
     Wt::WPushButton * stateB1;
@@ -105,7 +105,7 @@ using namespace lughos;
 // 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 // 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
 	this->sendB1->setDisabled(false);
-	this->flowField1->setDisabled(false);
+	this->setpointField1->setDisabled(false);
         this->sendB1->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
 	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
 	this->getState();
@@ -139,17 +139,17 @@ using namespace lughos;
       this->stateL1 = new Wt::WLabel("Status:");
       this->flowL1 = new Wt::WLabel("Set Flow:");
       this->stateL1->setBuddy(stateF);
-      this->flowField1 =  new  Wt::WLineEdit("0.0");
+      this->setpointField1 =  new  Wt::WLineEdit("0.0");
        this->sendB1 = new Wt::WPushButton("Send");
       this->stateB1 = new Wt::WPushButton("Status");
      this->addWidget(stateL1);
      this->addWidget(stateF);
      this->addWidget(flowL1);
-     this->addWidget(flowField1);
+     this->addWidget(setpointField1);
      this->addWidget(sendB1);
      this->addWidget(stateB1);
      this->sendB1->setDisabled(true);
-     this->flowField1->setDisabled(true);
+     this->setpointField1->setDisabled(true);
      this->responseField =  new Wt::WTextArea("");
      this->responseField->setReadOnly(true); 
      this->addWidget(responseField);
@@ -167,17 +167,17 @@ using namespace lughos;
       this->stateL1 = new Wt::WLabel("Status:");
       this->flowL1 = new Wt::WLabel("Set Flow:");
       this->stateL1->setBuddy(stateF);
-      this->flowField1 =  new  Wt::WLineEdit("0.0");
+      this->setpointField1 =  new  Wt::WLineEdit("0.0");
        this->sendB1 = new Wt::WPushButton("Send");
       this->stateB1 = new Wt::WPushButton("Status");
      this->addWidget(stateL1);
      this->addWidget(stateF);
      this->addWidget(flowL1);
-     this->addWidget(flowField1);
+     this->addWidget(setpointField1);
      this->addWidget(sendB1);
      this->addWidget(stateB1);
      this->sendB1->setDisabled(true);
-     this->flowField1->setDisabled(true);
+     this->setpointField1->setDisabled(true);
      this->responseField =  new Wt::WTextArea("");
      this->responseField->setReadOnly(true); 
      this->addWidget(responseField);
@@ -189,28 +189,28 @@ using namespace lughos;
     {
 //       
       stringstream sstr; 
-      string str = flowField1->text().toUTF8(); 
+      string str = setpointField1->text().toUTF8(); 
       float f; 
       sstr<<str; 
       sstr>>f;
 
-      this->stateF->setText("Flow set:"+flowField1->text().toUTF8());
+      this->stateF->setText("Flow set:"+setpointField1->text().toUTF8());
       responseField->setText(responseField->text().toUTF8()+horst1->set_flow(f));
-      this->getFlow();
+      this->getSetpoint();
 //     
       
     }
     
-    void getFlow()
+    void getSetpoint()
     {
       measuredValue v = this->horst1->get_setpoint();
       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
-      this->flowField1->setText(std::string(v.getStringValue()));
+      this->setpointField1->setText(std::string(v.getStringValue()));
     }
     
     void getState()
     {
-      this->getFlow();
+      this->getSetpoint();
     }
     
     void start()
