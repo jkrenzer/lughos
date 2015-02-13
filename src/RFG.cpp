@@ -201,10 +201,6 @@ float RFG::set_voltage_min(float  f)
 float RFG::set_current_lim(float  f)
 {
   std::stringstream stream;
-  uint16_t tmp = unitsToVoltage.yToX(f);
-  char request[sizeof(uint16_t)+1];
-  memcpy(request,&tmp,sizeof(uint16_t));
-  request[sizeof(uint16_t)] = '\0';
   std::string answer = this->inputOutput(std::string("\x00")+"I"+floatToBinaryStr(f,unitsToCurrent)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -293,26 +289,31 @@ bool RFG::readout()
   try
   {
     SplineTransformation* trafo;
+    std::string targetUnit;
     switch (this->controllerMode)
   {
     case ControllerMode::Voltage:
       trafo = &this->unitsToVoltage;
+      targetUnit = std::string("V");
       break;
     case ControllerMode::Current:
       trafo = &this->unitsToCurrent;
+      targetUnit = std::string("A");
       break;
     case ControllerMode::Power:
       trafo = &this->unitsToPower;
+      targetUnit = std::string("W");
       break;
     default:
       trafo = &this->unitsToVoltage;
+      targetUnit = std::string("V");
       break;
   }
     result = this->readoutChannels() && result;
     result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage) && result;
     result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage) && result;
     result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrent) && result;
-    result = this->readoutSetting(this->maxPower,"W","P","D",*trafo) && result;
+    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo) && result;
   }
   catch(...)
   {

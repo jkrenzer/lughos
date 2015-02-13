@@ -203,7 +203,7 @@ using namespace lughos;
     
     void getFlow()
     {
-      measuredValue v = this->horst1->get_value();
+      measuredValue v = this->horst1->get_setpoint();
       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowField1->setText(std::string(v.getStringValue()));
     }

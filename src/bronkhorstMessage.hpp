@@ -311,7 +311,7 @@ namespace lughos
     
     enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
     enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
-    enum Parameter {Setpoint = 1, Capacity = 13};
+    enum Parameter {Measure = 0, Setpoint = 1, Capacity = 13};
   };
   
 }//namespace lughos
