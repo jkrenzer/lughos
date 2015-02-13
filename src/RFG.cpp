@@ -30,15 +30,15 @@ RFG::RFG()
   x2y.insert(SplineTransformation::XYPair((double)strtol("0x0E00", NULL, 0),39.490));
   x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 39.5));
   unitsToVoltage.init();
-  x2y = unitsToCurrent.valueMap.left;
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 2.5));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5.0));
+  SplineTransformation::XToYMap& x2y2 = unitsToCurrent.valueMap.left;
+  x2y2.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
+  x2y2.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 2.5));
+  x2y2.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5.0));
   unitsToCurrent.init();
-  x2y = unitsToPower.valueMap.left;
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 95.0));
-  x2y.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190.0));
+  SplineTransformation::XToYMap& x2y3 = unitsToPower.valueMap.left;
+  x2y3.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
+  x2y3.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 95.0));
+  x2y3.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190.0));
   unitsToPower.init();
 }
 
@@ -77,13 +77,11 @@ RFG::~RFG(void)
 
 std::string RFG::composeRequest(std::string query)
 {
-
     std::string requestString="";
     requestString+=query;
 //     requestString+=std::string("\r");
     std::cout<<"R: "<<requestString<<std::endl;
     return requestString;
-  
 }
 
 
@@ -159,7 +157,7 @@ std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
   uint16_t tmp = transformation.yToX(f); //Convert between arbitrary units and volts
   char buffer[sizeof(uint16_t)];
   memcpy(buffer,&tmp,sizeof(uint16_t)); //Transfer binary data to char-array
-  std::string rawRequest(buffer,sizeof(uint16_t)); 
+  std::string rawRequest(buffer,sizeof(uint16_t));
   std::string request(rawRequest.rbegin(),rawRequest.rend()); //Reverse to keep the endian straight!
   return request;
 }
