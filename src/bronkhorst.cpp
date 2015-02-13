@@ -72,7 +72,7 @@ measuredValue bronkhorst::get_setpoint()
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->maxCapacity;
-      std::cout << "Setpoint is: " << iSetpoint << " of Bronkhorst_100Percent which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
+      std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
@@ -113,7 +113,7 @@ measuredValue bronkhorst::get_flow()
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->maxCapacity;
-      std::cout << "Setpoint is: " << iSetpoint << " of Bronkhorst_100Percent which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
+      std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
@@ -156,7 +156,7 @@ void bronkhorst::initImplementation()
   this->inputOutput(":050301000A52\r\n");
   this->inputOutput("050302010412\r\n");
   this->inputOutput(":070304006000600F\r\n");
-  this->maxCapacity = 1.0;
+  this->maxCapacity = 0.0;
   bronkhorstMessage m1,a1;
   m1.setNode(3);
     m1.setType(4);
