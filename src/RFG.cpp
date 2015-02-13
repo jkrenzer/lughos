@@ -159,6 +159,7 @@ std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
   memcpy(buffer,&tmp,sizeof(uint16_t)); //Transfer binary data to char-array
   std::string rawRequest(buffer,sizeof(uint16_t));
   std::string request(rawRequest.rbegin(),rawRequest.rend()); //Reverse to keep the endian straight!
+  std::cout << "Converted " << f << " to " << request << std::endl;
   return request;
 }
 

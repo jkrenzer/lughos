@@ -153,6 +153,7 @@ using namespace lughos;
       this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
       responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getSetpoint();
+      this->getFlow();
 //     
       
     }
@@ -160,6 +161,8 @@ using namespace lughos;
     void getState()
     {
       this->getSetpoint();
+      this->getFlow();
+
     }
     
     void setFlow(boost::shared_ptr<bronkhorst> horst)
@@ -174,6 +177,7 @@ using namespace lughos;
       this->stateF1->setText("Flow set:"+setpointField1->text().toUTF8());
       this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getSetpoint();
+      this->getFlow();
 //     
       
     }
