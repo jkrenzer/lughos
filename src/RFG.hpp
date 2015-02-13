@@ -37,7 +37,6 @@ class RFG :public Device
 	
 	
   public:
-    
 	enum ControllerMode {Voltage, Current, Power};
     
 	RFG(void);
@@ -56,14 +55,18 @@ class RFG :public Device
 	float set_voltage_max(float f);
 	float set_voltage_min(float f);
 	float set_current_lim(float f);
-	int set_target_value(float f);
+	float set_target_value(float f);
+	int set_voltage_max_raw(int i);
+	int set_voltage_min_raw(int i);
+	int set_current_lim_raw(int i);
+	int set_target_value_raw(int i);
 	measuredValue get_channel(int i, bool force=false);
 
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
 	float getTargetValue();
-	bool readout();
+	bool readout(bool raw = false);
 	
 protected:
 	std::string interpretAnswer(std::string query);
@@ -78,9 +81,10 @@ protected:
 	SplineTransformation unitsToVoltage;
  	SplineTransformation unitsToCurrent;
  	SplineTransformation unitsToPower;
-	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
+	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = 0);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
+	std::string intToBinaryStr(uint16_t i);
 
 	
   

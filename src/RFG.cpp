@@ -155,12 +155,31 @@ float RFG::getTargetValue()
 std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
 {
   uint16_t tmp = transformation.yToX(f); //Convert between arbitrary units and volts
-  char buffer[sizeof(uint16_t)];
-  memcpy(buffer,&tmp,sizeof(uint16_t)); //Transfer binary data to char-array
-  std::string rawRequest(buffer,sizeof(uint16_t));
-  std::string request(rawRequest.rbegin(),rawRequest.rend()); //Reverse to keep the endian straight!
+  std::string request = intToBinaryStr(tmp);
   std::cout << "Converted " << f << " to " << request << std::endl;
   return request;
+}
+
+std::string RFG::intToBinaryStr(uint16_t i)
+{
+  char buffer[sizeof(uint16_t)];
+  memcpy(buffer,&i,sizeof(uint16_t)); //Transfer binary data to char-array
+  std::string rawRequest(buffer,sizeof(uint16_t));
+  std::string request(rawRequest.rbegin(),rawRequest.rend()); //Reverse to keep the endian straight!
+  return request;
+}
+
+int RFG::set_voltage_max_raw(int i)
+{
+  std::stringstream stream;
+  std::string answer = this->inputOutput(std::string("\x00")+"U"+intToBinaryStr(i)+"\r",boost::regex("A\\w\\w\\w\\w"));
+  boost::regex exp1("A(\\w\\w\\w\\w)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
+  stream >> std::hex >> value;
+ return value;
 }
 
 
@@ -181,12 +200,23 @@ float RFG::set_voltage_max(float f)
  return value; 
 }
 
+int RFG::set_voltage_min_raw(int i)
+{
+  std::stringstream stream;
+  std::string answer = this->inputOutput(std::string("\x00")+"M"+intToBinaryStr(i)+"\r",boost::regex("B\\w\\w\\w\\w"));
+  boost::regex exp1("B(\\w\\w\\w\\w)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
+  stream >> std::hex >> value;
+ return value;
+}
+
 
 float RFG::set_voltage_min(float  f)
 {
-//   if(voltage_max<f) return 0;
   std::stringstream stream;
-  
   std::string answer = this->inputOutput(std::string("\x00")+"M"+floatToBinaryStr(f,unitsToVoltage)+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -196,6 +226,20 @@ float RFG::set_voltage_min(float  f)
   stream >> std::hex >> value;
  return value; 
 }
+
+int RFG::set_current_lim_raw(int i)
+{
+  std::stringstream stream;
+  std::string answer = this->inputOutput(std::string("\x00")+"I"+intToBinaryStr(i)+"\r",boost::regex("C\\w\\w\\w\\w"));
+  boost::regex exp1("C(\\w\\w\\w\\w)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
+  stream >> std::hex >> value;
+  return value;
+}
+
 
 float RFG::set_current_lim(float  f)
 {
@@ -210,7 +254,37 @@ float RFG::set_current_lim(float  f)
   return value; 
 }
 
-int RFG::set_target_value(float f)
+int RFG::set_target_value_raw(int i)
+{
+  std::stringstream stream;
+  SplineTransformation* trafo;
+  switch (this->controllerMode)
+  {
+    case ControllerMode::Voltage:
+      trafo = &this->unitsToVoltage;
+      break;
+    case ControllerMode::Current:
+      trafo = &this->unitsToCurrent;
+      break;
+    case ControllerMode::Power:
+      trafo = &this->unitsToPower;
+      break;
+    default:
+      trafo = &this->unitsToVoltage;
+      break;
+  }
+  std::string answer = this->inputOutput(std::string("\x00")+"P"+intToBinaryStr(i)+"\r",boost::regex("D\\w\\w\\w\\w"));
+  boost::regex exp1("D(\\w\\w\\w\\w)");
+  boost::cmatch res1;
+  boost::regex_search(answer.c_str(), res1, exp1);
+  int value;
+  stream << res1[1];
+  stream >> std::hex >> value;
+ return value;
+}
+
+
+float RFG::set_target_value(float f)
 {
   std::stringstream stream;
   SplineTransformation* trafo;
@@ -264,7 +338,7 @@ bool RFG::readoutChannels()
   return true;
 }
 
-bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation)
+bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
 {
   std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w"))); //Provoke Error to get setting
   boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
@@ -276,13 +350,16 @@ bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string con
   {
     stream << res1[1];
     stream >> std::hex >> valueTemp;
-    value.setvalue(transformation.xToY(valueTemp));
+    if(raw)
+      value.setvalue(valueTemp);
+    else
+      value.setvalue(transformation.xToY(valueTemp));
     std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getStringValue() << unit <<  std::endl;
     value.setunit(unit);
   }
 }
 
-bool RFG::readout()
+bool RFG::readout(bool raw)
 {
   bool result;
   try
@@ -309,10 +386,10 @@ bool RFG::readout()
       break;
   }
     result = this->readoutChannels() && result;
-    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage) && result;
-    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage) && result;
-    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrent) && result;
-    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo) && result;
+    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage,raw) && result;
+    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage,raw) && result;
+    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrent,raw) && result;
+    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
   }
   catch(...)
   {
