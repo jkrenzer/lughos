@@ -78,9 +78,13 @@ protected:
 	measuredValue minVoltage;
 	measuredValue maxCurrent;
 	measuredValue maxPower;
-	SplineTransformation unitsToVoltage;
- 	SplineTransformation unitsToCurrent;
- 	SplineTransformation unitsToPower;
+	SplineTransformation unitsToVoltageReg;
+ 	SplineTransformation unitsToCurrentReg;
+ 	SplineTransformation unitsToPowerReg;
+	SplineTransformation unitsToVoltageLimMax;
+	SplineTransformation unitsToVoltageLimMin;
+ 	SplineTransformation unitsToCurrentLim;
+ 	SplineTransformation unitsToPowerLim;
 	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = 0);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);

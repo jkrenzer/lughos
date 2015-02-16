@@ -12,7 +12,7 @@ RFG::RFG()
     {
       channel_output[i].setunitvalue(0,"");
     }
-  SplineTransformation::XToYMap& x2y = unitsToVoltage.valueMap.left;
+  SplineTransformation::XToYMap& x2y = unitsToVoltageReg.valueMap.left;
   //Callibration 2015-02-13;
   x2y.insert(SplineTransformation::XYPair(0, 0.154032));
   x2y.insert(SplineTransformation::XYPair(10, 0.271));
@@ -56,17 +56,185 @@ RFG::RFG()
   x2y.insert(SplineTransformation::XYPair(3000, 36.536));
   x2y.insert(SplineTransformation::XYPair(3100, 37.749));
 
-  unitsToVoltage.init();
-  SplineTransformation::XToYMap& x2y2 = unitsToCurrent.valueMap.left;
-  x2y2.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y2.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 2.5));
-  x2y2.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 5.0));
-  unitsToCurrent.init();
-  SplineTransformation::XToYMap& x2y3 = unitsToPower.valueMap.left;
-  x2y3.insert(SplineTransformation::XYPair((double)strtol("0x0000", NULL, 0), 0.0));
-  x2y3.insert(SplineTransformation::XYPair((double)strtol("0x7FFF", NULL, 0), 95.0));
-  x2y3.insert(SplineTransformation::XYPair((double)strtol("0xFFFF", NULL, 0), 190.0));
-  unitsToPower.init();
+  unitsToVoltageReg.init();
+  
+  SplineTransformation::XToYMap& x2y1a = unitsToVoltageLimMax.valueMap.left;
+  x2y1a.insert(SplineTransformation::XYPair(0, 0.22));
+  x2y1a.insert(SplineTransformation::XYPair(100, 1.436));
+  x2y1a.insert(SplineTransformation::XYPair(200, 2.649));
+  x2y1a.insert(SplineTransformation::XYPair(300, 3.861));
+  x2y1a.insert(SplineTransformation::XYPair(400, 5.073));
+  x2y1a.insert(SplineTransformation::XYPair(500, 6.286));
+  x2y1a.insert(SplineTransformation::XYPair(600, 7.499));
+  x2y1a.insert(SplineTransformation::XYPair(700, 8.712));
+  x2y1a.insert(SplineTransformation::XYPair(800, 9.925));
+  x2y1a.insert(SplineTransformation::XYPair(900, 11.137));
+  x2y1a.insert(SplineTransformation::XYPair(1000, 12.35));
+  x2y1a.insert(SplineTransformation::XYPair(1100, 13.563));
+  x2y1a.insert(SplineTransformation::XYPair(1200, 14.776));
+  x2y1a.insert(SplineTransformation::XYPair(1300, 15.988));
+  x2y1a.insert(SplineTransformation::XYPair(1400, 17.2));
+  x2y1a.insert(SplineTransformation::XYPair(1500, 18.413));
+  x2y1a.insert(SplineTransformation::XYPair(1600, 19.626));
+  x2y1a.insert(SplineTransformation::XYPair(1700, 20.839));
+  x2y1a.insert(SplineTransformation::XYPair(1800, 22.052));
+  x2y1a.insert(SplineTransformation::XYPair(1900, 23.264));
+  x2y1a.insert(SplineTransformation::XYPair(2000, 24.477));
+  x2y1a.insert(SplineTransformation::XYPair(2100, 25.69));
+  x2y1a.insert(SplineTransformation::XYPair(2200, 26.903));
+  x2y1a.insert(SplineTransformation::XYPair(2300, 28.115));
+  x2y1a.insert(SplineTransformation::XYPair(2400, 29.328));
+  x2y1a.insert(SplineTransformation::XYPair(2500, 30.542));
+  x2y1a.insert(SplineTransformation::XYPair(2600, 31.754));
+  x2y1a.insert(SplineTransformation::XYPair(2700, 32.967));
+  unitsToVoltageLimMax.init();
+  
+  SplineTransformation::XToYMap& x2y1b = unitsToVoltageLimMin.valueMap.left;
+  x2y1b.insert(SplineTransformation::XYPair(0, 0.154));
+  x2y1b.insert(SplineTransformation::XYPair(100, 1.37));
+  x2y1b.insert(SplineTransformation::XYPair(200, 2.583));
+  x2y1b.insert(SplineTransformation::XYPair(300, 3.796));
+  x2y1b.insert(SplineTransformation::XYPair(400, 5.009));
+  x2y1b.insert(SplineTransformation::XYPair(500, 6.221));
+  x2y1b.insert(SplineTransformation::XYPair(600, 7.434));
+  x2y1b.insert(SplineTransformation::XYPair(700, 8.646));
+  x2y1b.insert(SplineTransformation::XYPair(800, 9.859));
+  x2y1b.insert(SplineTransformation::XYPair(900, 11.072));
+  x2y1b.insert(SplineTransformation::XYPair(1000, 12.284));
+  x2y1b.insert(SplineTransformation::XYPair(1100, 13.498));
+  x2y1b.insert(SplineTransformation::XYPair(1200, 14.711));
+  x2y1b.insert(SplineTransformation::XYPair(1300, 15.923));
+  x2y1b.insert(SplineTransformation::XYPair(1400, 17.136));
+  x2y1b.insert(SplineTransformation::XYPair(1500, 18.349));
+  x2y1b.insert(SplineTransformation::XYPair(1600, 19.561));
+  x2y1b.insert(SplineTransformation::XYPair(1700, 20.774));
+  x2y1b.insert(SplineTransformation::XYPair(1800, 21.986));
+  x2y1b.insert(SplineTransformation::XYPair(1900, 23.199));
+  x2y1b.insert(SplineTransformation::XYPair(2000, 24.411));
+  x2y1b.insert(SplineTransformation::XYPair(2100, 25.624));
+  x2y1b.insert(SplineTransformation::XYPair(2200, 26.837));
+  x2y1b.insert(SplineTransformation::XYPair(2300, 28.05));
+  x2y1b.insert(SplineTransformation::XYPair(2400, 29.261));
+  x2y1b.insert(SplineTransformation::XYPair(2500, 30.474));
+  x2y1b.insert(SplineTransformation::XYPair(2600, 31.686));
+  x2y1b.insert(SplineTransformation::XYPair(2700, 32.899));
+  unitsToVoltageLimMin.init();
+  
+  SplineTransformation::XToYMap& x2y2 = unitsToCurrentLim.valueMap.left;
+  x2y2.insert(SplineTransformation::XYPair(0, 0.02));
+  x2y2.insert(SplineTransformation::XYPair(10, 0.034));
+  x2y2.insert(SplineTransformation::XYPair(20, 0.043));
+  x2y2.insert(SplineTransformation::XYPair(50, 0.082));
+  x2y2.insert(SplineTransformation::XYPair(100, 0.143));
+  x2y2.insert(SplineTransformation::XYPair(150, 0.202));
+  x2y2.insert(SplineTransformation::XYPair(200, 0.263));
+  x2y2.insert(SplineTransformation::XYPair(250, 0.323));
+  x2y2.insert(SplineTransformation::XYPair(300, 0.384));
+  x2y2.insert(SplineTransformation::XYPair(350, 0.444));
+  x2y2.insert(SplineTransformation::XYPair(400, 0.504));
+  x2y2.insert(SplineTransformation::XYPair(450, 0.564));
+  x2y2.insert(SplineTransformation::XYPair(500, 0.625));
+  x2y2.insert(SplineTransformation::XYPair(550, 0.685));
+  x2y2.insert(SplineTransformation::XYPair(600, 0.745));
+  x2y2.insert(SplineTransformation::XYPair(650, 0.805));
+  x2y2.insert(SplineTransformation::XYPair(700, 0.865));
+  x2y2.insert(SplineTransformation::XYPair(750, 0.925));
+  x2y2.insert(SplineTransformation::XYPair(800, 0.985));
+  x2y2.insert(SplineTransformation::XYPair(850, 1.046));
+  x2y2.insert(SplineTransformation::XYPair(900, 1.106));
+  x2y2.insert(SplineTransformation::XYPair(950, 1.166));
+  x2y2.insert(SplineTransformation::XYPair(1000, 1.227));
+  x2y2.insert(SplineTransformation::XYPair(1050, 1.287));
+  x2y2.insert(SplineTransformation::XYPair(1100, 1.347));
+  x2y2.insert(SplineTransformation::XYPair(1150, 1.408));
+  x2y2.insert(SplineTransformation::XYPair(1200, 1.468));
+  x2y2.insert(SplineTransformation::XYPair(1250, 1.528));
+  x2y2.insert(SplineTransformation::XYPair(1300, 1.589));
+  x2y2.insert(SplineTransformation::XYPair(1350, 1.649));
+  x2y2.insert(SplineTransformation::XYPair(1400, 1.709));
+  x2y2.insert(SplineTransformation::XYPair(1450, 1.769));
+  x2y2.insert(SplineTransformation::XYPair(1500, 1.83));
+  x2y2.insert(SplineTransformation::XYPair(1550, 1.89));
+  x2y2.insert(SplineTransformation::XYPair(1600, 1.951));
+  x2y2.insert(SplineTransformation::XYPair(1650, 2.011));
+  x2y2.insert(SplineTransformation::XYPair(1700, 2.072));
+  x2y2.insert(SplineTransformation::XYPair(1750, 2.132));
+  x2y2.insert(SplineTransformation::XYPair(1800, 2.192));
+  x2y2.insert(SplineTransformation::XYPair(1850, 2.253));
+  x2y2.insert(SplineTransformation::XYPair(1900, 2.314));
+  x2y2.insert(SplineTransformation::XYPair(1950, 2.374));
+  x2y2.insert(SplineTransformation::XYPair(2000, 2.434));
+  x2y2.insert(SplineTransformation::XYPair(2050, 2.494));
+  x2y2.insert(SplineTransformation::XYPair(2100, 2.555));
+  x2y2.insert(SplineTransformation::XYPair(2150, 2.615));
+  x2y2.insert(SplineTransformation::XYPair(2200, 2.676));
+  x2y2.insert(SplineTransformation::XYPair(2250, 2.736));
+  x2y2.insert(SplineTransformation::XYPair(2300, 2.797));
+  x2y2.insert(SplineTransformation::XYPair(2350, 2.846));
+  x2y2.insert(SplineTransformation::XYPair(2400, 2.918));
+  
+  unitsToCurrentLim.init();
+  SplineTransformation::XToYMap& x2y3 = unitsToCurrentReg.valueMap.left;
+  x2y3.insert(SplineTransformation::XYPair(0, 0.063));
+  x2y3.insert(SplineTransformation::XYPair(50, 0.09));
+  x2y3.insert(SplineTransformation::XYPair(100, 0.15));
+  x2y3.insert(SplineTransformation::XYPair(150, 0.211));
+  x2y3.insert(SplineTransformation::XYPair(200, 0.271));
+  x2y3.insert(SplineTransformation::XYPair(250, 0.331));
+  x2y3.insert(SplineTransformation::XYPair(300, 0.391));
+  x2y3.insert(SplineTransformation::XYPair(350, 0.452));
+  x2y3.insert(SplineTransformation::XYPair(400, 0.512));
+  x2y3.insert(SplineTransformation::XYPair(450, 0.572));
+  x2y3.insert(SplineTransformation::XYPair(500, 0.632));
+  x2y3.insert(SplineTransformation::XYPair(550, 0.692));
+  x2y3.insert(SplineTransformation::XYPair(600, 0.753));
+  x2y3.insert(SplineTransformation::XYPair(650, 0.813));
+  x2y3.insert(SplineTransformation::XYPair(700, 0.873));
+  x2y3.insert(SplineTransformation::XYPair(750, 0.933));
+  x2y3.insert(SplineTransformation::XYPair(800, 0.994));
+  x2y3.insert(SplineTransformation::XYPair(850, 1.054));
+  x2y3.insert(SplineTransformation::XYPair(900, 1.114));
+  x2y3.insert(SplineTransformation::XYPair(950, 1.174));
+  x2y3.insert(SplineTransformation::XYPair(1000, 1.235));
+  x2y3.insert(SplineTransformation::XYPair(1050, 1.295));
+  x2y3.insert(SplineTransformation::XYPair(1100, 1.355));
+  x2y3.insert(SplineTransformation::XYPair(1150, 1.416));
+  x2y3.insert(SplineTransformation::XYPair(1200, 1.476));
+  x2y3.insert(SplineTransformation::XYPair(1250, 1.536));
+  x2y3.insert(SplineTransformation::XYPair(1300, 1.597));
+  x2y3.insert(SplineTransformation::XYPair(1350, 1.657));
+  x2y3.insert(SplineTransformation::XYPair(1400, 1.717));
+  x2y3.insert(SplineTransformation::XYPair(1450, 1.778));
+  x2y3.insert(SplineTransformation::XYPair(1500, 1.838));
+  x2y3.insert(SplineTransformation::XYPair(1550, 1.899));
+  x2y3.insert(SplineTransformation::XYPair(1600, 1.959));
+  x2y3.insert(SplineTransformation::XYPair(1650, 2.019));
+  x2y3.insert(SplineTransformation::XYPair(1700, 2.079));
+  x2y3.insert(SplineTransformation::XYPair(1750, 2.14));
+  x2y3.insert(SplineTransformation::XYPair(1800, 2.2));
+  x2y3.insert(SplineTransformation::XYPair(1850, 2.261));
+  x2y3.insert(SplineTransformation::XYPair(1900, 2.321));
+  x2y3.insert(SplineTransformation::XYPair(1950, 2.382));
+  x2y3.insert(SplineTransformation::XYPair(2000, 2.442));
+  x2y3.insert(SplineTransformation::XYPair(2050, 2.503));
+  x2y3.insert(SplineTransformation::XYPair(2100, 2.564));
+  x2y3.insert(SplineTransformation::XYPair(2150, 2.624));
+  x2y3.insert(SplineTransformation::XYPair(2200, 2.684));
+  x2y3.insert(SplineTransformation::XYPair(2250, 2.744));
+  x2y3.insert(SplineTransformation::XYPair(2300, 2.805));
+  x2y3.insert(SplineTransformation::XYPair(2350, 2.865));
+  x2y3.insert(SplineTransformation::XYPair(2400, 2.926));
+  unitsToCurrentReg.init();
+  
+  SplineTransformation::XToYMap& x2y4 = unitsToPowerLim.valueMap.left;
+  x2y4.insert(SplineTransformation::XYPair(0, 0));
+  x2y4.insert(SplineTransformation::XYPair(3100, 190));
+  unitsToPowerLim.init();
+  
+  SplineTransformation::XToYMap& x2y5 = unitsToPowerReg.valueMap.left;
+  x2y5.insert(SplineTransformation::XYPair(0, 0));
+  x2y5.insert(SplineTransformation::XYPair(3100, 190));
+  unitsToPowerReg.init();
 }
 
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
@@ -217,7 +385,7 @@ float RFG::set_voltage_max(float f)
 //   std::cout << "#### DEBUG: " << f << " - " << unitsToVoltage.yToX(f) << " - " << (uint16_t) unitsToVoltage.yToX(f) << " - " << stream.str() << std::endl;
 //   union Request { char chars[2]; uint16_t value;  } request;
 //   request.value = (uint16_t) (unitsToVoltage.yToX(f));
-  std::string answer = this->inputOutput(std::string("\x00")+"U"+floatToBinaryStr(f,unitsToVoltage)+"\r",boost::regex("A\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"U"+floatToBinaryStr(f,unitsToVoltageLimMax)+"\r",boost::regex("A\\w\\w\\w\\w"));
   boost::regex exp1("A(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -244,7 +412,7 @@ int RFG::set_voltage_min_raw(int i)
 float RFG::set_voltage_min(float  f)
 {
   std::stringstream stream;
-  std::string answer = this->inputOutput(std::string("\x00")+"M"+floatToBinaryStr(f,unitsToVoltage)+"\r",boost::regex("B\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"M"+floatToBinaryStr(f,unitsToVoltageLimMin)+"\r",boost::regex("B\\w\\w\\w\\w"));
   boost::regex exp1("B(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -271,7 +439,7 @@ int RFG::set_current_lim_raw(int i)
 float RFG::set_current_lim(float  f)
 {
   std::stringstream stream;
-  std::string answer = this->inputOutput(std::string("\x00")+"I"+floatToBinaryStr(f,unitsToCurrent)+"\r",boost::regex("C\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"I"+floatToBinaryStr(f,unitsToCurrentLim)+"\r",boost::regex("C\\w\\w\\w\\w"));
   boost::regex exp1("C(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
@@ -288,16 +456,16 @@ int RFG::set_target_value_raw(int i)
   switch (this->controllerMode)
   {
     case ControllerMode::Voltage:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       break;
     case ControllerMode::Current:
-      trafo = &this->unitsToCurrent;
+      trafo = &this->unitsToCurrentReg;
       break;
     case ControllerMode::Power:
-      trafo = &this->unitsToPower;
+      trafo = &this->unitsToPowerReg;
       break;
     default:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       break;
   }
   std::string answer = this->inputOutput(std::string("\x00")+"P"+intToBinaryStr(i)+"\r",boost::regex("D\\w\\w\\w\\w"));
@@ -318,16 +486,16 @@ float RFG::set_target_value(float f)
   switch (this->controllerMode)
   {
     case ControllerMode::Voltage:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       break;
     case ControllerMode::Current:
-      trafo = &this->unitsToCurrent;
+      trafo = &this->unitsToCurrentReg;
       break;
     case ControllerMode::Power:
-      trafo = &this->unitsToPower;
+      trafo = &this->unitsToPowerReg;
       break;
     default:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       break;
   }
   std::string answer = this->inputOutput(std::string("\x00")+"P"+floatToBinaryStr(f,*trafo)+"\r",boost::regex("D\\w\\w\\w\\w"));
@@ -396,26 +564,26 @@ bool RFG::readout(bool raw)
     switch (this->controllerMode)
   {
     case ControllerMode::Voltage:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       targetUnit = std::string("V");
       break;
     case ControllerMode::Current:
-      trafo = &this->unitsToCurrent;
+      trafo = &this->unitsToCurrentReg;
       targetUnit = std::string("A");
       break;
     case ControllerMode::Power:
-      trafo = &this->unitsToPower;
+      trafo = &this->unitsToPowerReg;
       targetUnit = std::string("W");
       break;
     default:
-      trafo = &this->unitsToVoltage;
+      trafo = &this->unitsToVoltageReg;
       targetUnit = std::string("V");
       break;
   }
     result = this->readoutChannels() && result;
-    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltage,raw) && result;
-    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltage,raw) && result;
-    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrent,raw) && result;
+    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
+    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
+    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
     result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
   }
   catch(...)

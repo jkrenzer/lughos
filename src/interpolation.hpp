@@ -95,16 +95,24 @@ namespace lughos
     
     double xToY(double x)
     {
-      if (isInitialized)
+      if (isInitialized && x <= this->xMax && x >= this->xMin)
 	return gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
+      else if (x > this->xMax)
+	return this->xMax;
+      else if (x < this->xMin)
+	return this->xMin;
       else
 	return NAN;
     }
     
     double yToX(double y)
     {
-      if (isInitialized)
+      if (isInitialized && y <= this->yMax && y >= this->yMin)
 	return gsl_spline_eval (yToXSpline, y, yToXSplineAcc);
+      else if (y > this->yMax)
+	return this->yMax;
+      else if (y < this->yMin)
+	return this->yMin;
       else
 	return NAN;
     }
