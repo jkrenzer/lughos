@@ -214,7 +214,7 @@ namespace lughos
 	  return charValue;
 	std::stringstream returnStream;
 	std::cout << "getValueString HEXVALUE: " << this->hexValue << std::endl;
-	long unsigned int value;
+	long unsigned int value = 0;
 	std::stringstream(this->hexValue) >> std::hex >> value;
 	std::cout << "getValueString VALUE: " << value << std::endl;
 	switch(this->parameterType)

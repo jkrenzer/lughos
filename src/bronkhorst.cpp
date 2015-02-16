@@ -7,6 +7,7 @@
 #include "bronkhorst.hpp"
 
 #define Bronkhorst_100Percent 32000
+#define Bronkhorst_signed_Int_Min -23593
 
 bronkhorst::bronkhorst()
 {
@@ -53,7 +54,7 @@ measuredValue bronkhorst::get_setpoint()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
-    bronkhorstMessage m1, m2, a1, a2;
+    bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
     m1.setProcess(1);
@@ -94,7 +95,7 @@ measuredValue bronkhorst::get_flow()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue returnvalue;
-    bronkhorstMessage m1, m2, a1, a2;
+    bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
     m1.setProcess(1);
@@ -112,7 +113,7 @@ measuredValue bronkhorst::get_flow()
     {
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
-      setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->maxCapacity;
+      setpoint = ((float)(iSetpoint+Bronkhorst_signed_Int_Min)/Bronkhorst_100Percent)*this->maxCapacity;
       std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
