@@ -528,7 +528,7 @@ bool RFG::readoutChannels()
     std::cout << "###>>> Regex exception fired!" << std::endl;
   }
   s = res1[1];
-  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[0] << ") (" << res1[1] << ") << std::endl;
+  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[0] << ") (" << res1[1] << ")" << std::endl;
   if (s.size() < 24)
     return false;
   std::vector<int> results;
