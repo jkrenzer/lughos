@@ -142,16 +142,18 @@ std::string bronkhorst::set_flow(float value)
   
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
   int iSetpoint = (value/this->maxCapacity)*Bronkhorst_100Percent;
-  bronkhorstMessage m1;
+  bronkhorstMessage m1, a1;
   std::string s;
   m1.setNode(3);
-    m1.setType(2);
+    m1.setType(1);
     m1.setProcess(1);
     m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
     m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
     m1.setValueString(iSetpoint);
     s = this->inputOutput(m1);
+    a1(s);
     std::cout << "I told the bronkhorst to set flow to " << iSetpoint << " (" << m1.toString() << ")" << std::endl;
+    std::cout << "He replied: " << a1.toString() << " = " << s << std::endl;
   return s;
   
 }
