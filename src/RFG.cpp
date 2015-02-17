@@ -520,7 +520,7 @@ bool RFG::readoutChannels()
   boost::cmatch res1;
   try
   {
-    boost::regex exp1("L([.\n\x00]{5})([.\n\x00]{24})\r",boost::regex_constants::normal);
+    boost::regex exp1("L([.\n\0]{5})([.\n\0]{24})\r",!boost::regex_constants::match_not_dot_null|!boost::regex_constants::match_not_dot_newline);
     boost::regex_search(s.c_str(), res1, exp1);
   }
   catch(...)
