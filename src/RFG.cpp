@@ -571,6 +571,7 @@ bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string con
     else
       value.setvalue(transformation.xToY(valueTemp));
     std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getStringValue() << unit <<  std::endl;
+    s = this->inputOutput(std::string("\x00")+controlChar+intToBinaryStr(valueTemp)+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w")));
     value.setunit(unit);
   }
 }
