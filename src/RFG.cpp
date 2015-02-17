@@ -520,15 +520,15 @@ bool RFG::readoutChannels()
   boost::match_results<std::string::iterator> res1;
   try
   {
-    boost::regex exp1("L([.\\0\\r\\s\\S]*)\r");
+    boost::regex exp1("L([.\\s\\S]{5})([.\\s\\S]{24})\r");
     boost::regex_search(s.begin(), s.end(), res1, exp1);
   }
   catch(...)
   {
     std::cout << "###>>> Regex exception fired!" << std::endl;
   }
-  s = res1[1];
-  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[0] << ") (" << res1[1] << ")" << std::endl;
+  s = res1[2];
+  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[1] << ") (" << res1[2] << ")" << std::endl;
   if (s.size() < 24)
     return false;
   std::vector<int> results;
