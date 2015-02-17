@@ -139,8 +139,9 @@ measuredValue bronkhorst::get_flow()
 
 std::string bronkhorst::set_flow(float value)
 {
-  
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
+  else if (value > this->maxCapacity) value = this->maxCapacity;
+  else if (value < 0) value = 0;
   int iSetpoint = (value/this->maxCapacity)*Bronkhorst_100Percent;
   bronkhorstMessage m1, a1;
   std::string s;
