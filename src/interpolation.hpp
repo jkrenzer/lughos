@@ -75,7 +75,8 @@ namespace lughos
       this->yMin = y[0];
       this->xMax = x[count-1];
       this->yMax = y[count-1];
-      
+      std::cout << "xMin: " << this->xMin << " yMin:" << this->yMin << std::endl;
+      std::cout << "xMax: " << this->xMax << " yMax:" << this->yMax << std::endl;
       try 
       {
 	this->xToYSplineAcc = gsl_interp_accel_alloc ();
@@ -98,9 +99,9 @@ namespace lughos
       if (isInitialized && x <= this->xMax && x >= this->xMin)
 	return gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
       else if (x > this->xMax)
-	return this->xMax;
+	return this->yMax;
       else if (x < this->xMin)
-	return this->xMin;
+	return this->yMin;
       else
 	return NAN;
     }
@@ -110,9 +111,9 @@ namespace lughos
       if (isInitialized && y <= this->yMax && y >= this->yMin)
 	return gsl_spline_eval (yToXSpline, y, yToXSplineAcc);
       else if (y > this->yMax)
-	return this->yMax;
+	return this->xMax;
       else if (y < this->yMin)
-	return this->yMin;
+	return this->xMin;
       else
 	return NAN;
     }
