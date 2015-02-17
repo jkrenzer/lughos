@@ -517,11 +517,11 @@ bool RFG::readoutChannels()
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout << std::dec << "###>>> Answer Size: "<< s.size() <<std::endl;
-  boost::cmatch res1;
+  boost::match_results<std::string::iterator> res1;
   try
   {
     boost::regex exp1("L([.\\0\\r]*)\r");
-    boost::regex_search(s.c_str(), res1, exp1);
+    boost::regex_search(s.begin(), s.end(), res1, exp1);
   }
   catch(...)
   {
