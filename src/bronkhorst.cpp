@@ -67,12 +67,12 @@ measuredValue bronkhorst::get_setpoint()
  
   std::cout << "I asked: " << m1.toString() << std::endl;
   std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
-  double setpoint;
+  double setpoint = 0.0;
   try
   {
     if(!a1.isStatusMessage())
     {
-      int iSetpoint;
+      int iSetpoint = 0;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->maxCapacity;
       std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
@@ -108,7 +108,7 @@ measuredValue bronkhorst::get_flow()
  
   std::cout << "I asked: " << m1.toString() << std::endl;
   std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
-  double setpoint;
+  double setpoint = 0.0;
   try
   {
     if(!a1.isStatusMessage())
