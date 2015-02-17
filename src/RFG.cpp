@@ -513,7 +513,7 @@ bool RFG::readoutChannels()
   int value=0;
   std::stringstream stream;
 //   std::cout<<"S: "<<s<<std::endl;
-  std::string s = this->inputOutput("\x00\x20\x00");
+  std::string s = this->inputOutput("\x00\x20");
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout<<"S: "<<s<<std::endl;
@@ -521,7 +521,7 @@ bool RFG::readoutChannels()
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
   s = res1[2];
-  std::cout << "Got answer with " << s.size() << " characters." << std::endl;
+  std::cout << "###>>> Got answer with " << s.size() << " characters." << std::endl;
   if (s.size() < 24)
     return false;
   std::vector<int> results;
@@ -610,7 +610,7 @@ bool RFG::readout(bool raw)
 
 measuredValue RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(3))
+ if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(5))
   {
     return channel_output[i];
   }
