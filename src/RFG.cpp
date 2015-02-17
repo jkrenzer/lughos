@@ -603,10 +603,10 @@ bool RFG::readout(bool raw)
       break;
   }
     result = this->readoutChannels() && result;
-    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
-    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
-    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
-    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
+//     result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
+//     result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
+//     result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
+//     result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
   }
   catch(...)
   {
