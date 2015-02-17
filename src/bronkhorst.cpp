@@ -27,7 +27,7 @@ bronkhorstConnection::bronkhorstConnection(boost::shared_ptr<boost::asio::io_ser
     this->baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     this->flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     this->character_size=boost::asio::serial_port_base::character_size(8);
-    this->endOfLineRegExpr_= boost::regex("\r");
+    this->endOfLineRegExpr_= boost::regex("\r\n");
     this->parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
 
@@ -38,7 +38,7 @@ std::string bronkhorst::composeRequest(std::string query)
 {
     std::string requestString="";
     requestString+=query;
-      requestString+=std::string("\r");
+      requestString+=std::string("\r\n");
 
     return requestString;
   
@@ -161,9 +161,11 @@ std::string bronkhorst::set_flow(float value)
 
 void bronkhorst::initImplementation()
 {
+  this->inputOutput(":050301000A49");
+  this->inputOutput(":050301000502");
   this->inputOutput(":050301000A52");
-  this->inputOutput("050302010412");
-  this->inputOutput(":070304006000600F");
+//   this->inputOutput("050302010412");
+//   this->inputOutput(":070304006000600F");
   this->maxCapacity = 0.0;
   bronkhorstMessage m1,a1;
   m1.setNode(3);
