@@ -162,6 +162,7 @@ std::string bronkhorst::set_flow(float value)
 void bronkhorst::initImplementation()
 {
   this->inputOutput(":050301000A49");
+  boost::this_thread::sleep(boost::posix_time::seconds(2));
   this->inputOutput(":050301000502");
   this->inputOutput(":050301000A52");
 //   this->inputOutput("050302010412");
