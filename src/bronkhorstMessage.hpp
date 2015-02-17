@@ -302,7 +302,7 @@ namespace lughos
       std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res2[2] << " - " << res1[1] << std::endl;
       if(res2.size() < 5)
       {
-	std::cout << "Bronkhorst message corrupt or of unknown type!"
+	std::cout << "Bronkhorst message corrupt or of unknown type!" << std::endl;
 	return;
       }
       this->message = message;
