@@ -543,6 +543,7 @@ bool RFG::readoutChannels()
     tmp += s[ii];
     tmp += '\x00';
     results.push_back(0);
+    results[i] = 0;
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
   }
