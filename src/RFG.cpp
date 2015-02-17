@@ -519,7 +519,14 @@ bool RFG::readoutChannels()
   std::cout << std::dec << "###>>> Answer Size: "<< s.size() <<std::endl;
   boost::regex exp1("L([.\n\x00]{5})([.\n\x00]{24})\r");
   boost::cmatch res1;
-  boost::regex_search(s.c_str(), res1, exp1);
+  try
+  {
+    boost::regex_search(s.c_str(), res1, exp1);
+  }
+  catch(...)
+  {
+    std::cout << "###>>> Regex exception fired!" << std::endl;
+  }
   s = res1[2];
   std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[0] << ") (" << res1[1] << ") (" << res1[2] << ")" << std::endl;
   if (s.size() < 24)
