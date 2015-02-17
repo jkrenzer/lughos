@@ -7,7 +7,9 @@
 #include "bronkhorst.hpp"
 
 #define Bronkhorst_100Percent 32000
-#define Bronkhorst_signed_Int_Min -23593
+#define Bronkhorst_signed_Int16_Min -23593
+#define Bronkhorst_signed_Int16_Max 41942
+#define Bronkhorst_unsigned_Int16_Max 65535
 
 bronkhorst::bronkhorst()
 {
@@ -111,9 +113,11 @@ measuredValue bronkhorst::get_flow()
   {
     if(!a1.isStatusMessage())
     {
-      int iSetpoint;
+      int32_t iSetpoint = 0;
+      double setpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
-      setpoint = ((float)(iSetpoint+Bronkhorst_signed_Int_Min)/Bronkhorst_100Percent)*this->maxCapacity;
+      iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
+      setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->maxCapacity;
       std::cout << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
