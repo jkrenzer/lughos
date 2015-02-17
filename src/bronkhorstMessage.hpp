@@ -266,8 +266,9 @@ namespace lughos
     std::string toString() const
     {
       std::stringstream ss("");
-      switch (type) 
+      switch (this->type) 
       {
+	case 0: ss << std::hex << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->statusCode << std::setw(2) << this->statusSubjectFirstByte ; break;
 	case 1:
 	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue; break;
 	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->getProcessByte(true) << std::setw(2) << this->getParameterByte(true);
