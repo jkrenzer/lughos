@@ -516,12 +516,12 @@ bool RFG::readoutChannels()
   std::string s = this->inputOutput("\x20");
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
-  std::cout << "###>>> Answer Size: "<< s.size() <<std::endl;
+  std::cout << std::dec() << "###>>> Answer Size: "<< s.size() <<std::endl;
   boost::regex exp1("L(.{5})(.{24})\x0d");
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
   s = res1[2];
-  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups." << std::endl;
+  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups. (" << res1[0] << ") (" << res1[1] << ") (" << res1[2] << ")" << std::endl;
   if (s.size() < 24)
     return false;
   std::vector<int> results;
