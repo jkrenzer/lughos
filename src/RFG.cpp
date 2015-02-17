@@ -517,7 +517,7 @@ bool RFG::readoutChannels()
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout << std::dec << "###>>> Answer Size: "<< s.size() <<std::endl;
-  boost::regex exp1("L(.\{5\})(.\{24\})");
+  boost::regex exp1("L([.\n\x00]{5})([.\n\x00]{24})\r");
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
   s = res1[2];
