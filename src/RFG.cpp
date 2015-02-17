@@ -537,7 +537,11 @@ bool RFG::readoutChannels()
   for(int i =0;i<8;i++)
   {
     ii = i*3;
-    tmp =  s[ii+2] + s[ii+1] + s[ii] + '\x00';
+    tmp.clear();
+    tmp =  s[ii+2]; 
+    tmp += s[ii+1];
+    tmp += s[ii];
+    tmp += '\x00';
     results.push_back(0);
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
@@ -603,10 +607,10 @@ bool RFG::readout(bool raw)
       break;
   }
     result = this->readoutChannels() && result;
-//     result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
-//     result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
-//     result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
-//     result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
+    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
+    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
+    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
+    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
   }
   catch(...)
   {
