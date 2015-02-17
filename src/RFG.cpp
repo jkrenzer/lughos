@@ -538,7 +538,7 @@ bool RFG::readoutChannels()
   {
     ii = i*3;
     tmp.clear();
-    tmp = '\x00';
+    tmp += '\x00';
     tmp +=  s[ii]; 
     tmp += s[ii+1];
     tmp += s[ii+2];
