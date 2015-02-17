@@ -300,6 +300,11 @@ namespace lughos
 	res2.push_back(*matchIt);
       }
       std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res2[2] << " - " << res1[1] << std::endl;
+      if(res2.size() < 5)
+      {
+	std::cout << "Bronkhorst message corrupt or of unknown type!"
+	return;
+      }
       this->message = message;
       std::stringstream(res2[1]) >> std::hex >> this->node;
       std::stringstream(res2[2]) >> std::hex >> this->type;
