@@ -514,21 +514,35 @@ bool RFG::readoutChannels()
   std::stringstream stream;
 //   std::cout<<"S: "<<s<<std::endl;
   std::string s = this->inputOutput("\x00\x20\x00");
+  boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout<<"S: "<<s<<std::endl;
-  boost::regex exp1("....(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)(\\d\\d\\d)");
+  boost::regex exp1("L(.{5})(.{24})\x0d");
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
+  s = res1[2];
+  std::cout << "Got answer with " << s.size() << " characters." << std::endl;
+  if (s.size() < 24)
+    return false;
+  std::vector<int> results;
+  std::string tmp("");
+  int ii = 0;
   for(int i =0;i<8;i++)
   {
-    stream <<res1[i+1];
-    stream >> value;
-    channel_output[i].setvalue(value);
-    if (this->controllerMode==ControllerMode::Voltage)channel_output[i].setunit("V");
-    if (this->controllerMode==ControllerMode::Current)channel_output[i].setunit("I");
-    if (this->controllerMode==ControllerMode::Power)channel_output[i].setunit("Watt");
-    channel_output[i].settimestamp(boost::posix_time::second_clock::local_time());
+    ii = i*3;
+    tmp = s[ii] + s[ii+1] + s[ii+2];
+    results[i] = 0;
+    memcpy(&results[i],tmp.c_str(),tmp.size());
+    channel_output[i].settimestamp(now);
   }
+  channel_output[0].setunitvalue(unitsToVoltageReg.xToY(results[0]),"V");
+  channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
+  channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
+  channel_output[3].setunitvalue(results[3],"ReglerOut");
+  channel_output[4].setunitvalue(results[4],"ReglerFb");
+  channel_output[5].setunitvalue(results[5],"Aux1");
+  channel_output[6].setunitvalue(results[6],"Aux2");
+  channel_output[7].setunitvalue(results[7],"°C");
   
   return true;
 }

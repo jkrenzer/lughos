@@ -160,11 +160,11 @@ std::string bronkhorst::set_flow(float value)
 
 void bronkhorst::initImplementation()
 {
-  std::cout << "INIT 1: " << this->inputOutput(":050301000A49") << std::endl;
+  std::cout << "INIT 1: " << this->inputOutput(":050301000A49") << std::endl; //Initialize device and wait 2 secs to settle
   boost::this_thread::sleep(boost::posix_time::seconds(2));
-  std::cout << "INIT 2: " << this->inputOutput(":050301000502") << std::endl;
-  std::cout << "INIT 3: " << this->inputOutput(":050301000A52") << std::endl;
-  std::cout << "INIT 4: " << this->inputOutput(":050302010412") << std::endl;
+  std::cout << "INIT 2: " << this->inputOutput(":050301000502") << std::endl; //Bus auto-control
+  std::cout << "INIT 3: " << this->inputOutput(":050301000A52") << std::endl; //Reset processes
+  std::cout << "INIT 4: " << this->inputOutput(":050302010412") << std::endl; //Set to RS232 Control
 //   this->inputOutput(":070304006000600F");
   this->maxCapacity = 0.0;
   bronkhorstMessage m1,a1;
