@@ -114,7 +114,7 @@ measuredValue bronkhorst::get_flow()
       int iSetpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       setpoint = ((float)(iSetpoint+Bronkhorst_signed_Int_Min)/Bronkhorst_100Percent)*this->maxCapacity;
-      std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
+      std::cout << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;

@@ -147,7 +147,7 @@ namespace lughos
 	bs[7] = true;
       else
 	bs[7] = false;
-      std::cout << bs.to_ulong() + this->parameterType << " = " << bs.to_ulong() << " + " << this->parameterType << std::endl;
+      std::cout << "Calculated PARAMETERBYTE: " << bs.to_ulong() + this->parameterType << " = " << bs.to_ulong() << " + " << this->parameterType << " = " << std::hex << bs.to_ulong() + this->parameterType << std::endl;
       return bs.to_ulong() + this->parameterType;
     }
     
@@ -160,7 +160,7 @@ namespace lughos
       std::bitset<8> pbs = bs.to_ulong() & 31;
       this->parameterType = tbs.to_ulong();
       this->parameter = pbs.to_ulong();
-      std::cout << "PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
+      std::cout << "Set PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
     }
     
     unsigned int getProcessByte(bool ommitChained = false) const
