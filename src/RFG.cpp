@@ -520,7 +520,7 @@ bool RFG::readoutChannels()
   boost::cmatch res1;
   try
   {
-    boost::regex exp1("L([^]*)\r",boost::regex_constants::mod_s);
+    boost::regex exp1("L([.\\0\\r]*)\r");
     boost::regex_search(s.c_str(), res1, exp1);
   }
   catch(...)
