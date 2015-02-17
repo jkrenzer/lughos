@@ -114,7 +114,6 @@ measuredValue bronkhorst::get_flow()
     if(!a1.isStatusMessage())
     {
       int32_t iSetpoint = 0;
-      double setpoint;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
       setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->maxCapacity;
