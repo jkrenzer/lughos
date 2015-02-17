@@ -538,10 +538,10 @@ bool RFG::readoutChannels()
   {
     ii = i*3;
     tmp.clear();
-    tmp += '\x00';
-    tmp +=  s[ii]; 
+    tmp += s[ii+2]; 
     tmp += s[ii+1];
-    tmp += s[ii+2];
+    tmp += s[ii];
+    tmp += '\x00';
     results.push_back(0);
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
