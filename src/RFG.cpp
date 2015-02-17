@@ -521,7 +521,7 @@ bool RFG::readoutChannels()
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
   s = res1[2];
-  std::cout << "###>>> Got answer with " << s.size() << " characters." << std::endl;
+  std::cout << "###>>> Got answer with " << s.size() << " characters and " << res1.size() << " matching-groups." << std::endl;
   if (s.size() < 24)
     return false;
   std::vector<int> results;
