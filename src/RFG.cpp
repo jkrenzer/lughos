@@ -516,7 +516,7 @@ bool RFG::readoutChannels()
   std::string s = this->inputOutput("\x20");
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
-  std::cout<<"S: "<<s<<std::endl;
+  std::cout<<"S: "<<s << " Size: "<< s.size() <<std::endl;
   boost::regex exp1("L(.{5})(.{24})\x0d");
   boost::cmatch res1;
   boost::regex_search(s.c_str(), res1, exp1);
