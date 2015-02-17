@@ -537,7 +537,7 @@ bool RFG::readoutChannels()
   for(int i =0;i<8;i++)
   {
     ii = i*3;
-    tmp =  '\x00' + s[ii+2] + s[ii+1] + s[ii];
+    tmp =  s[ii+2] + s[ii+1] + s[ii] + '\x00';
     results.push_back(0);
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
