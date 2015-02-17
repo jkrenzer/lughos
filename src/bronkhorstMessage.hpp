@@ -34,10 +34,17 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
-      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
-      message.clear();
-      hexValue.clear();
-      charValue.clear();
+      this->type = 0;
+      this->node = 0;
+      this->parameterType = 0;
+      this->process = 0;
+      this->parameter = 0;
+      this->expectedStringLength = 0;
+      this->statusCode = 0;
+      this->statusSubjectFirstByte = 0;
+      this->message.clear();
+      this->hexValue.clear();
+      this->charValue.clear();
     }
     
     bronkhorstMessage(std::string s)
@@ -45,10 +52,17 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
-      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
-      message.clear();
-      hexValue.clear();
-      charValue.clear();
+      this->type = 0;
+      this->node = 0;
+      this->parameterType = 0;
+      this->process = 0;
+      this->parameter = 0;
+      this->expectedStringLength = 0;
+      this->statusCode = 0;
+      this->statusSubjectFirstByte = 0;
+      this->message.clear();
+      this->hexValue.clear();
+      this->charValue.clear();
       this->fromString(s);
     }
     
