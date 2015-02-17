@@ -38,7 +38,7 @@ std::string bronkhorst::composeRequest(std::string query)
 {
     std::string requestString="";
     requestString+=query;
-      requestString+=std::string("\r\n");
+      requestString+=std::string("\r");
 
     return requestString;
   
@@ -158,9 +158,9 @@ std::string bronkhorst::set_flow(float value)
 
 void bronkhorst::initImplementation()
 {
-  this->inputOutput(":050301000A52\r\n");
-  this->inputOutput("050302010412\r\n");
-  this->inputOutput(":070304006000600F\r\n");
+  this->inputOutput(":050301000A52");
+  this->inputOutput("050302010412");
+  this->inputOutput(":070304006000600F");
   this->maxCapacity = 0.0;
   bronkhorstMessage m1,a1;
   m1.setNode(3);
