@@ -513,7 +513,7 @@ bool RFG::readoutChannels()
   int value=0;
   std::stringstream stream;
 //   std::cout<<"S: "<<s<<std::endl;
-  std::string s = this->inputOutput("\x00\x20");
+  std::string s = this->inputOutput("\x20");
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout<<"S: "<<s<<std::endl;
