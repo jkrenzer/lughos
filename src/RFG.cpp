@@ -520,7 +520,7 @@ bool RFG::readoutChannels()
   boost::match_results<std::string::iterator> res1;
   try
   {
-    boost::regex exp1("L([.\\0\\r]*)\r");
+    boost::regex exp1("L([.\\0\\r\\s\\S]*)\r");
     boost::regex_search(s.begin(), s.end(), res1, exp1);
   }
   catch(...)
