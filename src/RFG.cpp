@@ -561,6 +561,12 @@ bool RFG::readoutChannels()
   channel_output[5].setunitvalue(results[5],"Aux1");
   channel_output[6].setunitvalue(results[6],"Aux2");
   channel_output[7].setunitvalue(results[7],"°C");
+  std::cout << "RFG Channel Measurements:" << std::endl;
+  for (int i = 0; i < 8; i++)
+  {
+    std::cout << "Channel " << i << ": " << channel_output[i].getStringValue() << " (" << results[i] << ") " << std::endl;
+  }
+  std::cout << "-------------------------" << std::endl << std::endl;
   
   return true;
 }
@@ -629,7 +635,7 @@ bool RFG::readout(bool raw)
 
 measuredValue RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(5))
+ if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output[i];
   }
