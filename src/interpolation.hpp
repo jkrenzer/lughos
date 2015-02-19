@@ -83,7 +83,7 @@ namespace lughos
 	    }
 	  }
 	  else
-	    std::cout << "Line ignored.."
+	    std::cout << "Line ignored..";
 	}
       }
       catch(...)
