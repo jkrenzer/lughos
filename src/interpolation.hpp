@@ -70,7 +70,7 @@ namespace lughos
 	while(std::getline(infile, line))
 	{
 	  boost::regex_search(line.begin(),line.end(),result,regEx);
-	  if(result.size() < 3)
+	  if(result.size() > 2)
 	  {
 	    try
 	    {
@@ -82,6 +82,8 @@ namespace lughos
 	      std::cout << "Line ignored." << std::endl;
 	    }
 	  }
+	  else
+	    std::cout << "Line ignored.."
 	}
       }
       catch(...)
