@@ -60,6 +60,8 @@ namespace lughos
     bool fromFile(std::string filePath)
     {
       XToYMap& x2y = this->valueMap.left;
+      int validPairsRead = 0;
+
       try 
       {
 	std::ifstream infile(filePath);
@@ -67,6 +69,7 @@ namespace lughos
 	boost::match_results<std::string::iterator> result;
 	std::string line;
 	std::stringstream ss;
+	std::cout << "Reading from file " << filePath << std::endl;
 	while(std::getline(infile, line))
 	{
 	  boost::regex_search(line.begin(),line.end(),result,regEx);
@@ -74,9 +77,10 @@ namespace lughos
 	  {
 	    try
 	    {
-	      std::cout << "Got results: " << result[0] << " - " << result[1] << " - " << result[3] << std::endl;
+// 	      std::cout << "Got results: " << result[0] << " - " << result[1] << " - " << result[3] << std::endl;
 	      x2y.insert(XYPair(boost::lexical_cast<double>(result[1]),boost::lexical_cast<double>(result[3])));
-	      std::cout << "Read line with values: " << boost::lexical_cast<double>(result[1]) << ", " << boost::lexical_cast<double>(result[3]) << std::endl;
+// 	      std::cout << "Read line with values: " << boost::lexical_cast<double>(result[1]) << ", " << boost::lexical_cast<double>(result[3]) << std::endl;
+	      validPairsRead++;
 	    }
 	    catch(...)
 	    {
@@ -91,6 +95,7 @@ namespace lughos
       {
 	return false;
       }
+      std::cout << "Read " << validPairsRead << " value-pairs from file " << filePath << std::endl;
       return init();
     }
     

@@ -373,6 +373,7 @@ using namespace lughos;
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
       this->targetField->setValue(this->rfg->getTargetValue());
+      this->uOutField->setValue(this->rfg->get_channel(0).getStringValue());
     }
     
 //     void start()
