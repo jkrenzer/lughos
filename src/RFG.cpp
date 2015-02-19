@@ -550,10 +550,10 @@ bool RFG::readoutChannels()
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
   }
-//   channel_output[0].setunitvalue(unitsToVoltageReg.xToY(results[0]),"V");
+  channel_output[0].setunitvalue(unitsToVoltageMeas.xToY(results[0]),"V");
 //   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
 //   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
-  channel_output[0].setunitvalue(results[0],"Voltage");
+//   channel_output[0].setunitvalue(results[0],"Voltage");
   channel_output[1].setunitvalue(results[1],"Current");
   channel_output[2].setunitvalue(results[2],"Power");
   channel_output[3].setunitvalue(results[3],"ReglerOut");
