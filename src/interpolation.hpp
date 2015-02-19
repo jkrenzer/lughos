@@ -63,14 +63,14 @@ namespace lughos
       try 
       {
 	std::ifstream infile(filePath);
-	boost::regex regEx("^\\w*(\\d*\\.\\d*)[\\w,]+(\\d*\\.\\d*)\\w*$");
+	boost::regex regEx("^(\\d*\\.?\\d*([eE][+-]\\d\\d)?)[\\D,]+(\\d*\\.?\\d*([eE][+-]\\d\\d)?)$");
 	boost::match_results<std::string::iterator> result;
 	std::string line;
 	std::stringstream ss;
 	while(std::getline(infile, line))
 	{
 	  boost::regex_search(line.begin(),line.end(),result,regEx);
-	  if(result.size() == 3)
+	  if(result.size() < 3)
 	  {
 	    try
 	    {
