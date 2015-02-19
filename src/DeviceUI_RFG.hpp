@@ -237,6 +237,7 @@ using namespace lughos;
       this->addWidget(sendOnB);
       this->addWidget(sendOffB);
       this->addWidget(stateB);
+      this->addWidget(rawMode);
 //       this->sendIB->setDisabled(true);
 //       this->iField->setDisabled(true);
 //       this->sendUB->setDisabled(true);
