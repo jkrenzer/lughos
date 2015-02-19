@@ -2,7 +2,11 @@
 #define INTERPOLATION_HPP
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <boost/bimap/bimap.hpp>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 #include <math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
@@ -51,6 +55,45 @@ namespace lughos
 	gsl_spline_free (this->yToXSpline);
         gsl_interp_accel_free (this->yToXSplineAcc);
       }
+    }
+    
+    bool fromFile(std::string filePath)
+    {
+      XToYMap& x2y = this->valueMap.left;
+      try 
+      {
+	std::ifstream infile(filePath);
+	boost::regex regEx("^\\w*(\\d*\\.\\d*)[\\w,]+(\\d*\\.\\d*)\\w*$");
+	boost::match_results<std::string::iterator> result;
+	std::string line;
+	std::stringstream ss;
+	while(std::getline(infile, line))
+	{
+	  boost::regex_search(line.begin(),line.end(),result,regEx);
+	  if(result.size() == 3)
+	  {
+	    try
+	    {
+	      x2y.insert(XYPair(boost::lexical_cast<double>(result[1]),boost::lexical_cast<double>(result[2])));
+	      std::cout << "Read line with values: " << boost::lexical_cast<double>(result[1]) << ", " << boost::lexical_cast<double>(result[2]) << std::endl;
+	    }
+	    catch(...)
+	    {
+	      std::cout << "Line ignored." << std::endl;
+	    }
+	  }
+	}
+      }
+      catch(...)
+      {
+	return false;
+      }
+      return init();
+    }
+    
+    void toFile(std::string filePath)
+    {
+      //TODO
     }
     
     bool init()

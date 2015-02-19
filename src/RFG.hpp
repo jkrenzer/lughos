@@ -85,6 +85,7 @@ protected:
 	SplineTransformation unitsToVoltageLimMin;
  	SplineTransformation unitsToCurrentLim;
  	SplineTransformation unitsToPowerLim;
+	SplineTransformation unitsToVoltageMeas;
 	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = false);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);

@@ -235,6 +235,9 @@ RFG::RFG()
   x2y5.insert(SplineTransformation::XYPair(0, 0));
   x2y5.insert(SplineTransformation::XYPair(3100, 190));
   unitsToPowerReg.init();
+  
+  unitsToVoltageMeas.fromFile("RFG_u2v_measure.csv");
+  
 }
 
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
