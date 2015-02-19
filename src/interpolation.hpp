@@ -74,6 +74,7 @@ namespace lughos
 	  {
 	    try
 	    {
+	      std::cout << "Got results: " << result[0] << " - " << result[1] << " - " << result[2] << std::endl;
 	      x2y.insert(XYPair(boost::lexical_cast<double>(result[1]),boost::lexical_cast<double>(result[2])));
 	      std::cout << "Read line with values: " << boost::lexical_cast<double>(result[1]) << ", " << boost::lexical_cast<double>(result[2]) << std::endl;
 	    }
