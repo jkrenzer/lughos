@@ -41,6 +41,7 @@ class tcpAsync : virtual public Connection<tcpContext>
 	void handle_write_request(boost::regex& regExpr, const boost::system::error_code& err);
 // 	void handle_read_status_line(const boost::system::error_code& err);
 // 	void handle_read_headers(const boost::system::error_code& err);
+	void handle_read_rest(const boost::system::error_code& err);
 	void handle_read_content(boost::regex& regExpr,const boost::system::error_code& err);
 	bool connect();
 	bool disconnect();

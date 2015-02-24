@@ -12,6 +12,8 @@ using namespace std;
 int main(int argc, char **argv)
 {
   boost::shared_ptr<boost::asio::io_service> ioService(new boost::asio::io_service);
+  boost::asio::io_service::work work(*ioService);
+  boost::thread thread(boost::bind(&boost::asio::io_service::run, ioService));
   using boost::property_tree::ptree;
   ptree config;
   try
@@ -53,10 +55,10 @@ int main(int argc, char **argv)
   rfg->power_supply_mode();
   rfg->use_current_controler();
   rfg->set_target_value_raw(0);
-  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?") << std::endl;
+  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
   rfg->switch_on();
-  std::cout << "RFG ON: " << keithley->inputOutput("MEASure:CURRent:DC?") << std::endl;
+  std::cout << "RFG ON: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
   rfg->switch_off();
   return 0;
 }

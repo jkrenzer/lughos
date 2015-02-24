@@ -85,7 +85,7 @@ public:
 	{
 	  {
 	    boost::lock_guard<boost::mutex> lock(waitForCompletionMutex);
-	    this->queryDone=true;
+	    this->queryDone=currentQuery.empty();
 	  }
 	  this->queryDoneCondition.notify_one();
 	}
@@ -112,6 +112,7 @@ protected:
   virtual void stop()=0;
 	boost::mutex waitForCompletionMutex;
 	boost::condition_variable queryDoneCondition;
+	std::string currentQuery;
 	bool queryDone;
 // 	virtual int write(const std::string &buf)=0;
 // 	virtual int write_async(const std::string &buf)=0;

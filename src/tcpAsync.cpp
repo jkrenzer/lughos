@@ -27,11 +27,14 @@ bool tcpAsync::connect()
 {
   if (!this->connected)
   {
+    this->socket.reset(new tcp::socket);
     this->connectionTimer.expires_from_now(boost::posix_time::seconds(5));
     resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
     lughos::debugLog(std::string("Trying to connect to ") + server_name);
   }
+  else
+      return true;
 }
 
 bool tcpAsync::disconnect()
@@ -40,7 +43,7 @@ bool tcpAsync::disconnect()
 
 int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
-  this->queryDone = false;
+  this->currentQuery = query;
   if(regExpr.empty())
 	  regExpr = endOfLineRegExpr_;
   if(!this->connected)
@@ -133,7 +136,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
-else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
+else
   {
     lughos::debugLog(std::string("Unable to write to server ")+server_name+std::string(". Got error: ")+err.message());
     this->connected = false;
@@ -160,44 +163,48 @@ else if (err != boost::asio::error::eof || err != boost::asio::error::connection
 //     }
 //   }
 // 
-//  void tcpAsync::handle_read_headers(const boost::system::error_code& err)
-//   {
-// 
-//     if (!err)
-//     {
-//       Connection< tcpContext >::handle_read_headers_process();
-// 
-//       // Start reading remaining data until EOF.
-//       boost::asio::async_read(*socket, response,
-//           boost::asio::transfer_at_least(1),
-//           boost::bind(&tcpAsync::handle_read_content, this,
-//             boost::asio::placeholders::error));
-// 
-//       
-//     }
-//     else
-//     {
-//       std::cout << "Error: " << err << "\n";
-//     }
-//   }
+
+ void tcpAsync::handle_read_rest(const boost::system::error_code& err)
+  {
+
+    if (!err)
+    {
+      // Start reading remaining data until EOF.
+      boost::asio::async_read(*socket, response,
+          boost::asio::transfer_at_least(1),
+          boost::bind(&tcpAsync::handle_read_rest, this,
+            boost::asio::placeholders::error));
+
+      
+    }
+    else if (err == boost::asio::error::eof)
+    {
+        this->notifyWaitingClient(); 
+        return;
+    }
+    else
+    {
+      std::cout << "Error: " << err << "\n";
+    }
+  }
 
 void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::error_code& err)
   {
 
     if (!err)
     {
+        this->handle_read_rest(err);
         response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
-	this->queryDone = true;
-      	this->notifyWaitingClient();
-      
+	this->currentQuery.clear();
     }
-    else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected)
+    else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
     {
       this->connected = false;
+      this->write(this->currentQuery,regExpr);
     }
-    else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
+    else
     {
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
       
