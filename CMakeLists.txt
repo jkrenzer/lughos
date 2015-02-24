@@ -200,9 +200,13 @@ add_library(serialConnections src/serialConnections.cpp)
 
 add_library(tcpConnections src/tcpConnections.cpp)
 
-add_library(kithleighSerial src/kithleighSerial.cpp)
-target_link_libraries(kithleighSerial serialAsync unitValue serialConnections errorHandling log)
-add_dependencies(kithleighSerial serialAsync unitValue serialConnections errorHandling log)
+add_library(keithley src/keithley.cpp)
+target_link_libraries(keithley tcpAsync measuredValue serialConnections errorHandling log)
+add_dependencies(keithley tcpAsync measuredValue )
+
+add_library(keithleySerial src/keithleySerial.cpp)
+target_link_libraries(keithleySerial serialAsync measuredValue serialConnections errorHandling log)
+add_dependencies(keithleySerial serialAsync measuredValue serialConnections errorHandling log)
 
 add_library(MaxiGauge src/MaxiGauge.cpp)
 target_link_libraries(MaxiGauge serialAsync measuredValue unitValue serialConnections errorHandling log)
@@ -272,9 +276,9 @@ add_executable(test_gui src/test_gui.cpp)#  src/coolpak6000.cpp src/serialConnec
 add_dependencies(test_gui coolpak6000 MaxiGauge)
 
 if(${Windows})
-target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32)
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono keithleySerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32)
 else()
-target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono kithleighSerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals)
+target_link_libraries(test_gui coolpak6000 MaxiGauge boost_chrono keithleySerial ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals)
 endif()
 
 ### Test for wt2
@@ -293,7 +297,9 @@ endif()
 add_executable(test_plots src/test_plots.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
 target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES} )
 
-
+### Calibrator for RFG
+add_executable(RFGCalibrator src/RFG_calibrator.cpp)
+target_link_libraries(RFGCalibrator RFG keithley boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ${Boost_LIBRARIES} pthread gsl gslcblas)
 
 ### Test for forms
 add_executable(test_forms src/test_forms.cpp)
@@ -305,7 +311,7 @@ target_link_libraries(test_forms ${EXT_LIB_DIR}/lib/libwt.so ${EXT_LIB_DIR}/lib/
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/RFG.cpp src/kithleighSerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp  src/unitValue.cpp)
+add_executable(test_serial src/test_serial.cpp src/serialConnections.cpp src/serialSync.cpp src/RFG.cpp src/keithleySerial.cpp src/serialAsync.cpp src/coolpak6000.cpp src/MaxiGauge.cpp src/Relais.cpp src/PSANetzteil.cpp  src/unitValue.cpp)
 target_link_libraries(test_serial ${Boost_LIBRARIES} libwsock32.a)
 endif()
 
@@ -323,12 +329,12 @@ target_link_libraries(test_acquisition ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_HTT
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp )
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/keithley.cpp src/tcpAsync.cpp )
 target_link_libraries(test_tcp ${Boost_LIBRARIES}  libwsock32.a)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/kithleigh.cpp src/tcpAsync.cpp src/FUGNetzteil.cpp)
+add_executable(test_tcp src/test_tcp.cpp src/tcpConnections.cpp src/httpDict.cpp src/Dict.cpp src/keithley.cpp src/tcpAsync.cpp src/FUGNetzteil.cpp)
 target_link_libraries(test_tcp ${Boost_LIBRARIES} unitValue measuredValue boost_chrono)
 endif()
 

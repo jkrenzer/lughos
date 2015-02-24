@@ -61,17 +61,20 @@ class RFG :public Device
 	int set_current_lim_raw(int i);
 	int set_target_value_raw(int i);
 	measuredValue get_channel(int i, bool force=false);
-
+	
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
 	float getTargetValue();
 	bool readout(bool raw = false);
+	double getInteralResistance();
+	void setInternalResistance(double resistance);
 	
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
 	bool bccMode;
+	double internalResistance;
 	ControllerMode controllerMode;
 	measuredValue channel_output[8];
 	measuredValue maxVoltage;

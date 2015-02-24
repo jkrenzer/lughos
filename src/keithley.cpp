@@ -2,10 +2,10 @@
 
 #include <ostream>
 #include "tcpAsync.hpp"
-#include "kithleigh.hpp"
+#include "keithley.hpp"
 
 
-kithleigh::kithleigh()
+Keithley::Keithley()
 {
   set_default();
 }
@@ -23,23 +23,23 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
   
 }
 
-template <class T> void kithleigh::setDefaultImpl(T& connection)
+template <class T> void Keithley::setDefaultImpl(T& connection)
 {
 }
 
-template <> void kithleigh::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
+template <> void Keithley::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
 {
   serverName= connection.server_name;  
 }
 
-kithleigh::~kithleigh(void)
+Keithley::~Keithley(void)
 {
 
 }
 
 
 
-std::string kithleigh::composeRequest(std::string query)
+std::string Keithley::composeRequest(std::string query)
 {
     std::string requestString="";
 //   std::string host_path=std::string("/scpi_response.html?cmd=");
@@ -61,11 +61,11 @@ std::string kithleigh::composeRequest(std::string query)
 }
 
 
-void kithleigh::set_default()
+void Keithley::set_default()
 {
 
 }
-std::string kithleigh::interpretAnswer(std::string s)
+std::string Keithley::interpretAnswer(std::string s)
 {     
 
 //  static const boost::regex e("<body>(.*)</body>");
@@ -77,16 +77,27 @@ std::string kithleigh::interpretAnswer(std::string s)
 
 }
 
-void kithleigh::initImplementation()
+void Keithley::initImplementation()
 {
 }
     
 
-void kithleigh::shutdownImplementation()
+void Keithley::shutdownImplementation()
 {
 }
 
-measuredValue kithleigh::getMeasure(bool force)
+bool Keithley::isConnectedImplementation()
+{
+  std::string s = this->inputOutput("*IDN?");
+  static const boost::regex e("KEITHLEY INSTRUMENTS INC.");
+
+  boost::cmatch res;
+  boost::regex_search(s.c_str(), res, e);
+  return res.size() > 0;
+}
+
+
+measuredValue Keithley::getMeasure(bool force)
 {
   if(!force &&!storedMeasure.gettimestamp().is_not_a_date_time()&& storedMeasure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {

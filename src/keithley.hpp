@@ -25,25 +25,32 @@
 using namespace lughos;
 using boost::asio::ip::tcp;
 
-class kithleigh : public Device
+class KeithleyConnection : public tcpAsync
+{
+public:
+    KeithleyConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+};
+
+class Keithley : public Device
 {
 
 
   
   private:
-	kithleigh(const kithleigh &p);
-	kithleigh &operator=(const kithleigh &p);
+	Keithley(const Keithley &p);
+	Keithley &operator=(const Keithley &p);
 	
 	template <class T> void setDefaultImpl(T& connection);
 	virtual void set_default();
 	void initImplementation();
 	void shutdownImplementation();
+	bool isConnectedImplementation();
 	measuredValue storedMeasure;
 	std::string serverName;
 	
   public:
-	kithleigh(void);
-	~kithleigh(void);
+	Keithley(void);
+	~Keithley(void);
 	measuredValue getMeasure(bool force=false);	
 
 protected:

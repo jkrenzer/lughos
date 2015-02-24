@@ -12,6 +12,9 @@ RFG::RFG()
     {
       channel_output[i].setunitvalue(0,"");
     }
+    
+  this->internalResistance = 0.186; //Ohms
+    
   SplineTransformation::XToYMap& x2y = unitsToVoltageReg.valueMap.left;
   //Callibration 2015-02-13;
   x2y.insert(SplineTransformation::XYPair(0, 0.154032));
@@ -550,7 +553,9 @@ bool RFG::readoutChannels()
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
   }
-  channel_output[0].setunitvalue(unitsToVoltageMeas.xToY(results[0]),"V");
+  double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
+  double rawCurrent = 1.65; //TODO Here we'll get the readout current in near futur to do a live thevenin-correction.
+  channel_output[0].setunitvalue(rawVoltage + ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
 //   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
 //   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
 //   channel_output[0].setunitvalue(results[0],"Voltage");
@@ -664,5 +669,15 @@ bool RFG::isConnectedImplementation()
 
 void RFG::shutdownImplementation()
 {
+}
+
+void RFG::setInternalResistance(double resistance)
+{
+  this->internalResistance = resistance >= 0 ? resistance : -resistance;
+}
+
+double RFG::getInteralResistance()
+{
+  return this->internalResistance;
 }
 
