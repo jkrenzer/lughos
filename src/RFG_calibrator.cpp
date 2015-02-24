@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  boost::shared_ptr<boost::asio::io_service> ioService;
+  boost::shared_ptr<boost::asio::io_service> ioService(new boost::asio::io_service);
   using boost::property_tree::ptree;
   ptree config;
   try
