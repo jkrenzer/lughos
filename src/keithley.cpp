@@ -4,6 +4,10 @@
 #include "tcpAsync.hpp"
 #include "keithley.hpp"
 
+KeithleyConnection::KeithleyConnection(boost::shared_ptr< boost::asio::io_service > io_service)  :  tcpAsync(io_service) , Connection<tcpContext>(io_service)
+{
+
+}
 
 Keithley::Keithley()
 {

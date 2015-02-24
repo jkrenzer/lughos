@@ -7,6 +7,7 @@
 #include "keithley.hpp"
 
 #define CONFIG_FILENAME "config.xml"
+using namespace std;
 
 int main(int argc, char **argv)
 {
