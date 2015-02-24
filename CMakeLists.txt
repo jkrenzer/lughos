@@ -233,7 +233,7 @@ target_link_libraries(FUGNetzteil tcpAsync unitValue serialConnections errorHand
 add_dependencies(FUGNetzteil tcpAsync unitValue tcpConnections errorHandling log)
 
 add_library(RFG src/RFG.cpp)
-target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling log)
+target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling log ${Wt_DBO_LIBRARY})
 add_dependencies(RFG serialAsync unitValue serialConnections errorHandling log)
 
 add_library(serialSync src/serialSync.cpp)

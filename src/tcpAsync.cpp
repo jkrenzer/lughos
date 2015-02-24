@@ -27,7 +27,7 @@ bool tcpAsync::connect()
 {
   if (!this->connected)
   {
-    this->socket.reset(new tcp::socket);
+    this->socket.reset(new tcp::socket(*io_service_));
     this->connectionTimer.expires_from_now(boost::posix_time::seconds(5));
     resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
