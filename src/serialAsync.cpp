@@ -17,7 +17,6 @@ serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) 
   if(this->endOfLineRegExpr_== boost::regex("\r"))  std::cout<<"End of line char: "<<"CR"<<std::endl;
   else if(this->endOfLineRegExpr_==boost::regex("\n")) std::cout<<"End of line char: "<<"NL"<<std::endl;
   else std::cout<<"End of line char:"<<this->endOfLineRegExpr_<<std::endl;
-     start(); 
 }
 
 serialAsync::~serialAsync(void)

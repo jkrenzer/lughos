@@ -28,8 +28,8 @@ int main(int argc, char **argv)
   connection2->port_name = config.get<std::string>("devices.keithley1.connection.port");
   connection2->server_name = config.get<std::string>("devices.keithley1.connection.server");
   
-  boost::shared_ptr<Device> rfg(new RFG);
-  boost::shared_ptr<Device> keithley(new Keithley);
+  boost::shared_ptr<RFG> rfg(new RFG);
+  boost::shared_ptr<Keithley> keithley(new Keithley);
   
   rfg->setName(config.get<std::string>("devices.rfg1.name"));
   keithley->setName(config.get<std::string>("devices.keithley1.name"));
@@ -46,5 +46,17 @@ int main(int argc, char **argv)
 
   std::cout << "Connected to devices."  << std::endl;
   
+  rfg->switch_off();
+  rfg->set_current_lim(3.0);
+  rfg->set_voltage_max(35);
+  rfg->set_voltage_min(0);
+  rfg->power_supply_mode();
+  rfg->use_current_controler();
+  rfg->set_target_value_raw(0);
+  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?") << std::endl;
+  boost::this_thread::sleep_for(boost::chrono::seconds(2));
+  rfg->switch_on();
+  std::cout << "RFG ON: " << keithley->inputOutput("MEASure:CURRent:DC?") << std::endl;
+  rfg->switch_off();
   return 0;
 }
