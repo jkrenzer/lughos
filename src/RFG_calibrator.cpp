@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 	rfg->set_target_value_raw(unitsDAC);
 	boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
-	unitsADC = rfg->get_channel_raw(1);
+	unitsADC = rfg->get_channel_raw(1,true);
 	std::cout << unitsDAC << " , " << unitsADC << " , " << current << std::endl;
 	mfileDAC << unitsDAC << " , " << current << std::endl;
 	mfileADC << unitsADC << " , " << current << std::endl;
