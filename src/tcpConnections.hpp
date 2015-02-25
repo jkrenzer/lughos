@@ -18,7 +18,7 @@
 #include "Dict.hpp"
 
 #include <boost/lexical_cast.hpp>
-
+#include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
 
@@ -66,7 +66,7 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	std::string read();
 	bool start();
 	void stop();
-	virtual bool connect() = 0;
+	virtual bool connect(boost::function<void(void)> callback = boost::function<void(void)>()) = 0;
 	virtual bool disconnect() = 0;
 	bool connected;
 
