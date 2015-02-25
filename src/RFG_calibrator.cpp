@@ -56,6 +56,7 @@ int main(int argc, char **argv)
   int measureChannel;
   std::string keithleyQuery;
   std::string typeDesignation;
+  double measureLimit;
   
   // Declare the supported options.
 boost::program_options::options_description desc("Allowed options");
@@ -63,7 +64,8 @@ desc.add_options()
     ("help", "produce help message")
     ("measurements,t", boost::program_options::value<int>(&measureTimes)->default_value(3), "set how many measurements to take for mean value")
     ("voltage,v" , "calibrate voltage, default")
-    ("current,c" , "calibrate current");
+    ("current,c" , "calibrate current")
+    ("limit,l",boost::program_options::value(&measureLimit)->default_value(0), "limit-value on keithley which will abort measurement" );
 
 boost::program_options::variables_map vm;
 boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -127,6 +129,7 @@ boost::program_options::notify(vm);
     keithleyQuery = string("MEASure:CURRent:DC?");
     typeDesignation = string("current");
     rfg->use_current_controler();
+    measureLimit = measureLimit > 0 && measureLimit <= 3 ? measureLimit : 3.0;
   }
   else
   {
@@ -134,6 +137,7 @@ boost::program_options::notify(vm);
     keithleyQuery = string("MEASure:VOLTage:DC?");
     typeDesignation = string("voltage");
     rfg->use_voltage_controler();
+    measureLimit = measureLimit > 0 && measureLimit <= 35 ? measureLimit : 35.0;
   }
   
   rfg->switch_off();
@@ -185,11 +189,11 @@ boost::program_options::notify(vm);
 	unitsADCValues.clear();
 	keithleyValue = 0;
 	unitsADC = 0;
-	if(keithleyValue >= 3.0)
+	if(keithleyValue >= measureLimit)
 	{
-	  std::cout << "Maximum current reached. Aborting!" << std::endl;
-	  mfileDAC << "% Maximum current reached. Aborting!" << std::endl;
-	  mfileADC << "% Maximum current reached. Aborting!" << std::endl;
+	  std::cout << "Maximum reached. Aborting!" << std::endl;
+	  mfileDAC << "% Maximum reached. Aborting!" << std::endl;
+	  mfileADC << "% Maximum reached. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
