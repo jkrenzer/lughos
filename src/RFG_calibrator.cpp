@@ -6,6 +6,7 @@
 #include "RFG.hpp"
 #include "keithley.hpp"
 #include <limits>
+#include <cmath>
 
 #define CONFIG_FILENAME "config.xml"
 using namespace std;
@@ -103,7 +104,7 @@ int main(int argc, char **argv)
        rfg->switch_off();
        rfg->set_target_value_raw(0);
      }
-     else if(current == std::numeric_limits< double >::quiet_NaN)
+     else if(std::isnan(current))
      {
        std::cout << "Keithley not answering. Aborting!" << std::endl;
        mfile << "% Keithley not answering. Aborting!" << std::endl;
