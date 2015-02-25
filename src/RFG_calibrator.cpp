@@ -55,9 +55,10 @@ int main(int argc, char **argv)
   rfg->power_supply_mode();
   rfg->use_current_controler();
   rfg->set_target_value_raw(0);
-  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
+  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
   rfg->switch_on();
+  boost::this_thread::sleep_for(boost::chrono::seconds(2));
   std::cout << "RFG ON: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
   rfg->switch_off();
   return 0;

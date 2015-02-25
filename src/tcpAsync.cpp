@@ -221,5 +221,6 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
   {
     lughos::debugLog(std::string("Error while trying to perform requested abort on ") + server_name + std::string(":") + port_name);
   }
+  this->socket.reset(new tcp::socket(*io_service_));
 }
 
