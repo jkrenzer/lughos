@@ -76,5 +76,38 @@ int main(int argc, char **argv)
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
   std::cout << "RFG ON: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_off();
+  ofstream mfile ("Measurement.txt");
+  if (!mfile.is_open())
+  {
+    std::cout << "Could not open file to write. aborting!" << std::endl;
+  }
+  std::cout << "Beginning measurement" << std::endl;
+  rfg->switch_on();
+  std::cout << "Waiting for RFG to settle..." << std::endl;
+  boost::this_thread::sleep_for(boost::chrono::seconds(2));
+  int stepSize = 100;
+  int units;
+  double current;
+  stringstream outstream;
+  mfile << "% units , current!" << std::endl;
+  for (int i = 0; i < 4096/stepSize ; i++)
+  {
+    units = i*stepSize;
+     rfg->set_target_value_raw(units);
+     boost::this_thread::sleep_for(boost::chrono::seconds(2));
+     current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
+     if(current >= 3.0)
+     {
+       std::cout << "Maximum current reached. Aborting!" << std::endl;
+       mfile << "% Maximum current reached. Aborting!" << std::endl;
+       rfg->switch_off();
+       rfg->set_target_value_raw(0);
+     }
+     outstream << units << " , " << current << std::endl;
+     std::cout << outstream.str();
+     mfile << outstream;
+  }
+  mfile.close();
+  
   return 0;
 }
