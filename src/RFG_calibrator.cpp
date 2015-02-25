@@ -151,7 +151,7 @@ boost::program_options::notify(vm);
   filename << "calibration" << "_" << typeDesignation << "_"; 
   ofstream mfileDAC(filename.str()+"DAC.txt");
   ofstream mfileADC(filename.str()+"ADC.txt");
-  if (!mfileDAC.is_open())
+  if (!mfileDAC.is_open() || !mfileDAC.is_open())
   {
     std::cout << "Could not open file to write. aborting!" << std::endl;
   }
@@ -207,6 +207,8 @@ boost::program_options::notify(vm);
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
+	  mfileADC.flush();
+	  mfileDAC.flush();
 	}
     }
   }
