@@ -103,6 +103,13 @@ int main(int argc, char **argv)
        rfg->switch_off();
        rfg->set_target_value_raw(0);
      }
+     else if(current == std::numeric_limits< double >::quiet_NaN)
+     {
+       std::cout << "Keithley not answering. Aborting!" << std::endl;
+       mfile << "% Keithley not answering. Aborting!" << std::endl;
+       rfg->switch_off();
+       rfg->set_target_value_raw(0);
+     }
      outstream << units << " , " << current << std::endl;
      std::cout << outstream.str();
      mfile << outstream;
