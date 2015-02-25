@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	outstream << units << " , " << current << std::endl;
 	outstream.flush();
 	std::cout << outstream.str();
-	mfile << outstream;
+	mfile << outstream.str();
     }
   }
   catch(...)
