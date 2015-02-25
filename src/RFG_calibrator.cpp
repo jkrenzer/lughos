@@ -124,9 +124,10 @@ int main(int argc, char **argv)
   {
     std::cout << "Crashed. Setting save and aborting!" << std::endl;
     mfile << "% Crashed. Setting save and aborting!" << std::endl;
-    rfg->switch_off();
-    rfg->set_target_value_raw(0);
   }
+  std::cout << "Finished.Switching off." << std::endl;
+  rfg->switch_off();
+  rfg->set_target_value_raw(0);
   mfile.close();
   
   return 0;
