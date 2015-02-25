@@ -99,12 +99,18 @@ int main(int argc, char **argv)
 	rfg->set_target_value_raw(units);
 	boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
+	outstream.str("");
+	outstream << units << " , " << current << std::endl;
+	outstream.flush();
+	std::cout << outstream.str();
+	mfile << outstream.str();
 	if(current >= 3.0)
 	{
 	  std::cout << "Maximum current reached. Aborting!" << std::endl;
 	  mfile << "% Maximum current reached. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
+	  break;
 	}
 	else if(std::isnan(current))
 	{
@@ -112,12 +118,8 @@ int main(int argc, char **argv)
 	  mfile << "% Keithley not answering. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
+	  break;
 	}
-	outstream.str("");
-	outstream << units << " , " << current << std::endl;
-	outstream.flush();
-	std::cout << outstream.str();
-	mfile << outstream.str();
     }
   }
   catch(...)
