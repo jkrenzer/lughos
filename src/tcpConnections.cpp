@@ -13,7 +13,7 @@
 
 
 
-Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), request(), response()
+Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), request(), response(), endpoint()
 {
 this->io_service_= io_service;
 this->connected = false;

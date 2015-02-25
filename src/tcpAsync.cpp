@@ -23,21 +23,27 @@ tcpAsync::~tcpAsync(void)
   stop();
 }
 
-bool tcpAsync::connect(boost::function<void()> callback)
+void tcpAsync::connect(boost::function<void(void)> callback)
 {
-  if (!this->connected)
+  this->socket.reset(new tcp::socket(*io_service_));
+  if (this->endpoint)
   {
-    this->socket.reset(new tcp::socket(*io_service_));
+    socket->async_connect(*this->endpoint,
+	boost::bind(&tcpAsync::handle_connect, this, callback,
+	  boost::asio::placeholders::error, tcp::resolver::iterator()));
+    lughos::debugLog(std::string("Connecting to server ")+server_name);
+  }
+  else
+  {
     resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this, callback,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
     lughos::debugLog(std::string("Trying to connect to ") + server_name);
   }
-  else
-      return true;
 }
 
-bool tcpAsync::disconnect()
+void tcpAsync::disconnect()
 {
+  this->abort();
 }
 
 int tcpAsync::write(std::string query, boost::regex regExpr)
@@ -83,8 +89,8 @@ void tcpAsync::handle_resolve(boost::function<void()> callback, const boost::sys
   if (!err)
   {
 
-    tcp::endpoint endpoint = *endpoint_iterator;
-    socket->async_connect(endpoint,
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
 	boost::bind(&tcpAsync::handle_connect, this, callback,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
     lughos::debugLog(std::string("Resolved address of server ")+server_name);
@@ -111,8 +117,8 @@ void tcpAsync::handle_connect(boost::function<void (void)> callback, const boost
   {
     // The connection failed. Try the next endpoint in the list.
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service_));
-    tcp::endpoint endpoint = *endpoint_iterator;
-    socket->async_connect(endpoint,
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
 	boost::bind(&tcpAsync::handle_connect, this, callback,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
     lughos::debugLog(std::string("Connection failed, trying next possible resolve of ")+server_name);
@@ -120,6 +126,7 @@ void tcpAsync::handle_connect(boost::function<void (void)> callback, const boost
   else
   {
     lughos::debugLog(std::string("Unable to connect to server ")+server_name+std::string(". Got error: ")+err.message());
+    this->endpoint.reset(new tcp::endpoint);
     return;
   }
 }
