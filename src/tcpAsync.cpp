@@ -26,7 +26,7 @@ tcpAsync::~tcpAsync(void)
 void tcpAsync::connect(boost::function<void(void)> callback)
 {
   this->socket.reset(new tcp::socket(*io_service_));
-  if (this->endpoint)
+  if (!this->endpoint->address().is_unspecified())
   {
     socket->async_connect(*this->endpoint,
 	boost::bind(&tcpAsync::handle_connect, this, callback,
