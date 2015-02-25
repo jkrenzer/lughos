@@ -166,8 +166,8 @@ boost::program_options::notify(vm);
   double keithleyValue = 0;
   std::vector<int> unitsADCValues;
   std::vector<double> keithleyValues;
-  mfileDAC << "% units(DAC) , current!" << std::endl;
-  mfileADC << "% units(ADC) , current!" << std::endl;
+  mfileDAC << "% units(DAC) , " << typeDesignation << std::endl;
+  mfileADC << "% units(ADC) , " << typeDesignation << std::endl;
   
   try 
   {
