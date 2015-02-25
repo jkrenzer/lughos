@@ -5,9 +5,22 @@
 
 #include "RFG.hpp"
 #include "keithley.hpp"
+#include <limits>
 
 #define CONFIG_FILENAME "config.xml"
 using namespace std;
+
+double keithleyValue(const std::string s)
+{
+  boost::regex regExprCurrent("([-\\+]\\d\\.\\d{8}E[-\\+]\\d\\d)ADC");
+  boost::smatch res;
+  boost::regex_search(s.begin(), s.end(),res,regExprCurrent);
+  double d;
+  if( res[1] == "")
+    return std::numeric_limits<double>::quiet_NaN();
+  std::stringstream(res[1]) >> d;
+  return d;
+}
 
 int main(int argc, char **argv)
 {
@@ -55,11 +68,13 @@ int main(int argc, char **argv)
   rfg->power_supply_mode();
   rfg->use_current_controler();
   rfg->set_target_value_raw(0);
+  
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
-  std::cout << "RFG OFF: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
+  
+  std::cout << "RFG OFF: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_on();
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
-  std::cout << "RFG ON: " << keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")) << std::endl;
+  std::cout << "RFG ON: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_off();
   return 0;
 }
