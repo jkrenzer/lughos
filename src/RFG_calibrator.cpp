@@ -51,6 +51,7 @@ void conflicting_options(const boost::program_options::variables_map& vm,
 int main(int argc, char **argv)
 {
   int measureTimes;
+  int measureChannel;
   std::string keithleyQuery;
   std::string typeDesignation;
   
@@ -79,19 +80,6 @@ boost::program_options::notify(vm);
   {
     std::cout << desc << std::endl;
     return 1;
-  }
-  
-  if(vm.count("current"))
-  {
-    int measureChannel = 1;
-    keithleyQuery = string("MEASure:CURRent:DC?");
-    typeDesignation = string("current");
-  }
-  else
-  {
-    int measureChannel = 0;
-    keithleyQuery = string("MEASure:VOLTage:DC?");
-    typeDesignation = string("voltage");
   }
   
   boost::shared_ptr<boost::asio::io_service> ioService(new boost::asio::io_service);
@@ -131,21 +119,28 @@ boost::program_options::notify(vm);
 
   std::cout << "Connected to devices."  << std::endl;
   
+  if(vm.count("current"))
+  {
+    measureChannel = 1;
+    keithleyQuery = string("MEASure:CURRent:DC?");
+    typeDesignation = string("current");
+    rfg->use_current_controler();
+  }
+  else
+  {
+    measureChannel = 0;
+    keithleyQuery = string("MEASure:VOLTage:DC?");
+    typeDesignation = string("voltage");
+    rfg->use_voltage_controler();
+  }
+  
   rfg->switch_off();
   rfg->set_current_lim_raw(2600);
-  rfg->set_voltage_max(35);
+  rfg->set_voltage_max_raw(4095);
   rfg->set_voltage_min(0);
   rfg->power_supply_mode();
-  rfg->use_current_controler();
   rfg->set_target_value_raw(0);
   
-  boost::this_thread::sleep_for(boost::chrono::seconds(2));
-  
-  std::cout << "RFG OFF: " << interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))) << std::endl;
-  rfg->switch_on();
-  boost::this_thread::sleep_for(boost::chrono::seconds(2));
-  std::cout << "RFG ON: " << interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))) << std::endl;
-  rfg->switch_off();
   stringstream filename;
   filename << "calibration" << "_" << typeDesignation << "_"; 
   ofstream mfileDAC(filename.str()+"DAC.txt");
@@ -177,7 +172,7 @@ boost::program_options::notify(vm);
 	for (int j = 0; j < measureTimes; j++)
 	{
 	  keithleyValues.push_back(interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))));
-	  unitsADCValues.push_back(rfg->get_channel_raw(1,true));
+	  unitsADCValues.push_back(rfg->get_channel_raw(measureChannel,true));
 	}
 	keithleyValue = calculateMean(keithleyValues);
 	unitsADC = calculateMean(unitsADCValues);
