@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   std::cout << "Connected to devices."  << std::endl;
   
   rfg->switch_off();
-  rfg->set_current_lim_raw(2800);
+  rfg->set_current_lim_raw(2600);
   rfg->set_voltage_max(35);
   rfg->set_voltage_min(0);
   rfg->power_supply_mode();
