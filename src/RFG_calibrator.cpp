@@ -129,7 +129,7 @@ boost::program_options::notify(vm);
     keithleyQuery = string("MEASure:CURRent:DC?");
     typeDesignation = string("current");
     rfg->use_current_controler();
-    measureLimit = measureLimit > 0 && measureLimit <= 3 ? measureLimit : 3.0;
+    measureLimit = (measureLimit > 0 && measureLimit <= 3) ? measureLimit : 3.0;
   }
   else
   {
@@ -137,7 +137,7 @@ boost::program_options::notify(vm);
     keithleyQuery = string("MEASure:VOLTage:DC?");
     typeDesignation = string("voltage");
     rfg->use_voltage_controler();
-    measureLimit = measureLimit > 0 && measureLimit <= 35 ? measureLimit : 35.0;
+    measureLimit = (measureLimit > 0 && measureLimit <= 35) ? measureLimit : 35.0;
   }
   
   rfg->switch_off();
@@ -155,10 +155,11 @@ boost::program_options::notify(vm);
   {
     std::cout << "Could not open file to write. aborting!" << std::endl;
   }
-  std::cout << "Beginning measurement" << std::endl;
+  std::cout << "Beginning measurement" << std::endl
+	    << "Will measure till keithley shows a value greater than " << measureLimit << std::endl;
   rfg->switch_on();
-  std::cout << "Waiting for RFG to settle..." << std::endl;
-  boost::this_thread::sleep_for(boost::chrono::seconds(2));
+  std::cout << "Waiting 5 seconds for RFG to settle..." << std::endl;
+  boost::this_thread::sleep_for(boost::chrono::seconds(5));
   int stepSize = 100;
   int unitsDAC = 0;
   int unitsADC = 0;
