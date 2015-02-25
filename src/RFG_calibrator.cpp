@@ -1,4 +1,5 @@
 #include <iostream>
+#include <csignal>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/shared_ptr.hpp>
@@ -50,6 +51,7 @@ void conflicting_options(const boost::program_options::variables_map& vm,
 
 int main(int argc, char **argv)
 {
+  
   int measureTimes;
   int measureChannel;
   std::string keithleyQuery;
@@ -72,7 +74,7 @@ boost::program_options::notify(vm);
   }
   catch(std::exception& e)
   {
-    cerr << e.what() << "\n";
+    std::cerr << e.what() << "\n";
     return 1;
   }
   
