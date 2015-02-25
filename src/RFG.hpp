@@ -61,7 +61,7 @@ class RFG :public Device
 	int set_current_lim_raw(int i);
 	int set_target_value_raw(int i);
 	measuredValue get_channel(int i, bool force=false);
-	
+	int get_channel_raw(int i, bool force=false);
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
@@ -77,6 +77,7 @@ protected:
 	double internalResistance;
 	ControllerMode controllerMode;
 	measuredValue channel_output[8];
+	int channel_output_raw[8];
 	measuredValue maxVoltage;
 	measuredValue minVoltage;
 	measuredValue maxCurrent;

@@ -552,6 +552,7 @@ bool RFG::readoutChannels()
     results[i] = 0;
     memcpy(&results[i],tmp.c_str(),tmp.size());
     channel_output[i].settimestamp(now);
+    this->channel_output_raw[i] = results[i];
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = 1.65; //TODO Here we'll get the readout current in near futur to do a live thevenin-correction.
@@ -645,8 +646,19 @@ measuredValue RFG::get_channel(int i, bool force)
     return channel_output[i];
   }
   
-  this->readout();
+  this->readoutChannels();
  return channel_output[i];
+}
+
+int RFG::get_channel_raw(int i, bool force)
+{
+  if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
+  {
+    return channel_output_raw[i];
+  }
+  
+  this->readoutChannels();
+ return channel_output_raw[i];
 }
 
 

@@ -77,8 +77,9 @@ int main(int argc, char **argv)
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
   std::cout << "RFG ON: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_off();
-  ofstream mfile ("Measurement.txt");
-  if (!mfile.is_open())
+  ofstream mfileDAC ("MeasurementDAC.txt");
+  ofstream mfileADC ("MeasurementADC.txt");
+  if (!mfileDAC.is_open())
   {
     std::cout << "Could not open file to write. aborting!" << std::endl;
   }
@@ -87,27 +88,28 @@ int main(int argc, char **argv)
   std::cout << "Waiting for RFG to settle..." << std::endl;
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
   int stepSize = 100;
-  int units;
+  int unitsDAC = 0;
+  int unitsADC = 0;
   double current;
-  stringstream outstream;
-  mfile << "% units , current!" << std::endl;
+  mfileDAC << "% units(DAC) , current!" << std::endl;
+  mfileADC << "% units(ADC) , current!" << std::endl;
   try 
   {
     for (int i = 0; i < 4096/stepSize ; i++)
     {
-      units = i*stepSize;
-	rfg->set_target_value_raw(units);
+        unitsDAC = i*stepSize;
+	rfg->set_target_value_raw(unitsDAC);
 	boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
-	outstream.str("");
-	outstream << units << " , " << current << std::endl;
-	outstream.flush();
-	std::cout << outstream.str();
-	mfile << outstream.str();
+	unitsADC = rfg->get_channel_raw(1);
+	std::cout << unitsDAC << " , " << unitsADC << " , " << current << std::endl;
+	mfileDAC << unitsDAC << " , " << current << std::endl;
+	mfileADC << unitsADC << " , " << current << std::endl;
 	if(current >= 3.0)
 	{
 	  std::cout << "Maximum current reached. Aborting!" << std::endl;
-	  mfile << "% Maximum current reached. Aborting!" << std::endl;
+	  mfileDAC << "% Maximum current reached. Aborting!" << std::endl;
+	  mfileADC << "% Maximum current reached. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
@@ -115,7 +117,8 @@ int main(int argc, char **argv)
 	else if(std::isnan(current))
 	{
 	  std::cout << "Keithley not answering. Aborting!" << std::endl;
-	  mfile << "% Keithley not answering. Aborting!" << std::endl;
+	  mfileDAC << "% Keithley not answering. Aborting!" << std::endl;
+	  mfileADC << "% Keithley not answering. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
@@ -125,12 +128,14 @@ int main(int argc, char **argv)
   catch(...)
   {
     std::cout << "Crashed. Setting save and aborting!" << std::endl;
-    mfile << "% Crashed. Setting save and aborting!" << std::endl;
+    mfileDAC << "% Crashed. Setting save and aborting!" << std::endl;
+    mfileADC << "% Crashed. Setting save and aborting!" << std::endl;
   }
   std::cout << "Finished.Switching off." << std::endl;
   rfg->switch_off();
   rfg->set_target_value_raw(0);
-  mfile.close();
+  mfileDAC.close();
+  mfileADC.close();
   
   return 0;
 }
