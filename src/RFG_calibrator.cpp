@@ -2,18 +2,21 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/program_options.hpp>
 
 #include "RFG.hpp"
 #include "keithley.hpp"
 #include <limits>
 #include <cmath>
+#include <vector>
+#include <sstream>
 
 #define CONFIG_FILENAME "config.xml"
 using namespace std;
 
-double keithleyValue(const std::string s)
+double interpretKeithleyValue(const std::string s)
 {
-  boost::regex regExprCurrent("([-\\+]\\d\\.\\d{8}E[-\\+]\\d\\d)ADC");
+  boost::regex regExprCurrent("([-\\+]\\d\\.\\d{8}E[-\\+]\\d\\d)[AV]DC");
   boost::smatch res;
   boost::regex_search(s.begin(), s.end(),res,regExprCurrent);
   double d;
@@ -23,8 +26,74 @@ double keithleyValue(const std::string s)
   return d;
 }
 
+template <class T>
+T calculateMean(std::vector<T> values)
+{
+  T sum=0;
+  for(typename std::vector<T>::const_iterator i = values.begin(); i != values.end(); i++ )
+  {
+    sum += *i;
+  }
+  return sum/values.size();
+}
+
+/* Function used to check that 'opt1' and 'opt2' are not specified
+   at the same time. */
+void conflicting_options(const boost::program_options::variables_map& vm, 
+                         const char* opt1, const char* opt2)
+{
+    if (vm.count(opt1) && !vm[opt1].defaulted() 
+        && vm.count(opt2) && !vm[opt2].defaulted())
+        throw logic_error(string("Conflicting options '") 
+                          + opt1 + "' and '" + opt2 + "'.");
+}
+
 int main(int argc, char **argv)
 {
+  int measureTimes;
+  std::string keithleyQuery;
+  std::string typeDesignation;
+  
+  // Declare the supported options.
+boost::program_options::options_description desc("Allowed options");
+desc.add_options()
+    ("help", "produce help message")
+    ("measurements,t", boost::program_options::value<int>(&measureTimes)->default_value(3), "set how many measurements to take for mean value")
+    ("voltage,v" , "calibrate voltage, default")
+    ("current,c" , "calibrate current");
+
+boost::program_options::variables_map vm;
+boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+boost::program_options::notify(vm);
+  try 
+  {
+    conflicting_options(vm, "voltage", "current");
+  }
+  catch(std::exception& e)
+  {
+    cerr << e.what() << "\n";
+    return 1;
+  }
+  
+  if (vm.count("help")) 
+  {
+    std::cout << desc << std::endl;
+    return 1;
+  }
+  
+  if(vm.count("current"))
+  {
+    int measureChannel = 1;
+    keithleyQuery = string("MEASure:CURRent:DC?");
+    typeDesignation = string("current");
+  }
+  else
+  {
+    int measureChannel = 0;
+    keithleyQuery = string("MEASure:VOLTage:DC?");
+    typeDesignation = string("voltage");
+  }
+  
   boost::shared_ptr<boost::asio::io_service> ioService(new boost::asio::io_service);
   boost::asio::io_service::work work(*ioService);
   boost::thread thread(boost::bind(&boost::asio::io_service::run, ioService));
@@ -72,13 +141,15 @@ int main(int argc, char **argv)
   
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
   
-  std::cout << "RFG OFF: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
+  std::cout << "RFG OFF: " << interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_on();
   boost::this_thread::sleep_for(boost::chrono::seconds(2));
-  std::cout << "RFG ON: " << keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>"))) << std::endl;
+  std::cout << "RFG ON: " << interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))) << std::endl;
   rfg->switch_off();
-  ofstream mfileDAC ("MeasurementDAC.txt");
-  ofstream mfileADC ("MeasurementADC.txt");
+  stringstream filename;
+  filename << "calibration" << "_" << typeDesignation << "_"; 
+  ofstream mfileDAC(filename.str()+"DAC.txt");
+  ofstream mfileADC(filename.str()+"ADC.txt");
   if (!mfileDAC.is_open())
   {
     std::cout << "Could not open file to write. aborting!" << std::endl;
@@ -90,9 +161,12 @@ int main(int argc, char **argv)
   int stepSize = 100;
   int unitsDAC = 0;
   int unitsADC = 0;
-  double current;
+  double keithleyValue = 0;
+  std::vector<int> unitsADCValues;
+  std::vector<double> keithleyValues;
   mfileDAC << "% units(DAC) , current!" << std::endl;
   mfileADC << "% units(ADC) , current!" << std::endl;
+  
   try 
   {
     for (int i = 0; i < 4096/stepSize ; i++)
@@ -100,12 +174,21 @@ int main(int argc, char **argv)
         unitsDAC = i*stepSize;
 	rfg->set_target_value_raw(unitsDAC);
 	boost::this_thread::sleep_for(boost::chrono::seconds(2));
-	current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
-	unitsADC = rfg->get_channel_raw(1,true);
-	std::cout << unitsDAC << " , " << unitsADC << " , " << current << std::endl;
-	mfileDAC << unitsDAC << " , " << current << std::endl;
-	mfileADC << unitsADC << " , " << current << std::endl;
-	if(current >= 3.0)
+	for (int j = 0; j < measureTimes; j++)
+	{
+	  keithleyValues.push_back(interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))));
+	  unitsADCValues.push_back(rfg->get_channel_raw(1,true));
+	}
+	keithleyValue = calculateMean(keithleyValues);
+	unitsADC = calculateMean(unitsADCValues);
+	std::cout << unitsDAC << " , " << unitsADC << " , " << keithleyValue << std::endl;
+	mfileDAC << unitsDAC << " , " << keithleyValue << std::endl;
+	mfileADC << unitsADC << " , " << keithleyValue << std::endl;
+	keithleyValues.clear();
+	unitsADCValues.clear();
+	keithleyValue = 0;
+	unitsADC = 0;
+	if(keithleyValue >= 3.0)
 	{
 	  std::cout << "Maximum current reached. Aborting!" << std::endl;
 	  mfileDAC << "% Maximum current reached. Aborting!" << std::endl;
@@ -114,7 +197,7 @@ int main(int argc, char **argv)
 	  rfg->set_target_value_raw(0);
 	  break;
 	}
-	else if(std::isnan(current))
+	else if(std::isnan(keithleyValue))
 	{
 	  std::cout << "Keithley not answering. Aborting!" << std::endl;
 	  mfileDAC << "% Keithley not answering. Aborting!" << std::endl;
