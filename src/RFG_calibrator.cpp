@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   std::cout << "Connected to devices."  << std::endl;
   
   rfg->switch_off();
-  rfg->set_current_lim(3.0);
+  rfg->set_current_lim(3.2);
   rfg->set_voltage_max(35);
   rfg->set_voltage_min(0);
   rfg->power_supply_mode();
@@ -91,29 +91,41 @@ int main(int argc, char **argv)
   double current;
   stringstream outstream;
   mfile << "% units , current!" << std::endl;
-  for (int i = 0; i < 4096/stepSize ; i++)
+  try 
   {
-    units = i*stepSize;
-     rfg->set_target_value_raw(units);
-     boost::this_thread::sleep_for(boost::chrono::seconds(2));
-     current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
-     if(current >= 3.0)
-     {
-       std::cout << "Maximum current reached. Aborting!" << std::endl;
-       mfile << "% Maximum current reached. Aborting!" << std::endl;
-       rfg->switch_off();
-       rfg->set_target_value_raw(0);
-     }
-     else if(std::isnan(current))
-     {
-       std::cout << "Keithley not answering. Aborting!" << std::endl;
-       mfile << "% Keithley not answering. Aborting!" << std::endl;
-       rfg->switch_off();
-       rfg->set_target_value_raw(0);
-     }
-     outstream << units << " , " << current << std::endl;
-     std::cout << outstream.str();
-     mfile << outstream;
+    for (int i = 0; i < 4096/stepSize ; i++)
+    {
+      units = i*stepSize;
+	rfg->set_target_value_raw(units);
+	boost::this_thread::sleep_for(boost::chrono::seconds(2));
+	current = keithleyValue(keithley->inputOutput("MEASure:CURRent:DC?",boost::regex("<body>(.*)</body>")));
+	if(current >= 3.0)
+	{
+	  std::cout << "Maximum current reached. Aborting!" << std::endl;
+	  mfile << "% Maximum current reached. Aborting!" << std::endl;
+	  rfg->switch_off();
+	  rfg->set_target_value_raw(0);
+	}
+	else if(std::isnan(current))
+	{
+	  std::cout << "Keithley not answering. Aborting!" << std::endl;
+	  mfile << "% Keithley not answering. Aborting!" << std::endl;
+	  rfg->switch_off();
+	  rfg->set_target_value_raw(0);
+	}
+	outstream.str("");
+	outstream << units << " , " << current << std::endl;
+	outstream.flush();
+	std::cout << outstream.str();
+	mfile << outstream;
+    }
+  }
+  catch(...)
+  {
+    std::cout << "Crashed. Setting save and aborting!" << std::endl;
+    mfile << "% Crashed. Setting save and aborting!" << std::endl;
+    rfg->switch_off();
+    rfg->set_target_value_raw(0);
   }
   mfile.close();
   
