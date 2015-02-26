@@ -5,6 +5,7 @@
 #include "basicTypes.hpp"
 #include "exposedClasses.hpp"
 #include "exposedValues.hpp"
+#include "exposedFunctions.hpp"
 
 using namespace lughos;
 

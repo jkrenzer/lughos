@@ -374,6 +374,7 @@ using namespace lughos;
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
       this->targetField->setValue(this->rfg->getTargetValue());
       this->uOutField->setText(this->rfg->get_channel(0).getStringValue());
+      this->iOutField->setText(this->rfg->get_channel(1).getStringValue());
     }
     
 //     void start()

@@ -15,52 +15,8 @@ RFG::RFG()
     
   this->internalResistance = 0.186; //Ohms
     
-  SplineTransformation::XToYMap& x2y = unitsToVoltageReg.valueMap.left;
-  //Callibration 2015-02-13;
-  x2y.insert(SplineTransformation::XYPair(0, 0.154032));
-  x2y.insert(SplineTransformation::XYPair(10, 0.271));
-  x2y.insert(SplineTransformation::XYPair(20, 0.394));
-  x2y.insert(SplineTransformation::XYPair(30, 0.517));
-  x2y.insert(SplineTransformation::XYPair(40, 0.637));
-  x2y.insert(SplineTransformation::XYPair(50, 0.760));
-  x2y.insert(SplineTransformation::XYPair(60, 0.881));
-  x2y.insert(SplineTransformation::XYPair(70, 1.003));
-  x2y.insert(SplineTransformation::XYPair(80, 1.125));
-  x2y.insert(SplineTransformation::XYPair(90, 1.245));
-  x2y.insert(SplineTransformation::XYPair(100, 1.367));
-  x2y.insert(SplineTransformation::XYPair(200, 2.579));
-  x2y.insert(SplineTransformation::XYPair(300, 3.793));
-  x2y.insert(SplineTransformation::XYPair(400, 5.006));
-  x2y.insert(SplineTransformation::XYPair(500, 6.219));
-  x2y.insert(SplineTransformation::XYPair(600, 7.432));
-  x2y.insert(SplineTransformation::XYPair(700, 8.645));
-  x2y.insert(SplineTransformation::XYPair(800, 9.858));
-  x2y.insert(SplineTransformation::XYPair(900, 11.070));
-  x2y.insert(SplineTransformation::XYPair(1000, 12.282));
-  x2y.insert(SplineTransformation::XYPair(1100, 13.496));
-  x2y.insert(SplineTransformation::XYPair(1200, 14.708));
-  x2y.insert(SplineTransformation::XYPair(1300, 15.921));
-  x2y.insert(SplineTransformation::XYPair(1400, 17.134));
-  x2y.insert(SplineTransformation::XYPair(1500, 18.347));
-  x2y.insert(SplineTransformation::XYPair(1600, 19.560));
-  x2y.insert(SplineTransformation::XYPair(1700, 20.772));
-  x2y.insert(SplineTransformation::XYPair(1800, 21.984));
-  x2y.insert(SplineTransformation::XYPair(1900, 23.197));
-  x2y.insert(SplineTransformation::XYPair(2000, 24.409));
-  x2y.insert(SplineTransformation::XYPair(2100, 25.623));
-  x2y.insert(SplineTransformation::XYPair(2200, 26.835));
-  x2y.insert(SplineTransformation::XYPair(2300, 28.048));
-  x2y.insert(SplineTransformation::XYPair(2400, 29.259));
-  x2y.insert(SplineTransformation::XYPair(2500, 30.473));
-  x2y.insert(SplineTransformation::XYPair(2600, 31.684));
-  x2y.insert(SplineTransformation::XYPair(2700, 32.898));
-  x2y.insert(SplineTransformation::XYPair(2800, 34.111));
-  x2y.insert(SplineTransformation::XYPair(2900, 35.324));
-  x2y.insert(SplineTransformation::XYPair(3000, 36.536));
-  x2y.insert(SplineTransformation::XYPair(3100, 37.749));
+  unitsToVoltageReg.fromFile("calibration_voltage_DAC.csv");
 
-  unitsToVoltageReg.init();
-  
   SplineTransformation::XToYMap& x2y1a = unitsToVoltageLimMax.valueMap.left;
   x2y1a.insert(SplineTransformation::XYPair(0, 0.22));
   x2y1a.insert(SplineTransformation::XYPair(100, 1.436));
@@ -177,58 +133,9 @@ RFG::RFG()
   x2y2.insert(SplineTransformation::XYPair(2400, 2.918));
   
   unitsToCurrentLim.init();
-  SplineTransformation::XToYMap& x2y3 = unitsToCurrentReg.valueMap.left;
-  x2y3.insert(SplineTransformation::XYPair(0, 0.063));
-  x2y3.insert(SplineTransformation::XYPair(50, 0.09));
-  x2y3.insert(SplineTransformation::XYPair(100, 0.15));
-  x2y3.insert(SplineTransformation::XYPair(150, 0.211));
-  x2y3.insert(SplineTransformation::XYPair(200, 0.271));
-  x2y3.insert(SplineTransformation::XYPair(250, 0.331));
-  x2y3.insert(SplineTransformation::XYPair(300, 0.391));
-  x2y3.insert(SplineTransformation::XYPair(350, 0.452));
-  x2y3.insert(SplineTransformation::XYPair(400, 0.512));
-  x2y3.insert(SplineTransformation::XYPair(450, 0.572));
-  x2y3.insert(SplineTransformation::XYPair(500, 0.632));
-  x2y3.insert(SplineTransformation::XYPair(550, 0.692));
-  x2y3.insert(SplineTransformation::XYPair(600, 0.753));
-  x2y3.insert(SplineTransformation::XYPair(650, 0.813));
-  x2y3.insert(SplineTransformation::XYPair(700, 0.873));
-  x2y3.insert(SplineTransformation::XYPair(750, 0.933));
-  x2y3.insert(SplineTransformation::XYPair(800, 0.994));
-  x2y3.insert(SplineTransformation::XYPair(850, 1.054));
-  x2y3.insert(SplineTransformation::XYPair(900, 1.114));
-  x2y3.insert(SplineTransformation::XYPair(950, 1.174));
-  x2y3.insert(SplineTransformation::XYPair(1000, 1.235));
-  x2y3.insert(SplineTransformation::XYPair(1050, 1.295));
-  x2y3.insert(SplineTransformation::XYPair(1100, 1.355));
-  x2y3.insert(SplineTransformation::XYPair(1150, 1.416));
-  x2y3.insert(SplineTransformation::XYPair(1200, 1.476));
-  x2y3.insert(SplineTransformation::XYPair(1250, 1.536));
-  x2y3.insert(SplineTransformation::XYPair(1300, 1.597));
-  x2y3.insert(SplineTransformation::XYPair(1350, 1.657));
-  x2y3.insert(SplineTransformation::XYPair(1400, 1.717));
-  x2y3.insert(SplineTransformation::XYPair(1450, 1.778));
-  x2y3.insert(SplineTransformation::XYPair(1500, 1.838));
-  x2y3.insert(SplineTransformation::XYPair(1550, 1.899));
-  x2y3.insert(SplineTransformation::XYPair(1600, 1.959));
-  x2y3.insert(SplineTransformation::XYPair(1650, 2.019));
-  x2y3.insert(SplineTransformation::XYPair(1700, 2.079));
-  x2y3.insert(SplineTransformation::XYPair(1750, 2.14));
-  x2y3.insert(SplineTransformation::XYPair(1800, 2.2));
-  x2y3.insert(SplineTransformation::XYPair(1850, 2.261));
-  x2y3.insert(SplineTransformation::XYPair(1900, 2.321));
-  x2y3.insert(SplineTransformation::XYPair(1950, 2.382));
-  x2y3.insert(SplineTransformation::XYPair(2000, 2.442));
-  x2y3.insert(SplineTransformation::XYPair(2050, 2.503));
-  x2y3.insert(SplineTransformation::XYPair(2100, 2.564));
-  x2y3.insert(SplineTransformation::XYPair(2150, 2.624));
-  x2y3.insert(SplineTransformation::XYPair(2200, 2.684));
-  x2y3.insert(SplineTransformation::XYPair(2250, 2.744));
-  x2y3.insert(SplineTransformation::XYPair(2300, 2.805));
-  x2y3.insert(SplineTransformation::XYPair(2350, 2.865));
-  x2y3.insert(SplineTransformation::XYPair(2400, 2.926));
-  unitsToCurrentReg.init();
   
+  unitsToCurrentReg.fromFile("calibration_current_DAC.txt");
+    
   SplineTransformation::XToYMap& x2y4 = unitsToPowerLim.valueMap.left;
   x2y4.insert(SplineTransformation::XYPair(0, 0));
   x2y4.insert(SplineTransformation::XYPair(3100, 190));
@@ -239,7 +146,9 @@ RFG::RFG()
   x2y5.insert(SplineTransformation::XYPair(3100, 190));
   unitsToPowerReg.init();
   
-  unitsToVoltageMeas.fromFile("RFG_u2v_measure.csv");
+  unitsToVoltageMeas.fromFile("calibration_voltage_ADC.csv");
+  
+  unitsToCurrentMeas.fromFile("calibration_current_ADC.csv");
   
 }
 
@@ -554,12 +463,12 @@ bool RFG::readoutChannels()
     channel_output[i].settimestamp(now);
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
-  double rawCurrent = 1.65; //TODO Here we'll get the readout current in near futur to do a live thevenin-correction.
+  double rawCurrent = unitsToCurrentReg.xToY(results[1]);
   channel_output[0].setunitvalue(rawVoltage + ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
 //   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
 //   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
 //   channel_output[0].setunitvalue(results[0],"Voltage");
-  channel_output[1].setunitvalue(results[1],"Current");
+  channel_output[1].setunitvalue(rawCurrent,"A");
   channel_output[2].setunitvalue(results[2],"Power");
   channel_output[3].setunitvalue(results[3],"ReglerOut");
   channel_output[4].setunitvalue(results[4],"ReglerFb");
