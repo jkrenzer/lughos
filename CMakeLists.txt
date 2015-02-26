@@ -233,7 +233,7 @@ target_link_libraries(FUGNetzteil tcpAsync unitValue serialConnections errorHand
 add_dependencies(FUGNetzteil tcpAsync unitValue tcpConnections errorHandling log)
 
 add_library(RFG src/RFG.cpp)
-target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling log)
+target_link_libraries(RFG serialAsync unitValue serialConnections errorHandling log ${Wt_DBO_LIBRARY})
 add_dependencies(RFG serialAsync unitValue serialConnections errorHandling log)
 
 add_library(serialSync src/serialSync.cpp)
@@ -300,6 +300,7 @@ target_link_libraries(test_plots wtdbo wtdbosqlite3 wt wthttp ${Boost_LIBRARIES}
 ### Calibrator for RFG
 add_executable(RFGCalibrator src/RFG_calibrator.cpp)
 target_link_libraries(RFGCalibrator RFG keithley boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ${Boost_LIBRARIES} pthread gsl gslcblas)
+add_dependencies(RFGCalibrator keithley RFG)
 
 ### Test for forms
 add_executable(test_forms src/test_forms.cpp)

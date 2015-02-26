@@ -4,6 +4,10 @@
 #include "tcpAsync.hpp"
 #include "keithley.hpp"
 
+KeithleyConnection::KeithleyConnection(boost::shared_ptr< boost::asio::io_service > io_service)  :  tcpAsync(io_service) , Connection<tcpContext>(io_service)
+{
+
+}
 
 Keithley::Keithley()
 {
@@ -45,13 +49,13 @@ std::string Keithley::composeRequest(std::string query)
 //   std::string host_path=std::string("/scpi_response.html?cmd=");
   
     requestString+=std::string("GET ");
-//     requestString+=std::string("");
+    requestString+=std::string("/scpi_response.html?cmd=");
     // requestString+=std::string(host_path);
     
     requestString+=std::string(query);  
     requestString+=std::string(" HTTP/1.0\r\n");  
     requestString+=std::string("Host: ");
-    requestString+=std::string(serverName);  
+    requestString+=std::string("localhost");  
     requestString+=std::string("\r\nAccept: */*\r\nConnection: close\r\n\r\n");
 //     requestString+=query;
 //     requestString+=std::string("\r");
@@ -65,11 +69,12 @@ void Keithley::set_default()
 {
 
 }
+
 std::string Keithley::interpretAnswer(std::string s)
 {     
 
-//  static const boost::regex e("<body>(.*)</body>");
-  static const boost::regex e("(.*)");
+ boost::regex e("<body>(.*)</body>");
+ // boost::regex e("(.*)");
  boost::cmatch res;
  boost::regex_search(s.c_str(), res, e);
   
@@ -89,11 +94,11 @@ void Keithley::shutdownImplementation()
 bool Keithley::isConnectedImplementation()
 {
   std::string s = this->inputOutput("*IDN?");
-  static const boost::regex e("KEITHLEY INSTRUMENTS INC.");
+  boost::regex e("(KEITHLEY INSTRUMENTS INC)");
 
-  boost::cmatch res;
-  boost::regex_search(s.c_str(), res, e);
-  return res.size() > 0;
+  boost::smatch res;
+  boost::regex_search(s, res, e);
+  return res[1] != "";
 }
 
 

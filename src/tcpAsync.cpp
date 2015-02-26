@@ -12,7 +12,7 @@
 #include "log.hpp"
 
 
-tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service), connectionTimer(*io_service,boost::posix_time::seconds(5))
+tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service)
 {
   start();
   this->endOfLineRegExpr_ = boost::regex("\n");
@@ -23,33 +23,40 @@ tcpAsync::~tcpAsync(void)
   stop();
 }
 
-bool tcpAsync::connect()
+void tcpAsync::connect(boost::function<void(void)> callback)
 {
-  if (!this->connected)
+  this->socket.reset(new tcp::socket(*io_service_));
+  if (!this->endpoint->address().is_unspecified())
   {
-    this->connectionTimer.expires_from_now(boost::posix_time::seconds(5));
-    resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this,
+    socket->async_connect(*this->endpoint,
+	boost::bind(&tcpAsync::handle_connect, this, callback,
+	  boost::asio::placeholders::error, tcp::resolver::iterator()));
+    lughos::debugLog(std::string("Connecting to server ")+server_name);
+  }
+  else
+  {
+    resolver->async_resolve(*this->query, boost::bind(&tcpAsync::handle_resolve, this, callback,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
     lughos::debugLog(std::string("Trying to connect to ") + server_name);
   }
 }
 
-bool tcpAsync::disconnect()
+void tcpAsync::disconnect()
 {
+  this->abort();
 }
 
 int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
-  this->queryDone = false;
+  this->currentQuery = query;
   if(regExpr.empty())
 	  regExpr = endOfLineRegExpr_;
   if(!this->connected)
   {
-    this->connect();
-    this->connectionTimer.wait();
-    if(!this->connected)
-      lughos::debugLog(std::string("Could not connect to server ")+server_name); //Still not connected, we abort!
+    this->connect(boost::bind(&tcpAsync::write,this,query,regExpr));
+    return -1;
   }
+  
   std::ostream request_stream(&request);
   request_stream<<query;
     // The connection was successful. Send the request.
@@ -75,16 +82,16 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 
 
 //-------
-void tcpAsync::handle_resolve(const boost::system::error_code& err,
+void tcpAsync::handle_resolve(boost::function<void()> callback, const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
 {
 
   if (!err)
   {
 
-    tcp::endpoint endpoint = *endpoint_iterator;
-    socket->async_connect(endpoint,
-	boost::bind(&tcpAsync::handle_connect, this,
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
+	boost::bind(&tcpAsync::handle_connect, this, callback,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
     lughos::debugLog(std::string("Resolved address of server ")+server_name);
   }
@@ -95,29 +102,31 @@ void tcpAsync::handle_resolve(const boost::system::error_code& err,
 
 }
 
-void tcpAsync::handle_connect(const boost::system::error_code& err,
+void tcpAsync::handle_connect(boost::function<void (void)> callback, const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
 { 
   if(!err)
   {
     this->connected = true;
-    this->connectionTimer.expires_from_now(boost::posix_time::seconds(0));
     lughos::debugLog(std::string("Connected successfully to ")+server_name);
+    if(callback)
+      callback();
     return;
   }
   if (endpoint_iterator != tcp::resolver::iterator())
   {
     // The connection failed. Try the next endpoint in the list.
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service_));
-    tcp::endpoint endpoint = *endpoint_iterator;
-    socket->async_connect(endpoint,
-	boost::bind(&tcpAsync::handle_connect, this,
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
+	boost::bind(&tcpAsync::handle_connect, this, callback,
 	  boost::asio::placeholders::error, ++endpoint_iterator));
     lughos::debugLog(std::string("Connection failed, trying next possible resolve of ")+server_name);
   }
   else
   {
     lughos::debugLog(std::string("Unable to connect to server ")+server_name+std::string(". Got error: ")+err.message());
+    this->endpoint.reset(new tcp::endpoint);
     return;
   }
 }
@@ -133,7 +142,7 @@ void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::
 	  boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
-else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
+else
   {
     lughos::debugLog(std::string("Unable to write to server ")+server_name+std::string(". Got error: ")+err.message());
     this->connected = false;
@@ -160,44 +169,48 @@ else if (err != boost::asio::error::eof || err != boost::asio::error::connection
 //     }
 //   }
 // 
-//  void tcpAsync::handle_read_headers(const boost::system::error_code& err)
-//   {
-// 
-//     if (!err)
-//     {
-//       Connection< tcpContext >::handle_read_headers_process();
-// 
-//       // Start reading remaining data until EOF.
-//       boost::asio::async_read(*socket, response,
-//           boost::asio::transfer_at_least(1),
-//           boost::bind(&tcpAsync::handle_read_content, this,
-//             boost::asio::placeholders::error));
-// 
-//       
-//     }
-//     else
-//     {
-//       std::cout << "Error: " << err << "\n";
-//     }
-//   }
+
+ void tcpAsync::handle_read_rest(const boost::system::error_code& err)
+  {
+
+    if (!err)
+    {
+      // Start reading remaining data until EOF.
+      boost::asio::async_read(*socket, response,
+          boost::asio::transfer_at_least(1),
+          boost::bind(&tcpAsync::handle_read_rest, this,
+            boost::asio::placeholders::error));
+
+      
+    }
+    else if (err == boost::asio::error::eof)
+    {
+        this->notifyWaitingClient(); 
+        return;
+    }
+    else
+    {
+      std::cout << "Error: " << err << "\n";
+    }
+  }
 
 void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::error_code& err)
   {
 
     if (!err)
     {
+        this->handle_read_rest(err);
         response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
-	this->queryDone = true;
-      	this->notifyWaitingClient();
-      
+	this->currentQuery.clear();
     }
-    else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected)
+    else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
     {
       this->connected = false;
+      this->write(this->currentQuery,regExpr);
     }
-    else if (err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
+    else
     {
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
       
@@ -215,5 +228,6 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
   {
     lughos::debugLog(std::string("Error while trying to perform requested abort on ") + server_name + std::string(":") + port_name);
   }
+  this->socket.reset(new tcp::socket(*io_service_));
 }
 
