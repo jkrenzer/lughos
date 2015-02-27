@@ -5,7 +5,7 @@
 #include <boost/smart_ptr/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include "basicObject.hpp"
+#include "BasicObject.hpp"
 #include "errorHandling.hpp"
 
 //TODO How should we proceed with our trees? --> wrong renderer-invocation of children. Ord should renderers even be object-specific? but how should this go into modules?
@@ -26,7 +26,7 @@ class TreeNodeImplementation
   
 };
 
-class TreeNode : public basicObject, public boost::enable_shared_from_this<TreeNode>
+class TreeNode : public BasicObject, public boost::enable_shared_from_this<TreeNode>
 {
 protected:
     boost::shared_ptr<TreeNode> _this;

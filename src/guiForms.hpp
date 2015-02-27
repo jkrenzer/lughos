@@ -35,7 +35,7 @@ protected:
   
 public:
   
-  formNode(basicObject* obj)
+  formNode(BasicObject* obj)
   {
     this->setName(obj->getName());
   }

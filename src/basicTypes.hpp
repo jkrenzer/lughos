@@ -4,11 +4,7 @@
 #include <sstream>
 #include <climits>
 
-#include "rawValues.hpp"
-#include "io.hpp"
-#include "basicIo.hpp"
-#include "treeObj.hpp"
-#include "transformations.hpp"
+#include "values.hpp"
 
 namespace lughos
 {
