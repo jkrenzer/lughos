@@ -1,50 +1,99 @@
 #ifndef EXPOSED_VALUES_HPP
 #define EXPOSED_VALUES_HPP
 
-#include "rawValues.hpp"
-#include "treeObj.hpp"
-#include <boost/concept_check.hpp>
+#include "BasicObject.hpp"
+#include "values.hpp"
 
 namespace lughos
 {
-  class ExposedObject : public TreeNode
+  class ExposedObject : public BasicObject
   {
   public:
     ExposedObject()
     {
-      this->init();
+    }
+    
+    void setDescription(std::string description)
+    {
+      this->description = description;
+    }
+    
+    std::string getDescription()
+    {
+      return this->description;
     }
     
   protected:
-    virtual void init()
-    { 
-      this->addChild(new Pointer<std::string>(&this->name,"name"));
-      this->addChild(new Value<std::string>(std::string("N/A"),"description"));
-    }
+    
+    std::string description;
     
   };
 
   
-template <class T> class ExposedValue : public ExposedObject
+template <class T> class ExposedValue : public ExposedObject, public Value<T>
   {
+  protected:
+    T& value;
   public:
-    ExposedValue(T value, std::string name, std::string description = std::string("N/A"))
+    ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : value(value)
     {
-      this->addChild(new Value<T>(value,"value"));
-      this->getAs<Value<std::string> >("name")->setValue(name);
-      this->getAs<Value<std::string> >("description")->setValue(description);
+      this->name = name;
+      this->description = description;
+    }
+    
+    ExposedValue<T>& operator=(const T &other)
+    {
+      this->value = other;
+      return *this;
+    }	
+    
+    ExposedValue<T>& operator=(const ExposedValue<T> &other)
+    {
+      this->value = other.getValue();
+      return *this;
+    }
+    
+    T getValue()
+    {
+      return this->value;
     }
     
   }; 
   
-  template <class T> class ExposedPointer : public ExposedObject
+  template <class T> class ExposedPointer : public ExposedObject, public Pointer<T>
   {
+  protected:
+    T* pointer;
   public:
     ExposedPointer(T* pointer, std::string name, std::string description = std::string("N/A"))
     {
-      this->addChild(new Pointer<T>(pointer,"value"));
-      this->getAs<Value<std::string> >("name")->setValue(name);
-      this->getAs<Value<std::string> >("description")->setValue(description);
+      this->pointer = pointer;
+      this->name = name;
+      this->description = description;
+    }
+    
+    
+    ExposedPointer<T>& operator=(const T &other)
+    {
+      *this->pointer = other;
+      return *this;
+    }	
+    
+    ExposedPointer<T>& operator=(const T* &other)
+    {
+      this->pointer = other;
+      return *this;
+    }
+    
+    ExposedPointer<T>& operator=(const ExposedValue<T> &other)
+    {
+      this->pointer = other.getAddress();
+      return *this;
+    }
+    
+    T getAddress()
+    {
+      return this->pointer;
     }
   };
 }//namespace lughos

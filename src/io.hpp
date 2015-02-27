@@ -5,7 +5,7 @@
 #include<typeinfo>
 #include<boost/smart_ptr/shared_ptr.hpp>
 
-#include "rawValues.hpp"
+#include "values.hpp"
 #include "exposedValues.hpp"
 #include "errorHandling.hpp"
 
