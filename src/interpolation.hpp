@@ -148,7 +148,7 @@ namespace lughos
     double extrapolate(double value, double refValue,gsl_spline* spline, gsl_interp_accel* accel)
     {
       double firstDerivative = gsl_spline_eval_deriv(spline,refValue,accel) + (gsl_spline_eval_deriv2(spline,refValue,accel) * (value - refValue));
-      std::cout << "FIRST DIFF: " << firstDerivative << std::endl;
+      std::cout << "EXTRAPOLATE: " << refValue << " + " << firstDerivative << " * (" << value << " - " << refValue << ") = " << refValue + (firstDerivative * (value - refValue)) << std::endl;
       return refValue + (firstDerivative * (value - refValue));
     }
     
