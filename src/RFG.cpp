@@ -465,7 +465,7 @@ bool RFG::readoutChannels()
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
-  channel_output[0].setunitvalue(rawVoltage + ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
+  channel_output[0].setunitvalue(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
 //   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
 //   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
 //   channel_output[0].setunitvalue(results[0],"Voltage");
