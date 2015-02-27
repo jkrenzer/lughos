@@ -28,7 +28,7 @@ class BronkhorstTest : public Task
      if( horst->isConnected())
       { 
 	try{
-	  measuredValue measure = this->horst->get_value();
+	  measuredValue measure = this->horst->get_setpoint();
 
 	  Wt::Dbo::Transaction transaction(*session);
 	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.gettimestamp(), horst->getName())));

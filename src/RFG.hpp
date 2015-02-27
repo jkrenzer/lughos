@@ -37,6 +37,8 @@ class RFG :public Device
 	
 	
   public:
+	enum ControllerMode {Voltage, Current, Power};
+    
 	RFG(void);
 	virtual ~RFG(void);
 
@@ -53,31 +55,46 @@ class RFG :public Device
 	float set_voltage_max(float f);
 	float set_voltage_min(float f);
 	float set_current_lim(float f);
-	int set_power_lim(float f);
+	float set_target_value(float f);
+	int set_voltage_max_raw(int i);
+	int set_voltage_min_raw(int i);
+	int set_current_lim_raw(int i);
+	int set_target_value_raw(int i);
 	measuredValue get_channel(int i, bool force=false);
-
+	int get_channel_raw(int i, bool force=false);
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
 	float getLimitMinVoltage();
-	float getPower();
-	bool readout();
+	float getTargetValue();
+	bool readout(bool raw = false);
+	double getInteralResistance();
+	void setInternalResistance(double resistance);
 	
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	bool mode;
-	int controler;
+	bool bccMode;
+	double internalResistance;
+	ControllerMode controllerMode;
 	measuredValue channel_output[8];
+	int channel_output_raw[8];
 	measuredValue maxVoltage;
 	measuredValue minVoltage;
 	measuredValue maxCurrent;
 	measuredValue maxPower;
-	SplineTransformation unitsToVoltage;
- 	SplineTransformation unitsToCurrent;
- 	SplineTransformation unitsToPower;
-	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation);
+	SplineTransformation unitsToVoltageReg;
+ 	SplineTransformation unitsToCurrentReg;
+ 	SplineTransformation unitsToPowerReg;
+	SplineTransformation unitsToVoltageLimMax;
+	SplineTransformation unitsToVoltageLimMin;
+ 	SplineTransformation unitsToCurrentLim;
+ 	SplineTransformation unitsToPowerLim;
+	SplineTransformation unitsToVoltageMeas;
+	SplineTransformation unitsToCurrentMeas;
+	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = false);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
+	std::string intToBinaryStr(uint16_t i);
 
 	
   

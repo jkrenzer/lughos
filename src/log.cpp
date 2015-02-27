@@ -15,7 +15,8 @@ namespace lughos
       std::stringstream ss;
       ss << "[" << boost::posix_time::to_iso_extended_string(now) <<  "] <" << severity << "> (" << functionName << "@" << fileName << ":" << lineNumber << " - " << message << std::endl;
       std::string logMessage = ss.str();
-      lughos::sout << logMessage;
+      if (severity >= DEBUG_THRESHOLD_CERR)
+	lughos::sout << logMessage;
   }
 
   template <class T> lughos::soutObj& lughos::soutObj::operator<<(T val)

@@ -17,6 +17,10 @@ typedef boost::error_info<struct errorSeverityStruct,severity> errorSeverity;
 struct exception: virtual boost::exception, virtual std::exception { };
 
 
+std::string severityToString(severity s);
+
+std::string makeErrorReport(exception& e);
+
 
 
 } //namespace lughos

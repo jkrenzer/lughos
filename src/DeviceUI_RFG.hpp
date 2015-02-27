@@ -71,10 +71,16 @@ using namespace lughos;
     Wt::WPushButton *sendUB;
     Wt::WDoubleSpinBox *uMinField;
     Wt::WDoubleSpinBox *uMaxField;
-    Wt::WDoubleSpinBox *pMaxField;
+    Wt::WLabel* targetFieldL;
+    Wt::WDoubleSpinBox *targetField;
     Wt::WPushButton *sendPB;
     Wt::WPushButton *sendOnB;
     Wt::WPushButton *sendOffB;
+    Wt::WLabel* modesL;
+    Wt::WCheckBox* rawMode;
+    Wt::WPushButton *voltageControl;
+    Wt::WPushButton *currentControl;
+    Wt::WPushButton *powerControl;
     Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
@@ -108,13 +114,23 @@ using namespace lughos;
 	this->sendOffB->setDisabled(false);
 	this->uMinField->setDisabled(false);
 	this->uMaxField->setDisabled(false);
-	this->pMaxField->setDisabled(false);
+	this->targetField->setDisabled(false);
+	this->voltageControl->setDisabled(false);
+	this->currentControl->setDisabled(false);
+	this->powerControl->setDisabled(false);
+	this->rawMode->setDisabled(false);
         this->sendUB->clicked().connect(this,&DeviceUI<RFG>::setU);
         this->sendIB->clicked().connect(this,&DeviceUI<RFG>::setI);
-	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setP);
+	this->sendPB->clicked().connect(this,&DeviceUI<RFG>::setTargetValue);
         this->sendOnB->clicked().connect(this,&DeviceUI<RFG>::switchOn);
 	this->sendOffB->clicked().connect(this,&DeviceUI<RFG>::switchOff);
+	this->voltageControl->clicked().connect(this,&DeviceUI<RFG>::setTargetVoltage);
+	this->currentControl->clicked().connect(this,&DeviceUI<RFG>::setTargetCurrent);
+	this->powerControl->clicked().connect(this,&DeviceUI<RFG>::setTargetPower);
+	this->rawMode->checked().connect(this,&DeviceUI<RFG>::setRawMode);
+	this->rawMode->unChecked().connect(this,&DeviceUI<RFG>::unsetRawMode);
 	this->getState();
+	this->setTargetVoltage();
 
       }
       else
@@ -131,7 +147,11 @@ using namespace lughos;
 	this->sendOffB->setDisabled(true);
 	this->uMinField->setDisabled(true);
 	this->uMaxField->setDisabled(true);
-	this->pMaxField->setDisabled(true);
+	this->targetField->setDisabled(true);
+	this->voltageControl->setDisabled(true);
+	this->currentControl->setDisabled(true);
+	this->powerControl->setDisabled(true);
+	this->rawMode->setDisabled(true);
 
       }
     }
@@ -150,11 +170,11 @@ using namespace lughos;
       this->addWidget(stateL);
       this->addWidget(stateF); 
       
-      this->uL = new Wt::WLabel("Set U min and max:");
-      this->iL = new Wt::WLabel("Set I:");
+      this->uL = new Wt::WLabel("Set U min and max [V]:");
+      this->iL = new Wt::WLabel("Set I [A]:");
       this->iOutL = new Wt::WLabel("I[A]:");
       this->uOutL = new Wt::WLabel("U[V]:");
-      this->pOutL = new Wt::WLabel("P[Watt]:");
+      this->pOutL = new Wt::WLabel("P[W]:");
 
       this->iOutField =  new  Wt::WLineEdit("");
       this->iOutField->setReadOnly(true);      
@@ -172,15 +192,22 @@ using namespace lughos;
       this->uMaxField =  new  Wt::WDoubleSpinBox(0);
       this->uMaxField->setMinimum(0);
       this->uMaxField->setMaximum(40);
-      this->pMaxField = new  Wt::WDoubleSpinBox(0);
-      this->pMaxField->setMinimum(0);
-      this->pMaxField->setMaximum(190);
+      //TODO Set Maximums from device mode!
+      this->targetFieldL = new Wt::WLabel("Target voltage:");
+      this->targetField = new  Wt::WDoubleSpinBox(0);
+      this->targetField->setMinimum(0);
+      this->targetField->setMaximum(190);
       this->sendIB = new Wt::WPushButton("Send");
       this->sendUB = new Wt::WPushButton("Send");
       this->sendOnB = new Wt::WPushButton("On");
       this->sendOffB = new Wt::WPushButton("Off");
       this->sendPB = new Wt::WPushButton("Send");
       this->stateB = new Wt::WPushButton("Status");
+      this->modesL = new Wt::WLabel("Regulation Mode:");
+      this->voltageControl = new Wt::WPushButton("Voltage");
+      this->currentControl = new Wt::WPushButton("Current");
+      this->powerControl = new Wt::WPushButton("Power");
+      this->rawMode = new Wt::WCheckBox;
 
       this->addWidget(iOutL);      
       this->addWidget(iOutField);
@@ -197,12 +224,20 @@ using namespace lughos;
       this->addWidget(new Wt::WBreak);
       this->addWidget(pOutL);    
       this->addWidget(pOutField);
-      this->addWidget(pMaxField);
+      this->addWidget(new Wt::WBreak);
+      this->addWidget(targetFieldL);
+      this->addWidget(targetField);
       this->addWidget(sendPB); 
+      this->addWidget(new Wt::WBreak);
+      
+      this->addWidget(voltageControl);
+      this->addWidget(currentControl);
+      this->addWidget(powerControl);
       this->addWidget(new Wt::WBreak);
       this->addWidget(sendOnB);
       this->addWidget(sendOffB);
       this->addWidget(stateB);
+      this->addWidget(rawMode);
 //       this->sendIB->setDisabled(true);
 //       this->iField->setDisabled(true);
 //       this->sendUB->setDisabled(true);
@@ -215,15 +250,55 @@ using namespace lughos;
 
     }
     
+    void setRawMode()
+    {
+      this->iField->setMaximum(65535);
+      this->iField->setMinimum(0);
+      this->iField->setDecimals(0);
+      this->uMaxField->setMinimum(0);
+      this->uMaxField->setMaximum(65535);
+      this->uMaxField->setDecimals(0);
+      this->uMinField->setMinimum(0);
+      this->uMinField->setMaximum(65535);
+      this->uMinField->setDecimals(0);
+      this->targetField->setMinimum(0);
+      this->targetField->setMaximum(65535);
+      this->targetField->setDecimals(0);
+      this->getState();
+    }
+    
+    void unsetRawMode()
+    {
+      this->iField->setMaximum(5);
+      this->iField->setMinimum(0);
+      this->iField->setDecimals(1);
+      this->uMaxField->setMinimum(0);
+      this->uMaxField->setMaximum(40);
+      this->uMaxField->setDecimals(1);
+      this->uMinField->setMinimum(0);
+      this->uMinField->setMaximum(40);
+      this->uMinField->setDecimals(1);
+      this->targetField->setMinimum(0);
+      this->targetField->setMaximum(40);
+      this->targetField->setDecimals(1);
+      this->getState();
+    }
+    
     void setU()
     {
 //       
 
       float f = uMinField->value(); 
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
+      if(this->rawMode->isChecked())
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min_raw(f)));
+      else
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
       f = uMaxField->value();
       this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
+      if(this->rawMode->isChecked())
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max_raw(f)));
+      else
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
 //     
       
     }
@@ -233,16 +308,22 @@ using namespace lughos;
 //       
       float f = iField->value(); 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
+      if (this->rawMode->isChecked())
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim_raw(f)));
+      else
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
 //     
       
     }
     
-    void setP()
+    void setTargetValue()
     {
-      float f = pMaxField->value(); 
-      this->stateF->setText("Power set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_power_lim(f)));
+      float f = targetField->value(); 
+      this->stateF->setText("Target set:"+iField->text().toUTF8());
+      if (this->rawMode->isChecked())
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value_raw(f)));
+      else
+	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value(f)));
     }
     
     void switchOn()
@@ -257,11 +338,29 @@ using namespace lughos;
       this->stateF->setText("Switched to OFF.");
     }
     
+    void setTargetVoltage()
+    {
+      this->targetFieldL->setText("Target voltage [V]:");
+      this->rfg->use_voltage_controler();
+    }
+    
+    void setTargetCurrent()
+    {
+      this->targetFieldL->setText("Target current [A]:");
+      this->rfg->use_current_controler();
+    }
+    
+    void setTargetPower()
+    {
+      this->targetFieldL->setText("Target power [W]:");
+      this->rfg->use_power_controler();
+    }
+    
     void getState()
     {
       measuredValue v;
       std::stringstream ss;
-      this->rfg->readout();
+      this->rfg->readout(this->rawMode->isChecked());
       if (this->rfg->isConnected())
 	
       for (int i; i<8;i++)
@@ -273,7 +372,9 @@ using namespace lughos;
       this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
-      this->pMaxField->setValue(this->rfg->getPower());
+      this->targetField->setValue(this->rfg->getTargetValue());
+      this->uOutField->setText(this->rfg->get_channel(0).getStringValue());
+      this->iOutField->setText(this->rfg->get_channel(1).getStringValue());
     }
     
 //     void start()

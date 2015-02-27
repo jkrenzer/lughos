@@ -5,7 +5,7 @@
 #include<typeinfo>
 #include<boost/smart_ptr/shared_ptr.hpp>
 
-#include "rawValues.hpp"
+#include "values.hpp"
 #include "exposedValues.hpp"
 #include "errorHandling.hpp"
 
@@ -53,7 +53,7 @@ namespace lughos
       std::cout << "-= Object " << eV.getName() << "=-" << std::endl;
       for (int i = 0; i < eV.countChildren(); i++)
       {
-	std::cout << eV.getAs<ValueInterface>(i)->getName() << " - " << eV.getAs<ValueInterface>(i)->getValueAsString() << std::endl;
+// 	std::cout << eV->getName() << " - " << eV.getAs<ExposedValue>(i)->getValueAsString() << std::endl;
       }
     }
   };

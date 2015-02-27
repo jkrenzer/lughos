@@ -18,7 +18,7 @@
 #include "Dict.hpp"
 
 #include <boost/lexical_cast.hpp>
-
+#include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
 
@@ -53,6 +53,7 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	boost::shared_ptr<tcp::resolver::query> query;
 	boost::shared_ptr<tcp::socket> socket;
 	boost::shared_ptr<Dict> dict;
+	boost::shared_ptr<tcp::endpoint> endpoint;
 
 	void handle_read_check_response(const boost::system::error_code& err);
 	void handle_read_headers_process();
@@ -66,8 +67,8 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	std::string read();
 	bool start();
 	void stop();
-	virtual bool connect() = 0;
-	virtual bool disconnect() = 0;
+	virtual void connect(boost::function<void(void)> callback = boost::function<void(void)>()) = 0;
+	virtual void disconnect() = 0;
 	bool connected;
 
 	

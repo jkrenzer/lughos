@@ -34,10 +34,17 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
-      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
-      message.clear();
-      hexValue.clear();
-      charValue.clear();
+      this->type = 0;
+      this->node = 0;
+      this->parameterType = 0;
+      this->process = 0;
+      this->parameter = 0;
+      this->expectedStringLength = 0;
+      this->statusCode = 0;
+      this->statusSubjectFirstByte = 0;
+      this->message.clear();
+      this->hexValue.clear();
+      this->charValue.clear();
     }
     
     bronkhorstMessage(std::string s)
@@ -45,10 +52,17 @@ namespace lughos
       this->processChained = false;
       this->parameterChained = false;
       this->isStatus = false;
-      type, node, parameterType, process, parameter, expectedStringLength, statusCode, statusSubjectFirstByte = 0;
-      message.clear();
-      hexValue.clear();
-      charValue.clear();
+      this->type = 0;
+      this->node = 0;
+      this->parameterType = 0;
+      this->process = 0;
+      this->parameter = 0;
+      this->expectedStringLength = 0;
+      this->statusCode = 0;
+      this->statusSubjectFirstByte = 0;
+      this->message.clear();
+      this->hexValue.clear();
+      this->charValue.clear();
       this->fromString(s);
     }
     
@@ -147,7 +161,7 @@ namespace lughos
 	bs[7] = true;
       else
 	bs[7] = false;
-      std::cout << bs.to_ulong() + this->parameterType << " = " << bs.to_ulong() << " + " << this->parameterType << std::endl;
+      std::cout << "Calculated PARAMETERBYTE: " << bs.to_ulong() + this->parameterType << " = " << bs.to_ulong() << " + " << this->parameterType << " = " << std::hex << bs.to_ulong() + this->parameterType << std::endl;
       return bs.to_ulong() + this->parameterType;
     }
     
@@ -160,7 +174,7 @@ namespace lughos
       std::bitset<8> pbs = bs.to_ulong() & 31;
       this->parameterType = tbs.to_ulong();
       this->parameter = pbs.to_ulong();
-      std::cout << "PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
+      std::cout << "Set PARAMETERBYTE: " << parameterType << " - " << bs.to_ulong() << " - " << tbs.to_ulong() << " - " << pbs.to_ulong() << std::endl;
     }
     
     unsigned int getProcessByte(bool ommitChained = false) const
@@ -214,7 +228,7 @@ namespace lughos
 	  return charValue;
 	std::stringstream returnStream;
 	std::cout << "getValueString HEXVALUE: " << this->hexValue << std::endl;
-	long unsigned int value;
+	long unsigned int value = 0;
 	std::stringstream(this->hexValue) >> std::hex >> value;
 	std::cout << "getValueString VALUE: " << value << std::endl;
 	switch(this->parameterType)
@@ -252,8 +266,9 @@ namespace lughos
     std::string toString() const
     {
       std::stringstream ss("");
-      switch (type) 
+      switch (this->type) 
       {
+	case 0: ss << std::hex << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->statusCode << std::setw(2) << this->statusSubjectFirstByte ; break;
 	case 1:
 	case 2: ss  << std::hex  << std::setw(2) << std::setfill('0') << this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->hexValue; break;
 	case 4: ss  << std::hex  << std::setw(2) << std::setfill('0') <<  this->node << std::setw(2) << this->type << std::setw(2) << this->getProcessByte() << std::setw(2) << this->getParameterByte() << std::setw(2) << this->getProcessByte(true) << std::setw(2) << this->getParameterByte(true);
@@ -285,6 +300,11 @@ namespace lughos
 	res2.push_back(*matchIt);
       }
       std::cout << "GOT MATCHES: " << res2.size() << " - " << res2[0] << " - " << res2[1] << " - " << res2[2] << " - " << res1[1] << std::endl;
+      if(res2.size() < 5)
+      {
+	std::cout << "Bronkhorst message corrupt or of unknown type!" << std::endl;
+	return;
+      }
       this->message = message;
       std::stringstream(res2[1]) >> std::hex >> this->node;
       std::stringstream(res2[2]) >> std::hex >> this->type;
@@ -311,7 +331,7 @@ namespace lughos
     
     enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
     enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
-    enum Parameter {Setpoint = 1, Capacity = 13};
+    enum Parameter {Measure = 0, Setpoint = 1, Capacity = 13};
   };
   
 }//namespace lughos

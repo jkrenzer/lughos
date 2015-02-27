@@ -43,7 +43,8 @@ public:
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
-	measuredValue get_value();
+	measuredValue get_setpoint();
+	measuredValue get_flow();
 	std::string set_flow(float value);
 protected:
 	std::string interpretAnswer(std::string query);

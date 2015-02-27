@@ -17,7 +17,6 @@ serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) 
   if(this->endOfLineRegExpr_== boost::regex("\r"))  std::cout<<"End of line char: "<<"CR"<<std::endl;
   else if(this->endOfLineRegExpr_==boost::regex("\n")) std::cout<<"End of line char: "<<"NL"<<std::endl;
   else std::cout<<"End of line char:"<<this->endOfLineRegExpr_<<std::endl;
-     start(); 
 }
 
 serialAsync::~serialAsync(void)
@@ -29,7 +28,7 @@ serialAsync::~serialAsync(void)
 
 int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 {    
-  this->queryDone = false;
+  this->currentQuery= query;
 //       start();
       std::ostream request_stream(&request);
       request_stream<<query;
@@ -94,6 +93,7 @@ void serialAsync::handle_read_content(boost::regex& regExpr, const boost::system
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ")+ port_name);
 	this->notifyWaitingClient();
+	this->currentQuery.clear();
 // 	std::cout<<response_string_stream<<std::endl;
 
     }

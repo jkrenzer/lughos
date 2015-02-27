@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	std::string name = server_name;
 
 
-	kithleigh* c = new kithleigh();
+	Keithley* c = new Keithley();
 
 	c->server_name=name; 
     	rv = c->start(); 

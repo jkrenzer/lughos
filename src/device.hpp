@@ -2,13 +2,11 @@
 #define DEVICE_HPP
 
 #include <ostream>
-
-
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/regex.hpp>
 
 #include "connectionImpl.hpp"
-#include "basicObject.hpp"
+#include "BasicObject.hpp"
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
 
@@ -20,7 +18,7 @@ namespace lughos
    * @brief Template-class which deklares the basic interface of a device
    * 
    */
-  class DeviceImpl : public basicObject
+  class DeviceImpl : public BasicObject
   {
   protected:
     Mutex mutex;
@@ -146,12 +144,7 @@ namespace lughos
     {
       
     }
-    
-//     ~DeviceImpl()
-//     {
-//       
-//     }
-//     
+  
   };
   
   class Device : public DeviceImpl
