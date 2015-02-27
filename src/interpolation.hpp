@@ -145,14 +145,20 @@ namespace lughos
       return true;
     }
     
+    double extrapolate(double value, double refValue,gsl_spline* spline, gsl_interp_accel* accel)
+    {
+      double firstDerivative = gsl_interp_eval_deriv(spline,refValue,accel) + gsl_interp_eval_deriv2(spline,refValue,accel) * (value - refValue);
+      return refValue + firstDerivative * (value - refValue);
+    }
+    
     double xToY(double x)
     {
       if (isInitialized && x <= this->xMax && x >= this->xMin)
 	return gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
       else if (x > this->xMax)
-	return this->yMax;
+	return extrapolate(x,this->xMax,xToYSpline,xToYSplineAcc);
       else if (x < this->xMin)
-	return this->yMin;
+	return extrapolate(x,this->xMin,xToYSpline,xToYSplineAcc);
       else
 	return NAN;
     }
@@ -162,9 +168,9 @@ namespace lughos
       if (isInitialized && y <= this->yMax && y >= this->yMin)
 	return gsl_spline_eval (yToXSpline, y, yToXSplineAcc);
       else if (y > this->yMax)
-	return this->xMax;
+	return extrapolate(y,this->yMax,yToXSpline,yToXSplineAcc);
       else if (y < this->yMin)
-	return this->xMin;
+	return extrapolate(y,this->yMin,yToXSpline,yToXSplineAcc);
       else
 	return NAN;
     }
