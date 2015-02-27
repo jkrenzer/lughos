@@ -13,7 +13,7 @@ RFG::RFG()
       channel_output[i].setunitvalue(0,"");
     }
     
-  this->internalResistance = 0.186; //Ohms
+  this->internalResistance = 0.139; //Ohms
     
   unitsToVoltageReg.fromFile("calibration_voltage_DAC.csv");
 
