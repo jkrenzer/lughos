@@ -24,6 +24,7 @@
       this->container = new Wt::WContainerWidget();
       this->setStyleClass("DeviceContainer");
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
+      this->setCentralWidget(container);
     }
   };
   
