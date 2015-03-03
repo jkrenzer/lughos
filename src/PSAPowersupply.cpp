@@ -104,9 +104,9 @@ measuredValue PSAPowersupply::get_temperature()
 //  exp_lenght=4;
  measuredValue value;
  std::string answer = this->inputOutput("\x03");
- boost::regex expr("(\d*)\\$"); 
+ boost::regex expr("(\\d*)\\$"); 
  boost::smatch result;
- boost::regex_search(answer.begin(),answer.end(),result,expr);
+ boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
  value.setStringValue(result[1]);
  value.setunit("°C");
  return value;
