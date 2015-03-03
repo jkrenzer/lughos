@@ -11,6 +11,8 @@ unitValue::unitValue(void)
 
 unitValue::unitValue(double putvalue, std::string putunit)
 {
+  this->value = putvalue;
+  this->unit = putunit;
 }
 
 unitValue::~unitValue(void)
