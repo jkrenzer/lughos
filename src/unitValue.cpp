@@ -59,7 +59,7 @@ std::string unitValue::getStringValue() const
 
 std::string unitValue::getString() const
 {
-  return this->getStringValue() + std::string("\xFF") + this->unit;
+  return this->getStringValue() + this->unit;
 }
 
 
