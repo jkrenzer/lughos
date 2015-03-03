@@ -104,6 +104,7 @@ measuredValue PSAPowersupply::get_temperature()
 //  exp_lenght=4;
  measuredValue value;
  std::string answer = this->inputOutput("\x03");
+ std::cout << "Temperature: " << answer << std::endl;
  if (answer.size() < 3)
    return measuredValue();
  std::string::reverse_iterator it = answer.rend();
