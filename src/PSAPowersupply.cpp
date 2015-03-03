@@ -90,6 +90,7 @@ measuredValue PSAPowersupply::get_voltage()
  std::string answer = this->inputOutput("\x01");
   if (answer.size() < 3)
    return measuredValue();
+  std::cout << "Voltage: " << answer << std::endl;
  std::string::reverse_iterator it = answer.rend();
  it+=2;
  answer.insert(it.base(),'.');
