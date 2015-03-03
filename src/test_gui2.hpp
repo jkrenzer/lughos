@@ -97,6 +97,7 @@ namespace lughos
       this->dateT = new Wt::WText("Initializing...");
       this->heart->addWidget(this->heart1);
       this->heart->addWidget(this->heart2);
+      this->heart->addStyleClass("inlineDisplay");
       this->addWidget(heart);
       this->addWidget(dateT);
       this->timer->setInterval(1000);
