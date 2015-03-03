@@ -30,6 +30,7 @@
 #include <Wt/WItemDelegate>
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
+#include <Wt/WStackedWidget>
 #include <Wt/WTableView>
 #include <Wt/WTimer>
 #include <Wt/Dbo/Dbo>
@@ -73,7 +74,58 @@ namespace lughos
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
 
-
+  class HeartBeatWidget : public Wt::WContainerWidget
+  {
+  public:
+    
+    Wt::WImage* heart1;
+    Wt::WImage* heart2;
+    Wt::WStackedWidget* heart;
+    Wt::WText* dateT;
+    Wt::WDateTime* date;
+    Wt::WTimer* timer;
+    bool state;
+    
+    HeartBeatWidget(WContainerWidget* parent = 0) : WContainerWidget(parent)
+    {
+      state = false;
+      this->heart1 = new Wt::WImage("./resources/heart1.png");
+      this->heart2 = new Wt::WImage("./resources/heart2.png");
+      this->heart = new Wt::WStackedWidget();
+      this->date = new Wt::WDateTime();
+      this->timer = new Wt::WTimer(this);
+      this->dateT = new Wt::WText("Initializing...");
+      this->heart->addWidget(this->heart1);
+      this->heart->addWidget(this->heart2);
+      this->addWidget(heart);
+      this->addWidget(dateT);
+      this->timer->setInterval(1000);
+      this->timer->timeout().connect(boost::bind(&HeartBeatWidget::beat,this));
+      this->timer->start();
+      this->update();
+    }
+    
+virtual ~HeartBeatWidget()
+{
+  this->timer->stop();
+}
+    
+    void update()
+    {
+      this->heart->setCurrentIndex(this->state);
+      *this->date = Wt::WDateTime::currentDateTime();
+      this->dateT->setText(this->date->toString());
+    }
+    
+    void beat()
+    {
+      this->state = !this->state;
+      this->update();
+    }
+    
+  };
+  
+  
   class OverView : public Wt::WContainerWidget
   {
   public:
@@ -116,7 +168,6 @@ namespace lughos
       this->addStyleClass("DeviceView");
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
-//       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));  
       this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] )); 
       this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUGNetzteil 1")]));
@@ -184,7 +235,8 @@ namespace lughos
       vbox->addWidget(bodyContainer);
       
       Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
-      leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
+      leftPanel->addWidget(new HeartBeatWidget());
+      leftPanel->setWidth(Wt::WLength(10,WLength::Percentage));
       hbox->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
