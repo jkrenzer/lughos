@@ -185,15 +185,9 @@ namespace lughos
       
       Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
       leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
-      bodyContainer->addWidget(leftPanel);
+      hbox->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
-      tabW->addTab(new Wt::WTextArea("This is the contents of the first tab."),
-		  "First", Wt::WTabWidget::PreLoading);
-      tabW->addTab(new Wt::WTextArea("The contents of the tabs are pre-loaded in"
-				    " the browser to ensure swift switching."),
-		  "Preload", Wt::WTabWidget::PreLoading);
-// 		    ofs.close();
       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
       tabW->addTab(new ScatterPlotView(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
@@ -203,7 +197,7 @@ namespace lughos
 //       tab->setCloseable(true);
       
       tabW->setStyleClass("tabwidget");
-      bodyContainer->addWidget(tabW);
+      hbox->addWidget(tabW);
       root()->addWidget(container);
 
 
