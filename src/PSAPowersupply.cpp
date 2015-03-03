@@ -73,6 +73,8 @@ measuredValue PSAPowersupply::get_current()
 //   exp_lenght=4; 
  measuredValue value;
  std::string answer = this->inputOutput("\x02");
+  if (answer.size() < 3)
+   return measuredValue();
  std::string::reverse_iterator it = answer.rend();
  it+=2;
  answer.insert(it.base(),'.');
@@ -86,6 +88,8 @@ measuredValue PSAPowersupply::get_voltage()
 //  exp_lenght=4;
  measuredValue value;
  std::string answer = this->inputOutput("\x01");
+  if (answer.size() < 3)
+   return measuredValue();
  std::string::reverse_iterator it = answer.rend();
  it+=2;
  answer.insert(it.base(),'.');
@@ -100,6 +104,8 @@ measuredValue PSAPowersupply::get_temperature()
 //  exp_lenght=4;
  measuredValue value;
  std::string answer = this->inputOutput("\x03");
+ if (answer.size() < 3)
+   return measuredValue();
  std::string::reverse_iterator it = answer.rend();
  it+=2;
  answer.insert(it.base(),'.');

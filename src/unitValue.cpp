@@ -6,7 +6,7 @@
 
 unitValue::unitValue(void)
 {
- 
+  this->value = std::numeric_limits< double >::quiet_NaN();
 }
 
 unitValue::unitValue(double putvalue, std::string putunit)
