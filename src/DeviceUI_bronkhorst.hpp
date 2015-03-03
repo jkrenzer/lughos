@@ -114,7 +114,7 @@ using namespace lughos;
       std::cout << "Brankhorst init running..." << std::endl;
      this->name=horst->getName();
 //      this->setWidth(500);
-     this->addWidget(new Wt::WText(this->name.c_str()));
+     this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
      this->stateF1 = new Wt::WLineEdit("Initializing...");
      this->stateF1->setReadOnly(true);
      this->stateL1 = new Wt::WLabel("Status:");
