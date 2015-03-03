@@ -47,6 +47,7 @@
 #include "Relais.hpp"
 #include "DeviceUI_bronkhorst.hpp"
 #include "DeviceUI_RFG.hpp"
+#include "DeviceUI_PSA.hpp"
 #include "DeviceUI_FUG.hpp"
 #include "DeviceUI_Relais.hpp"
 #include "DeviceUI.hpp"
@@ -98,6 +99,7 @@ namespace lughos
       this->heart->addWidget(this->heart1);
       this->heart->addWidget(this->heart2);
       this->heart->addStyleClass("inlineDisplay");
+      this->heart->setMargin(Wt::WLength(2,WLength::FontEm),Wt::Side::Right);
       this->addWidget(heart);
       this->addWidget(dateT);
       this->timer->setInterval(1000);
@@ -167,10 +169,13 @@ virtual ~HeartBeatWidget()
     DeviceView(WContainerWidget* parent = 0)
     {
       this->addStyleClass("DeviceView");
+      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 1")] ));
+      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 2")] ));
+      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 3")] ));
+      this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] ));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
-      this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));  
-      this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] )); 
+      this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));   
       this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUGNetzteil 1")]));
       this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUGNetzteil 2")]));
     }
@@ -236,6 +241,9 @@ virtual ~HeartBeatWidget()
       vbox->addWidget(bodyContainer);
       
       Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
+      leftPanel->setMargin(Wt::WLength(5,Wt::WLength::FontEm),Wt::Side::Top);
+      leftPanel->addWidget(new Wt::WText("System heartbeat:"));
+      leftPanel->addWidget(new Wt::WBreak);
       leftPanel->addWidget(new HeartBeatWidget());
       leftPanel->setWidth(Wt::WLength(10,WLength::Percentage));
       hbox->addWidget(leftPanel);
