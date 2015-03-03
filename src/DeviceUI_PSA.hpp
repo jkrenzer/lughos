@@ -111,7 +111,7 @@ using namespace lughos;
       std::cout << "PSA-powersupply init running..." << std::endl;
      this->name=powersupply->getName();
 //      this->setWidth(500);
-     this->addWidget(new Wt::WText(this->name.c_str()));
+     this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
      this->stateF = new Wt::WLineEdit("Initializing...");
      this->stateF->setReadOnly(true);
      this->stateL = new Wt::WLabel("Status:");

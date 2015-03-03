@@ -160,7 +160,7 @@ using namespace lughos;
     {
      this->name=rfg->getName();
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
     
