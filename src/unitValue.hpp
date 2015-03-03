@@ -41,6 +41,8 @@ class unitValue
 	unitValue operator-(double d);
 	unitValue operator/(double d);
 	
+	unitValue& operator=(unitValue other);
+	
 	operator double();
 
 

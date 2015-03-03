@@ -20,6 +20,21 @@ namespace lughos {
     
   }
   
+measuredValue& measuredValue::operator=(measuredValue other)
+{
+  this->value = other.getvalue();
+  this->unit = other.getunit();
+  this->timestamp = other.gettimestamp();
+  this->sensorName = other.getsensorName();
+  return *this;
+}
+
+measuredValue& measuredValue::operator=(unitValue other)
+{
+  this->value = other.getvalue();
+  this->unit = other.getunit();
+  return *this;
+}
 
 
 }

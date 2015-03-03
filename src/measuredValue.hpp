@@ -16,6 +16,10 @@ namespace lughos
       
       measuredValue(void);
       
+      measuredValue& operator=(measuredValue other);
+      
+      measuredValue& operator=(unitValue other);
+      
       DECLARE_GETTER_SETTER(timestamp,boost::posix_time::ptime)
       
       DECLARE_GETTER_SETTER(sensorName,std::string)

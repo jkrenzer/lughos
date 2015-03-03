@@ -130,3 +130,11 @@ unitValue::operator double()
 {
   return this->value;
 }
+
+unitValue& unitValue::operator=(unitValue other)
+{
+  this->value = other.getvalue();
+  this->unit = other.getunit();
+  return *this;
+}
+
