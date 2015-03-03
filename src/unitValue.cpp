@@ -57,6 +57,26 @@ std::string unitValue::getStringValue() const
     return ss.str();
 }
 
+std::string unitValue::getString() const
+{
+  return this->getStringValue() + std::string("\xFF") + this->unit;
+}
+
+
+void unitValue::setStringValue(std::string str)
+{
+  if(str.empty())
+  {
+    this->value = std::numeric_limits< double >::quiet_NaN();
+  }
+  else
+  {
+    std::stringstream ss(str);
+    ss >> this->value;
+  }
+}
+
+
 std::string unitValue::getunit() const
 {
     return unit;
@@ -80,4 +100,33 @@ bool unitValue::isNotANumber()
 bool unitValue::isValidValue()
 {
   return boost::math::isnormal(this->value);
+}
+
+unitValue unitValue::operator*(double d)
+{
+  this->value*=d;
+  return *this;
+}
+
+unitValue unitValue::operator+(double d)
+{
+  this->value+=d;
+  return *this;
+}
+
+unitValue unitValue::operator-(double d)
+{
+  this->value-=d;
+  return *this;
+}
+
+unitValue unitValue::operator/(double d)
+{
+  this->value/=d;
+  return *this;
+}
+
+unitValue::operator double()
+{
+  return this->value;
 }

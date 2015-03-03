@@ -10,6 +10,7 @@
 #include <typeindex>
 #include "errorHandling.hpp"
 #include "transformations.hpp"
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 #define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& get ## name (name<T> &d) { return d; }
 
@@ -54,13 +55,13 @@ public:
 
 };
 
-template <class T> class ValueDeclarationImplementation
-{
-public:
-  
-};
+// template <class T> class ValueDeclarationImplementation
+// {
+// public:
+//   
+// };
 
-template <class T> class ValueDeclaration
+template <class T> class ValueDeclaration : public ValueDeclarationInterface
 {
 public:
   bool verify(T value)
@@ -71,43 +72,32 @@ public:
   
 };
 
+template <class T> ValueDeclaration<T> getTypeDeclaration(T t)
+{
+  return ValueDeclaration<T>();
+}
+
 template <class T> class ValueImplementation : public ValueInterface, public ValueDeclaration<T>
 {
 protected:
   
-  T* value;
-  bool isOwner;
+  boost::shared_ptr<T> valuePointer;
 
-//TODO Add callback-functionality on change
-
-  void clearOldValue()
-  {
-    if(this->value != NULL && isOwner)
-    {
-      delete this->value;
-    }
-  }
-  
 public:
     
  ValueImplementation()
  {
-   this->value = NULL;
-   this->isOwner = true;
  }
  
   ~ValueImplementation()
   {
-    this->clearOldValue();
   }
      
   virtual void setValue(T value)
   {
     if(this->verify((T) value))
     {
-      this->clearOldValue();
-      this->value = new T(value);
-      this->isOwner = true;
+      this->valuePointer.reset( new T(value));
     }
     else
    BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
@@ -115,7 +105,7 @@ public:
   
   virtual T getValue() const
   {
-    return *this->value;
+    return *this->valuePointer;
   }
   
   std::string getValueAsString()
@@ -147,9 +137,26 @@ public:
     this->setValue(transformTo<T>::from(e.getValue()));
   }
   
-  Value<T>(T value)
+  Value<T>(T& value)
   {
     this->setValue(value);
+  }
+  
+  Value<T>& operator=(const T &other)
+  {
+    this->setValue(other);
+    return *this;
+  }	
+    
+  Value<T>& operator=(const Value<T> &other)
+  {
+    this->setValue(other.getValue());
+    return *this;
+  }
+  
+  operator T() const
+  {
+    return this->getValue();
   }
   
 };

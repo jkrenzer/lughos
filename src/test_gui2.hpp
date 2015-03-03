@@ -176,7 +176,16 @@ namespace lughos
       
       Wt::WVBoxLayout *vbox = new Wt::WVBoxLayout();
       container->setLayout(vbox);
+      Wt::WContainerWidget *bodyContainer = new Wt::WContainerWidget();
+      Wt::WHBoxLayout *hbox = new Wt::WHBoxLayout();
+      bodyContainer->setLayout(hbox);
+      
       vbox->addWidget(headContainer);
+      vbox->addWidget(bodyContainer);
+      
+      Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
+      leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
+      bodyContainer->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
       tabW->addTab(new Wt::WTextArea("This is the contents of the first tab."),
@@ -186,14 +195,15 @@ namespace lughos
 		  "Preload", Wt::WTabWidget::PreLoading);
 // 		    ofs.close();
       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
-      tabW->addTab(new ScatterPlotView(), "ScatterPlots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
+      tabW->addTab(new ScatterPlotView(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
 // 					  " by clicking on the close icon."),
 // 			"Close");
 //       tab->setCloseable(true);
-      vbox->addWidget(tabW);
+      
       tabW->setStyleClass("tabwidget");
+      bodyContainer->addWidget(tabW);
       root()->addWidget(container);
 
 

@@ -11,7 +11,7 @@
 using namespace lughos;
 
 
-class A
+class A 
 {
 public:
   int zahl;
@@ -24,6 +24,11 @@ public:
   }
   
 };
+
+double mult(double a, double b)
+{
+  return a * b;
+}
 
 namespace lughos
 {
@@ -59,7 +64,10 @@ int main(int argc, char **argv) {
   try 
   {
     int i = 42;
-    ExposedValue<int>(i,"i");
+    ExposedValue<int> eI(i,"i");
+    std::cout << "Test1: " << eI.show() << ": " << eI << std::endl;
+    ExposedFunction<double, double, double> eMult(&mult,"mult");
+    std::cout << "Test2: " << eMult(2,3) << std::endl;
   }
   catch(lughos::exception e)
   {

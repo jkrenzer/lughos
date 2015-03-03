@@ -5,22 +5,11 @@
 namespace lughos
 {
 
-class ExposedClassInterface : public ExposedObject
+class ExposedClass : public ExposedObject
 {
+protected:
   
-};
-
-template <class C> class ExposedClassImplementation : public ExposedClassInterface
-{
 public:
-  
-  virtual void exposeClass(C c) = 0;
-  
-};
-
-template <class C> class ExposedClass : ExposedClassImplementation<C>
-{
-  
 };
 
 } //namespace lughos

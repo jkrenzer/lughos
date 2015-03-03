@@ -26,6 +26,8 @@ class unitValue
 	void setunitvalue(int putvalue, std::string putunit);
 	double getvalue() const;
 	std::string getStringValue() const;
+	std::string getString() const;
+	void setStringValue(std::string str);
 	std::string getunit() const;
 	void setvalue(double putvalue);
 	void setunit(std::string putunit);
@@ -33,6 +35,13 @@ class unitValue
 	bool isNegativeInfinity();
 	bool isNotANumber();
 	bool isValidValue();
+	
+	unitValue operator*(double d);
+	unitValue operator+(double d);
+	unitValue operator-(double d);
+	unitValue operator/(double d);
+	
+	operator double();
 
 
 protected:

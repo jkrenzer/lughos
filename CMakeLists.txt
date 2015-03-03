@@ -220,9 +220,9 @@ add_library(bronkhorst src/bronkhorst.cpp)
 target_link_libraries(bronkhorst serialAsync unitValue serialConnections errorHandling log)
 add_dependencies(bronkhorst serialAsync unitValue serialConnections errorHandling log)
 
-add_library(PSANetzteil src/PSANetzteil.cpp)
-target_link_libraries(PSANetzteil serialAsync unitValue serialConnections errorHandling log)
-add_dependencies(PSANetzteil serialAsync unitValue serialConnections errorHandling log)
+add_library(PSAPowersupply src/PSAPowersupply.cpp)
+target_link_libraries(PSAPowersupply serialAsync unitValue serialConnections errorHandling log)
+add_dependencies(PSAPowersupply serialAsync unitValue serialConnections errorHandling log)
 
 add_library(Relais src/Relais.cpp)
 target_link_libraries(Relais serialAsync unitValue serialConnections errorHandling log)
@@ -265,6 +265,7 @@ target_link_libraries(test_ioservice ${Boost_LIBRARIES})
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
+target_link_libraries(test_exposer errorHandling)
  
 #Test for wt-dbo
 add_executable(test_wtdbo src/test_wtdbo.cpp)
@@ -284,12 +285,12 @@ endif()
 ### Test for wt2
 # Add executbales and libraries if dependencies are found
 add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/serialAsync.cpp src/unitValue.cpp)
-add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil)
+add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply )
 
 if(${Windows})
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
 else()
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
 endif()
 
 ### Test for wt-plots

@@ -50,13 +50,13 @@ public:
     return this->getType_();
   }
 
-     Wt::Dbo::collection< Wt::Dbo::ptr<BasicObject> > channel;
-    template<class Action>
-    void persist(Action& a)
-    {
-      Wt::Dbo::field(a, name, "name");
-      Wt::Dbo::hasMany(a, channel, Wt::Dbo::ManyToOne, "device");
-    } 
+//      Wt::Dbo::collection< Wt::Dbo::ptr<BasicObject> > channel;
+//     template<class Action>
+//     void persist(Action& a)
+//     {
+//       Wt::Dbo::field(a, name, "name");
+//       Wt::Dbo::hasMany(a, channel, Wt::Dbo::ManyToOne, "device");
+//     } 
    
 };
 

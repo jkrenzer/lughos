@@ -9,6 +9,7 @@
 #include "device.hpp"
 #include "bronkhorst.hpp"
 #include "FUGNetzteil.hpp"
+#include "PSAPowersupply.hpp"
 #include "test_gui_monitoring2.hpp"
 #include "RFG.hpp"
 #include "Relais.hpp"
@@ -98,14 +99,12 @@ int main(int argc, char **argv)
             config.put("devices.rfg1.connection.type","serial");
             config.put("devices.rfg1.connection.mode","async");
             config.put("devices.rfg1.connection.port","/dev/ttyMUE8");
-            boost::property_tree::write_xml(CONFIG_FILENAME, config);
 
             config.put("devices.relais1.name","Relais 1");
             config.put("devices.relais1.type","relais");
             config.put("devices.relais1.connection.type","serial");
             config.put("devices.relais1.connection.mode","async");
             config.put("devices.relais1.connection.port","/dev/ttyMUE3");
-            boost::property_tree::write_xml(CONFIG_FILENAME, config);
 	    
 	    config.put("devices.fug1.name","FUGNetzteil 1");
             config.put("devices.fug1.type","fug");
@@ -113,7 +112,6 @@ int main(int argc, char **argv)
             config.put("devices.fug1.connection.mode","async");
 	    config.put("devices.fug1.connection.server","192.168.178.46");
             config.put("devices.fug1.connection.port","2101");
-            boost::property_tree::write_xml(CONFIG_FILENAME, config);
 	    
 	    config.put("devices.fug2.name","FUGNetzteil 2");
             config.put("devices.fug2.type","fug");
@@ -121,6 +119,24 @@ int main(int argc, char **argv)
             config.put("devices.fug2.connection.mode","async");
 	    config.put("devices.fug2.connection.server","192.168.178.47");
             config.put("devices.fug2.connection.port","2101");
+	    
+	    config.put("devices.psa1.name","PSA 1");
+            config.put("devices.psa1.type","psa-powersupply");
+            config.put("devices.psa1.connection.type","serial");
+            config.put("devices.psa1.connection.mode","async");
+            config.put("devices.psa1.connection.port","/dev/ttyMUE0");
+	    
+	    config.put("devices.psa2.name","PSA 2");
+            config.put("devices.psa2.type","psa-powersupply");
+            config.put("devices.psa2.connection.type","serial");
+            config.put("devices.psa2.connection.mode","async");
+            config.put("devices.psa2.connection.port","/dev/ttyMUE1");
+	    
+	    config.put("devices.psa3.name","PSA 3");
+            config.put("devices.psa3.type","psa-powersupply");
+            config.put("devices.psa3.connection.type","serial");
+            config.put("devices.psa3.connection.mode","async");
+            config.put("devices.psa3.connection.port","/dev/ttyMUE2");
             boost::property_tree::write_xml(CONFIG_FILENAME, config);
         }
 
@@ -132,7 +148,9 @@ int main(int argc, char **argv)
         boost::shared_ptr<serialAsync> connection4(new bronkhorstConnection(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection5(new FUGNetzteilConnection(lughos::ioService) );
         boost::shared_ptr<tcpAsync> connection6(new FUGNetzteilConnection(lughos::ioService) );
-	
+	boost::shared_ptr<serialAsync> connection7(new PSAPowersupplyConnection(lughos::ioService) );
+	boost::shared_ptr<serialAsync> connection8(new PSAPowersupplyConnection(lughos::ioService) );
+	boost::shared_ptr<serialAsync> connection9(new PSAPowersupplyConnection(lughos::ioService) );
 
 
         connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));
@@ -143,13 +161,20 @@ int main(int argc, char **argv)
 	connection6->port_name = std::string(config.get<std::string>("devices.fug2.connection.port"));
 	connection5->server_name = std::string(config.get<std::string>("devices.fug1.connection.server"));
 	connection6->server_name = std::string(config.get<std::string>("devices.fug2.connection.server"));
+	connection7->port_name = std::string(config.get<std::string>("devices.psa1.connection.port"));
+	connection8->port_name = std::string(config.get<std::string>("devices.psa2.connection.port"));
+	connection9->port_name = std::string(config.get<std::string>("devices.psa3.connection.port"));
 
         boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
         boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
         boost::shared_ptr<Device> RFG1(new RFG);
         boost::shared_ptr<Device> relais1(new Relais);
-	 boost::shared_ptr<Device> fug1(new FUGNetzteil);
+	boost::shared_ptr<Device> fug1(new FUGNetzteil);
         boost::shared_ptr<Device> fug2(new FUGNetzteil);
+	boost::shared_ptr<Device> psa1(new PSAPowersupply);
+	boost::shared_ptr<Device> psa2(new PSAPowersupply);
+        boost::shared_ptr<Device> psa3(new PSAPowersupply);
+	
 
         flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
         flowcontroll2->setName(config.get<std::string>("devices.flowcontroll2.name"));
@@ -157,6 +182,9 @@ int main(int argc, char **argv)
         relais1->setName(config.get<std::string>("devices.relais1.name"));
 	fug1->setName(config.get<std::string>("devices.fug1.name"));
         fug2->setName(config.get<std::string>("devices.fug2.name"));
+	psa1->setName(config.get<std::string>("devices.psa1.name"));
+	psa2->setName(config.get<std::string>("devices.psa2.name"));
+	psa3->setName(config.get<std::string>("devices.psa3.name"));
 	
 
         if(!flowcontroll1->connect(connection1))
@@ -169,12 +197,18 @@ int main(int argc, char **argv)
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to rfg1!!!" << std::endl;
 //         if(!relais1->connect(connection2))
 	connection3->endOfLineRegExpr(boost::regex("\\$"));
-            if(!relais1->connect(connection3))
+        if(!relais1->connect(connection3))
                 std::cout << ">>>>>>>>>>>>>>>> Could not connect to relais1!!!" << std::endl;
-	            if(!fug1->connect(connection5))
+	if(!fug1->connect(connection5))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to fug1!!!" << std::endl;
         if(!fug2->connect(connection6))
             std::cout << ">>>>>>>>>>>>>>>> Could not connect to fug2!!!" << std::endl;
+	if(!psa1->connect(connection7))
+	  std::cout << ">>>>>>>>>>>>>>>> Could not connect to psa1!!!" << std::endl;
+	if(!psa2->connect(connection8))
+	  std::cout << ">>>>>>>>>>>>>>>> Could not connect to psa2!!!" << std::endl;
+	if(!psa3->connect(connection9))
+	  std::cout << ">>>>>>>>>>>>>>>> Could not connect to psa3!!!" << std::endl;
 
 	//Adding devices to map
         deviceMap.insert(deviceMapPair(flowcontroll1->getName(), flowcontroll1));
@@ -183,6 +217,10 @@ int main(int argc, char **argv)
         deviceMap.insert(deviceMapPair(relais1->getName(), relais1));
         deviceMap.insert(deviceMapPair(fug1->getName(), fug1));
         deviceMap.insert(deviceMapPair(fug2->getName(), fug2));
+	deviceMap.insert(deviceMapPair(psa1->getName(), psa1));
+        deviceMap.insert(deviceMapPair(psa2->getName(), psa2));
+	deviceMap.insert(deviceMapPair(psa3->getName(), psa3));
+        
 
 
         Wt::Dbo::backend::Sqlite3 sqlite3("test.db");
