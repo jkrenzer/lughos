@@ -3,16 +3,27 @@
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>
+#include <Wt/WPanel>
 #include <Wt/WContainerWidget>
+#include <Wt/WText>
 #include <functional>
 
- class DeviceUIInterface : public Wt::WContainerWidget
+ class DeviceUIInterface : public Wt::WPanel
   {
   public:
     std::string name;
+    Wt::WContainerWidget* container;
+    
+    void addWidget(Wt::WWidget* widget)
+    {
+      this->container->addWidget(widget);
+    }
+    
     DeviceUIInterface()
     {
-      setStyleClass("DeviceContainer");
+      this->container = new Wt::WContainerWidget();
+      this->setStyleClass("DeviceContainer");
+      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
     }
   };
   
@@ -22,8 +33,6 @@
   public:
     DeviceUI<D>()
     {
-
-      this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for device availible!"));
     }
   };
