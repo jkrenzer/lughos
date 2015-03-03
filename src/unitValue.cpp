@@ -104,26 +104,22 @@ bool unitValue::isValidValue()
 
 unitValue unitValue::operator*(double d)
 {
-  this->value*=d;
-  return *this;
+  return unitValue(value * d,this->unit);
 }
 
 unitValue unitValue::operator+(double d)
 {
-  this->value+=d;
-  return *this;
+  return unitValue(value + d,this->unit);
 }
 
 unitValue unitValue::operator-(double d)
 {
-  this->value-=d;
-  return *this;
+  return unitValue(value - d,this->unit);
 }
 
 unitValue unitValue::operator/(double d)
 {
-  this->value/=d;
-  return *this;
+  return unitValue(value / d,this->unit);
 }
 
 unitValue::operator double()
