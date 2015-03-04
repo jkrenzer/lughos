@@ -285,13 +285,13 @@ virtual ~ConnectionStatusWidget()
       Wt::WGroupBox *leftPanel = new Wt::WGroupBox("System Widgets");
       leftPanel->setPadding(Wt::WLength(11,Wt::WLength::Pixel),Wt::Side::Top);
       leftPanel->addWidget(new Wt::WBreak);
-//       leftPanel->addWidget(new ConnectionStatusWidget());
-//       leftPanel->addWidget(new ParserWidget());
+      leftPanel->addWidget(new ConnectionStatusWidget());
+      leftPanel->addWidget(new ParserWidget());
       leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
       hbox->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
-      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
+//       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
       tabW->addTab(new ScatterPlotView(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
