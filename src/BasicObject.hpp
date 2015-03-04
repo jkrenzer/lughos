@@ -2,11 +2,12 @@
 #define BASIC_OBJECT_HPP
 
 #include <Wt/Dbo/Dbo>
+#include "threadSafety.hpp"
 
 namespace lughos
 {
 
-class BasicObject
+class BasicObject : public ThreadSaveObject
 {
 private:
   
@@ -37,11 +38,13 @@ public:
   
   std::string getName()
   {
+    SharedLock lock(this->mutex);
     return this->name;
   }
   
   void setName(std::string name)
   {
+    ExclusiveLock lock(this->mutex);
     this->name = name;
   }
   

@@ -6,7 +6,7 @@
 namespace lughos 
 {
 
-  class Task
+  class Task : public ThreadSaveObject
   {
   public:
     
@@ -15,7 +15,6 @@ namespace lughos
     enum Execute {infinite = -1};
     
   protected:
-    Mutex mutex;
     int executeTimes;
     int executed;
     boost::posix_time::time_duration every;
@@ -29,12 +28,14 @@ namespace lughos
     
     void exec()
     {
-      GUARD
       this->run();
-      this->executed++;
-      this->lastExecution = boost::posix_time::microsec_clock::local_time();
+      {
+	ExclusiveLock lock(this->mutex);
+	this->executed++;
+	this->lastExecution = boost::posix_time::microsec_clock::local_time();
+      }
       //TODO Add timed-end-and-begin-stuff
-      if(executed < executeTimes || executeTimes <= -1)
+      if(this->executed < this->executeTimes || this->executeTimes <= -1)
 	this->start();
     }
     
@@ -65,37 +66,42 @@ namespace lughos
     
     void setExecuteTimes(int times)
     {
-      GUARD
+      ExclusiveLock lock(this->mutex);
       this->executeTimes = times;
     }
     
     int getExecuteTimes()
     {
-      GUARD
+      SharedLock lock(this->mutex);
       return this->executeTimes;
     }
     
     void setEvery(boost::posix_time::time_duration every)
     {
-      GUARD
+      ExclusiveLock lock(this->mutex);
       this->every = every;
     }
     
     boost::posix_time::time_duration getEvery()
     {
-      GUARD
+      SharedLock lock(this->mutex);
       return this->every;
     }
     
     void start()
     {
-      GUARD
+      UpgradeLock lock(this->mutex);
       if(this->state ==Task::State::uninitialized)
+      {
+	lock.unlock();
 	this->init();
+	lock.lock();
+      }
       if(this->state ==Task::State::finished || this->state ==Task::State::aborted || this->state ==Task::State::error)
 	return;
       if(!this->every.is_not_a_date_time() && (this->executeTimes > 0 || this->executeTimes <= -1 ))
       {
+	upgradeLockToExclusive llock(lock);
 	if(this->executed != 0)
 	{
 	  this->timer.expires_from_now(every);
@@ -111,8 +117,10 @@ namespace lughos
     
     void stop()
     {
+      UpgradeLock lock(this->mutex);
       if(this->state ==Task::State::running)
       {
+	upgradeLockToExclusive llock(lock);
 	this->timer.cancel();
 	this->state =Task::State::stopped;
       }

@@ -98,14 +98,6 @@ using namespace lughos;
     {
       if(fug->isConnected())
       {
-// 	measuredValue getMeasure(bool force=false);	
-// 	int setI(double I );
-// 	int setU(double I );
-// 	double getI();
-// 	double getU();
-// 	std::string getLastError();
-// 	std::string getIDN();
-	
 	this->stateF->setText(fug->getIDN());
         this->stateB->setText("Status");
 	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);

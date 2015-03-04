@@ -21,7 +21,6 @@ namespace lughos
   class DeviceImpl : public BasicObject
   {
   protected:
-    Mutex mutex;
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
@@ -62,8 +61,8 @@ namespace lughos
      */
     void init()
     {
-      GUARD
       this->initImplementation();
+      ExclusiveLock lock(this->mutex);
       this->initialized = true;
     }
     
@@ -76,42 +75,52 @@ namespace lughos
      */
     void shutdown()
     {
-      GUARD
       this->shutdownImplementation();
+      ExclusiveLock lock(this->mutex);
       this->initialized = false;
     }
     
     bool connect(boost::shared_ptr<ConnectionImpl> connection)
     {
-      GUARD
-      this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-      this->connected = this->connection->testconnection();
+      {
+	ExclusiveLock lock(this->mutex);
+	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
+	this->connected = this->connection->testconnection();
+      }
       if(this->connected)
 	this->init();
+      SharedLock lock(this->mutex);
       return this->connected;
     }
     
     bool isConnected()
     {
-      GUARD
       bool currentlyConnected = this->connection->testconnection();
       if(currentlyConnected && !this->connected)
 	this->init();
       else if (!currentlyConnected && this->connected)
+      {
+	ExclusiveLock lock(this->mutex);
 	this->initialized = false;
-      this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      }
+      {
+	ExclusiveLock lock(this->mutex);
+	this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      }
+      SharedLock lock(this->mutex);
       return this->connected;
     }
     
     bool isInitialized()
     {
-      GUARD
+      SharedLock lock(this->mutex);
       return this->initialized;
     }
     
     void disconnect()
     {
       this->shutdown();
+      ExclusiveLock lock(this->mutex);
       if(this->connection)
 	this->connection.reset();
       this->connected = false;
@@ -119,23 +128,30 @@ namespace lughos
     
     const ConnectionImpl* const getConnection()
     {
+      SharedLock lock(this->mutex);
       return this->connection.get();
     }
     
     std::string inputOutput(std::string query)
     {
-      GUARD
+      SharedLock lock(this->mutex);
       if(this->connected)
+      {
+	lock.unlock();
 	return this->inputOutputImplementation(query);
+      }
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     std::string inputOutput(std::string query, boost::regex regExpr)
     {
-      GUARD
+      SharedLock lock(this->mutex);
       if(this->connected)
+      {
+	lock.unlock();
 	return this->inputOutputImplementation(query,regExpr);
+      }
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }

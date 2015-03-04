@@ -10,6 +10,7 @@
 #include <typeindex>
 #include "errorHandling.hpp"
 #include "transformations.hpp"
+#include "threadSafety.hpp"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 #define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& get ## name (name<T> &d) { return d; }
@@ -77,7 +78,7 @@ template <class T> TypeDeclaration<T> getTypeDeclaration(T t)
   return TypeDeclaration<T>();
 }
 
-template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>
+template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>, public ThreadSaveObject
 {
 protected:
   
@@ -97,7 +98,9 @@ public:
   {
     if(this->verify((T) value))
     {
+      ExclusiveLock lock(this->mutex);
       this->valuePointer.reset( new T(value));
+      lock.unlock();
       return true;
     }
     else
@@ -106,6 +109,7 @@ public:
   
   virtual T getValue() const
   {
+    SharedLock lock(this->mutex);
     return *this->valuePointer;
   }
   
@@ -169,18 +173,18 @@ public:
   Pointer(T* ptr)
   {
     this->setPtr(ptr);
-    this->isOwner = false;
   }
   
-  void setPtr(T* ptr, bool isOwner = false)
+  void setPtr(T* ptr)
   {
-    this->value = ptr;
-    this->isOwner = isOwner;
+    exclusiveLock lock(this->mutex);
+    this->valuePointer.reset(ptr);
   }
   
   T* getPtr()
   {
-    return this->value;
+    sharedLock lock(this->mutex);
+    return this->valuePointer.get();
   }
   
 };

@@ -2,6 +2,7 @@
 #define EXPOSED_VALUES_HPP
 
 #include "BasicObject.hpp"
+#include "threadSafety.hpp"
 #include "values.hpp"
 #include <sstream>
 #include <boost/signals2/signal.hpp>
@@ -38,11 +39,13 @@ namespace lughos
     
     void setDescription(std::string description)
     {
+      ExclusiveLock lock(this->mutex);
       this->description = description;
     }
     
     std::string getDescription()
     {
+      sharedLock lock(this->mutex);
       return this->description;
     }
     
@@ -58,7 +61,7 @@ namespace lughos
     
   };
 
-  class ExposerRegistry
+  class ExposerRegistry : public ThreadSaveObject
 {
 public:
   
@@ -130,7 +133,9 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     std::string showStructure()
     {
       std::stringstream ss;
+      ExclusiveLock lock(this->mutex);
       ss << "ExposedValue: " << this->getName() << " of type " << this->getTypeName();
+      lock.unlock();
       return ss.str();
     }
     
@@ -207,15 +212,19 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     std::string showStructure()
     {
       std::stringstream ss;
+      sharedLock lock(this->mutex);
       ss << "ExposedPointer: " << this->getName() << " of type " << this->getTypeName();
+      lock.unlock();
       return ss;
     }
     
     ExposedPointer<T>& operator=(T* other)
     {
       if(beforePointerChange(other))
+      {
 	this->setPointer(other);
-      onPointerChange(other);
+	onPointerChange(other);
+      }
       return *this;
     }
     
