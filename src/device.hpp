@@ -87,27 +87,34 @@ namespace lughos
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
 	this->connected = this->connection->testconnection();
       }
-      if(this->connected)
-	this->init();
       SharedLock lock(this->mutex);
+      if(this->connected)
+      {
+	lock.unlock();
+	this->init();
+	lock.lock();
+      }
       return this->connected;
     }
     
     bool isConnected()
     {
       bool currentlyConnected = this->connection->testconnection();
+      UpgradeLock lock(this->mutex);
       if(currentlyConnected && !this->connected)
 	this->init();
       else if (!currentlyConnected && this->connected)
       {
-	ExclusiveLock lock(this->mutex);
+	upgradeLockToExclusive llock(lock);
 	this->initialized = false;
       }
       {
-	ExclusiveLock lock(this->mutex);
-	this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+	lock.unlock();
+	bool isConnected = this->isConnectedImplementation();
+	lock.lock();
+	upgradeLockToExclusive llock(lock);
+	this->connected = currentlyConnected ? isConnected  : false;
       }
-      SharedLock lock(this->mutex);
       return this->connected;
     }
     
