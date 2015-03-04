@@ -8,6 +8,7 @@
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
 #include <Wt/WText>
+#include <Wt/WGroupBox>
 #include <Wt/WTextArea>
 #include <Wt/WTabWidget>
 #include <Wt/WMenuItem>
@@ -77,7 +78,7 @@ namespace lughos
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
 
-  class SystemStatusWidget : public Wt::WPanel
+  class ConnectionStatusWidget : public Wt::WPanel
   {
   public:
     
@@ -90,14 +91,14 @@ namespace lughos
     WContainerWidget* container;
     bool state;
     
-    SystemStatusWidget(WContainerWidget* parent = 0) : WPanel(parent)
+    ConnectionStatusWidget(WContainerWidget* parent = 0) : WPanel(parent)
     {
       state = false;
       this->heart1 = new Wt::WImage("./resources/heart1.png");
       this->heart2 = new Wt::WImage("./resources/heart2.png");
       this->heart = new Wt::WStackedWidget();
       this->container = new Wt::WContainerWidget();
-      this->setTitle("System status");
+      this->setTitle("Connection status");
       this->date = new Wt::WDateTime();
       this->timer = new Wt::WTimer(this);
       this->dateT = new Wt::WText("Initializing...");
@@ -108,13 +109,13 @@ namespace lughos
       this->container->addWidget(heart);
       this->container->addWidget(dateT);
       this->timer->setInterval(1000);
-      this->timer->timeout().connect(boost::bind(&SystemStatusWidget::beat,this));
+      this->timer->timeout().connect(boost::bind(&ConnectionStatusWidget::beat,this));
       this->timer->start();
       this->setCentralWidget(container);
       this->update();
     }
     
-virtual ~SystemStatusWidget()
+virtual ~ConnectionStatusWidget()
 {
   this->timer->stop();
 }
@@ -147,6 +148,7 @@ virtual ~SystemStatusWidget()
     
     ParserWidget()
     {
+      this->setTitle("Command prompt");
       this->container = new Wt::WContainerWidget();
       this->history = new Wt::WTextArea();
       this->history->setDisabled(true);
@@ -281,13 +283,12 @@ virtual ~SystemStatusWidget()
       vbox->addWidget(headContainer);
       vbox->addWidget(bodyContainer);
       
-      Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
-      leftPanel->setMargin(Wt::WLength(5,Wt::WLength::FontEm),Wt::Side::Top);
-      leftPanel->addWidget(new Wt::WText("Lughos system Panel"));
+      Wt::WGroupBox *leftPanel = new Wt::WGroupBox("System Widgets");
+      leftPanel->setMargin(Wt::WLength(2,Wt::WLength::FontEm),Wt::Side::Top);
       leftPanel->addWidget(new Wt::WBreak);
-      leftPanel->addWidget(new SystemStatusWidget());
+      leftPanel->addWidget(new ConnectionStatusWidget());
       leftPanel->addWidget(new ParserWidget());
-      leftPanel->setWidth(Wt::WLength(10,WLength::Percentage));
+      leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
       hbox->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
