@@ -146,7 +146,7 @@ virtual ~ConnectionStatusWidget()
     Wt::WPushButton* sendB;
   public:
     
-    ParserWidget()
+    ParserWidget(WContainerWidget* parent = 0) : WPanel(parent)
     {
       this->setTitle("Command prompt");
       this->container = new Wt::WContainerWidget();
