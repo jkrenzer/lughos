@@ -285,8 +285,8 @@ virtual ~ConnectionStatusWidget()
       Wt::WGroupBox *leftPanel = new Wt::WGroupBox("System Widgets");
       leftPanel->setPadding(Wt::WLength(11,Wt::WLength::Pixel),Wt::Side::Top);
       leftPanel->addWidget(new Wt::WBreak);
-      leftPanel->addWidget(new ConnectionStatusWidget());
-      leftPanel->addWidget(new ParserWidget());
+//       leftPanel->addWidget(new ConnectionStatusWidget());
+//       leftPanel->addWidget(new ParserWidget());
       leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
       hbox->addWidget(leftPanel);
 // 		    ofs.close();
