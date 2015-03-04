@@ -129,6 +129,7 @@ using namespace lughos;
 	intervalTimer->stop();
 	this->stateF->setText("Not connected!");
         this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);

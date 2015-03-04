@@ -56,6 +56,7 @@
 #include "DeviceUI.hpp"
 #include "ScatterPlot.hpp"
 #include "ScatterPlot_bronkhorst.hpp"
+#include "WtSession.hpp"
 
 // template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 // {
@@ -229,7 +230,7 @@ virtual ~ConnectionStatusWidget()
     ScatterPlotView(WContainerWidget* parent = 0)
     {
 //       this->addWidget(new ScatterPlot<S>());
-      this->addWidget(new ScatterPlot<bronkhorst>(deviceMap[std::string("Flow Controll 1")] )); 
+      this->addWidget(new ScatterPlot<bronkhorst>(deviceMap[std::string("Flowrates")] )); 
       
 //       this->addWidget(new ScatterPlot<RFG>(deviceMap[std::string("E")] )); 
     }
@@ -282,9 +283,11 @@ virtual ~ConnectionStatusWidget()
       vbox->addWidget(headContainer);
       vbox->addWidget(bodyContainer);
       
+      
+      
       Wt::WGroupBox *leftPanel = new Wt::WGroupBox("System Widgets");
-      leftPanel->setPadding(Wt::WLength(11,Wt::WLength::Pixel),Wt::Side::Top);
-      leftPanel->addWidget(new Wt::WBreak);
+      leftPanel->setMargin(Wt::WLength(11,Wt::WLength::Pixel),Wt::Side::Top);
+      leftPanel->addWidget(new Wt::WBreak());
       leftPanel->addWidget(new ConnectionStatusWidget());
       leftPanel->addWidget(new ParserWidget());
       leftPanel->setWidth(Wt::WLength(15,WLength::Percentage));
