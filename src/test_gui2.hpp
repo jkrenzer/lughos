@@ -23,6 +23,7 @@
 #include <Wt/Chart/WDataSeries>
 #include <Wt/WAbstractItemModel>
 #include <Wt/WAbstractItemView>
+#include <Wt/WComboBox>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WLocalDateTime>
@@ -76,7 +77,7 @@ namespace lughos
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
 
-  class HeartBeatWidget : public Wt::WPanel
+  class SystemStatusWidget : public Wt::WPanel
   {
   public:
     
@@ -89,30 +90,30 @@ namespace lughos
     WContainerWidget* container;
     bool state;
     
-    HeartBeatWidget(WContainerWidget* parent = 0) : WPanel(parent)
+    SystemStatusWidget(WContainerWidget* parent = 0) : WPanel(parent)
     {
       state = false;
       this->heart1 = new Wt::WImage("./resources/heart1.png");
       this->heart2 = new Wt::WImage("./resources/heart2.png");
       this->heart = new Wt::WStackedWidget();
-      this->setTitle("System heartbeat");
+      this->setTitle("System status");
       this->date = new Wt::WDateTime();
       this->timer = new Wt::WTimer(this);
       this->dateT = new Wt::WText("Initializing...");
       this->heart->addWidget(this->heart1);
       this->heart->addWidget(this->heart2);
       this->heart->addStyleClass("inlineDisplay");
-      this->heart->setMargin(Wt::WLength(1,WLength::FontEm),Wt::Side::Right);
+      this->heart->setMargin(Wt::WLength(0.5,WLength::FontEm),Wt::Side::Right);
       this->container->addWidget(heart);
       this->container->addWidget(dateT);
       this->timer->setInterval(1000);
-      this->timer->timeout().connect(boost::bind(&HeartBeatWidget::beat,this));
+      this->timer->timeout().connect(boost::bind(&SystemStatusWidget::beat,this));
       this->timer->start();
       this->setCentralWidget(container);
       this->update();
     }
     
-virtual ~HeartBeatWidget()
+virtual ~SystemStatusWidget()
 {
   this->timer->stop();
 }
@@ -130,6 +131,41 @@ virtual ~HeartBeatWidget()
       this->update();
     }
     
+  };
+  
+  class ParserWidget : public Wt::WPanel
+  {
+  protected:
+    Wt::WContainerWidget* container;
+    Wt::WTextArea* history;
+    Wt::WLineEdit* prompt;
+    Wt::WLabel* languageL;
+    Wt::WComboBox* language;
+    Wt::WPushButton* sendB;
+  public:
+    
+    ParserWidget()
+    {
+      this->container = new Wt::WContainerWidget();
+      this->history = new Wt::WTextArea();
+      this->history->setDisabled(true);
+      this->sendB = new Wt::WPushButton("Send");
+      this->sendB->setWidth(Wt::WLength(24,Wt::WLength::Percentage));
+      this->prompt = new Wt::WLineEdit();
+      this->prompt->setWidth(Wt::WLength(75,Wt::WLength::Percentage));
+      this->languageL = new Wt::WLabel();
+      this->language = new Wt::WComboBox();
+      this->language->addItem("C-Script");
+      this->languageL->setBuddy(language);
+      
+      this->container->addWidget(history);
+      this->container->addWidget(languageL);
+      this->container->addWidget(language);
+      this->container->addWidget(new Wt::WBreak);
+      this->container->addWidget(prompt);
+      this->container->addWidget(sendB);
+      this->setCentralWidget(this->container);
+    }
   };
   
   
@@ -246,9 +282,10 @@ virtual ~HeartBeatWidget()
       
       Wt::WContainerWidget *leftPanel = new Wt::WContainerWidget();
       leftPanel->setMargin(Wt::WLength(5,Wt::WLength::FontEm),Wt::Side::Top);
-      leftPanel->addWidget(new Wt::WText("System heartbeat:"));
+      leftPanel->addWidget(new Wt::WText("Lughos system Panel"));
       leftPanel->addWidget(new Wt::WBreak);
-      leftPanel->addWidget(new HeartBeatWidget());
+      leftPanel->addWidget(new SystemStatusWidget());
+      leftPanel->addWidget(new ParserWidget());
       leftPanel->setWidth(Wt::WLength(10,WLength::Percentage));
       hbox->addWidget(leftPanel);
 // 		    ofs.close();

@@ -8,6 +8,9 @@
 
 #include "exposedValues.hpp"
 #include "values.hpp"
+#include <boost/spirit/include/qi.hpp
+#include <boost/fusion/include/vector.hpp>
+#include <boost/fusion/include/invoke.hpp>
 
 namespace lughos
 {
@@ -17,22 +20,6 @@ namespace lughos
   protected:
     
     boost::function<ReturnType (Arguments...)> function;
-    
-    std::string stringExecutor(std::string arguments)
-    {
-      int numberOfArguments = sizeof...(Arguments);
-      std::cout << "Searching for " << numberOfArguments << " in  String: \"" << arguments << "\"." << std::endl;
-      if(numberOfArguments == 0)
-      {
-	Value<ReturnType> result = (*this)();
-	return result.getStringValue();
-      }
-      std::string protoExpr("");
-      std::string group("()");
-      boost::regex expr("\\(()\\)");
-    }
-    
-    template <class 
     
   public:
     
@@ -72,9 +59,15 @@ namespace lughos
 	BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_not_runnable") << errorTitle("An exposed function was called but it is not executable") << errorDescription("This error occurs, when a exposed function is called but runable-state-verification-method reports an inexecutable state of the function object. This can be the case when arguments are missing or of wrong type.") << errorSeverity(severity::ShouldNot) );
     }
     
-    std::string interface(std::string command)
+    std::string parse(std::string command)
     {
-      return std::string(""); //TODO
+      boost::fusion::vector<Arguments...> argV;
+      ReturnType returnValue;
+      if(boost::spirit::qi::phrase_parse(arguments.cbegin(),arguments.cend(),argV,boost::spirit::qi::space))
+      {
+	returnValue = boost::fusion::invoke(this->function,argV);
+	//TODO Value to string
+      }
     }
     
   };

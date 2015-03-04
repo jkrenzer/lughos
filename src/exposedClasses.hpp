@@ -5,13 +5,13 @@
 namespace lughos
 {
 
-class ExposedClass : public ExposedObject
-{
-protected:
-  ExposerRegistry memberRegistry;
-public:
-  
-};
+  class ExposedClass : public ExposedObject
+  {
+  protected:
+    ExposerRegistry memberRegistry;
+  public:
+    
+  };
 
 } //namespace lughos
 #endif

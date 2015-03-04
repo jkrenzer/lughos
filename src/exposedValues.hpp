@@ -48,7 +48,7 @@ namespace lughos
     
     virtual std::string showStructure() = 0;
     
-    virtual std::string interface(std::string command) = 0;
+    virtual std::string parse(std::string command) = 0;
     
 
     
@@ -162,7 +162,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
       return this->getValue();
     }
     
-    virtual std::string interface(std::string command)
+    virtual std::string parse(std::string command)
     {
       bool success = false;
       if(command[0] == '=' && command.size() > 1)
