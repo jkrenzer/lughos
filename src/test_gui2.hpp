@@ -96,6 +96,7 @@ namespace lughos
       this->heart1 = new Wt::WImage("./resources/heart1.png");
       this->heart2 = new Wt::WImage("./resources/heart2.png");
       this->heart = new Wt::WStackedWidget();
+      this->container = new Wt::WContainerWidget();
       this->setTitle("System status");
       this->date = new Wt::WDateTime();
       this->timer = new Wt::WTimer(this);
