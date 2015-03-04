@@ -230,7 +230,7 @@ virtual ~ConnectionStatusWidget()
     ScatterPlotView(WContainerWidget* parent = 0)
     {
 //       this->addWidget(new ScatterPlot<S>());
-      this->addWidget(new ScatterPlot<bronkhorst>(deviceMap[std::string("Flowrates")] )); 
+      this->addWidget(new ScatterPlot<bronkhorst>(deviceMap[std::string("Flow Controll 1")] )); 
       
 //       this->addWidget(new ScatterPlot<RFG>(deviceMap[std::string("E")] )); 
     }
