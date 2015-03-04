@@ -347,6 +347,9 @@ add_executable(test_stringstream src/test_stringstream.cpp)
 add_executable(test_interpolation src/test_interpolation.cpp)
 target_link_libraries(test_interpolation gsl gslcblas)
 
+### Test for parser
+add_executable(test_parser src/test_parser.cpp)
+
 #### Installation
 
 ### Installation directives

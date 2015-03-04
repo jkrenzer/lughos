@@ -38,11 +38,11 @@ public:
    
   virtual std::string getValueAsString() = 0;
   
-  virtual void setValueFromString(std::string string) = 0;
+  virtual bool setValueFromString(std::string str) = 0;
    
 };
 
-class ValueDeclarationInterface
+class TypeDeclarationInterface
 {
 public:
   virtual bool verify() = 0;
@@ -61,7 +61,7 @@ public:
 //   
 // };
 
-template <class T> class ValueDeclaration : public ValueDeclarationInterface
+template <class T> class TypeDeclaration : public TypeDeclarationInterface
 {
 public:
   bool verify(T value)
@@ -72,12 +72,12 @@ public:
   
 };
 
-template <class T> ValueDeclaration<T> getTypeDeclaration(T t)
+template <class T> TypeDeclaration<T> getTypeDeclaration(T t)
 {
-  return ValueDeclaration<T>();
+  return TypeDeclaration<T>();
 }
 
-template <class T> class ValueImplementation : public ValueInterface, public ValueDeclaration<T>
+template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>
 {
 protected:
   
@@ -93,14 +93,15 @@ public:
   {
   }
      
-  virtual void setValue(T value)
+  virtual bool setValue(T value)
   {
     if(this->verify((T) value))
     {
       this->valuePointer.reset( new T(value));
+      return true;
     }
     else
-   BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
+      return false;
   }
   
   virtual T getValue() const
@@ -108,14 +109,14 @@ public:
     return *this->valuePointer;
   }
   
-  std::string getValueAsString()
+  virtual std::string getValueAsString()
   {
     return transformTo<std::string>::from(this->getValue());
   }
   
-  void setValueFromString(std::string string)
+  virtual bool setValueFromString(std::string string)
   {
-    this->setValue(transformTo<T>::from(string));
+    return this->setValue(transformTo<T>::from(string));
   }
   
 };
@@ -186,7 +187,7 @@ public:
 
 typedef ValueInterface Values;
 
-REGISTER_CLASS_FAMILY(ValueDeclaration)
+REGISTER_CLASS_FAMILY(TypeDeclaration)
 
 REGISTER_CLASS_FAMILY(Value)
 

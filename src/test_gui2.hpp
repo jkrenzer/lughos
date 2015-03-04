@@ -28,6 +28,7 @@
 #include <Wt/WLocalDateTime>
 #include <Wt/WPaintedWidget>
 #include <Wt/WItemDelegate>
+#include <Wt/WPanel>
 #include <Wt/WShadow>
 #include <Wt/WStandardItemModel>
 #include <Wt/WStackedWidget>
@@ -75,7 +76,7 @@ namespace lughos
 //   extern boost::asio::io_service * ioService;
   extern std::map<std::string, boost::shared_ptr<Device> > deviceMap;
 
-  class HeartBeatWidget : public Wt::WContainerWidget
+  class HeartBeatWidget : public Wt::WPanel
   {
   public:
     
@@ -85,26 +86,29 @@ namespace lughos
     Wt::WText* dateT;
     Wt::WDateTime* date;
     Wt::WTimer* timer;
+    WContainerWidget* container;
     bool state;
     
-    HeartBeatWidget(WContainerWidget* parent = 0) : WContainerWidget(parent)
+    HeartBeatWidget(WContainerWidget* parent = 0) : WPanel(parent)
     {
       state = false;
       this->heart1 = new Wt::WImage("./resources/heart1.png");
       this->heart2 = new Wt::WImage("./resources/heart2.png");
       this->heart = new Wt::WStackedWidget();
+      this->setTitle("System heartbeat");
       this->date = new Wt::WDateTime();
       this->timer = new Wt::WTimer(this);
       this->dateT = new Wt::WText("Initializing...");
       this->heart->addWidget(this->heart1);
       this->heart->addWidget(this->heart2);
       this->heart->addStyleClass("inlineDisplay");
-      this->heart->setMargin(Wt::WLength(2,WLength::FontEm),Wt::Side::Right);
-      this->addWidget(heart);
-      this->addWidget(dateT);
+      this->heart->setMargin(Wt::WLength(1,WLength::FontEm),Wt::Side::Right);
+      this->container->addWidget(heart);
+      this->container->addWidget(dateT);
       this->timer->setInterval(1000);
       this->timer->timeout().connect(boost::bind(&HeartBeatWidget::beat,this));
       this->timer->start();
+      this->setCentralWidget(container);
       this->update();
     }
     

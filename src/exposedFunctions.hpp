@@ -2,9 +2,12 @@
 #define EXPOSED_FUNCTIONS_HPP
 
 #include <boost/function.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/regex.hpp>
 #include <vector>
 
 #include "exposedValues.hpp"
+#include "values.hpp"
 
 namespace lughos
 {
@@ -14,16 +17,28 @@ namespace lughos
   protected:
     
     boost::function<ReturnType (Arguments...)> function;
-    std::vector<boost::function<bool (Arguments& ...)> > preProcessors;
-    std::vector<boost::function<void (void)> > preSignals;
-    std::vector<boost::function<bool (ReturnType&)> > postProcessors;
-    std::vector<boost::function<void (void)> > postSignals;
     
-    virtual void setDefaultCallbacks()
+    std::string stringExecutor(std::string arguments)
     {
+      int numberOfArguments = sizeof...(Arguments);
+      std::cout << "Searching for " << numberOfArguments << " in  String: \"" << arguments << "\"." << std::endl;
+      if(numberOfArguments == 0)
+      {
+	Value<ReturnType> result = (*this)();
+	return result.getStringValue();
+      }
+      std::string protoExpr("");
+      std::string group("()");
+      boost::regex expr("\\(()\\)");
     }
-
+    
+    template <class 
+    
   public:
+    
+    boost::signals2::signal<bool (Arguments&...), allSlotsTrue> beforeExecute;
+    boost::signals2::signal<bool (ReturnType&), allSlotsTrue> afterExecute;
+    boost::signals2::signal<void (ReturnType&)> onExecute;
     
     ExposedFunction(boost::function<ReturnType (Arguments...)> function, std::string name, std::string description = "") : function(function)
     {
@@ -37,84 +52,29 @@ namespace lughos
     {
       std::stringstream ss;
       ss << "ExposedFunction: " << getTypeDeclaration(ReturnType()).getTypeName();
-    }
-    
-    void addPreExecutionCall(boost::function<bool (Arguments& ...)> f)
-    {
-      this->preProcessors.push_back(f);
-    }
-    
-    void addPreExecutionCall(boost::function<void (void)> f)
-    {
-      this->preSignals.push_back(f);
-    }
-    
-    void addPostExecutionCall(boost::function<bool (ReturnType&)> f)
-    {
-      this->postProcessors.push_back(f);
-    }
-    
-    void addPostExecutionCall(boost::function<void (void)> f)
-    {
-      this->postSignals.push_back(f);
-    }
-    
-    void resetCallbacks()
-    {
-      this->preProcessors.clear();
-      this->preSignals.clear();
-      this->postProcessors.clear();
-      this->postSignals.clear();
-      this->setDefaultCallbacks();
-    }
-    
-    bool runCallbacks(Arguments&... arguments)
-    {
-      try
-      {
-	for(typename std::vector<boost::function<bool (Arguments& ...)> >::iterator it = preProcessors.begin(); it != preProcessors.end(); it++)
-	  if(!(*it)(arguments...)) return false;
-	for(typename std::vector<boost::function<void (void)> >::iterator it = preSignals.begin(); it != preSignals.end(); it++)
-	  (*it)();
-      }
-      catch(...)
-      {
-	return false;
-      }
-      return true;
-    }
-    
-    bool runCallbacks(ReturnType &returnValue)
-    {
-      try
-      {
-	for(typename std::vector<boost::function<bool (ReturnType&)> >::iterator it = postProcessors.begin(); it != postProcessors.end(); it++)
-	  if(!(*it)(returnValue)) return false;
-	for(typename std::vector<boost::function<void (void)> >::iterator it = postSignals.begin(); it != postSignals.end(); it++)
-	  (*it)();
-      }
-      catch(...)
-      {
-	return false;
-      }
-      return true;
-    }
-    
+    }    
+       
     ReturnType operator()(Arguments... arguments)
     {
       if(function)
       {
 	ReturnType returnValue;
-	if (runCallbacks(arguments...))
+	if (beforeExecute(arguments...))
 	  returnValue = this->function(arguments...);
 	else
 	  BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_invalid_value") << errorTitle("An exposed function was not called because a pre-processor deemed an argument or precondition invalid.") << errorDescription("This error occurs, when a exposed function is called and one of the pre-processors returns \"false\". This could be, for example, if a prerequisit for execution of this function is not met.") << errorSeverity(severity::ShouldNot) );
-	if(!runCallbacks(returnValue))
+	if(!afterExecute(returnValue))
 	  BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_invalid_value") << errorTitle("An exposed function return-value value was deemed inacceptable by a postprocessor.") << errorDescription("This error occurs, when a exposed function is called and finished but the returned value causes one of the post-processors to return \"false\".") << errorSeverity(severity::ShouldNot) );
+	onExecute(returnValue);
 	return returnValue;
       }
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName("executed_exposed_function_not_runnable") << errorTitle("An exposed function was called but it is not executable") << errorDescription("This error occurs, when a exposed function is called but runable-state-verification-method reports an inexecutable state of the function object. This can be the case when arguments are missing or of wrong type.") << errorSeverity(severity::ShouldNot) );
+    }
+    
+    std::string interface(std::string command)
+    {
+      return std::string(""); //TODO
     }
     
   };

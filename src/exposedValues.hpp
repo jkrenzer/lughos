@@ -4,9 +4,31 @@
 #include "BasicObject.hpp"
 #include "values.hpp"
 #include <sstream>
+#include <boost/signals2/signal.hpp>
 
 namespace lughos
 {
+  struct allSlotsTrue
+  {
+    typedef bool result_type;
+    
+    template<typename InputIterator>
+    bool operator()(InputIterator first, InputIterator last) const
+    {
+      // If there are no slots to call, just return the
+      // default-constructed value
+      if(first == last ) return true;
+      while (first != last) {
+	if (!*first)
+	{
+	  return false;
+	}
+	++first;
+      }
+      return true;
+    }
+  };
+  
   class ExposedObject : public BasicObject
   {
   public:
@@ -26,7 +48,9 @@ namespace lughos
     
     virtual std::string showStructure() = 0;
     
-    virtual std::string interface(std::string) = 0;
+    virtual std::string interface(std::string command) = 0;
+    
+
     
   protected:
     
@@ -36,14 +60,19 @@ namespace lughos
 
   class ExposerRegistry
 {
+public:
+  
+  typedef boost::shared_ptr<ExposedObject> Object;
+  
 protected:
   
-  typedef std::map<std::string,boost::shared_ptr<ExposedObject>> ExposedObjects;
+  typedef std::map<std::string,Object> ExposedObjects;
   
   ExposedObjects exposedObjects;
 
 public:
-  void addObject(boost::shared_ptr<ExposedObject> object);
+  
+  void addObject(Object object);
   
   void addObject(ExposedObject* object);
   
@@ -66,20 +95,32 @@ public:
     //Must be empty for the recursion to work.
   }
 
-  boost::shared_ptr<ExposedObject> getObject(int i);
+  Object getObject(int i);
+  
+  Object getObject(std::string name);
   
   void deleteObject(std::string name);
   
   void deleteObject(ExposedObject& object);
   
-  void deleteObject(boost::shared_ptr<ExposedObject> object);
+  void deleteObject(Object object);
+  
+  Object operator[](std::string name) ;
+  
+  Object operator[](int i);
   
   std::string show();
 };
   
 template <class T> class ExposedValue : public ExposedObject, public Value<T>
   {
+  protected:
+    
   public:
+    
+    boost::signals2::signal<bool (T&), allSlotsTrue> beforeValueChange;
+    boost::signals2::signal<void (T&)> onValueChange;
+    
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {
       this->name = name;
@@ -92,15 +133,72 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
       ss << "ExposedValue: " << this->getName() << " of type " << this->getTypeName();
       return ss.str();
     }
+    
+    ExposedValue<T>& operator=(T other)
+    {
+      this->setValue(other);
+      return *this;
+    }
+    
+    bool setValue(T& other)
+    {
+      if(beforeValueChange(other))
+      {
+	Value<T>::setValue(other);
+	onValueChange(other);
+	return true;
+      }
+      return false;
+    }
+    
+    bool setValueFromString(std::string& str)
+    {
+      T t = transformTo<T>::from(str);
+      return this->setValue(t);
+    }
+    
+    operator T()
+    {
+      return this->getValue();
+    }
+    
+    virtual std::string interface(std::string command)
+    {
+      bool success = false;
+      if(command[0] == '=' && command.size() > 1)
+      {
+	try 
+	{
+	  success = this->setValueFromString(command);
+	}
+	catch(...)
+	{
+	  success = false;
+	}
+	if(success)
+	  return std::string("OK");
+	else
+	  return std::string("ERROR");
+      }
+      else if(command[0] == '?')
+      {
+	return this->getValueAsString();
+      }
+    }
+    
   }; 
   
-  template <class T> class ExposedPointer : public ExposedObject, public Pointer<T>
+  template <class T> class ExposedPointer : public ExposedValue<T>, public Pointer<T>
   {
+  protected:
+
+    boost::signals2::signal<bool (T*), allSlotsTrue> beforePointerChange;
+    boost::signals2::signal<void (T*)> onPointerChange;
 
   public:
     ExposedPointer(T* pointer, std::string name, std::string description = std::string("N/A"))
     {
-      this->pointer = pointer;
+      this->setPointer(pointer);
       this->name = name;
       this->description = description;
     }
@@ -111,6 +209,14 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
       std::stringstream ss;
       ss << "ExposedPointer: " << this->getName() << " of type " << this->getTypeName();
       return ss;
+    }
+    
+    ExposedPointer<T>& operator=(T* other)
+    {
+      if(beforePointerChange(other))
+	this->setPointer(other);
+      onPointerChange(other);
+      return *this;
     }
     
   };

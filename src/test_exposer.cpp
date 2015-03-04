@@ -30,6 +30,17 @@ double mult(double a, double b)
   return a * b;
 }
 
+template <class T>
+void petze(T& t)
+{
+  std::cout << "PETZE: " << t << std::endl;
+}
+
+bool limiter(int i)
+{
+  return i < 256 && i >= 0;
+}
+
 namespace lughos
 {
 
@@ -65,8 +76,15 @@ int main(int argc, char **argv) {
   {
     int i = 42;
     ExposedValue<int> eI(i,"i");
-    std::cout << "Test1: " << eI.show() << ": " << eI << std::endl;
+    eI.onValueChange.connect(&petze<int>);
+    eI.beforeValueChange.connect(&limiter);
+    std::cout << "Test1: " << eI.showStructure() << ": " << eI << std::endl;
+    eI = 127;
+    eI = 512;
+    eI = -1;
+    eI = 123;
     ExposedFunction<double, double, double> eMult(&mult,"mult");
+    eMult.onExecute.connect(&petze<double>);
     std::cout << "Test2: " << eMult(2,3) << std::endl;
   }
   catch(lughos::exception e)

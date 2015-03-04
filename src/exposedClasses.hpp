@@ -8,8 +8,9 @@ namespace lughos
 class ExposedClass : public ExposedObject
 {
 protected:
-  
+  ExposerRegistry memberRegistry;
 public:
+  
 };
 
 } //namespace lughos
