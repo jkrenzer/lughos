@@ -153,9 +153,8 @@ virtual ~ConnectionStatusWidget()
       this->history = new Wt::WTextArea();
       this->history->setDisabled(true);
       this->sendB = new Wt::WPushButton("Send");
-      this->sendB->setWidth(Wt::WLength(24,Wt::WLength::Percentage));
       this->prompt = new Wt::WLineEdit();
-      this->prompt->setWidth(Wt::WLength(75,Wt::WLength::Percentage));
+      this->prompt->setPlaceholderText("Enter command...");
       this->languageL = new Wt::WLabel();
       this->language = new Wt::WComboBox();
       this->language->addItem("C-Script");
@@ -284,7 +283,6 @@ virtual ~ConnectionStatusWidget()
       vbox->addWidget(bodyContainer);
       
       Wt::WGroupBox *leftPanel = new Wt::WGroupBox("System Widgets");
-      leftPanel->setMargin(Wt::WLength(2,Wt::WLength::FontEm),Wt::Side::Top);
       leftPanel->addWidget(new Wt::WBreak);
       leftPanel->addWidget(new ConnectionStatusWidget());
       leftPanel->addWidget(new ParserWidget());
