@@ -19,13 +19,19 @@
       this->container->addWidget(widget);
     }
     
-    DeviceUIInterface()
+    DeviceUIInterface(Wt::WContainerWidget* parent = 0) : WPanel(parent)
     {
       this->container = new Wt::WContainerWidget();
       this->setStyleClass("DeviceContainer");
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->setCentralWidget(container);
     }
+    
+    virtual ~DeviceUIInterface()
+    {
+      delete this->container;
+    }
+    
   };
   
     

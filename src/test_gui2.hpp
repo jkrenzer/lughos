@@ -291,7 +291,7 @@ virtual ~ConnectionStatusWidget()
       hbox->addWidget(leftPanel);
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
-//       tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
+      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
       tabW->addTab(new ScatterPlotView(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
