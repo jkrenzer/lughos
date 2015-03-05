@@ -89,6 +89,8 @@ namespace lughos
     
     ExposedFunction(boost::function<void (Arguments...)> function, std::string name, std::string description = "") : function(function)
     {
+      this->name = name;
+      this->description = description;
     }
     
     ~ExposedFunction()
@@ -143,6 +145,8 @@ namespace lughos
     
     ExposedFunction(boost::function<ReturnType (void)> function, std::string name, std::string description = "") : function(function)
     {
+      this->name = name;
+      this->description = description;
     }
     
     ~ExposedFunction()
@@ -196,6 +200,8 @@ namespace lughos
     
     ExposedFunction(boost::function<void (void)> function, std::string name, std::string description = "") : function(function)
     {
+      this->name = name;
+      this->description = description;
     }
     
     ~ExposedFunction()

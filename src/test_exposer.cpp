@@ -23,16 +23,16 @@ public:
     this->str = s;
   }
   
-  void output()
+  void output(std::string str1)
   {
-    std::cout << zahl << " ### " << str << std::endl;
+    std::cout << zahl << " ### " << str1 << std::endl;
   }
   
   void memberDeclaration()
   {
     addMember(zahl,"zahl");
     addMember(str,"str");
-    addMember(new ExposedFunction<void>(boost::bind(&A::output,this),"output"));
+    addMember(new ExposedFunction<void>(boost::bind(&A::output,this,_1),"output"));
   }
   
 };
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     eMult.onExecute.connect(&petze<double>);
     std::cout << "Test2: " << eMult(2,3) << std::endl;
     A a(254,"Klasse!");
-    a["output"]->parse("");
+    a["output"]->parse("\"Hallo Welt!\"");
   }
   catch(lughos::exception e)
   {

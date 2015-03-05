@@ -5,6 +5,7 @@ namespace lughos {
   void ExposerRegistry::addObject(Object& object)
 {
   this->addObject(&object);
+  std::cout << "Got reference. Redirecting..." << std::endl;
 }
 
 void ExposerRegistry::addObject(Object* object)
@@ -12,6 +13,7 @@ void ExposerRegistry::addObject(Object* object)
   std::string name = object->getName();
   ExclusiveLock lock(this->mutex);
   this->exposedObjects.insert(std::pair<std::string,Object*>(name,object));
+  std::cout << "Added object " << name << " with address " << object << std::endl;
 }
 
 void ExposerRegistry::deleteObject(Object& object)
@@ -49,7 +51,11 @@ std::string ExposerRegistry::showStructure()
 ExposerRegistry::Object* ExposerRegistry::getObject(std::string name)
 {
   SharedLock lock(this->mutex);
-    return this->exposedObjects[name];
+  ExposedObjects::iterator it = exposedObjects.find(name);
+  if(it != exposedObjects.end())
+    return it->second;
+  else
+    throw std::runtime_error("Tried to access non-existant object by name");
 }
 
 ExposerRegistry::Object* ExposerRegistry::getObject(int i)

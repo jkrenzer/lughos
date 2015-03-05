@@ -11,6 +11,8 @@ namespace lughos
   protected:
     ExposerRegistry members;
     
+    bool declared;
+    
     virtual void memberDeclaration() = 0;
     
     void addMember(ExposedObject& object)
@@ -37,14 +39,23 @@ namespace lughos
     
     ExposedObject* operator[](std::string name)
     {
+      if(!this->declared)
+	this->memberDeclaration();
       return members[name];
     }
     
     ExposedObject* operator[](int i)
     {
+      if(!this->declared)
+	this->memberDeclaration();
       return members[i];
     }
     
+    ExposedClass()
+    {
+      this->declared = false;
+    }
+       
   };
 
 } //namespace lughos
