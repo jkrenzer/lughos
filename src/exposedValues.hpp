@@ -32,6 +32,8 @@ namespace lughos
   
   class ExposedObject : public BasicObject
   {
+  private:
+    Mutex mutex;
   public:
     ExposedObject()
     {
@@ -45,13 +47,19 @@ namespace lughos
     
     std::string getDescription()
     {
-      sharedLock lock(this->mutex);
+      SharedLock lock(this->mutex);
       return this->description;
     }
     
-    virtual std::string showStructure() = 0;
+    virtual std::string showStructure()
+    {
+      return std::string("");
+    }
     
-    virtual std::string parse(std::string command) = 0;
+    virtual std::string parse(std::string command)
+    {
+      return std::string("");
+    }
     
 
     
@@ -61,33 +69,35 @@ namespace lughos
     
   };
 
-  class ExposerRegistry : public ThreadSaveObject
+  class ExposerRegistry
 {
+private:
+  Mutex mutex;
 public:
   
-  typedef boost::shared_ptr<ExposedObject> Object;
+  typedef ExposedObject Object;
   
 protected:
   
-  typedef std::map<std::string,Object> ExposedObjects;
+  typedef std::map<std::string,Object*> ExposedObjects;
   
   ExposedObjects exposedObjects;
 
 public:
   
-  void addObject(Object object);
+  void addObject(Object& object);
   
-  void addObject(ExposedObject* object);
+  void addObject(Object* object);
   
   template <typename ... Arguments>
-  void addObjects(ExposedObject* object, Arguments ... Rest)
+  void addObjects(Object* object, Arguments ... Rest)
   {
     this->addObject(object);
     this->addObjects(Rest...);
   }
 
   template <typename ... Arguments>
-  void addObjects(boost::shared_ptr< ExposedObject > object, Arguments ... Rest)
+  void addObjects(Object& object, Arguments ... Rest)
   {
     this->addObject(object);
     this->addObjects(Rest...);
@@ -98,25 +108,27 @@ public:
     //Must be empty for the recursion to work.
   }
 
-  Object getObject(int i);
+  Object* getObject(int i);
   
-  Object getObject(std::string name);
+  Object* getObject(std::string name);
   
   void deleteObject(std::string name);
   
-  void deleteObject(ExposedObject& object);
+  void deleteObject(Object* object);
   
-  void deleteObject(Object object);
+  void deleteObject(Object& object);
   
-  Object operator[](std::string name) ;
+  Object* operator[](std::string name) ;
   
-  Object operator[](int i);
+  Object* operator[](int i);
   
-  std::string show();
+  std::string showStructure();
 };
   
 template <class T> class ExposedValue : public ExposedObject, public Value<T>
   {
+  private:
+    Mutex mutex;
   protected:
     
   public:
@@ -158,7 +170,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     
     bool setValueFromString(std::string& str)
     {
-      T t = transformTo<T>::from(str);
+      T t = transform<T,std::string>::to(str);
       return this->setValue(t);
     }
     
@@ -212,7 +224,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     std::string showStructure()
     {
       std::stringstream ss;
-      sharedLock lock(this->mutex);
+      SharedLock lock(this->mutex);
       ss << "ExposedPointer: " << this->getName() << " of type " << this->getTypeName();
       lock.unlock();
       return ss;

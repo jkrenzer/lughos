@@ -7,9 +7,11 @@
 namespace lughos
 {
 
-class BasicObject : public ThreadSaveObject
+class BasicObject
 {
 private:
+  
+  Mutex mutex;
   
   std::string getType_()
   {

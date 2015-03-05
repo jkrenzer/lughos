@@ -7,22 +7,17 @@
 
 namespace lughos
 {
-   typedef boost::recursive_mutex Mutex;
-   
-   class ThreadSaveObject
-   {
-   protected:
-     boost::upgrade_mutex mutex;
+   typedef boost::upgrade_mutex Mutex;
+  
+   typedef boost::shared_lock<Mutex> SharedLock;
      
-     typedef boost::shared_lock<boost::upgrade_mutex> SharedLock;
-     
-     typedef boost::upgrade_lock<boost::upgrade_mutex> UpgradeLock;
+   typedef boost::upgrade_lock<Mutex> UpgradeLock;
           
-     typedef boost::unique_lock<boost::upgrade_mutex> ExclusiveLock;
+   typedef boost::unique_lock<Mutex> ExclusiveLock;
      
-     typedef boost::upgrade_to_unique_lock<boost::upgrade_mutex> upgradeLockToExclusive;
-      
-   };
+   typedef boost::upgrade_to_unique_lock<Mutex> upgradeLockToExclusive;
+   
+   
    
 }
 #endif

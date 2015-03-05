@@ -11,7 +11,7 @@
 using namespace lughos;
 
 
-class A 
+class A : public ExposedClass
 {
 public:
   int zahl;
@@ -23,6 +23,18 @@ public:
     this->str = s;
   }
   
+  void output()
+  {
+    std::cout << zahl << " ### " << str << std::endl;
+  }
+  
+  void memberDeclaration()
+  {
+    addMember(zahl,"zahl");
+    addMember(str,"str");
+    addMember(new ExposedFunction<void>(boost::bind(&A::output,this),"output"));
+  }
+  
 };
 
 double mult(double a, double b)
@@ -31,7 +43,7 @@ double mult(double a, double b)
 }
 
 template <class T>
-void petze(T& t)
+void petze(T t)
 {
   std::cout << "PETZE: " << t << std::endl;
 }
@@ -86,6 +98,8 @@ int main(int argc, char **argv) {
     ExposedFunction<double, double, double> eMult(&mult,"mult");
     eMult.onExecute.connect(&petze<double>);
     std::cout << "Test2: " << eMult(2,3) << std::endl;
+    A a(254,"Klasse!");
+    a["output"]->parse("");
   }
   catch(lughos::exception e)
   {

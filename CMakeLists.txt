@@ -192,6 +192,11 @@ add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 ### Set libraries and dependencies
 
+add_library(transformations src/transformations.cpp)
+
+add_library(exposedValues src/exposedValues.cpp)
+target_link_libraries(exposedValues transformations)
+
 add_library(errorHandling src/errorHandling.cpp)
 
 add_library(log src/log.cpp)
@@ -265,7 +270,7 @@ target_link_libraries(test_ioservice ${Boost_LIBRARIES})
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
-target_link_libraries(test_exposer errorHandling)
+target_link_libraries(test_exposer errorHandling ${Boost_LIBRARIES} exposedValues)
  
 #Test for wt-dbo
 add_executable(test_wtdbo src/test_wtdbo.cpp)

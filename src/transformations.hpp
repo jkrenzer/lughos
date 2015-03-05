@@ -27,35 +27,49 @@ namespace lughos
 //   return std::string(e);
 // }
   
-template <class P> class transformTo
+template <class P, class E> class transform
 {
 public:
-  template <class E> static P from(E e)
+  P to(E e)
   {
     return (P) e;
   }
+  
+  P to(P p)
+  {
+    return (E) p;
+  }
+  
 };
 
-template <> class transformTo<std::string>
+template <class E> class transform<E,E>
 {
 public:
-  template <class E> static std::string from(E e)
+  E to(E e)
+  {
+    return e;
+  }
+};
+
+
+template <class E> class transform<std::string,E>
+{
+public:
+  std::string to(E e)
   {
     std::stringstream ss;
     ss << e;
     return ss.str();
   }
+  
+  E to(std::string str)
+  {
+    std::stringstream ss(str);
+    E e;
+    ss >> e;
+    return e;
+  }
 };
-
-template <> template <> int transformTo<int>::from<std::string>(std::string e)
-{
-  return std::stoi(e);
-}
-
-template <> template <> double transformTo<double>::from<std::string>(std::string e)
-{
-  return std::stod(e);
-}
 
 } //namespace lughos
 #endif

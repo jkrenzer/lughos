@@ -78,8 +78,10 @@ template <class T> TypeDeclaration<T> getTypeDeclaration(T t)
   return TypeDeclaration<T>();
 }
 
-template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>, public ThreadSaveObject
+template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>
 {
+private:
+  Mutex mutex;
 protected:
   
   boost::shared_ptr<T> valuePointer;
@@ -107,7 +109,7 @@ public:
       return false;
   }
   
-  virtual T getValue() const
+  virtual T getValue()
   {
     SharedLock lock(this->mutex);
     return *this->valuePointer;
@@ -115,12 +117,12 @@ public:
   
   virtual std::string getValueAsString()
   {
-    return transformTo<std::string>::from(this->getValue());
+    return transform<std::string,T>::to(this->getValue());
   }
   
   virtual bool setValueFromString(std::string string)
   {
-    return this->setValue(transformTo<T>::from(string));
+    return this->setValue(transform<std::string,T>::to(string));
   }
   
 };
@@ -139,7 +141,7 @@ public:
   
   template <class E> Value<T>(Value<E> &e)
   {
-    this->setValue(transformTo<T>::from(e.getValue()));
+    this->setValue(transform<E,T>::to(e.getValue()));
   }
   
   Value<T>(T& value)
@@ -177,13 +179,13 @@ public:
   
   void setPtr(T* ptr)
   {
-    exclusiveLock lock(this->mutex);
+    ExclusiveLock lock(this->mutex);
     this->valuePointer.reset(ptr);
   }
   
   T* getPtr()
   {
-    sharedLock lock(this->mutex);
+    SharedLock lock(this->mutex);
     return this->valuePointer.get();
   }
   
