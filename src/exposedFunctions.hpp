@@ -28,6 +28,8 @@ namespace lughos
     
     ExposedFunction(boost::function<ReturnType (Arguments...)> function, std::string name, std::string description = "") : function(function)
     {
+      this->name = name;
+      this->description = description;
     }
     
     ~ExposedFunction()
@@ -37,7 +39,7 @@ namespace lughos
     std::string showStructure()
     {
       std::stringstream ss;
-      ss << "ExposedFunction: " << getTypeDeclaration(ReturnType()).getTypeName();
+      ss << "ExposedFunction: " << Type<ReturnType>().getName();
     }    
        
     ReturnType operator()(Arguments... arguments)
@@ -65,8 +67,10 @@ namespace lughos
       if(boost::spirit::qi::phrase_parse(command.cbegin(),command.cend(),argV,boost::spirit::qi::space))
       {
 	returnValue = boost::fusion::invoke(this->function,argV);
-	//TODO Value to string
+	return Type<ReturnType>().toString(returnValue);
       }
+      else
+	return std::string("");
     }
     
   };
@@ -119,8 +123,8 @@ namespace lughos
       if(boost::spirit::qi::phrase_parse(command.cbegin(),command.cend(),argV,boost::spirit::qi::space))
       {
 	boost::fusion::invoke(this->function,argV);
-	//TODO Value to string
       }
+      return std::string("");
     }
     
   };
@@ -173,7 +177,7 @@ namespace lughos
     {
       ReturnType returnValue;
       returnValue = this->function();
-      //TODO Value to string
+      return Type<ReturnType>().toString(returnValue);
     }
     
   };
@@ -223,7 +227,7 @@ namespace lughos
     std::string parse(std::string command)
     {
       this->function();
-      //TODO Value to string
+      return std::string("");
     }
     
   };

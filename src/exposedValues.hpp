@@ -146,7 +146,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     {
       std::stringstream ss;
       ExclusiveLock lock(this->mutex);
-      ss << "ExposedValue: " << this->getName() << " of type " << this->getTypeName();
+      ss << "ExposedValue: " << this->getName() << " of type " << this->type.getName();
       lock.unlock();
       return ss.str();
     }
@@ -170,7 +170,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     
     bool setValueFromString(std::string& str)
     {
-      T t = transform<T,std::string>::to(str);
+      T t = this->type.fromString(str);
       return this->setValue(t);
     }
     

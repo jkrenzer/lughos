@@ -9,7 +9,6 @@
 #include <typeinfo>       // operator typeid
 #include <typeindex>
 #include "errorHandling.hpp"
-#include "transformations.hpp"
 #include "threadSafety.hpp"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
@@ -43,16 +42,15 @@ public:
    
 };
 
-class TypeDeclarationInterface
+class TypeInterface
 {
 public:
-  virtual bool verify() = 0;
   
-  virtual std::string getTypeName() = 0;
+  virtual std::string getName() = 0;
   
-  virtual std::string getTypeShortDescription() = 0;
+  virtual std::string getShortDescription() = 0;
         
-  virtual std::string getTypeDescription() = 0;
+  virtual std::string getDescription() = 0;
 
 };
 
@@ -62,23 +60,40 @@ public:
 //   
 // };
 
-template <class T> class TypeDeclaration : public TypeDeclarationInterface
+template <class T> class TypeImplementation : public TypeInterface
 {
 public:
-  bool verify(T value)
+  
+  virtual bool verify(T value) = 0;
+
+  
+  virtual std::string toString(T t)
   {
-//     BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
-    return true;
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+  
+  virtual T fromString(std::string str)
+  {
+    std::stringstream ss(str);
+    T t;
+    ss >> t;
+    return t;
   }
   
 };
 
-template <class T> TypeDeclaration<T> getTypeDeclaration(T t)
+template <class T> class Type : public TypeImplementation<T>
 {
-  return TypeDeclaration<T>();
+};
+
+template <class T> Type<T> getType(T t)
+{
+  return Type<T>();
 }
 
-template <class T> class ValueImplementation : public ValueInterface, public TypeDeclaration<T>
+template <class T> class ValueImplementation : public ValueInterface
 {
 private:
   Mutex mutex;
@@ -87,6 +102,8 @@ protected:
   boost::shared_ptr<T> valuePointer;
 
 public:
+  
+  Type<T> type;
     
  ValueImplementation()
  {
@@ -98,7 +115,7 @@ public:
      
   virtual bool setValue(T value)
   {
-    if(this->verify((T) value))
+    if(this->type.verify((T) value))
     {
       ExclusiveLock lock(this->mutex);
       this->valuePointer.reset( new T(value));
@@ -117,12 +134,12 @@ public:
   
   virtual std::string getValueAsString()
   {
-    return transform<std::string,T>::to(this->getValue());
+    return type.toString(this->getValue());
   }
   
   virtual bool setValueFromString(std::string string)
   {
-    return this->setValue(transform<std::string,T>::to(string));
+    return this->setValue(type.fromString(string));
   }
   
 };
@@ -132,8 +149,6 @@ template <class T> class Value : public ValueImplementation<T>
 protected:
   
 public:
-  
-  typedef T type;
     
   Value<T>()
   {
@@ -141,7 +156,7 @@ public:
   
   template <class E> Value<T>(Value<E> &e)
   {
-    this->setValue(transform<E,T>::to(e.getValue()));
+    this->setValue = (T) e.getValue();
   }
   
   Value<T>(T& value)
@@ -193,7 +208,7 @@ public:
 
 typedef ValueInterface Values;
 
-REGISTER_CLASS_FAMILY(TypeDeclaration)
+REGISTER_CLASS_FAMILY(Type)
 
 REGISTER_CLASS_FAMILY(Value)
 

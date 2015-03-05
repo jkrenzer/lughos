@@ -192,10 +192,7 @@ add_subdirectory(dependencies/ dependencies/ EXCLUDE_FROM_ALL)
 
 ### Set libraries and dependencies
 
-add_library(transformations src/transformations.cpp)
-
 add_library(exposedValues src/exposedValues.cpp)
-target_link_libraries(exposedValues transformations)
 
 add_library(errorHandling src/errorHandling.cpp)
 
