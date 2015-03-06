@@ -2,6 +2,7 @@
 #define EXPOSED_VALUES_HPP
 
 #include "BasicObject.hpp"
+#include "BasicParsers.hpp"
 #include "threadSafety.hpp"
 #include "values.hpp"
 #include <sstream>

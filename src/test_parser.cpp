@@ -9,25 +9,6 @@
 using namespace std;
 using namespace boost::spirit;
 
-// namespace boost { namespace spirit { namespace traits {   
-//     // be careful copying expression templates. Boost trunk has `qi::copy` for this too, now
-//     #define PARSER_DEF(a) using type = decltype(boost::proto::deep_copy(a)); static type call() { return boost::proto::deep_copy(a); }
-// 
-//     template<typename T1, typename T2> 
-//         struct create_parser<std::pair<T1, T2> > 
-//         {
-//             PARSER_DEF('(' >> create_parser<T1>::call() >> ',' >> create_parser<T2>::call() >> ')');
-//         };
-// 
-//     template<typename TV, typename... TArgs>
-//         struct create_parser<std::vector<TV, TArgs...> >
-//         {
-//             PARSER_DEF('[' >> qi::omit[qi::uint_] >> ',' >> '(' >> create_parser<TV>::call() % ',' >> ')' >> ']' );
-//         };
-// 
-//     #undef PARSER_DEF
-// } } }
-
 #define PARSER_DEF(a) using type = decltype(boost::proto::deep_copy(a)); static type call() { return boost::proto::deep_copy(a); }
 
 namespace boost { namespace spirit { namespace traits {
