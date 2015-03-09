@@ -34,7 +34,7 @@ bool Connection<tcpContext>::start()
     query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
     socket= boost::shared_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(*this->io_service_));
     boost::asio::socket_base::keep_alive keepAlive(true);
-    socket->set_option(keepAlive);
+//     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
     this->connected = false;
     return true;
 }
