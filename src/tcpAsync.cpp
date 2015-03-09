@@ -44,15 +44,14 @@ void tcpAsync::disconnect()
   this->abort();
 }
 
-int tcpAsync::write(std::string query, boost::regex regExpr)
+int tcpAsync::execute(boost::shared_ptr<Query> query)
 { 
-  this->queryMutex.try_lock();
   this->currentQuery = query;
-  if(regExpr.empty())
-	  regExpr = endOfLineRegExpr_;
+  if(query->getEOLPattern().empty())
+	  query->setEOLPattern(endOfLineRegExpr_);
   if(!this->connected)
   {
-    this->connect(boost::bind(&tcpAsync::write,this,query,regExpr));
+    this->connect(boost::bind(&tcpAsync::write,this,query));
     return -1;
   }
   
@@ -60,9 +59,8 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
   request_stream<<query;
     // The connection was successful. Send the request.
     boost::asio::async_write(*socket, request,
-	boost::bind(&tcpAsync::handle_write_request, this, regExpr,
-	  boost::asio::placeholders::error));
-    lughos::debugLog(std::string("\"")+query+std::string("\" written to ")+server_name+std::string(":")+port_name);
+	boost::bind(&tcpAsync::handle_write_request, this, boost::asio::placeholders::error));
+    lughos::debugLog(std::string("\"")+query->getQuestion()+std::string("\" written to ")+server_name+std::string(":")+port_name);
 
   try 
   {
@@ -141,15 +139,14 @@ void tcpAsync::handle_connect(boost::function<void (void)> callback, const boost
   }
 }
 
-void tcpAsync::handle_write_request(boost::regex& regExpr, const boost::system::error_code& err)
+void tcpAsync::handle_write_request(const boost::system::error_code& err)
 {
 
   if (!err)
   {
     // Read the response status line.
-    boost::asio::async_read_until(*socket, response, regExpr,
-	boost::bind(&tcpAsync::handle_read_content, this, regExpr,
-	  boost::asio::placeholders::error));
+    boost::asio::async_read_until(*socket, response, this->currentQuery->getEOLPattern(),
+	boost::bind(&tcpAsync::handle_read_content, this, boost::asio::placeholders::error));
     lughos::debugLog(std::string("Reading until \"")+regExpr.str()+std::string("\" from ") + server_name);
   }
 else
@@ -203,7 +200,7 @@ else
     }
   }
 
-void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::error_code& err)
+void tcpAsync::handle_read_content(const boost::system::error_code& err)
   {
 
     if (!err)
@@ -212,18 +209,16 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
         response_string_stream.str(std::string(""));
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
-	this->currentQuery.clear();
-	this->queryMutex.unlock();
+	this->currentQuery.reset();
     }
     else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
     {
       this->connected = false;
-      this->write(this->currentQuery,regExpr);
+      this->execute();
     }
     else
     {
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
-      this->queryMutex.unlock();
     }
   }   
   

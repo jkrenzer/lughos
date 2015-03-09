@@ -51,9 +51,6 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	boost::shared_ptr<Dict> dict;
 	boost::shared_ptr<tcp::endpoint> endpoint;
 
-	void handle_read_check_response(const boost::system::error_code& err);
-	void handle_read_headers_process();
-
 	virtual void compose_request(const std::string &buf);
 	
 	std::ostringstream response_string_stream;

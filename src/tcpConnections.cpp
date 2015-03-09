@@ -118,16 +118,14 @@ void Connection<tcpContext>::handle_read_headers_process()
 
 }
 
-std::string Connection<tcpContext>::read()
-{
-  this->queryMutex.lock();
-        std::string s = response_string_stream.str();
-	response_string_stream.str(std::string(""));
-	this->queryMutex.unlock();
-// 	stop();
-    return s;  
-
-}
+// std::string Connection<tcpContext>::read()
+// {
+//         std::string s = response_string_stream.str();
+// 	response_string_stream.str(std::string(""));
+// // 	stop();
+//     return s;  
+// 
+// }
 
 bool Connection<tcpContext>::testconnection()
 {

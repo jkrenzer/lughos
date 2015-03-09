@@ -53,9 +53,7 @@ class tcpAsync : virtual public Connection<tcpContext>
         tcpAsync();
 	~tcpAsync(void);
 	
-	
-	
-	int write(std::string query, boost::regex regExpr = boost::regex());
+	int execute(boost::shared_ptr<Query> query);
 	
 	void abort();
   

@@ -44,13 +44,13 @@ namespace lughos
     
     virtual std::string inputOutputImplementation(std::string query)
     {
-      connection->write(this->composeRequest(query));
+      connection->execute(this->composeRequest(query));
       return this->interpretAnswer(connection->read());
     }
     
     virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
     {
-      connection->write(this->composeRequest(query), regExpr);
+      connection->execute(this->composeRequest(query), regExpr);
       return this->interpretAnswer(connection->read());
     }
     
