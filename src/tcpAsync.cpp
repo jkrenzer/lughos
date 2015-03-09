@@ -74,7 +74,7 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
 
 
   if (socket.get() == NULL || !socket->is_open())	lughos::debugLog(server_name + std::string("'s socket is closed despite writing?!"));
-	if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
+  if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
   return 0;
 }
 

@@ -80,7 +80,7 @@ public:
 	  queryDoneCondition.wait_for(lock,boost::chrono::milliseconds(2000));
 	  std::cout << "Waking.." << std::endl;
 	  
-	  if(queryDone)
+	  if(this->currentQuery.empty())
 	  {
 	    std::cout << "All done." << std::endl;
 	  }
