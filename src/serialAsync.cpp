@@ -92,7 +92,7 @@ void serialAsync::handle_read_content(boost::regex& regExpr, const boost::system
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ")+ port_name);
 	this->currentQuery.clear();
-	this->notifyWaitingClient();
+	this->queryMutex.unlock();
 // 	std::cout<<response_string_stream<<std::endl;
 
     }

@@ -3,6 +3,7 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/detail/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
@@ -74,41 +75,7 @@ public:
    * 
    * @return void
    */
-  void waitForCompletion()
-	{
-	  boost::unique_lock<boost::mutex> lock(waitForCompletionMutex);
-	  queryDoneCondition.wait_for(lock,boost::chrono::milliseconds(2000));
-	  std::cout << "Waking.." << std::endl;
-	  
-	  if(this->currentQuery.empty())
-	  {
-	    std::cout << "All done." << std::endl;
-	  }
-	  else
-	  {
-	    std::cout << "Timeout." << std::endl;
-	    this->abort();
-	  }
-	}
-  /**
-  * @brief notifies the waiting client when the query is done
-  * 
-  * @return void
-  */
-  void notifyWaitingClient()
-	{
-	  {
-	    boost::lock_guard<boost::mutex> lock(waitForCompletionMutex);
-	    this->queryDone=currentQuery.empty();
-	  }
-	  this->queryDoneCondition.notify_one();
-	}
-	/**
-	 * @brief reads the response from the device
-	 * 
-	 * @return std::string uninterpreted response from device
-	 */
-	virtual std::string read()=0;
+   virtual std::string read()=0;
 // 	connectionImpl(void);
 // 	~connectionImpl(void);
 protected:
@@ -124,7 +91,7 @@ protected:
    * @return void
    */
   virtual void stop()=0;
-	boost::mutex waitForCompletionMutex;
+	boost::mutex queryMutex;
 	boost::condition_variable queryDoneCondition;
 	std::string currentQuery;
 	bool queryDone;

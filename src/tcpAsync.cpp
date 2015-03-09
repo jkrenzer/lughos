@@ -46,6 +46,7 @@ void tcpAsync::disconnect()
 
 int tcpAsync::write(std::string query, boost::regex regExpr)
 { 
+  this->queryMutex.try_lock();
   this->currentQuery = query;
   if(regExpr.empty())
 	  regExpr = endOfLineRegExpr_;
@@ -69,12 +70,23 @@ int tcpAsync::write(std::string query, boost::regex regExpr)
   }
   catch(...)
   {
+    this->queryMutex.unlock();
     lughos::debugLog(std::string("I/O-Service exception while polling for ") +server_name+std::string(":")+port_name);
   }
 
 
-  if (socket.get() == NULL || !socket->is_open())	lughos::debugLog(server_name + std::string("'s socket is closed despite writing?!"));
-  if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
+  if (socket.get() == NULL || !socket->is_open())
+  {
+    lughos::debugLog(server_name + std::string("'s socket is closed despite writing?!"));
+    this->queryMutex.unlock();
+    return -1;
+  }
+  if (io_service_->io_service::stopped()) 
+  {
+    lughos::debugLog(std::string("I/O-Service was stopped after or during writing on server ") + server_name);
+    this->queryMutex.unlock();
+    return -1;
+  }
   return 0;
 }
 
@@ -183,7 +195,6 @@ else
     }
     else if (err == boost::asio::error::eof)
     {
-        this->notifyWaitingClient(); 
         return;
     }
     else
@@ -202,6 +213,7 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
 	response_string_stream<< &response;
 	lughos::debugLog(std::string("Read \"") + response_string_stream.str() + std::string("\" from ") + server_name);
 	this->currentQuery.clear();
+	this->queryMutex.unlock();
     }
     else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
     {
@@ -211,7 +223,7 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
     else
     {
       lughos::debugLog(std::string("Unable to read from server ")+server_name+std::string(". Got error: ")+err.message());
-      
+      this->queryMutex.unlock();
     }
   }   
   
@@ -220,6 +232,7 @@ void tcpAsync::handle_read_content(boost::regex& regExpr, const boost::system::e
  try
   {
     this->socket->cancel();
+    this->queryMutex.unlock();
     lughos::debugLog(std::string("Requested abort on ") + server_name + std::string(":") + port_name);
   }
   catch(...)

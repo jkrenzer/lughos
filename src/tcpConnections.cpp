@@ -9,10 +9,6 @@
 #include <winioctl.h>
 #endif
 
-#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
-
-
-
 Connection<tcpContext>::Connection() : request(), response(), endpoint(new tcp::endpoint())
 {
 this->connected = false;
@@ -124,8 +120,10 @@ void Connection<tcpContext>::handle_read_headers_process()
 
 std::string Connection<tcpContext>::read()
 {
+  this->queryMutex.lock();
         std::string s = response_string_stream.str();
 	response_string_stream.str(std::string(""));
+	this->queryMutex.unlock();
 // 	stop();
     return s;  
 
@@ -133,8 +131,7 @@ std::string Connection<tcpContext>::read()
 
 bool Connection<tcpContext>::testconnection()
 {
- GUARD
- start();
+  start();
   bool ConnectionEstablished = false;
      try 
      {

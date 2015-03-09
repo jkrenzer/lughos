@@ -19,7 +19,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
-#include <boost/thread/recursive_mutex.hpp>
 
 
 
@@ -46,7 +45,6 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	void wait_callback(boost::asio::serial_port& port_, const boost::system::error_code& error);
 
   protected:
- 	boost::recursive_mutex mutex;
 	boost::shared_ptr<tcp::resolver> resolver;
 	boost::shared_ptr<tcp::resolver::query> query;
 	boost::shared_ptr<tcp::socket> socket;
