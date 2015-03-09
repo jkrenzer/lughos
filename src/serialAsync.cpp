@@ -28,6 +28,7 @@ serialAsync::~serialAsync(void)
 
 int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 {    
+  this->queryMutex.try_lock();
   this->currentQuery= query;
       std::ostream request_stream(&request);
       request_stream<<query;
@@ -54,8 +55,19 @@ int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 	  }
 
 
-	  if (port_.get() == NULL || !port_->is_open())	lughos::debugLog(port_name + std::string(" is closed despite writing?!"));
-	  if (io_service_->io_service::stopped()) lughos::debugLog(std::string("I/O-Service was stopped after or during writing on port ") + port_name);
+	  if (port_.get() == NULL || !port_->is_open())
+	  {
+	    lughos::debugLog(port_name + std::string(" is closed despite writing?!"));
+	    this->queryMutex.unlock();
+	    return -1;
+	  }
+	    
+	  if (io_service_->io_service::stopped())
+	  {
+	    lughos::debugLog(std::string("I/O-Service was stopped after or during writing on port ") + port_name);
+	    this->queryMutex.unlock();
+	    return -1;
+	  }
 
   
   return 1;
@@ -116,6 +128,7 @@ void serialAsync::handle_read_content(boost::regex& regExpr, const boost::system
     try
     {
       this->port_->cancel();
+      this->queryMutex.unlock();
       lughos::debugLog(std::string("Timed out while waiting for answer on ") + port_name);
     }
     catch(...)
