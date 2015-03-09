@@ -91,8 +91,7 @@ namespace lughos
       {
 	ExclusiveLock lock(this->mutex);
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-	if(!this->connection->getIoService())
-	  this->connection->setIoService(this->ioService);
+	this->connection->setIoService(this->ioService);
 	this->connected = this->connection->testconnection();
       }
       SharedLock lock(this->mutex);

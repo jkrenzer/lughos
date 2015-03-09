@@ -47,8 +47,6 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 
   protected:
  	boost::recursive_mutex mutex;
-	boost::shared_ptr<boost::asio::io_service>  io_service_;
-	boost::shared_ptr<boost::asio::io_service>  io_service_async;
 	boost::shared_ptr<tcp::resolver> resolver;
 	boost::shared_ptr<tcp::resolver::query> query;
 	boost::shared_ptr<tcp::socket> socket;

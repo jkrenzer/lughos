@@ -29,7 +29,6 @@ serialAsync::~serialAsync(void)
 int serialAsync::write(std::string query, boost::regex regExpr = boost::regex())
 {    
   this->currentQuery= query;
-//       start();
       std::ostream request_stream(&request);
       request_stream<<query;
 	if(regExpr.empty())

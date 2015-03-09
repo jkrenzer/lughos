@@ -25,12 +25,10 @@ Connection<tcpContext>::~Connection(void)
 
 bool Connection<tcpContext>::start()
 {
-//       server_name = port_name;
-    	if (server_name.empty()||port_name.empty()) {
+    if (server_name.empty()||port_name.empty()) {
 		std::cout << "please set server/port name before start" << std::endl;
 		return false;
 	}
-//     server=server_name;
     std::cout << "server: "<<server_name<<" port: "<<port_name << std::endl;
     resolver= boost::shared_ptr<tcp::resolver>(new tcp::resolver(*this->io_service_));
     query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
