@@ -27,6 +27,7 @@ class RFGConnection : public serialAsync
 {
 public:
     RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    RFGConnection();
 };
 
 class RFG :public Device

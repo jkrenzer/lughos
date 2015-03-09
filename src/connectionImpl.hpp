@@ -6,6 +6,8 @@
 #include <boost/thread/detail/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/io_service.hpp>
 
 /**
  * @class ConnectionImpl
@@ -15,6 +17,18 @@
 class ConnectionImpl
 {
 public:
+  
+  virtual void setIoService(boost::shared_ptr< boost::asio::io_service > io_service)
+  {
+    this->io_service_ = io_service;
+    this->timeoutTimer.reset(new boost::asio::deadline_timer(*io_service));
+    start();
+  }
+
+  boost::shared_ptr< boost::asio::io_service > getIoService()
+  {
+    return this->io_service_;
+  }
         
   /**
    * @brief trys to establish connection
@@ -114,6 +128,9 @@ protected:
 	boost::condition_variable queryDoneCondition;
 	std::string currentQuery;
 	bool queryDone;
+	boost::shared_ptr< boost::asio::io_service > io_service_;
+	boost::shared_ptr<boost::asio::deadline_timer> timeoutTimer;
+
 // 	virtual int write(const std::string &buf)=0;
 // 	virtual int write_async(const std::string &buf)=0;
 

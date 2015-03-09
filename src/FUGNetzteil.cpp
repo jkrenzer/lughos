@@ -20,7 +20,7 @@ FUGNetzteil::FUGNetzteil()
   this->getLocalControl.setReadFunction(boost::bind(&FUGNetzteil::readLocalControl,this));
 }
 
-FUGNetzteilConnection::FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service): tcpAsync(io_service), Connection<tcpContext>(io_service)
+FUGNetzteilConnection::FUGNetzteilConnection()
 {
 }
 

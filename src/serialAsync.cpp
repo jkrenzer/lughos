@@ -12,7 +12,7 @@
 #include "log.hpp"
 
 
-serialAsync::serialAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<serialContext>(io_service)
+serialAsync::serialAsync()
 {
   if(this->endOfLineRegExpr_== boost::regex("\r"))  std::cout<<"End of line char: "<<"CR"<<std::endl;
   else if(this->endOfLineRegExpr_==boost::regex("\n")) std::cout<<"End of line char: "<<"NL"<<std::endl;

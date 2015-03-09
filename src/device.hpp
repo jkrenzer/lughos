@@ -4,6 +4,7 @@
 #include <ostream>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/regex.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include "connectionImpl.hpp"
 #include "BasicObject.hpp"
@@ -23,6 +24,9 @@ namespace lughos
   protected:
     
     Mutex mutex;
+    
+    boost::shared_ptr<boost::asio::io_service> ioService;
+    boost::shared_ptr<boost::asio::io_service::work> ioServiceWork;
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
@@ -87,6 +91,8 @@ namespace lughos
       {
 	ExclusiveLock lock(this->mutex);
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
+	if(!this->connection->getIoService())
+	  this->connection->setIoService(this->ioService);
 	this->connected = this->connection->testconnection();
       }
       SharedLock lock(this->mutex);
@@ -165,9 +171,19 @@ namespace lughos
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
-    DeviceImpl() : connection()
+    boost::shared_ptr<boost::asio::io_service> getIoService()
     {
-      
+      return this->ioService;
+    }
+    
+    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService))
+    {
+      boost::thread thread(boost::bind(&boost::asio::io_service::run, this->ioService));
+    }
+    
+    virtual ~DeviceImpl()
+    {
+
     }
   
   };

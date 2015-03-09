@@ -26,6 +26,7 @@ class RelaisConnection : public serialAsync
 {
 public:
     RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    RelaisConnection();
 };
 
 class Relais :public Device

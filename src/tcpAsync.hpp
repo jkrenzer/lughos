@@ -50,7 +50,10 @@ class tcpAsync : virtual public Connection<tcpContext>
     
   public:
 	tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service);
+        tcpAsync();
 	~tcpAsync(void);
+	
+	
 	
 	int write(std::string query, boost::regex regExpr = boost::regex());
 	

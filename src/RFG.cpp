@@ -167,7 +167,7 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 
 
 
-RFGConnection::RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
+RFGConnection::RFGConnection()
 {
   std::cout << "--------------------->>>>>>>>>>>>>>>>> !!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<------------------------" << std::endl << std::endl << std::endl;
     this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
@@ -178,6 +178,8 @@ RFGConnection::RFGConnection(boost::shared_ptr< boost::asio::io_service > io_ser
     this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
     
 }
+
+
 
 
 RFG::~RFG(void)

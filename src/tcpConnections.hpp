@@ -59,7 +59,6 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 	void handle_read_headers_process();
 
 	virtual void compose_request(const std::string &buf);
-	boost::asio::deadline_timer timeoutTimer;
 	
 	std::ostringstream response_string_stream;
 	std::string server;
@@ -73,7 +72,8 @@ template <> class Connection<tcpContext>: public ConnectionTemplate<tcpContext>
 
 	
   public:
-	Connection(boost::shared_ptr<boost::asio::io_service> io_service) ;
+
+	Connection();
 	~Connection(void);
 
 	std::string server_name;

@@ -110,7 +110,7 @@ class serialAsync : virtual public Connection<serialContext>
      * @param io_service ...
      */
     
-      serialAsync(boost::shared_ptr<boost::asio::io_service> io_service) ;
+      serialAsync() ;
       /**
 	* @brief Destructor
 	* 

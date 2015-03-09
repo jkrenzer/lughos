@@ -13,19 +13,15 @@
 
 
 
-Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), request(), response(), endpoint(new tcp::endpoint())
+Connection<tcpContext>::Connection() : request(), response(), endpoint(new tcp::endpoint())
 {
-this->io_service_= io_service;
 this->connected = false;
 }
-
-
 
 Connection<tcpContext>::~Connection(void)
 {
 // 	stop();
 }
-
 
 bool Connection<tcpContext>::start()
 {
@@ -140,6 +136,7 @@ std::string Connection<tcpContext>::read()
 bool Connection<tcpContext>::testconnection()
 {
  GUARD
+ start();
   bool ConnectionEstablished = false;
      try 
      {

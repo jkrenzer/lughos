@@ -60,9 +60,6 @@ template <> class Connection<serialContext>: public ConnectionTemplate<serialCon
 	char read_buf_raw_[SERIAL_PORT_READ_BUF_SIZE];
 	std::string read_buf_str_;
 
-	boost::shared_ptr<boost::asio::io_service> io_service_;
-	boost::asio::deadline_timer timeoutTimer;
-
 	virtual void handle_read_check_response(const boost::system::error_code& err);
 	void handle_read_headers_process();
 	virtual void compose_request(const std::string &buf);
@@ -94,6 +91,9 @@ private:
 	
   public:
 	Connection(boost::shared_ptr<boost::asio::io_service> io_service) ;
+	
+	Connection();
+	
 	~Connection(void);
 	/**
 	 * @brief Set end-of-line-character
@@ -118,7 +118,7 @@ private:
 	virtual bool testconnection();
 // 	int write(const std::string &buf);
 // 	int write_async(const std::string &buf);
-
+	
 	/**
 	 * @brief sets baud rate, please check device manual
 	 * 

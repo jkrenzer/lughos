@@ -12,15 +12,13 @@
 #include "log.hpp"
 
 
-tcpAsync::tcpAsync(boost::shared_ptr<boost::asio::io_service> io_service)  : Connection<tcpContext>(io_service)
+tcpAsync::tcpAsync()
 {
-  start();
   this->endOfLineRegExpr_ = boost::regex("\n");
 }
 
 tcpAsync::~tcpAsync(void)
 {
-  stop();
 }
 
 void tcpAsync::connect(boost::function<void(void)> callback)

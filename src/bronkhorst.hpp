@@ -27,6 +27,7 @@ class bronkhorstConnection : public serialAsync
 {
 public:
     bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);
+    bronkhorstConnection();
 };
 
 class bronkhorst : public Device

@@ -24,7 +24,7 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
   
 }
 
-PSAPowersupplyConnection::PSAPowersupplyConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
+PSAPowersupplyConnection::PSAPowersupplyConnection()
 {
   
     this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);

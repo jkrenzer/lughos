@@ -25,6 +25,7 @@ class PSAPowersupplyConnection : public serialAsync
 {
 public:
   PSAPowersupplyConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+  PSAPowersupplyConnection();
 };
 
 class PSAPowersupply : public Device

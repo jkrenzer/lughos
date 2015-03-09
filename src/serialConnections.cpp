@@ -17,17 +17,24 @@
 // 
 // }
 
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
+Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : flow_control(), baud_rate(), character_size(), request(), response()
 {
-this->io_service_= io_service;
+this->setIoService(io_service);
 this->endOfLineRegExpr_ = boost::regex("\n");
 
 }
+
+Connection< serialContext >::Connection() : flow_control(), baud_rate(), character_size(), request(), response()
+{
+  this->endOfLineRegExpr_ = boost::regex("\n");
+}
+
 
 Connection<serialContext>::~Connection(void)
 {
 	stop();
 }
+
 
 boost::regex Connection<serialContext>::endOfLineRegExpr() const
 {
