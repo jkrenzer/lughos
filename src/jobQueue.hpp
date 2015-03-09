@@ -6,7 +6,7 @@
 namespace lughos 
 {
 
-  class Task : public ThreadSaveObject
+  class Task
   {
   public:
     
@@ -15,6 +15,9 @@ namespace lughos
     enum Execute {infinite = -1};
     
   protected:
+    
+    Mutex mutex;
+    
     int executeTimes;
     int executed;
     boost::posix_time::time_duration every;

@@ -21,6 +21,8 @@ namespace lughos
   class DeviceImpl : public BasicObject
   {
   protected:
+    
+    Mutex mutex;
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
