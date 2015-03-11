@@ -68,7 +68,6 @@ int tcpAsync::execute(boost::shared_ptr<Query> query)
   }
   catch(...)
   {
-    this->queryMutex.unlock();
     lughos::debugLog(std::string("I/O-Service exception while polling for ") +server_name+std::string(":")+port_name);
   }
 
