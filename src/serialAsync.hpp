@@ -60,33 +60,6 @@ class serialAsync : virtual public Connection<serialContext>
 
   protected:
     
-    /**
-     * @brief Callback for write-only operations
-     * 
-     * @param err ...
-     * @return void
-     */
-    
-    int write_some(const char *buf, const int &size);
-    
-    /**
-      * @brief Function to write data to port asynchonously
-      * 
-      * @param buf ...
-      * @param size ...
-      * @return int
-      */
-    
-    
-    int write_some_async(const char *buf, const int &size);
-        
-    /**
-      * @brief Callback for read-write-request
-      * 
-      * @param err ...
-      * @return void
-      */
-    
     void handle_write_request(boost::regex& regExpr, const boost::system::error_code& err);
     
     /**

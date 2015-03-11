@@ -74,50 +74,6 @@ void Connection<tcpContext>::set_port(std::string port)
 }
 
 
-  
- void Connection<tcpContext>::handle_read_check_response(const boost::system::error_code& err)
-  {
-
-        // Check that response is OK.
-      std::istream response_stream(&response);
-      std::string http_version;
-      response_stream >> http_version;
-      unsigned int status_code;
-      response_stream >> status_code;
-      std::string status_message;
-      std::getline(response_stream, status_message);
-      if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-      {
-        std::cout << "Invalid response\n";
-        return;
-      }
-      if (status_code != 200)
-      {
-        std::cout << "Response returned with status code ";
-        std::cout << status_code << "\n";
-        return;
-      }
-   
-}
-
-
-void Connection<tcpContext>::handle_read_headers_process()
-{
-        // Process the response headers.
-      std::istream response_stream(&response);
-      std::string header;
-      while (std::getline(response_stream, header) && header != "\r");
-// 	std::cout << header << "\n";
-//       std::cout << "\n";
-      
-     // Write whatever content we already have to output.
-//       if (response_.size() > 0) //response_string_stream<<&response_;
-//         std::cout << &response_;
-//       response_string_stream
-      
-
-}
-
 // std::string Connection<tcpContext>::read()
 // {
 //         std::string s = response_string_stream.str();

@@ -89,8 +89,8 @@ namespace lughos
       {
 	ExclusiveLock lock(this->mutex);
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-	this->connection->setIoService(this->ioService);
-	this->connected = this->connection->testconnection();
+	this->connection->ioService(this->ioService);
+	this->connected = this->connection->test();
       }
       SharedLock lock(this->mutex);
       if(this->connected)
@@ -104,7 +104,7 @@ namespace lughos
     
     bool isConnected()
     {
-      bool currentlyConnected = this->connection->testconnection();
+      bool currentlyConnected = this->connection->test();
       UpgradeLock lock(this->mutex);
       if(currentlyConnected && !this->connected)
 	this->init();

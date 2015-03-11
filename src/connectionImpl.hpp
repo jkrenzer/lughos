@@ -135,14 +135,14 @@ class ConnectionImpl
 {
 public:
   
-  virtual void setIoService(boost::shared_ptr< boost::asio::io_service > io_service)
+  virtual void ioService(boost::shared_ptr< boost::asio::io_service > io_service)
   {
     this->io_service_ = io_service;
     this->timeoutTimer.reset(new boost::asio::deadline_timer(*io_service));
     start();
   }
 
-  boost::shared_ptr< boost::asio::io_service > getIoService()
+  boost::shared_ptr< boost::asio::io_service > ioService()
   {
     return this->io_service_;
   }
@@ -152,14 +152,32 @@ public:
    * 
    * @return bool
    */
-  virtual bool testconnection()=0;
+  virtual bool test()=0;
+  
   /**
-   * @brief sets a port for the connection
+   * @brief checks if the connection was opened.
    * 
-   * @param port port name as string
+   * @return bool
+   */
+  
+  virtual bool isOpen()=0;
+  
+  /**
+   * @brief opens connection
+   * 
    * @return void
    */
-  virtual void set_port(std::string port)=0;
+  
+  virtual void open()=0;
+  
+  /**
+   * @brief closes connection
+   * 
+   * @return void
+   */
+  
+  virtual void close()=0;
+
   /**
    * @brief sets hardware bits
    * 
@@ -167,18 +185,18 @@ public:
    */
   virtual void reset()=0;
   /**
-   * @brief aborts the connection
+   * @brief aborts all actions on connection
    * 
    * @return void
    */
   virtual void abort() = 0;
   /**
-   * @brief sends query, waits for resonse
+   * @brief puts query in queue and processes received answers.
    * 
-   * @param query string with pure command without end of line caracter
-   * @return int returns 1 if succeeded
+   * @param query object of Query-type
+   * @return void
    */
-  virtual int  execute(boost::shared_ptr<Query> query, boost::regex regExpr = boost::regex())=0;
+  virtual void execute(boost::shared_ptr<Query> query)=0;
   /**
    * @brief sends query, does not wait for resonse
    * 
@@ -192,7 +210,7 @@ protected:
    * 
    * @return bool true if succeeded
    */
-  virtual bool start()=0;
+  virtual bool start()=0; //TODO: Merge with new open? Rename in init??
   /**
    * @brief stops the connection
    * 

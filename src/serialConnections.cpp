@@ -19,7 +19,7 @@
 
 Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : flow_control(), baud_rate(), character_size(), request(), response()
 {
-this->setIoService(io_service);
+this->ioService(io_service);
 this->endOfLineRegExpr_ = boost::regex("\n");
 
 }

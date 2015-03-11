@@ -26,12 +26,12 @@ serialAsync::~serialAsync(void)
 
 
 
-int serialAsync::execute(boost::shared_ptr<Query> query)
+void serialAsync::execute(boost::shared_ptr<Query> query)
 {    
   this->currentQuery= query;
       std::ostream request_stream(&request);
-      request_stream<<query;
-	if(regExpr.empty())
+      request_stream<<query->getQuestion();
+	if(query.empty())
 	  regExpr = endOfLineRegExpr_;
 	boost::system::error_code ec;
  
@@ -133,7 +133,6 @@ void serialAsync::abort()
   try
   {
     this->port_->cancel();
-    this->queryMutex.unlock();
     lughos::debugLog(std::string("Requested abort on ") + port_name);
   }
   catch(...)
