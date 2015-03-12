@@ -117,10 +117,10 @@ namespace lughos
       return this->spyAnswer(number);
     }
     
-    std::string awaitNewAnswer(boost::posix_time::time_duration duration)
+    std::string awaitNewAnswer(boost::posix_time::time_duration duration = boost::posix_time::seconds(3))
     {
       if (!hasNewAnswer())
-        this->answerWaitingMutex.timed_lock(boost::get_system_time() + boost::posix_time::seconds(3));
+        this->answerWaitingMutex.timed_lock(boost::get_system_time() + duration);
         this->answerWaitingMutex.lock();
         this->answerWaitingMutex.unlock();
       return this->spyAnswer();
