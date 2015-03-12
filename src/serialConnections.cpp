@@ -162,6 +162,7 @@ void serialConnection::connect ( boost::function<void() > callback )
     }
   catch ( ... )
     {
+      debugLog(std::string("Exception while trying to access port ") + this->port_name);
       return;
     }
     if (this->socket->is_open())
