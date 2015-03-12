@@ -4,6 +4,7 @@
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
 #include <boost/signals2/signal.hpp>
+#include <boost/thread/future.hpp>
 
 
 namespace lughos
@@ -24,10 +25,10 @@ namespace lughos
     boost::signals2::signal<void (void)> onSent;
     
     std::string question;
-    std::vector<std::string> answers;
+    std::vector<boost::shared_future<std::string> > answers;
+    boost::shared_ptr< boost::promise< std::string > > promise;
     
     boost::shared_mutex mutex;
-    boost::timed_mutex answerWaitingMutex;
     
     boost::regex EOLpattern;
     
@@ -44,7 +45,7 @@ namespace lughos
     
     ~QueryImpl()
     {
-      this->answerWaitingMutex.unlock();
+
     }
     
     boost::regex getEOLPattern()
@@ -68,9 +69,13 @@ namespace lughos
     void addAnswer(std::string answer)
     {
       lughos::ExclusiveLock lock(this->mutex);
-      this->answers.push_back(answer);
+      if(this->promise)
+      {
+        this->promise->set_value(answer);
+        this->promise.reset();
+      }
+       
       lock.unlock();
-      this->answerWaitingMutex.unlock();
     }
     
     void setError(std::string errorMessage)
@@ -78,7 +83,6 @@ namespace lughos
       lughos::ExclusiveLock lock(this->mutex);
       this->error = true;
       this->lastErrorMessage = errorMessage;
-      this->answerWaitingMutex.unlock();
     }
     
     bool isSent()
@@ -86,23 +90,18 @@ namespace lughos
       lughos::SharedLock lock(this->mutex);
       return this->sent;
     }
-    
-    bool hasNewAnswer()
-    {
-      lughos::SharedLock lock(this->mutex);
-      return (this->answers.size() > this->lastReadAnswer);
-    }
-    
+
     std::string spyAnswer()
     {
-      return this->spyAnswer(0);
+      lughos::SharedLock lock(this->mutex);
+      return this->answers.back().get();
     }
     
     std::string spyAnswer(unsigned long int number)
     {
       lughos::SharedLock lock(this->mutex);
       if(number < answers.size())
-        return this->answers[number];
+        return this->answers[number].get();
       else
         return std::string("");
     }
@@ -115,15 +114,6 @@ namespace lughos
     std::string getAnswer(unsigned long int number)
     {
       return this->spyAnswer(number);
-    }
-    
-    std::string awaitNewAnswer(boost::posix_time::time_duration duration = boost::posix_time::seconds(3))
-    {
-      if (!hasNewAnswer())
-        this->answerWaitingMutex.timed_lock(boost::get_system_time() + duration);
-        this->answerWaitingMutex.lock();
-        this->answerWaitingMutex.unlock();
-      return this->spyAnswer();
     }
     
     void purge()
@@ -142,6 +132,8 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
+      this->promise.reset(new boost::promise<std::string>());
+      this->answers.push_back(promise->get_future());
     }
   };
 
