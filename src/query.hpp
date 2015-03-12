@@ -18,7 +18,6 @@ namespace lughos
   {
   protected:
     bool sent;
-    unsigned long int lastReadAnswer;
     bool awaitingAnswer;
     bool continous; 
     bool done;
@@ -28,7 +27,7 @@ namespace lughos
     boost::signals2::signal<void (void)> onSent;
     
     std::string question;
-    std::vector<boost::shared_future<std::string> > answers;
+    boost::shared_ptr<boost::shared_future<std::string> > answer;
     boost::shared_ptr< boost::promise< std::string > > promise;
     
     boost::shared_mutex mutex;
@@ -42,8 +41,7 @@ namespace lughos
     
     QueryImpl()
     {
-      lughos::ExclusiveLock lock(this->mutex);
-      this->lastReadAnswer = 0;
+      this->purge();
     }
     
     ~QueryImpl()
@@ -69,7 +67,7 @@ namespace lughos
       this->question = question;
     }
     
-    void addAnswer(std::string answer)
+    void receive(std::string answer)
     {
       lughos::ExclusiveLock lock(this->mutex);
       if(this->promise)
@@ -97,35 +95,24 @@ namespace lughos
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
-      if(answers.size() > 0)
-        return this->answers.back().get();
+      this->answer->timed_wait(boost::posix_time::seconds(2));
+      if(answer->has_value())
+        return this->answer->get();
       else
         return std::string("");
     }
     
-    std::string spyAnswer(unsigned long int number)
-    {
-      lughos::SharedLock lock(this->mutex);
-      if(number < answers.size())
-        return this->answers[number].get();
-      else
-        return std::string("");
-    }
+
     
     std::string getAnswer()
     {
       return this->spyAnswer();
     }
     
-    std::string getAnswer(unsigned long int number)
-    {
-      return this->spyAnswer(number);
-    }
-    
     void purge()
     {
-      this->answers.clear();
-      this->lastReadAnswer = 0;
+      this->promise.reset(new boost::promise<std::string>());
+      this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
     }
     
     std::string getQuestion()
@@ -138,8 +125,7 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
-      this->promise.reset(new boost::promise<std::string>());
-      this->answers.push_back(promise->get_future());
+      this->purge();
     }
   };
 

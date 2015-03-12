@@ -283,7 +283,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       // Write all of the data that has been read so far.
       response_string_stream.str ( std::string ( "" ) );
       response_string_stream<< &response;
-      query->addAnswer(response_string_stream.str());
+      query->receive(response_string_stream.str());
       this->timeoutTimer->cancel();
       lughos::debugLog ( std::string ( "Read \"" ) + response_string_stream.str() + std::string ( "\"." ));
       this->handle_read_rest ( err );
@@ -315,7 +315,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
     {
       lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
       this->abort();
-      query->addAnswer(std::string(""));                    // TODO signal error states in query
+      query->receive(std::string(""));                    // TODO signal error states in query
     }
   catch ( ... )
     {
