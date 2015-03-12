@@ -10,9 +10,9 @@
 #include <boost/current_function.hpp>
 #include <boost/thread/mutex.hpp>
 
-#define DEBUG_THRESHOLD_CERR 10.0
-#define DEBUG_THRESHOLD_FILE 10.0
-#define DEBUG_THRESHOLD_DB 10.0
+#define DEBUG_THRESHOLD_CERR 1.0
+#define DEBUG_THRESHOLD_FILE 1.0
+#define DEBUG_THRESHOLD_DB 1.0
 
 namespace lughos 
 {
