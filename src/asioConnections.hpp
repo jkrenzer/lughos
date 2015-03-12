@@ -360,8 +360,9 @@ template <class C> bool asioConnection<C>::test()
   try
     {
       this->initialize();
+      bool success = this->initialized();
       this->shutdown();
-      return this->initialized();
+      return success;
     }
   catch ( ... )
     {
