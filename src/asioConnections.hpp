@@ -180,7 +180,11 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     this->initialize();
     lock.lock();
     if (!this->initialized())
+    {
+      lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
+      query->receive(std::string ( "Unable to initialize for sending." ));
       return;
+    }
   }
   if (!this->connected())
   {
@@ -188,7 +192,11 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     this->connect(boost::bind(&asioConnection<C>::execute, this, query));
     lock.lock();
     if (!this->connected())
+    {
+      lughos::debugLog ( std::string ( "Unable to connect for sending." ) );
+      query->receive(std::string ( "Unable to connect for sending." ));
       return;
+    }
   }
   lock.unlock();
   

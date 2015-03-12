@@ -157,12 +157,13 @@ void serialConnection::connect ( boost::function<void() > callback )
       }
       else
       {
+        debugLog(std::string("Trying to connect to port ") + this->port_name);
         return;
       }
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      debugLog(std::string("Exception while trying to access port ") + this->port_name);
+      debugLog(std::string("Exception while trying to access port ") + this->port_name + std::string(". Exception-Message: ") + e.what());
       return;
     }
     if (this->socket->is_open())
