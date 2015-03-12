@@ -361,7 +361,9 @@ template <class C> void asioConnection<C>::shutdown()
       if ( socket )
         {
           debugLog ( std::string ( "Stopping connection" ) );
+          lock.unlock();
           this->abort();
+          lock.lock();
           socket->close();
           socket.reset();
           lock.unlock();
