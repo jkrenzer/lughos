@@ -148,16 +148,23 @@ void serialConnection::initialize()
 void serialConnection::connect ( boost::function<void() > callback )
 {
   this->isConnected = false;
+
   try
     {
-      if (this->socket)
+      if (this->socket && !this->socket->is_open())
       {
         debugLog(std::string("Trying to connect to port ") + this->port_name);
         this->socket->open ( this->port_name );
       }
+      else if (this->socket->is_open())
+      {
+        debugLog(std::string("Already connected to port ") + this->port_name);
+        this->isConnected = true;
+        return;
+      }
       else
       {
-        debugLog(std::string("Trying to connect to port ") + this->port_name);
+        debugLog(std::string("Unable to connect to port ") + this->port_name);
         return;
       }
     }
