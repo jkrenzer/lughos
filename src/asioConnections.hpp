@@ -224,16 +224,16 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     }
 
 
-  if ( socket || !socket->is_open() )
+  if ( !socket || !socket->is_open() )
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
-      query->setError(std::string ( "I/O-Service exception while polling." ));
+      query->setError(std::string ( "Socket is closed despite writing?!" ));
     }
 
   if ( this->io_service->stopped() )
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
-      query->setError(std::string ( "I/O-Service exception while polling." ));
+      query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
     }
 
 
@@ -315,10 +315,15 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
 
 template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Query> query, const boost::system::error_code& error )
 {
-  if ( error )
+  if ( error == boost::asio::error::operation_aborted)
     {
       // Data was read and this timeout was canceled
       lughos::debugLog ( std::string ( "Timeout cancelled  because data was read sucessfully." ) );
+      return;
+    }
+    else
+    {
+      lughos::debugLog ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
       return;
     }
   try
