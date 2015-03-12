@@ -22,7 +22,8 @@ set(CMAKE_TOOLCHAIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains)
 
 ### Configuration switches
 
-#set(LINK_STATIC TRUE) # Uncomment to link libraries static, so we get a stand-alone application
+set(LINK_STATIC FALSE) # set TRUE to link libraries static, so we get a stand-alone application
+set(BUILD_SHARED_LIBS TRUE)
 
 ###
 
@@ -103,6 +104,7 @@ if(${CMAKE_CROSSCOMPILING})
 set(Boost_DEBUG "ON")
 # set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH})
 # set(BOOST_LIBRARYDIR "${BOOST_ROOT}lib/")
+set(BOOST_ALL_DYN_LINK TRUE)
 set(Boost_DETAILED_FAILURE_MSG "ON")
 else()
 set(Boost_DEBUG "ON")
@@ -198,49 +200,43 @@ add_library(errorHandling src/errorHandling.cpp)
 
 add_library(log src/log.cpp)
 
-add_library(asioConnections src/asioConnections.cpp)
-
-add_library(serialConnections src/serialConnections.cpp)
-target_link_libraries(serialConnections asioConnections)
-
-add_library(tcpConnections src/tcpConnections.cpp)
-target_link_libraries(tcpConnections asioConnections)
+add_library(connections src/serialConnections.cpp src/tcpConnections.cpp)
 
 add_library(keithley src/keithley.cpp)
-target_link_libraries(keithley  measuredValue serialConnections errorHandling log)
-add_dependencies(keithley  measuredValue )
+target_link_libraries(keithley  measuredValue connections errorHandling log)
+add_dependencies(keithley  measuredValue connections)
 
 add_library(keithleySerial src/keithleySerial.cpp)
-target_link_libraries(keithleySerial  measuredValue serialConnections errorHandling log)
-add_dependencies(keithleySerial  measuredValue serialConnections errorHandling log)
+target_link_libraries(keithleySerial  measuredValue connections errorHandling log)
+add_dependencies(keithleySerial  measuredValue connections errorHandling log)
 
 add_library(MaxiGauge src/MaxiGauge.cpp)
-target_link_libraries(MaxiGauge  measuredValue unitValue serialConnections errorHandling log)
-add_dependencies(MaxiGauge  measuredValue serialConnections errorHandling log)
+target_link_libraries(MaxiGauge  measuredValue unitValue connections errorHandling log)
+add_dependencies(MaxiGauge  measuredValue connections errorHandling log)
 
 add_library(coolpak6000 src/coolpak6000.cpp)
-target_link_libraries(coolpak6000  unitValue serialConnections errorHandling log)
-add_dependencies(coolpak6000  unitValue serialConnections errorHandling log)
+target_link_libraries(coolpak6000  unitValue connections errorHandling log)
+add_dependencies(coolpak6000  unitValue connections errorHandling log)
 
 add_library(bronkhorst src/bronkhorst.cpp)
-target_link_libraries(bronkhorst  unitValue serialConnections errorHandling log)
-add_dependencies(bronkhorst  unitValue serialConnections errorHandling log)
+target_link_libraries(bronkhorst  unitValue connections errorHandling log)
+add_dependencies(bronkhorst  unitValue connections errorHandling log)
 
 add_library(PSAPowersupply src/PSAPowersupply.cpp)
-target_link_libraries(PSAPowersupply  unitValue serialConnections errorHandling log)
-add_dependencies(PSAPowersupply  unitValue serialConnections errorHandling log)
+target_link_libraries(PSAPowersupply  unitValue connections errorHandling log)
+add_dependencies(PSAPowersupply  unitValue connections errorHandling log)
 
 add_library(Relais src/Relais.cpp)
-target_link_libraries(Relais  unitValue serialConnections errorHandling log)
-add_dependencies(Relais  unitValue serialConnections errorHandling log)
+target_link_libraries(Relais  unitValue connections errorHandling log)
+add_dependencies(Relais  unitValue connections errorHandling log)
 
 add_library(FUGNetzteil src/FUGNetzteil.cpp)
-target_link_libraries(FUGNetzteil  unitValue serialConnections errorHandling log)
-add_dependencies(FUGNetzteil  unitValue tcpConnections errorHandling log)
+target_link_libraries(FUGNetzteil  unitValue connections errorHandling log)
+add_dependencies(FUGNetzteil  unitValue connections errorHandling log)
 
 add_library(RFG src/RFG.cpp)
-target_link_libraries(RFG  unitValue serialConnections errorHandling log ${Wt_DBO_LIBRARY})
-add_dependencies(RFG  unitValue serialConnections errorHandling log)
+target_link_libraries(RFG  unitValue connections errorHandling log ${Wt_DBO_LIBRARY})
+add_dependencies(RFG  unitValue connections errorHandling log)
 
 add_library(unitValue src/unitValue.cpp)
 
@@ -281,12 +277,12 @@ endif()
 ### Test for wt2
 # Add executbales and libraries if dependencies are found
 add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConnections.cpp src/serialSync.cpp src/.cpp src/unitValue.cpp)
-add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply )
+add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply connections)
 
 if(${Windows})
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
 else()
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
 endif()
 
 ### Test for wt-plots

@@ -28,9 +28,9 @@ void tcpConnection::initialize()
 		return;
 	}
     lughos::debugLog("Initializing TCP-connection to" + server_name + ":" + port_name);
-    resolver= boost::shared_ptr<tcp::resolver>(new tcp::resolver(*this->io_service));
-    query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
-    socket= boost::shared_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(*this->io_service));
+    resolver.reset(new tcp::resolver(*this->io_service));
+    query.reset(new tcp::resolver::query(server_name, port_name));
+    socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
 //     boost::asio::socket_base::keep_alive keepAlive(true);
 //     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
     this->isConnected = false;
@@ -112,4 +112,14 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
     this->endpoint.reset(new tcp::endpoint);
     return;
   }
+}
+
+void tcpConnection::shutdown()
+{
+  this->abort();
+  this->socket->close();
+  this->socket.reset();
+  this->query.reset();
+  this->resolver.reset();
+  return;
 }

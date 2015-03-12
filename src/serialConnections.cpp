@@ -131,7 +131,24 @@ void serialConnection::initialize()
     
 }
 
-
+void serialConnection::connect(boost::function<void()> callback)
+{
+  
+  try
+  {
+    this->socket->open(this->port_name);
+  }
+  catch (...)
+  {
+    return;
+  }
+  if(callback && this->socket->is_open())
+  {
+    this->isConnected = true;
+    callback();
+  }
+  return;
+}
 
 void serialConnection::reset()
 {

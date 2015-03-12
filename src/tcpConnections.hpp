@@ -46,7 +46,6 @@ class tcpConnection: public asioConnection<tcpContext>
 private:
   tcpConnection ( const tcpConnection &p );
   tcpConnection &operator= ( const tcpConnection &p );
-  void wait_callback ( boost::asio::serial_port& port_, const boost::system::error_code& error );
 
 protected:
   boost::shared_ptr<tcp::resolver> resolver;
