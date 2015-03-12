@@ -123,9 +123,10 @@ namespace lughos
     
     std::string send(bool sent = true)
     {
+      this->purge();
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
-      this->purge();
+      return this->question;
     }
   };
 

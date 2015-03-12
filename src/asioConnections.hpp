@@ -169,6 +169,8 @@ template <class C> asioConnection<C>::~asioConnection ( void )
 
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query )
 {
+  if (!query)
+    return;
   std::ostream request_stream ( &request );
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
