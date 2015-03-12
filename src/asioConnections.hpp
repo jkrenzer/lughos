@@ -210,17 +210,20 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   catch ( ... )
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
+      query->setError(std::string ( "I/O-Service exception while polling." ));
     }
 
 
   if ( socket || !socket->is_open() )
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
+      query->setError(std::string ( "I/O-Service exception while polling." ));
     }
 
   if ( this->io_service->stopped() )
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
+      query->setError(std::string ( "I/O-Service exception while polling." ));
     }
 
 
@@ -243,6 +246,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
   else
     {
       lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
+      query->setError(err.message());
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
     }
@@ -294,6 +298,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
   else
     {
       lughos::debugLog ( std::string ( "Unable to read. Got error: " ) +err.message() );
+      query->setError(err.message());
     }
 
 }

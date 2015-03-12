@@ -18,6 +18,7 @@ namespace lughos
     bool awaitingAnswer;
     bool continous; //TODO add 
     bool done;
+    bool error;
     
     boost::signals2::signal<void (std::vector<std::string>&)> onReceived;
     boost::signals2::signal<void (void)> onSent;
@@ -26,10 +27,11 @@ namespace lughos
     std::vector<std::string> answers;
     
     boost::shared_mutex mutex;
-    boost::mutex answerWaitingMutex;
+    boost::timed_mutex answerWaitingMutex;
     
     boost::regex EOLpattern;
     
+    std::string lastErrorMessage;
     
     
   public:
@@ -67,6 +69,14 @@ namespace lughos
       this->answerWaitingMutex.unlock();
     }
     
+    void setError(std::string errorMessage)
+    {
+      lughos::ExclusiveLock lock(this->mutex);
+      this->error = true;
+      this->lastErrorMessage = errorMessage;
+      this->answerWaitingMutex.unlock();
+    }
+    
     bool isSent()
     {
       lughos::SharedLock lock(this->mutex);
@@ -81,26 +91,35 @@ namespace lughos
     
     std::string spyAnswer()
     {
-      lughos::SharedLock lock(this->mutex);
-      return this->answers.back();
+      return this->spyAnswer(0);
     }
     
     std::string spyAnswer(unsigned long int number)
     {
       lughos::SharedLock lock(this->mutex);
-      return this->answers[number];
+      if(number < answers.size())
+        return this->answers[number];
+      else
+        return std::string("");
     }
     
     std::string getAnswer()
     {
-      this->answerWaitingMutex.lock();
       return this->spyAnswer();
     }
     
     std::string getAnswer(unsigned long int number)
     {
-      this->answerWaitingMutex.lock();
       return this->spyAnswer(number);
+    }
+    
+    std::string awaitNewAnswer(boost::posix_time::time_duration duration)
+    {
+      if (!hasNewAnswer())
+        this->answerWaitingMutex.timed_lock(boost::get_system_time() + boost::posix_time::seconds(3));
+        this->answerWaitingMutex.lock();
+        this->answerWaitingMutex.unlock();
+      return this->spyAnswer();
     }
     
     void purge()
