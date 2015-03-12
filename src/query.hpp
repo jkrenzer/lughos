@@ -39,8 +39,12 @@ namespace lughos
     QueryImpl()
     {
       lughos::ExclusiveLock lock(this->mutex);
-      this->answerWaitingMutex.lock();
       this->lastReadAnswer = 0;
+    }
+    
+    ~QueryImpl()
+    {
+      this->answerWaitingMutex.unlock();
     }
     
     boost::regex getEOLPattern()
