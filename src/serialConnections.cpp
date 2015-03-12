@@ -126,6 +126,7 @@ void serialConnection::initialize()
 // 	/*/*/*/*ofs*/*/*/*/.close();
 // 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
 //   io_service->run();
+        this->isInitialized = true;
 	return;
     
     
