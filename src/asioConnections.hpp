@@ -170,7 +170,6 @@ template <class C> asioConnection<C>::~asioConnection ( void )
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query )
 {
   std::ostream request_stream ( &request );
-  request_stream<<query->getQuestion();
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
@@ -197,6 +196,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error ));
 
+  request_stream << query->send();
   boost::asio::async_write ( *socket, request,
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );

@@ -9,6 +9,9 @@
 
 namespace lughos
 {
+  //TODO add continous answer retrival
+  
+  //TODO add casts so queries can be used directly with asio-functions.
   
 
   class QueryImpl
@@ -17,7 +20,7 @@ namespace lughos
     bool sent;
     unsigned long int lastReadAnswer;
     bool awaitingAnswer;
-    bool continous; //TODO add 
+    bool continous; 
     bool done;
     bool error;
     
@@ -94,7 +97,10 @@ namespace lughos
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
-      return this->answers.back().get();
+      if(answers.size() > 0)
+        return this->answers.back().get();
+      else
+        return std::string("");
     }
     
     std::string spyAnswer(unsigned long int number)
@@ -128,7 +134,7 @@ namespace lughos
       return this->question;
     }
     
-    void setSent(bool sent = true)
+    std::string send(bool sent = true)
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
