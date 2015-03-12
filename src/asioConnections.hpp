@@ -57,7 +57,7 @@ private:
   * @return void
   */
 
-  virtual void wait_callback ( boost::asio::serial_port& port_, const boost::system::error_code& error );
+  virtual void handle_timeout ( boost::shared_ptr<Query> query, const boost::system::error_code& error );
 
 protected:
 
@@ -192,6 +192,10 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
       return;
   }
   lock.unlock();
+  
+  this->timeoutTimer->expires_from_now(boost::posix_time::seconds(3));
+  this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+                                 boost::asio::placeholders::error ));
 
   boost::asio::async_write ( *socket, request,
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
@@ -273,10 +277,12 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
   if ( !err )
     {
       // Write all of the data that has been read so far.
-      this->handle_read_rest ( err );
       response_string_stream.str ( std::string ( "" ) );
       response_string_stream<< &response;
+      query->addAnswer(response_string_stream.str());
+      this->timeoutTimer->cancel();
       lughos::debugLog ( std::string ( "Read \"" ) + response_string_stream.str() + std::string ( "\"." ));
+      this->handle_read_rest ( err );
     }
                      else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
     {
@@ -292,20 +298,19 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
 
 }
 
-template <class C> void asioConnection<C>::wait_callback ( boost::asio::serial_port& socket, const boost::system::error_code& error )
+template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Query> query, const boost::system::error_code& error )
 {
-  //std::cout << " Calling wait-handler.";
   if ( error )
     {
       // Data was read and this timeout was canceled
       lughos::debugLog ( std::string ( "Timeout cancelled  because data was read sucessfully." ) );
       return;
     }
-  //std::cout << " Timed out.";
   try
     {
       lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
       this->abort();
+      query->addAnswer(std::string(""));                    // TODO signal error states in query
     }
   catch ( ... )
     {
