@@ -12,8 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -23,7 +21,7 @@
 
 using namespace lughos;
 
-class RFGConnection : public serialAsync
+class RFGConnection : public serialConnection
 {
 public:
     RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service);

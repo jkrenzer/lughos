@@ -1,7 +1,6 @@
 // #include "StdAfx.h"
 
 #include <ostream>
-#include "tcpAsync.hpp"
 #include "FUGNetzteil.hpp"
 #include "utils.hpp"
 

@@ -2,8 +2,6 @@
 
 #include <ostream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 #include "RFG.hpp"
 
 RFG::RFG()

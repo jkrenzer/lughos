@@ -5,7 +5,6 @@
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/QueryModel>
 #include "test_gui2.hpp"
-#include "serialAsync.hpp"
 #include "device.hpp"
 #include "bronkhorst.hpp"
 #include "FUGNetzteil.hpp"
@@ -142,15 +141,15 @@ int main(int argc, char **argv)
 
         //TODO Make a loop which iterates over declared devices
 
-        boost::shared_ptr<serialAsync> connection1(new bronkhorstConnection() );
-        boost::shared_ptr<serialAsync> connection2(new RFGConnection() );
-        boost::shared_ptr<serialAsync> connection3(new RelaisConnection() );
-        boost::shared_ptr<serialAsync> connection4(new bronkhorstConnection() );
-        boost::shared_ptr<tcpAsync> connection5(new FUGNetzteilConnection() );
-        boost::shared_ptr<tcpAsync> connection6(new FUGNetzteilConnection() );
-	boost::shared_ptr<serialAsync> connection7(new PSAPowersupplyConnection() );
-	boost::shared_ptr<serialAsync> connection8(new PSAPowersupplyConnection() );
-	boost::shared_ptr<serialAsync> connection9(new PSAPowersupplyConnection() );
+        boost::shared_ptr<serialConnection> connection1(new bronkhorstConnection() );
+        boost::shared_ptr<serialConnection> connection2(new RFGConnection() );
+        boost::shared_ptr<serialConnection> connection3(new RelaisConnection() );
+        boost::shared_ptr<serialConnection> connection4(new bronkhorstConnection() );
+        boost::shared_ptr<tcpConnection> connection5(new FUGNetzteilConnection() );
+        boost::shared_ptr<tcpConnection> connection6(new FUGNetzteilConnection() );
+	boost::shared_ptr<serialConnection> connection7(new PSAPowersupplyConnection() );
+	boost::shared_ptr<serialConnection> connection8(new PSAPowersupplyConnection() );
+	boost::shared_ptr<serialConnection> connection9(new PSAPowersupplyConnection() );
 
 
         connection1->port_name = std::string(config.get<std::string>("devices.flowcontroll1.connection.port"));

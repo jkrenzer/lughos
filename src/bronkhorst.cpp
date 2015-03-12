@@ -3,7 +3,6 @@
 #include <ostream>
 #include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialAsync.hpp"
 #include "bronkhorst.hpp"
 
 #define Bronkhorst_100Percent 32000

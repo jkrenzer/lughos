@@ -38,22 +38,6 @@ namespace lughos
     
     virtual void shutdownImplementation() = 0;
     
-    virtual std::string composeRequest(std::string query) = 0;
-    
-    virtual std::string interpretAnswer(std::string query) = 0;
-    
-    virtual std::string inputOutputImplementation(std::string query)
-    {
-      connection->execute(this->composeRequest(query));
-      return this->interpretAnswer(connection->read());
-    }
-    
-    virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
-    {
-      connection->execute(this->composeRequest(query), regExpr);
-      return this->interpretAnswer(connection->read());
-    }
-    
   public:
     
     /**
@@ -144,28 +128,36 @@ namespace lughos
       return this->connection.get();
     }
     
-    std::string inputOutput(std::string query)
+    std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);
       if(this->connected)
       {
-	lock.unlock();
-	return this->inputOutputImplementation(query);
+	boost::shared_ptr<Query> q(new Query);
+	q->setQuestion(query);
+	if(!regExpr.empty())
+	  q->setEOLPattern(regExpr);
+	this->connection->execute(q);
+	return q->getAnswer();
       }
       else
 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
-    std::string inputOutput(std::string query, boost::regex regExpr)
+    void input(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);
       if(this->connected)
       {
-	lock.unlock();
-	return this->inputOutputImplementation(query,regExpr);
+	boost::shared_ptr<Query> q(new Query);
+	q->setQuestion(query);
+	if(!regExpr.empty())
+	  q->setEOLPattern(regExpr);
+	this->connection->execute(q);
+	return;
       }
       else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("input_without_connection")) << errorTitle("Input was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
     boost::shared_ptr<boost::asio::io_service> getIoService()

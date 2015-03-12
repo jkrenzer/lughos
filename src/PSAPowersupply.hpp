@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialAsync.hpp"
 #include "measuredValue.hpp"
 
 #include <iostream>
@@ -21,7 +20,7 @@
 
 using namespace lughos;
 
-class PSAPowersupplyConnection : public serialAsync
+class PSAPowersupplyConnection : public serialConnection
 {
 public:
   PSAPowersupplyConnection(boost::shared_ptr< boost::asio::io_service > io_service);

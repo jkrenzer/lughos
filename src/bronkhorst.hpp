@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -23,7 +22,7 @@
 
 using namespace lughos;
 
-class bronkhorstConnection : public serialAsync
+class bronkhorstConnection : public serialConnection
 {
 public:
     bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);

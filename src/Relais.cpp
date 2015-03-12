@@ -2,7 +2,6 @@
 
 #include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
 #include "Relais.hpp"
 #include <math.h>  
 

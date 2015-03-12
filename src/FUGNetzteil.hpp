@@ -14,8 +14,6 @@
 #include <boost/asio.hpp>
 #include "connectionImpl.hpp"
 #include "tcpConnections.hpp"
-#include "tcpAsync.hpp"
-
 #include <iostream>
 #include <boost/array.hpp>
 #include "device.hpp"
@@ -27,7 +25,7 @@ using boost::asio::ip::tcp;
 
 using namespace lughos;
 
-class FUGNetzteilConnection : public tcpAsync
+class FUGNetzteilConnection : public tcpConnection
 {
 public:
     FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service);
