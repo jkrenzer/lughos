@@ -27,7 +27,7 @@ namespace lughos
 *
 */
 template <class C>
-class asioConnection : virtual public Connection<C>
+class asioConnection : public Connection<C>
 {
 private:
 
@@ -180,12 +180,16 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     lock.unlock();
     this->initialize();
     lock.lock();
+    if (!this->initialized())
+      return;
   }
   if (!this->connected())
   {
     lock.unlock();
     this->connect(boost::bind(&asioConnection<C>::execute, this, query));
     lock.lock();
+    if (!this->connected())
+      return;
   }
   lock.unlock();
 
@@ -205,7 +209,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     }
 
 
-  if ( socket.get() == NULL || !socket->is_open() )
+  if ( socket || !socket->is_open() )
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
     }
@@ -314,7 +318,8 @@ template <class C> void asioConnection<C>::abort()
   try
     {
       ExclusiveLock lock(this->mutex);
-      socket->cancel();
+      if (socket)
+        socket->cancel();
       lock.unlock();
       lughos::debugLog ( std::string ( "Aborting." ));
     }
@@ -327,7 +332,10 @@ template <class C> void asioConnection<C>::abort()
 template <class C> bool asioConnection<C>::connected()
 {
   SharedLock lock(this->mutex);
-  return this->isConnected && this->socket->is_open();
+  if (socket)
+    return this->isConnected && this->socket->is_open();
+  else
+    return false;
 }
 
 template <class C> bool asioConnection<C>::initialized ()

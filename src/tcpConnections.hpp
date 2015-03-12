@@ -54,19 +54,19 @@ protected:
 
   std::string server;
 
-  void initialize();
-  void shutdown();
+  virtual void initialize();
+  virtual void shutdown();
 
   void handle_resolve ( boost::function<void() > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator );
   void handle_connect ( boost::function<void() > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator = tcp::resolver::iterator() );
-  void connect ( boost::function<void ( void ) > callback = boost::function<void ( void ) >() );
-  void disconnect();
+  virtual void connect ( boost::function<void ( void ) > callback = boost::function<void ( void ) >() );
+  virtual void disconnect();
 
 
 public:
 
   tcpConnection();
-  ~tcpConnection ( void );
+  virtual ~tcpConnection ( void );
 
   std::string server_name;
   bool IPv6;

@@ -141,7 +141,8 @@ namespace lughos
 	return q->getAnswer();
       }
       else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+// 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+        return std::string("");
     }
     
     void input(std::string query, boost::regex regExpr = boost::regex())

@@ -23,6 +23,8 @@ tcpConnection::~tcpConnection(void)
 
 void tcpConnection::initialize()
 {
+  this->isConnected = false;
+  this->isInitialized = false;
     if (server_name.empty()||port_name.empty()) {
 		lughos::debugLog("Connection not initialized. Please set server/port name!");
 		return;
@@ -31,9 +33,9 @@ void tcpConnection::initialize()
     resolver.reset(new tcp::resolver(*this->io_service));
     query.reset(new tcp::resolver::query(server_name, port_name));
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
+    endpoint.reset(new tcp::endpoint());
 //     boost::asio::socket_base::keep_alive keepAlive(true);
 //     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
-    this->isConnected = false;
     this->isInitialized = true;
 }
 
@@ -121,5 +123,7 @@ void tcpConnection::shutdown()
   this->socket.reset();
   this->query.reset();
   this->resolver.reset();
+  this->endpoint.reset();
+  this->isInitialized = false;
   return;
 }
