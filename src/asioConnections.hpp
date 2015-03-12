@@ -379,12 +379,14 @@ template <class C> void asioConnection<C>::shutdown()
       ExclusiveLock lock(this->mutex);
       if ( socket )
         {
-          debugLog ( std::string ( "Stopping connection" ) );
+          debugLog ( std::string ( "Shutting connection down." ) );
           lock.unlock();
           this->abort();
           lock.lock();
           socket->close();
           socket.reset();
+          this->isInitialized = false;
+          this->isConnected = false;
           lock.unlock();
         }
     }

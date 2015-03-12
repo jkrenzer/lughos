@@ -43,6 +43,7 @@ void serialConnection::initialize()
     std::cout<<"port name: "<< port_name<< std::endl;
     std::cout << "#############################" << std::endl;*/
   this->isInitialized = false;
+  lughos::debugLog ( std::string ( "initializing serial connection on port" ) + this->port_name );
   if ( port_name.empty() )
     {
       lughos::debugLog ( std::string ( "Serial connection not initialized. No port-name set." ) );
@@ -150,17 +151,30 @@ void serialConnection::connect ( boost::function<void() > callback )
   try
     {
       if (this->socket)
+      {
+        debugLog(std::string("Trying to connect to port ") + this->port_name);
         this->socket->open ( this->port_name );
+      }
       else
+      {
         return;
+      }
     }
   catch ( ... )
     {
       return;
     }
-  if ( callback && this->socket->is_open() )
+    if (this->socket->is_open())
     {
       this->isConnected = true;
+      debugLog(std::string("Port ") + this->port_name + std::string(" sucessfully opened."));
+    }
+    else
+      debugLog(std::string("Port ") + this->port_name + std::string(" did not open up."));
+    
+  if ( callback && this->isConnected )
+    {
+      debugLog(std::string("Calling callback function."));
       callback();
     }
   return;
