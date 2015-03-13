@@ -15,12 +15,21 @@ serialConnection::serialConnection ( boost::shared_ptr<boost::asio::io_service> 
 {
   this->ioService ( io_service );
   this->endOfLineRegExpr_ = boost::regex ( "\n" );
-
+  boost::asio::serial_port_base::flow_control flow_control(boost::asio::serial_port::flow_control::none);
+  boost::asio::serial_port_base::character_size character_size(boost::asio::serial_port::character_size(8));
+  boost::asio::serial_port_base::baud_rate baud_rate(boost::asio::serial_port::baud_rate(9600));
+  boost::asio::serial_port_base::parity parity(boost::asio::serial_port::parity::none);
+  boost::asio::serial_port_base::stop_bits stop_bits(boost::asio::serial_port::stop_bits::one);
 }
 
 serialConnection::serialConnection() : flow_control(), baud_rate(), character_size()
 {
   this->endOfLineRegExpr_ = boost::regex ( "\n" );
+  boost::asio::serial_port_base::flow_control flow_control(boost::asio::serial_port::flow_control::none);
+  boost::asio::serial_port_base::character_size character_size(boost::asio::serial_port::character_size(8));
+  boost::asio::serial_port_base::baud_rate baud_rate(boost::asio::serial_port::baud_rate(9600));
+  boost::asio::serial_port_base::parity parity(boost::asio::serial_port::parity::none);
+  boost::asio::serial_port_base::stop_bits stop_bits(boost::asio::serial_port::stop_bits::one);
 }
 
 
@@ -57,8 +66,6 @@ void serialConnection::initialize()
       shutdown();
       return;
     }
-
-  boost::system::error_code ec;
 
   socket.reset ( new boost::asio::serial_port ( *io_service ) );
 
