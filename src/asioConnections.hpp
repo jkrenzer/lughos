@@ -333,7 +333,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
     {
       lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
       this->abort();
-      query->receive(std::string(""));                    // TODO signal error states in query
+      query->setError(std::string("Timed out."));           // TODO signal error states in query
     }
   catch ( ... )
     {
