@@ -115,6 +115,7 @@ namespace lughos
     
     void purge()
     {
+    lughos::ExclusiveLock lock(this->mutex);
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->question.clear();
@@ -132,7 +133,8 @@ namespace lughos
     
     std::string send(bool sent = true)
     {
-      this->purge();
+      this->promise.reset(new boost::promise<std::string>());
+      this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
       debugLog(std::string("Query sent: ") + this->question);
