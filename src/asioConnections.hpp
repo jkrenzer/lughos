@@ -324,7 +324,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
       lughos::debugLog ( std::string ( "Timeout cancelled  because data was read sucessfully." ) );
       return;
     }
-    else
+    else if (error)
     {
       lughos::debugLog ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
       return;
