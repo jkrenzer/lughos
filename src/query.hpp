@@ -1,6 +1,7 @@
 #ifndef QUERY_HPP
 #define QUERY_HPP
 #include "threadSafety.hpp"
+#include "log.hpp"
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
 #include <boost/signals2/signal.hpp>
@@ -74,9 +75,11 @@ namespace lughos
       {
         this->promise->set_value(answer);
         this->promise.reset();
+        debugLog(std::string("Query received: ") + answer);
+        return;
       }
+      debugLog(std::string("Query ignored: ") + answer);
        
-      lock.unlock();
     }
     
     void setError(std::string errorMessage)
@@ -84,6 +87,7 @@ namespace lughos
       lughos::ExclusiveLock lock(this->mutex);
       this->error = true;
       this->lastErrorMessage = errorMessage;
+      debugLog(std::string("Query got error: ") + errorMessage);
     }
     
     bool isSent()
@@ -131,6 +135,7 @@ namespace lughos
       this->purge();
       lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
+      debugLog(std::string("Query sent: ") + this->question);
       return this->question;
     }
   };
