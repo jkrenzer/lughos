@@ -140,7 +140,7 @@ namespace lughos
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->request.reset(new boost::asio::streambuf());
-      this->request.reset(new boost::asio::streambuf());
+      this->response.reset(new boost::asio::streambuf());
       this->question.clear();
       this->sent = false;
       this->done = false;
