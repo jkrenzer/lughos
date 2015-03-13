@@ -354,9 +354,9 @@ template <class C> void asioConnection<C>::abort()
       lock.unlock();
       lughos::debugLog ( std::string ( "Aborting." ));
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Error while trying to perform requested abort." ));
+      lughos::debugLog ( std::string ( "Error while trying to perform requested abort: ") + e.what());
     }
 }
 
