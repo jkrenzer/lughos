@@ -8,40 +8,43 @@
 #include <Wt/WText>
 #include <functional>
 
- class DeviceUIInterface : public Wt::WPanel
+namespace lughos
+{
+
+  class DeviceUIInterface:public Wt::WPanel
   {
   public:
     std::string name;
-    Wt::WContainerWidget* container;
-    
-    void addWidget(Wt::WWidget* widget)
+    Wt::WContainerWidget * container;
+
+    void addWidget (Wt::WWidget * widget)
     {
-      this->container->addWidget(widget);
+      this->container->addWidget (widget);
     }
-    
-    DeviceUIInterface(Wt::WContainerWidget* parent = 0) : WPanel(parent)
+
+  DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
-      this->container = new Wt::WContainerWidget();
-      this->setStyleClass("DeviceContainer");
-      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-      this->setCentralWidget(container);
+      this->container = new Wt::WContainerWidget ();
+      this->setStyleClass ("DeviceContainer");
+      this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
+      this->setCentralWidget (container);
     }
-    
-    virtual ~DeviceUIInterface()
+
+    virtual ~ DeviceUIInterface ()
     {
       delete this->container;
     }
-    
+
   };
-  
-    
-  template <class D> class DeviceUI : public DeviceUIInterface
+
+
+template < class D > class DeviceUI:public DeviceUIInterface
   {
   public:
-    DeviceUI<D>()
+    DeviceUI < D > ()
     {
-      this->addWidget(new Wt::WText("No GUI for device availible!"));
+      this->addWidget (new Wt::WText ("No GUI for device availible!"));
     }
   };
-  
-  #endif  
+}				//namespace  
+#endif
