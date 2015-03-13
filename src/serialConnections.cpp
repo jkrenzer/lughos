@@ -62,37 +62,13 @@ void serialConnection::initialize()
 
   socket.reset ( new boost::asio::serial_port ( *io_service ) );
 
-  /* As windows is volatile with it's serial ports we have to be prepared for anything. So try and catch as if running for your life! */
-
-  try
-    {
-      socket->open ( port_name.c_str(), ec ); //Keep your fingers crossed...
-      if ( ec ) // Boost gave us an error-message
-        {
-          lughos::debugLog ( std::string ( "error : socket->open() failed on port " ) + port_name.c_str() + std::string ( ", with error:" ) + ec.message().c_str() );
-          shutdown();
-          return;
-        }
-    }
-  catch ( ... )
-    {
-      // Unfortunatle we got an arbitrary system-exception. :/
-      lughos::debugLog ( std::string ( "error : socket->open() failed on port " ) + port_name.c_str() + std::string ( " with an unknown exception." ) );
-      shutdown();
-      return;
-    }
-
-// 	this->reset();
-  // option settings...
-
-
   try
     {
       socket->set_option ( boost::asio::serial_port_base::baud_rate ( baud_rate ) );
     }
   catch ( ... )
     {
-// 	      ofs << "baud rate problems" << std::endl;
+	lughos::debugLog ( std::string ( "Could not set baud rate." ) );
     }
 
   try
@@ -101,7 +77,7 @@ void serialConnection::initialize()
     }
   catch ( ... )
     {
-// 	      ofs << "character_size problems" << std::endl;
+      lughos::debugLog ( std::string ( "Could not set character size." ) );
     }
 
   try
@@ -111,7 +87,7 @@ void serialConnection::initialize()
     }
   catch ( ... )
     {
-// 	      ofs << "stop_bits problems" << std::endl;
+      lughos::debugLog ( std::string ( "Could not set stop bits." ) );
     }
 
 
@@ -122,7 +98,7 @@ void serialConnection::initialize()
     }
   catch ( ... )
     {
-// 	      ofs << "parity problems" << std::endl;
+      lughos::debugLog ( std::string ( "Could not set parity." ) );
     }
 
   try
@@ -131,14 +107,9 @@ void serialConnection::initialize()
     }
   catch ( ... )
     {
-// 	      ofs << "flow_control problems" << std::endl;
+      lughos::debugLog ( std::string ( "Could not set flow control." ) );
     }
 
-// 	ofs << "start is fine" << std::endl;
-// 	ofs.flush();
-// 	/*/*/*/*ofs*/*/*/*/.close();
-// 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
-//   io_service->run();
   this->isInitialized = true;
   return;
 
@@ -154,7 +125,12 @@ void serialConnection::connect ( boost::function<void() > callback )
       if (this->socket && !this->socket->is_open())
       {
         debugLog(std::string("Trying to connect to port ") + this->port_name);
-        this->socket->open ( this->port_name );
+         boost::system::error_code ec;
+        this->socket->open ( this->port_name,  ec);
+        if (ec)
+        {
+          debugLog(std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message());
+        }
       }
       else if (this->socket->is_open())
       {
@@ -173,7 +149,7 @@ void serialConnection::connect ( boost::function<void() > callback )
       debugLog(std::string("Exception while trying to access port ") + this->port_name + std::string(". Exception-Message: ") + e.what());
       return;
     }
-    if (this->socket->is_open())
+    if (this->socket && this->socket->is_open())
     {
       this->isConnected = true;
       debugLog(std::string("Port ") + this->port_name + std::string(" sucessfully opened."));

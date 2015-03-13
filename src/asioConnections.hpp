@@ -181,7 +181,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     lock.unlock();
     this->initialize();
     lock.lock();
-    if (!this->initialized())
+    if (!this->initialized() || !socket)
     {
       lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
       query->receive(std::string ( "Unable to initialize for sending." ));
@@ -366,7 +366,7 @@ template <class C> bool asioConnection<C>::connected()
 template <class C> bool asioConnection<C>::initialized ()
 {
   SharedLock lock(this->mutex);
-  return this->isInitialized;
+  return this->isInitialized && this->socket;
 }
 
 
