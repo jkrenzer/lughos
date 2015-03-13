@@ -90,13 +90,7 @@ namespace lughos
     {
       bool currentlyConnected = this->connection->test();
       UpgradeLock lock(this->mutex);
-      if(currentlyConnected && this->connected && !this->initialized)
-      {
-        lock.unlock();
-	this->init();
-	lock.lock();
-      }
-      else if (!currentlyConnected && this->connected)
+      if (!currentlyConnected && this->connected)
       {
 	upgradeLockToExclusive llock(lock);
 	this->connected = false;
