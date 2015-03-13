@@ -51,11 +51,14 @@ void serialConnection::initialize()
     std::cout<<"eolc: "<< endOfLineRegExpr()<< std::endl;
     std::cout<<"port name: "<< port_name<< std::endl;
     std::cout << "#############################" << std::endl;*/
+
+  ExclusiveLock lock(this->mutex);
   this->isInitialized = false;
   lughos::debugLog ( std::string ( "initializing serial connection on port" ) + this->port_name );
   if ( port_name.empty() )
     {
       lughos::debugLog ( std::string ( "Serial connection not initialized. No port-name set." ) );
+      lock.unlock();
       shutdown();
       return;
     }
@@ -63,6 +66,7 @@ void serialConnection::initialize()
   if ( !io_service )
     {
       lughos::debugLog ( std::string ( "Serial connection not initialized. No valid io_service." ) );
+      lock.unlock();
       shutdown();
       return;
     }
@@ -125,6 +129,7 @@ void serialConnection::initialize()
 
 void serialConnection::connect ( boost::function<void() > callback )
 {
+  ExclusiveLock lock(this->mutex);
   this->isConnected = false;
 
   try
@@ -167,6 +172,7 @@ void serialConnection::connect ( boost::function<void() > callback )
   if ( callback && this->isConnected )
     {
       debugLog(std::string("Calling callback function."));
+      lock.unlock();
       callback();
     }
   return;
@@ -177,6 +183,7 @@ void serialConnection::reset()
   this->abort();
   this->shutdown();
   this->initialize();
+  ExclusiveLock lock(this->mutex);
 #ifdef WIN32
 
   DCB dcb;
@@ -328,25 +335,24 @@ void serialConnection::reset()
 
 void serialConnection::set_port ( std::string port )
 {
-
+  ExclusiveLock lock(this->mutex);
+  this->port_name = port;
 }
 
 void serialConnection::set_baud_rate ( const int baud )
 {
-
+  ExclusiveLock lock(this->mutex);
   baud_rate=boost::asio::serial_port_base::baud_rate ( baud );
-
 }
 void serialConnection::set_character_size ( const int size )
 {
-
+  ExclusiveLock lock(this->mutex);
   character_size=boost::asio::serial_port_base::character_size ( size );
-
 }
 
 void serialConnection::set_flow_controll ( flow_constroll_bit controll_type )
 {
-
+  ExclusiveLock lock(this->mutex);
   switch ( controll_type )
     {
     case off:  // (can I just type case EASY?)
@@ -368,7 +374,7 @@ void serialConnection::set_flow_controll ( flow_constroll_bit controll_type )
 
 void serialConnection::set_parity ( parity_bit parity_type )
 {
-
+  ExclusiveLock lock(this->mutex);
   switch ( parity_type )
     {
     case none:
@@ -390,7 +396,7 @@ void serialConnection::set_parity ( parity_bit parity_type )
 
 void serialConnection::set_stop_bits ( stop_bits_num stop_bits_type )
 {
-
+  ExclusiveLock lock(this->mutex);
   switch ( stop_bits_type )
     {
     case one:

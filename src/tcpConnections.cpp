@@ -23,6 +23,7 @@ tcpConnection::~tcpConnection(void)
 
 void tcpConnection::initialize()
 {
+  ExclusiveLock lock(this->mutex);
   this->isConnected = false;
   this->isInitialized = false;
     if (server_name.empty()||port_name.empty()) {
@@ -41,11 +42,13 @@ void tcpConnection::initialize()
 
 void tcpConnection::set_port(std::string port)
 {
+  ExclusiveLock lock(this->mutex);
   port_name=port;
 }
 
 void tcpConnection::connect(boost::function<void(void)> callback)
 {
+  ExclusiveLock lock(this->mutex);
   this->socket.reset(new tcp::socket(*io_service));
   if (!this->endpoint->address().is_unspecified())
   {
@@ -73,7 +76,7 @@ void tcpConnection::handle_resolve(boost::function<void()> callback, const boost
 
   if (!err)
   {
-
+    ExclusiveLock lock(this->mutex);
     *this->endpoint = *endpoint_iterator;
     socket->async_connect(*this->endpoint,
         boost::bind(&tcpConnection::handle_connect, this, callback,
@@ -92,6 +95,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
 { 
   if(!err)
   {
+    ExclusiveLock lock(this->mutex);
     this->isConnected = true;
     lughos::debugLog(std::string("Connected successfully to ")+server_name);
     if(callback)
@@ -101,6 +105,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
   if (endpoint_iterator != tcp::resolver::iterator())
   {
     // The connection failed. Try the next endpoint in the list.
+    ExclusiveLock lock(this->mutex);
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
     *this->endpoint = *endpoint_iterator;
     socket->async_connect(*this->endpoint,
@@ -110,6 +115,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
   }
   else
   {
+    ExclusiveLock lock(this->mutex);
     lughos::debugLog(std::string("Unable to connect to server ")+server_name+std::string(". Got error: ")+err.message());
     this->endpoint.reset(new tcp::endpoint);
     return;
@@ -119,6 +125,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
 void tcpConnection::shutdown()
 {
   this->abort();
+  ExclusiveLock lock(this->mutex);
   this->socket->close();
   this->socket.reset();
   this->query.reset();

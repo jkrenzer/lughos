@@ -122,6 +122,7 @@ public:
   * @return void
   */
   void set_stop_bits ( stop_bits_num stop );
+  
   std::string port_name;
   /**
   * @brief sets default parameters

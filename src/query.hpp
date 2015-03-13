@@ -113,6 +113,11 @@ namespace lughos
     {
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
+      this->question.clear();
+      this->sent = false;
+      this->done = false;
+      this->error = false;
+      this->lastErrorMessage.clear();
     }
     
     std::string getQuestion()

@@ -139,8 +139,6 @@ protected:
   bool isConnected;
   bool isInitialized;
 
-
-  std::ostringstream response_string_stream;
   Mutex mutex;
 };
 
@@ -247,6 +245,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
   if ( !err )
     {
       // Read the response status line.
+      SharedLock lock(this->mutex);
       boost::asio::async_read_until ( *socket, response, query->getEOLPattern(),
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
@@ -268,6 +267,7 @@ template <class C> void asioConnection<C>::handle_read_rest ( const boost::syste
   if ( !err )
     {
       // Start reading remaining data until EOF.
+      SharedLock lock(this->mutex);
       boost::asio::async_read ( *socket, response,
                                 boost::asio::transfer_at_least ( 1 ),
                                 boost::bind ( &asioConnection<C>::handle_read_rest, this,
@@ -291,11 +291,14 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
   if ( !err )
     {
       // Write all of the data that has been read so far.
+      SharedLock lock(this->mutex);
+      std::stringstream response_string_stream;
       response_string_stream.str ( std::string ( "" ) );
       response_string_stream<< &response;
       query->receive(response_string_stream.str());
       this->timeoutTimer->cancel();
       lughos::debugLog ( std::string ( "Read \"" ) + response_string_stream.str() + std::string ( "\"." ));
+      lock.unlock();
       this->handle_read_rest ( err );
     }
                      else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
