@@ -144,10 +144,16 @@ void serialConnection::connect ( boost::function<void() > callback )
           debugLog(std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message());
         }
       }
-      else if (this->socket->is_open())
+      else if (this->socket && this->socket->is_open())
       {
         debugLog(std::string("Already connected to port ") + this->port_name);
         this->isConnected = true;
+        return;
+      }
+      else if (!this->socket)
+      {
+        debugLog(std::string("Port is not initialized,  so wie cannot connect.") + this->port_name);
+        this->isInitialized = false;
         return;
       }
       else
