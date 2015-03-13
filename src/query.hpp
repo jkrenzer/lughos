@@ -6,6 +6,7 @@
 #include <boost/regex.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/future.hpp>
+#include <boost/asio/streambuf.hpp>
 
 
 namespace lughos
@@ -30,6 +31,8 @@ namespace lughos
     std::string question;
     boost::shared_ptr<boost::shared_future<std::string> > answer;
     boost::shared_ptr< boost::promise< std::string > > promise;
+    boost::shared_ptr<boost::asio::streambuf> response;
+    boost::shared_ptr<boost::asio::streambuf> request;
     
     boost::shared_mutex mutex;
     
@@ -107,7 +110,24 @@ namespace lughos
         return std::string("");
     }
     
-
+    boost::asio::streambuf& input()
+    {
+      return *this->response;
+    }
+    
+    boost::asio::streambuf& output()
+    {
+      std::ostream ostream ( request.get() );
+      ostream << this->question;
+      return *this->request;
+    }
+    
+    void ready()
+    {
+      std::stringstream sstream;
+      sstream << response.get() ;
+      this->receive(sstream.str());
+    }
     
     std::string getAnswer()
     {
@@ -119,6 +139,8 @@ namespace lughos
     lughos::ExclusiveLock lock(this->mutex);
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
+      this->request.reset(new boost::asio::streambuf());
+      this->request.reset(new boost::asio::streambuf());
       this->question.clear();
       this->sent = false;
       this->done = false;

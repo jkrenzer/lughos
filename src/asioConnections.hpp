@@ -76,7 +76,7 @@ protected:
 
   void handle_read_content ( boost::shared_ptr<Query> query,const boost::system::error_code& err );
   
-  void handle_read_rest (const boost::system::error_code& err );
+//   void handle_read_rest (const boost::system::error_code& err );
 
 
 
@@ -134,8 +134,7 @@ public:
 protected:
   std::deque<char> write_msgs_;
   boost::regex endOfLineRegExpr_;
-  boost::asio::streambuf response;
-  boost::asio::streambuf request;
+  
   bool isConnected;
   bool isInitialized;
 
@@ -149,7 +148,7 @@ protected:
  **********************************************************/
 
 
-template <class C> asioConnection<C>::asioConnection() : request(), response()
+template <class C> asioConnection<C>::asioConnection()
 {
   if ( this->endOfLineRegExpr_== boost::regex ( "\r" ) )  lughos::debugLog ( "End of line char: CR" );
   else if ( this->endOfLineRegExpr_==boost::regex ( "\n" ) ) lughos::debugLog( "End of line char: NL" );
@@ -169,7 +168,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 {
   if (!query)
     return;
-  std::ostream request_stream ( &request );
+  
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
@@ -204,8 +203,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error ));
 
-  request_stream << query->send();
-  boost::asio::async_write ( *socket, request,
+  boost::asio::async_write ( *socket, query->output(),
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );
 
@@ -246,7 +244,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       // Read the response status line.
       SharedLock lock(this->mutex);
-      boost::asio::async_read_until ( *socket, response, query->getEOLPattern(),
+      boost::asio::async_read_until ( *socket, query->input(), query->getEOLPattern(),
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
       lughos::debugLog ( std::string ( "Reading until \"" ) + query->getEOLPattern().str() );
@@ -261,29 +259,29 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     }
 }
 
-template <class C> void asioConnection<C>::handle_read_rest ( const boost::system::error_code& err )
-{
-
-  if ( !err )
-    {
-      // Start reading remaining data until EOF.
-      SharedLock lock(this->mutex);
-      boost::asio::async_read ( *socket, response,
-                                boost::asio::transfer_at_least ( 1 ),
-                                boost::bind ( &asioConnection<C>::handle_read_rest, this,
-                                              boost::asio::placeholders::error ) );
-
-
-    }
-  else if ( err == boost::asio::error::eof )
-    {
-      return;
-    }
-  else
-    {
-      std::cout << "Error: " << err << "\n";
-    }
-}
+// template <class C> void asioConnection<C>::handle_read_rest ( const boost::system::error_code& err )
+// {
+// 
+//   if ( !err )
+//     {
+//       // Start reading remaining data until EOF.
+//       ExclusiveLock lock(this->mutex);
+//       boost::asio::async_read ( *socket, response,
+//                                 boost::asio::transfer_at_least ( 1 ),
+//                                 boost::bind ( &asioConnection<C>::handle_read_rest, this,
+//                                               boost::asio::placeholders::error ) );
+// 
+// 
+//     }
+//   else if ( err == boost::asio::error::eof )
+//     {
+//       return;
+//     }
+//   else
+//     {
+//       std::cout << "Error: " << err << "\n";
+//     }
+// }
 
 template <class C> void asioConnection<C>::handle_read_content ( boost::shared_ptr<Query> query, const boost::system::error_code& err )
 {
@@ -292,14 +290,12 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       // Write all of the data that has been read so far.
       SharedLock lock(this->mutex);
-      std::stringstream response_string_stream;
-      response_string_stream.str ( std::string ( "" ) );
-      response_string_stream<< &response;
-      query->receive(response_string_stream.str());
+
+      query->ready();
       this->timeoutTimer->cancel();
-      lughos::debugLog ( std::string ( "Read \"" ) + response_string_stream.str() + std::string ( "\"." ));
+      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\"." ));
       lock.unlock();
-      this->handle_read_rest ( err );
+//       this->handle_read_rest ( err );
     }
     else if (err == boost::asio::error::operation_aborted || err == boost::asio::error::timed_out)
     {
