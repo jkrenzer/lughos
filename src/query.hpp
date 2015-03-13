@@ -40,9 +40,10 @@ namespace lughos
     
   public:
     
-    QueryImpl()
+    QueryImpl(std::string question)
     {
       this->purge();
+      this->setQuestion(question);
     }
     
     ~QueryImpl()
@@ -143,7 +144,15 @@ namespace lughos
   };
 
   class Query : public QueryImpl
-  {};
+  {
+  public:
+  
+    Query ( std::string question ) : QueryImpl(question)
+    {
+        
+    }
+  
+  };
 
 } // namespace lughos
 #endif

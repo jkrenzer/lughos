@@ -301,12 +301,12 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       lock.unlock();
       this->handle_read_rest ( err );
     }
-    else if (err == boost::asio::error::connection_aborted || err == boost::asio::error::timed_out)
+    else if (err == boost::asio::error::operation_aborted || err == boost::asio::error::timed_out)
     {
       lughos::debugLog ( std::string ( "Query was aborted or timed out: " ) + err.message());
       query->setError(err.message());
     }
-    else if ( err != boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset )
+    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset ||  err !=  boost::asio::error::operation_aborted)
     {
       ExclusiveLock lock(this->mutex);
       lughos::debugLog ( std::string ( "Connection lost? Error while reading: " ) + err.message());

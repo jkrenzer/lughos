@@ -133,8 +133,7 @@ namespace lughos
       SharedLock lock(this->mutex);
       if(this->connected)
       {
-	boost::shared_ptr<Query> q(new Query);
-	q->setQuestion(query);
+	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEOLPattern(regExpr);
 	this->connection->execute(q);
@@ -150,8 +149,7 @@ namespace lughos
       SharedLock lock(this->mutex);
       if(this->connected)
       {
-	boost::shared_ptr<Query> q(new Query);
-	q->setQuestion(query);
+	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEOLPattern(regExpr);
 	this->connection->execute(q);
