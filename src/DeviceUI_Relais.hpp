@@ -50,12 +50,9 @@
 #include "Relais.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<Relais> : public DeviceUIInterface
+namespace lughos
+{
+  template <> class DeviceUI<Relais> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<Relais> relais;
@@ -227,7 +224,7 @@ using namespace lughos;
     
   };
 
-  
+} //namespace
   
 
 

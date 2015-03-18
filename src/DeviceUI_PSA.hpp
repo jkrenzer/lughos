@@ -43,8 +43,8 @@
 #include "PSAPowersupply.hpp"
 #include "DeviceUI.hpp"
 
-
-using namespace lughos;
+namespace lughos
+{
 
  template <> class DeviceUI<PSAPowersupply> : public DeviceUIInterface
   {
@@ -193,6 +193,6 @@ using namespace lughos;
     
     
   };
-
+}
  #endif 
   

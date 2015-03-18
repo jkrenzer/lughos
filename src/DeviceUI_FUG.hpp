@@ -45,12 +45,9 @@
 #include "FUGNetzteil.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<FUGNetzteil> : public DeviceUIInterface
+namespace lughos 
+{
+  template <> class DeviceUI<FUGNetzteil> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<FUGNetzteil> fug;
@@ -357,10 +354,6 @@ using namespace lughos;
     }
     
   };
-
-  
-  
-
-
+} //namespace
  #endif 
   

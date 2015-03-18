@@ -45,12 +45,9 @@
 #include "RFG.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<RFG> : public DeviceUIInterface
+namespace lughos
+{ 
+  template <> class DeviceUI<RFG> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<RFG> rfg;
@@ -390,10 +387,6 @@ using namespace lughos;
     
     
   };
-
-  
-  
-
-
+}
  #endif 
   

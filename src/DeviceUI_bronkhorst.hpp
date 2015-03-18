@@ -45,7 +45,9 @@
 #include "basicUIElements.hpp"
 
 
-using namespace lughos;
+namespace lughos
+
+{
 
  template <> class DeviceUI<bronkhorst> : public DeviceUIInterface
   {
@@ -143,7 +145,7 @@ using namespace lughos;
     {
 //       
       stringstream sstr; 
-      string str = setpoint->lineEdit()->text().toUTF8(); 
+      string str = setpoint->field()->text().toUTF8(); 
       float f = lughos::save_lexical_cast<float>(str,0.0);
       this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
       responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
@@ -164,12 +166,12 @@ using namespace lughos;
     {
 //       
       stringstream sstr; 
-      string str = setpoint->lineEdit()->text().toUTF8(); 
+      string str = setpoint->field()->text().toUTF8(); 
       float f; 
       sstr<<str; 
       sstr>>f;
 
-      this->stateF1->setText("Flow set:"+setpointField1->text().toUTF8());
+      this->stateF1->setText("Flow set:"+setpoint->field()->text().toUTF8());
       this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getSetpoint();
       this->getFlow();
@@ -181,7 +183,7 @@ using namespace lughos;
     {
       measuredValue v = horst->get_setpoint();
       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
-      this->setpoint->lineEdit()->setText(std::string(v.getStringValue()));
+      this->setpoint->field()->setText(std::string(v.getStringValue()));
     }
     
     void getFlow()
@@ -204,6 +206,6 @@ using namespace lughos;
     
     
   };
-
+} //namespace lughos
  #endif 
   
