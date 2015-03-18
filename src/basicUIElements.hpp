@@ -23,8 +23,8 @@ namespace lughos
 	this->setButton = new Wt::WSplitButton("Set");
 	this->setButton->setObjectName("setButton");
 	this->container = static_cast<Wt::WContainerWidget*>(this->implementation());
-	this->addButton(this->setButton);
 	this->addWidget(new F());
+	this->addButton(this->setButton);
       }
       
       void addField(Wt::WLineEdit* field)
@@ -56,9 +56,7 @@ namespace lughos
       {
 	this->setButton->setMenu(menu);
       }
-      
-      
-      
+
     };
     
     
