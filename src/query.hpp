@@ -91,7 +91,8 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->error = true;
-      this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
+      if(!answer->has_exception())
+	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
       this->lastErrorMessage = errorMessage;
       debugLog(std::string("Query got error: ") + errorMessage);
     }
