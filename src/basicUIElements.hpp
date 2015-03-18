@@ -16,14 +16,14 @@ namespace lughos
     template <class F> class Setting : public Wt::WContainerWidget
     {
     protected:
-      Wt::WLineEdit* field_;
+      F* field_;
       Wt::WPushButton* button_;
       
     public:
       
       Setting (WContainerWidget * parent = 0) : WContainerWidget(parent)
       {
-        this->field_ = new Wt::WLineEdit();
+        this->field_ = new F();
         this->button_ = new Wt::WPushButton("Set");
         this->setLayout(new Wt::WHBoxLayout());
         this->layout()->addWidget(this->field_);
@@ -32,7 +32,7 @@ namespace lughos
       
       F* field()
       {
-        return static_cast<F*>(this->field_);
+        return dynamic_cast<F*>(this->field_);
       }
       
       Wt::WPushButton* button()

@@ -231,12 +231,12 @@ virtual ~ConnectionStatusWidget()
     {
       this->setLayout(new Wt::WVBoxLayout());
       Wt::WContainerWidget* plots = new Wt::WContainerWidget();
-//       Wt::WGridLayout* plotGrid = new Wt::WGridLayout();
-//       plots->setLayout(plotGrid);
-//       plotGrid->addWidget(new ScatterPlotView(),0,0);
-//       plotGrid->addWidget(new ScatterPlotView(),0,1);
-//       plotGrid->addWidget(new ScatterPlotView(),1,0);
-//       plotGrid->addWidget(new ScatterPlotView(),1,1);
+      Wt::WGridLayout* plotGrid = new Wt::WGridLayout();
+      plots->setLayout(plotGrid);
+      plotGrid->addWidget(new ScatterPlotView(),0,0);
+      plotGrid->addWidget(new ScatterPlotView(),0,1);
+      plotGrid->addWidget(new ScatterPlotView(),1,0);
+      plotGrid->addWidget(new ScatterPlotView(),1,1);
       plots->setHeight(Wt::WLength(30,Wt::WLength::Percentage));
       this->layout()->addWidget(plots);
       this->layout()->addWidget(new DeviceView());
