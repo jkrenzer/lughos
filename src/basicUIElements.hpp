@@ -14,27 +14,26 @@ namespace lughos
     class SettingField : public Wt::WContainerWidget
     {
     protected:
-      boost::shared_ptr<Wt::WLineEdit> field_;
-      boost::shared_ptr<Wt::WPushButton> button_;
+      Wt::WLineEdit* field_;
+      Wt::WPushButton* button_;
       
     public:
       
       SettingField (WContainerWidget * parent = 0) : WContainerWidget(parent)
       {
-        
-        this->field().reset(new Wt::WLineEdit());
-        this->button().reset(new Wt::WPushButton("Set"));
+        this->field_ = new Wt::WLineEdit();
+        this->button_ = new Wt::WPushButton("Set");
         this->setLayout(new Wt::WHBoxLayout());
-        this->layout()->addWidget(this->field().get());
-        this->layout()->addWidget(this->button().get());
+        this->layout()->addWidget(this->field_);
+        this->layout()->addWidget(this->button_);
       }
       
-      boost::shared_ptr<Wt::WLineEdit> field()
+      Wt::WLineEdit* field()
       {
         return this->field_;
       }
       
-      boost::shared_ptr<Wt::WPushButton> button()
+      Wt::WPushButton* button()
       {
         return this->button_;
       }
