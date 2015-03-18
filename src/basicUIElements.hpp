@@ -24,7 +24,7 @@ namespace lughos
 	this->setButton->setObjectName("setButton");
 	this->container = static_cast<Wt::WContainerWidget*>(this->implementation());
 	this->addButton(this->setButton);
-	this->addField(new F());
+	this->addWidget(new F());
       }
       
       void addField(Wt::WLineEdit* field)
