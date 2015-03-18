@@ -45,6 +45,7 @@ public:
 	bool isConnectedImplementation();
 	measuredValue get_setpoint();
 	measuredValue get_flow();
+	float getMaxCapacity();
 	std::string set_flow(float value);
 protected:
 	std::string interpretAnswer(std::string query);

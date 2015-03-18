@@ -21,6 +21,7 @@
 #include <Wt/WIOService>
 #include <Wt/Chart/WCartesianChart>
 #include <Wt/Chart/WDataSeries>
+#include <Wt/WDoubleSpinBox>
 #include <Wt/WAbstractItemModel>
 #include <Wt/WAbstractItemView>
 #include <Wt/WDate>
@@ -32,6 +33,7 @@
 #include <Wt/WStandardItemModel>
 #include <Wt/WTableView>
 #include <Wt/WTimer>
+#include <Wt/WToolBar>
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/QueryModel>
@@ -59,9 +61,9 @@ namespace lughos
     Wt::WLabel* stateL1;
     Wt::WLabel* flowL1;
     Wt::WLabel* flowL2;
-    ui::SettingField* setpoint;
     Wt::WLineEdit *flowMeasurementField1;
     Wt::WPushButton * stateB1;
+    ui::Setting<Wt::WDoubleSpinBox>* setpoint;
     Wt::WTextArea *responseField;
 //     Wt::WPushButton * stopB;
     boost::shared_ptr<Wt::Dbo::Session> session;
@@ -87,6 +89,8 @@ namespace lughos
       {
 	this->stateF1->setText("Connected!");
         this->stateB1->setText("Status");
+        this->setpoint->field()->setMaximum(this->horst->getMaxCapacity());
+	this->setpoint->field()->setMinimum(0);
 // 	this->startB->setDisabled(false);
 // 	this->stopB->setDisabled(false);
 // 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
@@ -120,7 +124,7 @@ namespace lughos
      this->stateL1 = new Wt::WLabel("Status:");
      this->flowL1 = new Wt::WLabel("Set Flow:");
      this->stateL1->setBuddy(stateF1);
-     this->setpoint =  new  ui::SettingField();
+     this->setpoint =  new  ui::Setting<Wt::WDoubleSpinBox>();
      this->stateB1 = new Wt::WPushButton("Status");
      this->flowL2 = new Wt::WLabel("Measured Flow:");
      this->flowMeasurementField1 = new Wt::WLineEdit("0.0");

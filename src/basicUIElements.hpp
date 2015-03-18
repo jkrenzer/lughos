@@ -1,9 +1,10 @@
 #ifndef BASIC_UI_ELEMENTS_HPP
 #define BASIC_UI_ELEMENTS_HPP
-#include <Wt/WContainerWidget>
+#include <Wt/WToolBar>
 #include <Wt/WLineEdit>
 #include <Wt/WHBoxLayout>
-#include <Wt/WPushButton>
+#include <Wt/WSplitButton>
+#include <Wt/WContainerWidget>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
@@ -11,38 +12,52 @@ namespace lughos
 {
   namespace ui
   {
-    class SettingField : public Wt::WContainerWidget
+    template <class F> class Setting : public Wt::WToolBar
     {
-    protected:
-      Wt::WLineEdit* field_;
-      Wt::WPushButton* button_;
-      
+      Wt::WSplitButton* setButton;
+      Wt::WContainerWidget* container;
     public:
       
-      SettingField (WContainerWidget * parent = 0) : WContainerWidget(parent)
+      Setting<F> (Wt::WContainerWidget * parent = 0)
       {
-        this->field_ = new Wt::WLineEdit();
-        this->button_ = new Wt::WPushButton("Set");
-        this->setLayout(new Wt::WHBoxLayout());
-        this->layout()->addWidget(this->field_);
-        this->layout()->addWidget(this->button_);
+	this->setButton = new Wt::WSplitButton("Set");
+	this->setButton->setObjectName("setButton");
+	this->container = static_cast<Wt::WContainerWidget*>(this->implementation());
+	this->addButton(this->setButton);
+	this->addField(new F());
       }
       
-      Wt::WLineEdit* field()
+      void addField(Wt::WLineEdit* field)
       {
-        return this->field_;
+	this->container->insertBefore(field, this->setButton);
+      }
+      
+      F* field(unsigned int index = 0)
+      {
+	return static_cast<F*>(this->widget(index));
       }
       
       Wt::WPushButton* button()
       {
-        return this->button_;
+	return this->setButton->actionButton();
       }
       
-      void setDisabled(bool disabled = true)
+      Wt::WPushButton* menuButton()
       {
-        this->field_->setDisabled(disabled);
-        this->button_->setDisabled(disabled);
+	return this->setButton->dropDownButton();
       }
+      
+      Wt::WPopupMenu * menu ()
+      {
+	return this->setButton->menu();
+      }
+      
+      void setPopupMenu(Wt::WPopupMenu * menu)
+      {
+	this->setButton->setMenu(menu);
+      }
+      
+      
       
     };
     

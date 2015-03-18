@@ -94,6 +94,12 @@ measuredValue bronkhorst::get_setpoint()
   
 }
 
+float bronkhorst::getMaxCapacity()
+{
+  return this->maxCapacity;
+}
+
+
 measuredValue bronkhorst::get_flow()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
