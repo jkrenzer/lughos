@@ -91,10 +91,16 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->error = true;
-      if(!answer->has_exception())
+      try
+      {
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
-      this->lastErrorMessage = errorMessage;
-      debugLog(std::string("Query got error: ") + errorMessage);
+	this->lastErrorMessage = errorMessage;
+	debugLog(std::string("Query got error: ") + errorMessage);
+      }
+      catch(boost::promise_already_satisfied& e)
+      {
+	debugLog(std::string("Query promise already satisfied and new error:") + errorMessage);
+      }
     }
     
     bool isSent()
