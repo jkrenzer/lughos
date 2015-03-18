@@ -97,6 +97,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
   {
     ExclusiveLock lock(this->mutex);
     this->isConnected = true;
+    lock.unlock();
     lughos::debugLog(std::string("Connected successfully to ")+server_name);
     if(callback)
       callback();
