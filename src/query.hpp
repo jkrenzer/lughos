@@ -79,7 +79,6 @@ namespace lughos
       if(this->promise)
       {
         this->promise->set_value(answer);
-        this->promise.reset();
         debugLog(std::string("Query received: ") + answer);
         return;
       }
@@ -113,10 +112,10 @@ namespace lughos
     {
       lughos::SharedLock lock(this->mutex);
       this->answer->timed_wait(boost::posix_time::seconds(2));
-      if(answer->has_value())
+      if(answer->has_value() || answer->has_exception())
         return this->answer->get();
       else
-        return std::string("");
+        BOOST_THROW_EXCEPTION(exception() << errorName("query_took_to_long") << errorSeverity(severity::Informative));
     }
     
     boost::asio::streambuf& input()

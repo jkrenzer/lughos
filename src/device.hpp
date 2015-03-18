@@ -135,10 +135,17 @@ namespace lughos
 	if(!regExpr.empty())
 	  q->setEOLPattern(regExpr);
 	this->connection->execute(q);
-	return q->getAnswer();
+	try
+	{
+	  return q->getAnswer();
+	}
+	catch(lughos::exception& e)
+	{
+	  return std::string("");
+	}
       }
       else
-// 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+ 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
         return std::string("");
     }
     
