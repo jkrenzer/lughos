@@ -14,6 +14,7 @@ namespace lughos
   {
     template <class F> class Setting : public Wt::WToolBar
     {
+    protected:
       Wt::WSplitButton* setButton;
       Wt::WContainerWidget* container;
     public:
@@ -34,7 +35,7 @@ namespace lughos
       
       F* field(unsigned int index = 0)
       {
-	return static_cast<F*>(this->widget(index));
+	return dynamic_cast<F*>(this->widget(index));
       }
       
       Wt::WPushButton* button()
