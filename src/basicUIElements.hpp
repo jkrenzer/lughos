@@ -1,10 +1,11 @@
 #ifndef BASIC_UI_ELEMENTS_HPP
 #define BASIC_UI_ELEMENTS_HPP
-#include <Wt/WToolBar>
+#include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WHBoxLayout>
-#include <Wt/WSplitButton>
-#include <Wt/WContainerWidget>
+#include <Wt/WVBoxLayout>
+#include <Wt/WGridLayout>
+#include <Wt/WPushButton>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
@@ -12,55 +13,64 @@ namespace lughos
 {
   namespace ui
   {
-    template <class F> class Setting : public Wt::WToolBar
+    template <class F> class Setting : public Wt::WContainerWidget
     {
     protected:
-      Wt::WSplitButton* setButton;
-      Wt::WContainerWidget* container;
+      Wt::WLineEdit* field_;
+      Wt::WPushButton* button_;
+      
     public:
       
-      Setting<F> (Wt::WContainerWidget * parent = 0)
+      Setting (WContainerWidget * parent = 0) : WContainerWidget(parent)
       {
-	this->setButton = new Wt::WSplitButton("Set");
-	this->setButton->setObjectName("setButton");
-	this->container = static_cast<Wt::WContainerWidget*>(this->implementation());
-	this->addWidget(new F());
-	this->addButton(this->setButton);
+        this->field_ = new Wt::WLineEdit();
+        this->button_ = new Wt::WPushButton("Set");
+        this->setLayout(new Wt::WHBoxLayout());
+        this->layout()->addWidget(this->field_);
+        this->layout()->addWidget(this->button_);
       }
       
-      void addField(Wt::WLineEdit* field)
+      F* field()
       {
-	this->container->insertBefore(field, this->setButton);
-      }
-      
-      F* field(unsigned int index = 0)
-      {
-	return dynamic_cast<F*>(this->widget(index));
+        return static_cast<F*>(this->field_);
       }
       
       Wt::WPushButton* button()
       {
-	return this->setButton->actionButton();
+        return this->button_;
       }
       
-      Wt::WPushButton* menuButton()
+      void setDisabled(bool disabled = true)
       {
-	return this->setButton->dropDownButton();
+        this->field_->setDisabled(disabled);
+        this->button_->setDisabled(disabled);
       }
       
-      Wt::WPopupMenu * menu ()
-      {
-	return this->setButton->menu();
-      }
-      
-      void setPopupMenu(Wt::WPopupMenu * menu)
-      {
-	this->setButton->setMenu(menu);
-      }
-
     };
     
+    class HContainer : Wt::WContainerWidget
+    {
+      HContainer(WContainerWidget* parent = 0)
+      {
+	this->setLayout(new Wt::WHBoxLayout());
+      }
+    };
     
+    class VContainer : Wt::WContainerWidget
+    {
+      VContainer(WContainerWidget* parent = 0)
+      {
+	this->setLayout(new Wt::WVBoxLayout());
+      }
+    };
+    
+    class GridContainer : Wt::WContainerWidget
+    {
+      GridContainer(WContainerWidget* parent = 0)
+      {
+	this->setLayout(new Wt::WGridLayout());
+      }
+    };
   }
 }
 #endif

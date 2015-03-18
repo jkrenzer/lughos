@@ -64,8 +64,7 @@ namespace lughos
     Wt::WLineEdit *flowMeasurementField1;
     Wt::WPushButton * stateB1;
     ui::Setting<Wt::WDoubleSpinBox>* setpoint;
-    Wt::WTextArea *responseField;
-//     Wt::WPushButton * stopB;
+
     boost::shared_ptr<Wt::Dbo::Session> session;
 //     dbo::backend::Sqlite3 dbBackend;
     
@@ -137,9 +136,6 @@ namespace lughos
      this->addWidget(setpoint);
      this->addWidget(stateB1);
      this->setpoint->setDisabled(true);
-     this->responseField =  new Wt::WTextArea("");
-     this->responseField->setReadOnly(true); 
-     this->addWidget(responseField);
      this->checkConnected();
 
     }
@@ -152,7 +148,6 @@ namespace lughos
       string str = setpoint->field()->text().toUTF8(); 
       float f = lughos::save_lexical_cast<float>(str,0.0);
       this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
-      responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getSetpoint();
       this->getFlow();
 //     
@@ -176,7 +171,6 @@ namespace lughos
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+setpoint->field()->text().toUTF8());
-      this->responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
       this->getSetpoint();
       this->getFlow();
 //     
@@ -186,14 +180,12 @@ namespace lughos
     void getSetpoint()
     {
       measuredValue v = horst->get_setpoint();
-      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->setpoint->field()->setText(std::string(v.getStringValue()));
     }
     
     void getFlow()
     {
       measuredValue v = horst->get_flow();
-      this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->flowMeasurementField1->setText(std::string(v.getStringValue()));
     }
     
