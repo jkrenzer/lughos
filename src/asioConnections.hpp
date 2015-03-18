@@ -193,7 +193,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     if (!this->connected())
     {
       lughos::debugLog ( std::string ( "Unable to connect for sending." ) );
-      query->receive(std::string ( "Unable to connect for sending." ));
+      query->setError(std::string ( "Unable to connect for sending." ));
       return;
     }
   }

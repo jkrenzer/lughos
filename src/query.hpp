@@ -1,6 +1,7 @@
 #ifndef QUERY_HPP
 #define QUERY_HPP
 #include "threadSafety.hpp"
+#include "errorHandling.hpp"
 #include "log.hpp"
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
@@ -90,6 +91,7 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->error = true;
+      this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
       this->lastErrorMessage = errorMessage;
       debugLog(std::string("Query got error: ") + errorMessage);
     }
@@ -112,11 +114,13 @@ namespace lughos
     
     boost::asio::streambuf& input()
     {
+      lughos::SharedLock lock(this->mutex);
       return *this->response;
     }
     
     boost::asio::streambuf& output()
     {
+      lughos::SharedLock lock(this->mutex);
       std::ostream ostream ( request.get() );
       ostream << this->question;
       return *this->request;
@@ -125,7 +129,9 @@ namespace lughos
     void ready()
     {
       std::stringstream sstream;
+      lughos::SharedLock lock(this->mutex);
       sstream << response.get() ;
+      lock.unlock();
       this->receive(sstream.str());
     }
     
@@ -156,9 +162,9 @@ namespace lughos
     
     std::string send(bool sent = true)
     {
+      lughos::ExclusiveLock lock(this->mutex);
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
-      lughos::ExclusiveLock lock(this->mutex);
       this->sent = sent;
       debugLog(std::string("Query sent: ") + this->question);
       return this->question;
