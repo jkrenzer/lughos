@@ -56,6 +56,7 @@
 #include "DeviceUI.hpp"
 #include "ScatterPlot.hpp"
 #include "ScatterPlot_bronkhorst.hpp"
+#include "ScatterPlot_dummy.hpp"
 #include "WtSession.hpp"
 
 // template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
@@ -233,11 +234,22 @@ virtual ~ConnectionStatusWidget()
       Wt::WContainerWidget* plots = new Wt::WContainerWidget();
       Wt::WGridLayout* plotGrid = new Wt::WGridLayout();
       plots->setLayout(plotGrid);
-      
-      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),0,0);
-      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),0,1);
-      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),1,0);
-      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),1,1);
+      ScatterPlotDummy* s1 = new ScatterPlotDummy();
+      ScatterPlotDummy* s2 = new ScatterPlotDummy();
+      ScatterPlotDummy* s3 = new ScatterPlotDummy();
+      ScatterPlotDummy* s4 = new ScatterPlotDummy();
+      s1->setWidth(WLength(40,WLength::Percentage));
+      s1->name = "Performance";
+      s2->setWidth(WLength(40,WLength::Percentage));
+      s2->name = "Pressures";
+      s3->setWidth(WLength(40,WLength::Percentage));
+      s3->name = "Voltages";
+      s4->setWidth(WLength(40,WLength::Percentage));
+      s1->name = "Temperature";
+      plotGrid->addWidget(s1,0,0);
+      plotGrid->addWidget(s2,0,1);
+      plotGrid->addWidget(s3,1,0);
+      plotGrid->addWidget(s4,1,1);
       plots->setHeight(Wt::WLength(30,Wt::WLength::Percentage));
       this->layout()->addWidget(plots);
       this->layout()->addWidget(new DeviceView());
