@@ -256,6 +256,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
       query->setError(err.message());
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
+      this->timeoutTimer->cancel();
     }
 }
 
