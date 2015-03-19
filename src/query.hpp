@@ -26,7 +26,7 @@ namespace lughos
   class QueryImpl
   {
   protected:
-    const boost::uuids::uuid id = boost::uuids::random_generator()();
+    
     bool sent;
     bool awaitingAnswer;
     bool continous; 
@@ -51,6 +51,10 @@ namespace lughos
     
     
   public:
+  
+    const boost::uuids::uuid id = boost::uuids::random_generator()();
+    
+    const std::string idString = boost::lexical_cast<std::string>(id);
     
     QueryImpl(std::string question)
     {

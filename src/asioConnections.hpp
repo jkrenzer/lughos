@@ -285,21 +285,20 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
 
 template <class C> void asioConnection<C>::handle_read_content ( boost::shared_ptr<Query> query, const boost::system::error_code& err )
 {
-//      this->timeoutTimer.cancel();
+  this->timeoutTimer.cancel();
   if ( !err )
     {
       // Write all of the data that has been read so far.
       SharedLock lock(this->mutex);
 
       query->ready();
-      this->timeoutTimer->cancel();
-      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\"." ));
+      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into" ) + query->idString);
       lock.unlock();
 //       this->handle_read_rest ( err );
     }
     else if (err == boost::asio::error::operation_aborted)
     {
-      lughos::debugLog ( std::string ( "Query was aborted: " ) + err.message());
+      lughos::debugLog ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
       query->setError(err.message());
     }
     else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset ||  err !=  boost::asio::error::operation_aborted)
@@ -324,7 +323,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
   if ( error == boost::asio::error::operation_aborted)
     {
       // Data was read and this timeout was canceled
-      lughos::debugLog ( std::string ( "Timeout cancelled  because data was read sucessfully." ) );
+      lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string(" because data was read sucessfully." ) );
       return;
     }
     else if (error)
