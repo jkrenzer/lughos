@@ -137,7 +137,8 @@ namespace lughos
 	this->connection->execute(q);
 	try
 	{
-	  return q->getAnswer();
+	  std::string answer = q->getAnswer();
+	  return answer;
 	}
 	catch(...)
 	{
@@ -145,8 +146,10 @@ namespace lughos
 	}
       }
       else
- 	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
-        return std::string("");
+	return std::string("");
+//       else
+//  	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+//         return std::string("");
     }
     
     void input(std::string query, boost::regex regExpr = boost::regex())

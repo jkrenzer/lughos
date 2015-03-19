@@ -389,6 +389,8 @@ template <class C> void asioConnection<C>::shutdown()
   try
     {
       ExclusiveLock lock(this->mutex);
+      this->isInitialized = false;
+      this->isConnected = false;
       if ( socket )
         {
           debugLog ( std::string ( "Shutting connection down." ) );
@@ -397,8 +399,6 @@ template <class C> void asioConnection<C>::shutdown()
           lock.lock();
           socket->close();
           socket.reset();
-          this->isInitialized = false;
-          this->isConnected = false;
           lock.unlock();
         }
     }

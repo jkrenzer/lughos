@@ -233,10 +233,11 @@ virtual ~ConnectionStatusWidget()
       Wt::WContainerWidget* plots = new Wt::WContainerWidget();
       Wt::WGridLayout* plotGrid = new Wt::WGridLayout();
       plots->setLayout(plotGrid);
-      plotGrid->addWidget(new ScatterPlotView(),0,0);
-      plotGrid->addWidget(new ScatterPlotView(),0,1);
-      plotGrid->addWidget(new ScatterPlotView(),1,0);
-      plotGrid->addWidget(new ScatterPlotView(),1,1);
+      
+      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),0,0);
+      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),0,1);
+      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),1,0);
+      plotGrid->addWidget(new Wt::Chart::WCartesianChart(),1,1);
       plots->setHeight(Wt::WLength(30,Wt::WLength::Percentage));
       this->layout()->addWidget(plots);
       this->layout()->addWidget(new DeviceView());
@@ -299,8 +300,8 @@ virtual ~ConnectionStatusWidget()
 // 		    ofs.close();
       Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
       tabW->addTab(new OverView(), "Overview", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
-      tabW->addTab(new DeviceView(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
-      tabW->addTab(new ScatterPlotView(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
+      tabW->addTab(new Wt::WContainerWidget(), "Devices", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
+      tabW->addTab(new Wt::WContainerWidget(), "Plots", Wt::WTabWidget::PreLoading)->setStyleClass("thread");
 //       Wt::WMenuItem *tab 
 // 	  = tabW->addTab(new Wt::WTextArea("You can close this tab"
 // 					  " by clicking on the close icon."),
