@@ -217,6 +217,8 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
+      this->abort();
+      return;
     }
 
 
@@ -224,12 +226,16 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
+      this->abort();
+      return;
     }
 
   if ( this->io_service->stopped() )
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
+      this->abort();
+      return;
     }
 
 
@@ -248,12 +254,12 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
       lughos::debugLog ( std::string ( "Reading until \"" ) + query->getEOLPattern().str() );
-
+      return;
     }
   else
     {
       lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
-      query->setError(err.message());
+      query->setError(std::string ( "Error while writing twoway. Error: " +err.message());
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
       this->timeoutTimer->cancel();
