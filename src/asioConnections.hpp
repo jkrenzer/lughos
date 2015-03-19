@@ -172,7 +172,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
-  SharedLock lock(this->mutex);
+  UpgradeLock lock(this->mutex);
   if ( !this->initialized())
   {
     lock.unlock();
@@ -197,18 +197,19 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
       return;
     }
   }
-  lock.unlock();
-  
-  this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
-  this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+  {
+    upgradeLockToExclusive llock(lock);
+    this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
+    this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error ));
+  }
   query->busy(this->busy);
   boost::asio::async_write ( *socket, query->output(),
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );
 
   lughos::debugLog ( std::string ( "\"" ) +query->getQuestion()+std::string ( "\" written to port." ));
-
+  
   try
     {
       this->io_service->poll();
@@ -217,6 +218,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
+      lock.unlock();
       this->abort();
       return;
     }
@@ -226,6 +228,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
+      lock.unlock();
       this->abort();
       return;
     }
@@ -234,6 +237,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
+      lock.unlock();
       this->abort();
       return;
     }
