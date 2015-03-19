@@ -127,7 +127,7 @@ public:
 
   virtual void abort();
   
-  virtual void connect(boost::function<void ( void ) > callback = boost::function<void ( void ) >()) = 0;
+  virtual void connect(boost::function<void ( void ) > callback = boost::function<void ( const boost::system::error_code& err ) >()) = 0;
 
   void endOfLineRegExpr ( boost::regex c );
 

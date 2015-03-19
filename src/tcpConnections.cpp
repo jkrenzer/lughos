@@ -62,7 +62,7 @@ void tcpConnection::connect(boost::function<void(void)> callback)
   {
     resolver->async_resolve(*this->query, boost::bind(&tcpConnection::handle_resolve, this, callback,
           boost::asio::placeholders::error, boost::asio::placeholders::iterator));
-    lughos::debugLog(std::string("Trying to connect to ") + server_name);
+    lughos::debugLog(std::string("Trying to resolve ") + server_name);
   }
 }
 
@@ -101,7 +101,7 @@ void tcpConnection::handle_connect(boost::function<void (void)> callback, const 
     lock.unlock();
     lughos::debugLog(std::string("Connected successfully to ")+server_name);
     if(callback)
-      callback();
+      callback(err);
     return;
   }
   if (endpoint_iterator != tcp::resolver::iterator())

@@ -179,7 +179,7 @@ void serialConnection::connect ( boost::function<void() > callback )
     {
       debugLog(std::string("Calling callback function."));
       lock.unlock();
-      callback();
+      callback(boost::system::errc::success);
     }
   return;
 }
