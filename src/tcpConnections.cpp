@@ -14,6 +14,7 @@ using namespace lughos;
 tcpConnection::tcpConnection() : endpoint(new tcp::endpoint())
 {
 this->isConnected = false;
+this->endOfLineRegExpr_ = boost::regex ( "\n" );
 }
 
 tcpConnection::~tcpConnection(void)
