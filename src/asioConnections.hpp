@@ -106,7 +106,7 @@ public:
     * @param query ...
     * @return void
     */
-  void execute ( boost::shared_ptr<Query> query );
+  void execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err = boost::system::errc::success );
 
   /**
     * @brief Abort all action on connection
@@ -164,9 +164,9 @@ template <class C> asioConnection<C>::~asioConnection ( void )
 
 
 
-template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query )
+template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err  )
 {
-  if (!query)
+  if (!query || err)
     return;
   
   if ( query->getEOLPattern().empty() )
@@ -279,7 +279,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       // Write all of the data that has been read so far.
       query->ready();
-      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into" ) + query->idString);
+      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into " ) + query->idString);
       return;
     }
     else if (err == boost::asio::error::operation_aborted)
