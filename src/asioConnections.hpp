@@ -285,13 +285,14 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
 
 template <class C> void asioConnection<C>::handle_read_content ( boost::shared_ptr<Query> query, const boost::system::error_code& err )
 {
-  this->timeoutTimer.cancel();
+  this->timeoutTimer->cancel();
   if ( !err )
     {
       // Write all of the data that has been read so far.
       SharedLock lock(this->mutex);
 
       query->ready();
+      
       lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into" ) + query->idString);
       lock.unlock();
 //       this->handle_read_rest ( err );
