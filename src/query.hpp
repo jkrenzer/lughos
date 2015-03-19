@@ -89,7 +89,7 @@ namespace lughos
     {
       lughos::ExclusiveLock lock(this->mutex);
       this->busyLock.reset();
-      if(this->promise)
+      if(this->promise && !this->answer->has_value() && !this->answer->has_exception())
       {
         this->promise->set_value(answer);
         debugLog(std::string("Query ")+ idString + std::string(" received: ") + answer);
