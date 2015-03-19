@@ -92,10 +92,10 @@ namespace lughos
       if(this->promise)
       {
         this->promise->set_value(answer);
-        debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" received: ") + answer);
+        debugLog(std::string("Query ")+ idString + std::string(" received: ") + answer);
         return;
       }
-      debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" ignored: ") + answer);
+      debugLog(std::string("Query ")+ idString + std::string(" ignored: ") + answer);
       this->done = true;
     }
     
@@ -108,11 +108,11 @@ namespace lughos
       {
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
 	this->lastErrorMessage = errorMessage;
-	debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" got error: ") + errorMessage);
+	debugLog(std::string("Query ")+ idString + std::string(" got error: ") + errorMessage);
       }
       catch(boost::promise_already_satisfied& e)
       {
-	debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" promise already satisfied and new error:") + errorMessage);
+	debugLog(std::string("Query ")+ idString + std::string(" promise already satisfied and new error:") + errorMessage);
       }
       this->done = true;
     }
@@ -130,14 +130,22 @@ namespace lughos
       if(answer->has_value() || answer->has_exception())
         return this->answer->get();
       else
-        BOOST_THROW_EXCEPTION(exception() << errorName("query_took_to_long") << errorSeverity(severity::Informative));
+      {
+	debugLog(std::string("Query ")+ idString + std::string(": Not in busy mode! Call disallowed."));
+	BOOST_THROW_EXCEPTION( exception() << errorName("call_not_allowed") << errorDescription(idString + std::string(": Not in busy mode! Call disallowed.")) << errorSeverity(severity::MustNot) );
+	}
     }
     
     boost::asio::streambuf& input()
     {
       lughos::SharedLock lock(this->mutex);
-      BOOST_ASSERT_MSG(busyLock,idString.c_str());
-      return *this->response;
+      if(busyLock)
+	return *this->response;
+      else
+      {
+	debugLog(std::string("Query ")+ idString + std::string(": Not in busy mode! Call disallowed."));
+	BOOST_THROW_EXCEPTION( exception() << errorName("call_not_allowed") << errorDescription(idString + std::string(": Not in busy mode! Call disallowed.")) << errorSeverity(severity::MustNot) );
+      }
     }
     
     boost::asio::streambuf& output()
