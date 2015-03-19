@@ -294,7 +294,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       query->setError(err.message());
       return;
     }
-    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
+    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected)
     {
       ExclusiveLock lock(this->mutex);
       lughos::debugLog ( std::string ( "Connection lost? Error while reading: " ) + err.message());
