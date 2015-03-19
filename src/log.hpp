@@ -4,7 +4,9 @@
 #include <iostream>
 #include <sstream>
 #include <ostream>
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem.hpp>
+
 #include <string>
 #include <sstream>
 #include <boost/current_function.hpp>
@@ -67,7 +69,7 @@ namespace lughos
   
   
   
-  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, std::string message, double severity = 1.0);
+  void debugLogImpl(std::string functionName, boost::filesystem::path fileName, long int lineNumber, std::string message, double severity = 1.0);
   
   #undef debugLog
   #define debugLog(x) debugLogImpl(__FUNCTION__, __FILE__, __LINE__,x)

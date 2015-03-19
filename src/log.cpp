@@ -1,4 +1,5 @@
 #include "log.hpp"
+#include <boost/thread/thread.hpp>
 
 namespace lughos
 {
@@ -8,12 +9,13 @@ namespace lughos
     soutObj sout;
     
   
-  void debugLogImpl(std::string functionName, std::string fileName, long int lineNumber, std::string message, double severity)
+  void debugLogImpl(std::string functionName, boost::filesystem::path filePath, long int lineNumber, std::string message, double severity)
   {
       //TODO Implement simultanious output to FILE, DB and CERR
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+      
       std::stringstream ss;
-      ss << "[" << boost::posix_time::to_iso_extended_string(now) <<  "] <" << severity << "> (" << functionName << "@" << fileName << ":" << lineNumber << " - " << message << std::endl;
+      ss << "<entry time=\"" << boost::posix_time::to_iso_extended_string(now) <<  "\" severity=\"" << severity << "\" thread=\"" << boost::this_thread::get_id() << "\" function=\"" << functionName << "\" file=\"" << filePath.filename() << "\" line=\"" << lineNumber << "\">" << std::endl << message << std::endl << "</entry>" << std::endl;
       std::string logMessage = ss.str();
       if (severity >= DEBUG_THRESHOLD_CERR)
 	lughos::sout << logMessage;
