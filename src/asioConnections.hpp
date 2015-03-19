@@ -259,7 +259,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
   else
     {
       lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
-      query->setError(std::string ( "Error while writing twoway. Error: " +err.message());
+      query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
       this->timeoutTimer->cancel();
