@@ -6,6 +6,10 @@
 #include <boost/assert.hpp>
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/thread/locks.hpp>
@@ -22,6 +26,7 @@ namespace lughos
   class QueryImpl
   {
   protected:
+    const boost::uuids::uuid id = boost::uuids::random_generator()();
     bool sent;
     bool awaitingAnswer;
     bool continous; 
@@ -83,10 +88,10 @@ namespace lughos
       if(this->promise)
       {
         this->promise->set_value(answer);
-        debugLog(std::string("Query received: ") + answer);
+        debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" received: ") + answer);
         return;
       }
-      debugLog(std::string("Query ignored: ") + answer);
+      debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" ignored: ") + answer);
       this->done = true;
     }
     
@@ -99,11 +104,11 @@ namespace lughos
       {
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
 	this->lastErrorMessage = errorMessage;
-	debugLog(std::string("Query got error: ") + errorMessage);
+	debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" got error: ") + errorMessage);
       }
       catch(boost::promise_already_satisfied& e)
       {
-	debugLog(std::string("Query promise already satisfied and new error:") + errorMessage);
+	debugLog(std::string("Query ")+ boost::lexical_cast<std::string>(id) + std::string(" promise already satisfied and new error:") + errorMessage);
       }
       this->done = true;
     }
