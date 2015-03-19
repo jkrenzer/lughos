@@ -107,6 +107,8 @@ public:
     * @return void
     */
   void execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err = boost::system::errc::success );
+  
+  void execute ( boost::shared_ptr<Query> query);
 
   /**
     * @brief Abort all action on connection
@@ -162,6 +164,10 @@ template <class C> asioConnection<C>::~asioConnection ( void )
   this->shutdown();
 }
 
+template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query)
+{
+  this->execute(query,boost::system::errc::success);
+}
 
 
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err  )
