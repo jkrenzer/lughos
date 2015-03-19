@@ -172,8 +172,14 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err  )
 {
-  if (!query || err)
+  if (!query)
     return;
+  if (err)
+  {
+    lughos::debugLog ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+    query->setError(std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+    return;
+  }
   
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
@@ -194,14 +200,8 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if (!this->connected())
   {
     lock.unlock();
-    this->connect(boost::bind(&asioConnection<C>::execute, this, query));
-    lock.lock();
-    if (!this->connected())
-    {
-      lughos::debugLog ( std::string ( "Unable to connect for sending." ) );
-      query->setError(std::string ( "Unable to connect for sending." ));
-      return;
-    }
+    this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
+    return;
   }
   lock.unlock();
   query->busy(this->busy);
