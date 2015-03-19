@@ -211,7 +211,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
                                  boost::asio::placeholders::error ) );
 
   lughos::debugLog ( std::string ( "\"" ) +query->getQuestion()+std::string ( "\" written to port." ));
-  
+  lock.unlock();
   try
     {
       this->io_service->poll();
@@ -220,7 +220,6 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
-      lock.unlock();
       this->abort();
       return;
     }
@@ -230,7 +229,6 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
-      lock.unlock();
       this->abort();
       return;
     }
@@ -239,7 +237,6 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
-      lock.unlock();
       this->abort();
       return;
     }
@@ -271,30 +268,6 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
       this->timeoutTimer->cancel();
     }
 }
-
-// template <class C> void asioConnection<C>::handle_read_rest ( const boost::system::error_code& err )
-// {
-// 
-//   if ( !err )
-//     {
-//       // Start reading remaining data until EOF.
-//       ExclusiveLock lock(this->mutex);
-//       boost::asio::async_read ( *socket, response,
-//                                 boost::asio::transfer_at_least ( 1 ),
-//                                 boost::bind ( &asioConnection<C>::handle_read_rest, this,
-//                                               boost::asio::placeholders::error ) );
-// 
-// 
-//     }
-//   else if ( err == boost::asio::error::eof )
-//     {
-//       return;
-//     }
-//   else
-//     {
-//       std::cout << "Error: " << err << "\n";
-//     }
-// }
 
 template <class C> void asioConnection<C>::handle_read_content ( boost::shared_ptr<Query> query, const boost::system::error_code& err )
 {
