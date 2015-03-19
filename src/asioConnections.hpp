@@ -296,14 +296,15 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       
       lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into" ) + query->idString);
       lock.unlock();
-//       this->handle_read_rest ( err );
+      return;
     }
     else if (err == boost::asio::error::operation_aborted)
     {
       lughos::debugLog ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
       query->setError(err.message());
+      return;
     }
-    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset ||  err !=  boost::asio::error::operation_aborted)
+    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err != boost::asio::error::eof || err != boost::asio::error::connection_reset)
     {
       ExclusiveLock lock(this->mutex);
       lughos::debugLog ( std::string ( "Connection lost? Error while reading: " ) + err.message());
@@ -311,11 +312,13 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       this->isConnected = false;
       lock.unlock();
       this->execute(query);
+      return;
     }
   else
     {
       lughos::debugLog ( std::string ( "Unable to read. Got error: " ) +err.message() );
       query->setError(err.message());
+      return;
     }
 
 }
