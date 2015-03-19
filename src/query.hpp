@@ -3,10 +3,12 @@
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
 #include "log.hpp"
+#include <boost/assert.hpp>
 #include <boost/chrono.hpp>
 #include <boost/regex.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/future.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/asio/streambuf.hpp>
 
 
@@ -34,6 +36,7 @@ namespace lughos
     boost::shared_ptr< boost::promise< std::string > > promise;
     boost::shared_ptr<boost::asio::streambuf> response;
     boost::shared_ptr<boost::asio::streambuf> request;
+    boost::shared_ptr<boost::unique_lock<boost::mutex> > busyLock;
     
     boost::shared_mutex mutex;
     
@@ -76,6 +79,7 @@ namespace lughos
     void receive(std::string answer)
     {
       lughos::ExclusiveLock lock(this->mutex);
+      this->busyLock.reset();
       if(this->promise)
       {
         this->promise->set_value(answer);
@@ -83,12 +87,13 @@ namespace lughos
         return;
       }
       debugLog(std::string("Query ignored: ") + answer);
-       
+      this->done = true;
     }
     
     void setError(std::string errorMessage)
     {
       lughos::ExclusiveLock lock(this->mutex);
+      this->busyLock.reset();
       this->error = true;
       try
       {
@@ -100,6 +105,7 @@ namespace lughos
       {
 	debugLog(std::string("Query promise already satisfied and new error:") + errorMessage);
       }
+      this->done = true;
     }
     
     bool isSent()
@@ -121,12 +127,14 @@ namespace lughos
     boost::asio::streambuf& input()
     {
       lughos::SharedLock lock(this->mutex);
+      BOOST_ASSERT_MSG(busyLock,"NOT allowed to call input on query without busy-mode");
       return *this->response;
     }
     
     boost::asio::streambuf& output()
     {
       lughos::SharedLock lock(this->mutex);
+      BOOST_ASSERT_MSG(busyLock,"NOT allowed to call output on query without busy-mode");
       std::ostream ostream ( request.get() );
       ostream << this->question;
       return *this->request;
@@ -139,6 +147,11 @@ namespace lughos
       sstream << response.get() ;
       lock.unlock();
       this->receive(sstream.str());
+    }
+    
+    void busy(boost::mutex& busyMutex)
+    {
+      this->busyLock.reset(new boost::unique_lock<boost::mutex>(busyMutex));
     }
     
     std::string getAnswer()
@@ -166,15 +179,16 @@ namespace lughos
       return this->question;
     }
     
-    std::string send(bool sent = true)
-    {
-      lughos::ExclusiveLock lock(this->mutex);
-      this->promise.reset(new boost::promise<std::string>());
-      this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
-      this->sent = sent;
-      debugLog(std::string("Query sent: ") + this->question);
-      return this->question;
-    }
+//     std::string send(boost::mutex& busyMutex)
+//     {
+//       lughos::ExclusiveLock lock(this->mutex);
+//       this->busyLock.reset(new boost::unique_lock<boost::mutex>(busyMutex));
+//       this->promise.reset(new boost::promise<std::string>());
+//       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
+//       this->sent = true;
+//       debugLog(std::string("Query sent: ") + this->question);
+//       return this->question;
+//     }
   };
 
   class Query : public QueryImpl

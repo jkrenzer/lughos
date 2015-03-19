@@ -111,7 +111,7 @@ namespace lughos
 
   protected:
 
-    boost::shared_ptr < Query > currentQuery;
+    boost::mutex busy;
     boost::shared_ptr < boost::asio::io_service > io_service;
     boost::shared_ptr < boost::asio::deadline_timer > timeoutTimer;
 

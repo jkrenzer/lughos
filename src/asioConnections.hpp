@@ -181,7 +181,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     if (!this->initialized() || !socket)
     {
       lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
-      query->receive(std::string ( "Unable to initialize for sending." ));
+      query->setError(std::string ( "Unable to initialize for sending." ));
       return;
     }
   }
@@ -199,10 +199,10 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   }
   lock.unlock();
   
-  this->timeoutTimer->expires_from_now(boost::posix_time::seconds(3));
+  this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
   this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error ));
-
+  query->busy(this->busy);
   boost::asio::async_write ( *socket, query->output(),
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );
