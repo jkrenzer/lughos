@@ -330,27 +330,24 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
 
 template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Query> query, const boost::system::error_code& error )
 {
-  if ( error == boost::asio::error::operation_aborted)
-    {
-      // Data was read and this timeout was canceled
-      lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
-      return;
-    }
-    else if (error)
-    {
-      lughos::debugLog ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
-      return;
-    }
-  try
-    {
-      lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
-      this->abort();
-      query->setError(std::string("Timed out."));           // TODO signal error states in query
-    }
-  catch ( ... )
-    {
-      lughos::debugLog ( std::string ( "Exception while timeout and cancelling operation.") );
-    }
+  if(!error)
+  {
+    lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
+    this->abort();
+    query->setError(std::string("Timed out."));           // TODO signal error states in query
+    return;
+  }
+  else if ( error == boost::asio::error::operation_aborted)
+  {
+    // Data was read and this timeout was canceled
+    lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
+    return;
+  }
+  else
+  {
+    lughos::debugLog ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
+    return;
+  }
 }
 
 template <class C> void asioConnection<C>::abort()
