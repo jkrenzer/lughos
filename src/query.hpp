@@ -58,7 +58,7 @@ namespace lughos
     
     QueryImpl(std::string question)
     {
-      this->purge();
+      this->reset();
       this->setQuestion(question);
     }
     
@@ -176,14 +176,14 @@ namespace lughos
       return this->spyAnswer();
     }
     
-    void purge()
+    void reset()
     {
     lughos::ExclusiveLock lock(this->mutex);
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->request.reset(new boost::asio::streambuf());
       this->response.reset(new boost::asio::streambuf());
-      this->question.clear();
+      this->busyLock.reset();
       this->sent = false;
       this->done = false;
       this->error = false;

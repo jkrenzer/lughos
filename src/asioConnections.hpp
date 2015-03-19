@@ -292,16 +292,15 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
 
 template <class C> void asioConnection<C>::handle_read_content ( boost::shared_ptr<Query> query, const boost::system::error_code& err )
 {
-  this->timeoutTimer->cancel();
+  {
+    ExclusiveLock lock(this->mutex);
+    this->timeoutTimer->cancel();
+  }
   if ( !err )
     {
       // Write all of the data that has been read so far.
-      SharedLock lock(this->mutex);
-
       query->ready();
-      
       lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into" ) + query->idString);
-      lock.unlock();
       return;
     }
     else if (err == boost::asio::error::operation_aborted)
@@ -314,7 +313,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       ExclusiveLock lock(this->mutex);
       lughos::debugLog ( std::string ( "Connection lost? Error while reading: " ) + err.message());
-      query->setError(err.message());
+      query->reset();
       this->isConnected = false;
       lock.unlock();
       this->execute(query);
@@ -334,7 +333,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
   if ( error == boost::asio::error::operation_aborted)
     {
       // Data was read and this timeout was canceled
-      lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string(" because data was read sucessfully." ) );
+      lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
       return;
     }
     else if (error)
