@@ -136,14 +136,14 @@ namespace lughos
     boost::asio::streambuf& input()
     {
       lughos::SharedLock lock(this->mutex);
-      BOOST_ASSERT_MSG(busyLock,"NOT allowed to call input on query without busy-mode");
+      BOOST_ASSERT_MSG(busyLock,(idString + ": NOT allowed to call input on query without busy-mode").c_str());
       return *this->response;
     }
     
     boost::asio::streambuf& output()
     {
       lughos::SharedLock lock(this->mutex);
-      BOOST_ASSERT_MSG(busyLock,"NOT allowed to call output on query without busy-mode");
+      BOOST_ASSERT_MSG(busyLock,(idString + ": NOT allowed to call output on query without busy-mode").c_str());
       std::ostream ostream ( request.get() );
       ostream << this->question;
       return *this->request;
