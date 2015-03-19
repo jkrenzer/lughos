@@ -139,7 +139,7 @@ namespace lughos
 	{
 	  return q->getAnswer();
 	}
-	catch(lughos::exception& e)
+	catch(...)
 	{
 	  return std::string("");
 	}
