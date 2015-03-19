@@ -172,7 +172,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if ( query->getEOLPattern().empty() )
     query->setEOLPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
-  UpgradeLock lock(this->mutex);
+  SharedLock lock(this->mutex);
   if ( !this->initialized())
   {
     lock.unlock();
@@ -199,13 +199,13 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   }
   lock.unlock();
   query->busy(this->busy);
-  lock.lock();
   {
-    upgradeLockToExclusive llock(lock);
+    ExclusiveLock llock(lock);
     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
     this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error ));
   }
+  lock.lock();
   boost::asio::async_write ( *socket, query->output(),
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );
