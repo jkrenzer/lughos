@@ -131,7 +131,7 @@ public:
   */
   virtual void initialize();
   
-  virtual void connect(boost::function<void(void)> callback);
+  virtual void connect(boost::function<void(const boost::system::error_code& err)> callback);
 
   boost::asio::serial_port_base::flow_control flow_control;
   boost::asio::serial_port_base::character_size character_size;

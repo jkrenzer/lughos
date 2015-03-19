@@ -57,9 +57,9 @@ protected:
   virtual void initialize();
   virtual void shutdown();
 
-  void handle_resolve ( boost::function<void() > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator );
-  void handle_connect ( boost::function<void() > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator = tcp::resolver::iterator() );
-  virtual void connect ( boost::function<void ( void ) > callback = boost::function<void ( void ) >() );
+  void handle_resolve ( boost::function<void(const boost::system::error_code& err) > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator );
+  void handle_connect ( boost::function<void(const boost::system::error_code& err) > callback, const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator = tcp::resolver::iterator() );
+  virtual void connect ( boost::function<void ( const boost::system::error_code& err ) > callback = boost::function<void ( const boost::system::error_code& err ) >() );
   virtual void disconnect();
 
 

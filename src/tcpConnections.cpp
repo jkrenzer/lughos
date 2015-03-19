@@ -47,7 +47,7 @@ void tcpConnection::set_port(std::string port)
   port_name=port;
 }
 
-void tcpConnection::connect(boost::function<void(void)> callback)
+void tcpConnection::connect(boost::function<void(const boost::system::error_code& err)> callback)
 {
   ExclusiveLock lock(this->mutex);
   this->socket.reset(new tcp::socket(*io_service));
@@ -71,7 +71,7 @@ void tcpConnection::disconnect()
   this->abort();
 }
 
-void tcpConnection::handle_resolve(boost::function<void()> callback, const boost::system::error_code& err,
+void tcpConnection::handle_resolve(boost::function<void(const boost::system::error_code& err)> callback, const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
 {
 
@@ -91,7 +91,7 @@ void tcpConnection::handle_resolve(boost::function<void()> callback, const boost
 
 }
 
-void tcpConnection::handle_connect(boost::function<void (void)> callback, const boost::system::error_code& err,
+void tcpConnection::handle_connect(boost::function<void (const boost::system::error_code& err)> callback, const boost::system::error_code& err,
       tcp::resolver::iterator endpoint_iterator)
 { 
   if(!err)

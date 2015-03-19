@@ -127,7 +127,7 @@ void serialConnection::initialize()
 
 }
 
-void serialConnection::connect ( boost::function<void() > callback )
+void serialConnection::connect ( boost::function<void(const boost::system::error_code& err) > callback )
 {
   ExclusiveLock lock(this->mutex);
   this->isConnected = false;
@@ -179,7 +179,7 @@ void serialConnection::connect ( boost::function<void() > callback )
     {
       debugLog(std::string("Calling callback function."));
       lock.unlock();
-      callback(boost::system::errc::success);
+      callback(boost::system::error_code());
     }
   return;
 }
