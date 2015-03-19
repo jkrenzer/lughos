@@ -210,7 +210,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
                              boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error ) );
 
-  lughos::debugLog ( std::string ( "\"" ) +query->getQuestion()+std::string ( "\" written to port." ));
+  lughos::debugLog ( std::string ( "\"" ) +query->getQuestion()+std::string ( "\" written to port. Query: " ) + query->idString);
   lock.unlock();
   try
     {
