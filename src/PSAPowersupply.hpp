@@ -43,9 +43,9 @@ class PSAPowersupply : public Device
 	void shutdownImplementation();
 	void off();
 	void on();
-	measuredValue get_current();
-	measuredValue get_voltage();
-	measuredValue get_temperature();
+	measuredValue<double> get_current();
+	measuredValue<double> get_voltage();
+	measuredValue<double> get_temperature();
 // 	bool is_on;
 protected:
 	std::string interpretAnswer(std::string query);

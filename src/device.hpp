@@ -8,6 +8,7 @@
 
 #include "connectionImpl.hpp"
 #include "BasicObject.hpp"
+#include "basicTypes.hpp"
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
 

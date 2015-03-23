@@ -2,56 +2,74 @@
 #define UNITVALUE_HPP
 
 
-
+#include "values.hpp"
 #include <string>
 #include <cstring>
 #include <iostream>
-// #include "Dict.hpp"
 
-
-class unitValue 
+namespace lughos
 {
-  private:
-// 	unitValue(const unitValue &p);
-// 	unitValue &operator=(const unitValue &p);
-	
+
+  class unitValueInterface
+  {
+  protected:
+    std::string unit = "";
 
   public:
-	unitValue(void);
-	unitValue(double putvalue, std::string putunit);
-	~unitValue(void);
+    std::string getUnit () const;
+    void setUnit (std::string putunit);
+    virtual std::string getString () const = 0;
 
+  };
 
-	void setunitvalue(double putvalue, std::string putunit);
-	void setunitvalue(int putvalue, std::string putunit);
-	double getvalue() const;
-	std::string getStringValue() const;
-	std::string getString() const;
-	void setStringValue(std::string str);
-	std::string getunit() const;
-	void setvalue(double putvalue);
-	void setunit(std::string putunit);
-	bool isPositiveInfinity();
-	bool isNegativeInfinity();
-	bool isNotANumber();
-	bool isValidValue();
-	
-	unitValue operator*(double d);
-	unitValue operator+(double d);
-	unitValue operator-(double d);
-	unitValue operator/(double d);
-	
-	unitValue& operator=(unitValue other);
-	
-	operator double();
+  template < class T >
+  class unitValueTemplate:public unitValueInterface, public Value<T>
+  {
+  public:
+    unitValueTemplate (void);
+    unitValueTemplate (T putvalue, std::string putunit);
+    virtual ~unitValueTemplate (void);
 
+    void setValueAndUnit (T putvalue, std::string putunit);
+    void setvalue (T putvalue);
+    virtual std::string getString () const;
+  };
 
-protected:
-	double value=0.0;
-	std::string unit="";
-	
-};
+template < class T > class unitValue:public unitValueTemplate<T>
+  {
 
+  };
 
+//Definition of template classes as required by C++ standard
+
+  template <class T> unitValueTemplate<T>::unitValueTemplate() : Value<T>()
+  {
+    
+  }
+
+  template <class T> unitValueTemplate<T>::unitValueTemplate(T putvalue, std::string putunit)
+  {
+    this->value = putvalue;
+    this->unit = putunit;
+  }
+
+  template <class T> unitValueTemplate<T>::~unitValueTemplate(void)
+  {
+
+  }
+  
+  template <class T> std::string unitValueTemplate<T>::getString() const
+  {
+    return this->getValueAsString() + this->unit;
+  }
+  
+  template <class T> void unitValueTemplate<T>::setValueAndUnit(T putvalue, std::string putunit)
+  {
+    setValue(putvalue);
+    setUnit(putunit);
+      return;
+  }
+  
+}				//namespace lughos
 
 #endif

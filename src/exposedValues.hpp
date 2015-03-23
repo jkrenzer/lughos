@@ -136,6 +136,7 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
     
     boost::signals2::signal<bool (T&), allSlotsTrue> beforeValueChange;
     boost::signals2::signal<void (T&)> onValueChange;
+    boost::signals2::signal<void (T&)> onRequestValue;
     
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {

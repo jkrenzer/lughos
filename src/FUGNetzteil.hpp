@@ -45,7 +45,7 @@ public:
 	  void shutdownImplementation();
 	  bool isConnectedImplementation();
 	  
-	  measuredValue storedMeasure;
+	  measuredValue<double> storedMeasure;
 	  int voltagesOnOf=3;
 	  std::string serverName;
 	  
@@ -64,7 +64,7 @@ public:
     public:
 	  FUGNetzteil(void);
 	  virtual ~FUGNetzteil(void);
-	  measuredValue getMeasure(bool force=false);	
+	  measuredValue<double> getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
 	  cachedFunction<double> getSetpointU;

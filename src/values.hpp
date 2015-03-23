@@ -24,7 +24,6 @@ class data
   
 class ValueInterface : public data
 {
-protected:
 public:
   
   ValueInterface()
@@ -39,6 +38,10 @@ public:
   virtual std::string getValueAsString() = 0;
   
   virtual bool setValueFromString(std::string str) = 0;
+  
+  virtual bool isSet() const = 0;
+  
+  virtual bool unset() = 0;
    
 };
 
@@ -129,7 +132,10 @@ public:
   virtual T getValue()
   {
     SharedLock lock(this->mutex);
-    return *this->valuePointer;
+    if(this->valuePointer)
+      return *this->valuePointer;
+    else
+      BOOST_THROW_EXCEPTION(exception() << errorName("value_accessed_but_no_value_set") << errorSeverity(severity::ShouldNot));
   }
   
   virtual std::string getValueAsString()
@@ -141,13 +147,21 @@ public:
   {
     return this->setValue(type.fromString(string));
   }
+    
+  void unset()
+  {
+    this->valuePointer.reset();
+  }
+  
+  bool isSet()
+  {
+    return (bool) this->valuePointer;
+  }
   
 };
 
 template <class T> class Value : public ValueImplementation<T>
 {
-protected:
-  
 public:
     
   Value<T>()
@@ -180,6 +194,8 @@ public:
   {
     return this->getValue();
   }
+  
+  
   
 };
 

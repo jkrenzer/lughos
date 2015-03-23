@@ -465,17 +465,17 @@ bool RFG::readoutChannels()
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
-  channel_output[0].setunitvalue(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
+  channel_output[0].setValueAndUnit(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
 //   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
 //   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
 //   channel_output[0].setunitvalue(results[0],"Voltage");
-  channel_output[1].setunitvalue(rawCurrent,"A");
-  channel_output[2].setunitvalue(results[2],"Power");
-  channel_output[3].setunitvalue(results[3],"ReglerOut");
-  channel_output[4].setunitvalue(results[4],"ReglerFb");
-  channel_output[5].setunitvalue(results[5],"Aux1");
-  channel_output[6].setunitvalue(results[6],"Aux2");
-  channel_output[7].setunitvalue(results[7],"°C");
+  channel_output[1].setValueAndUnit(rawCurrent,"A");
+  channel_output[2].setValueAndUnit(results[2],"Power");
+  channel_output[3].setValueAndUnit(results[3],"ReglerOut");
+  channel_output[4].setValueAndUnit(results[4],"ReglerFb");
+  channel_output[5].setValueAndUnit(results[5],"Aux1");
+  channel_output[6].setValueAndUnit(results[6],"Aux2");
+  channel_output[7].setValueAndUnit(results[7],"°C");
   std::cout << "RFG Channel Measurements:" << std::endl;
   for (int i = 0; i < 8; i++)
   {

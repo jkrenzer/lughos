@@ -68,13 +68,13 @@ void PSAPowersupply::on()
   
 }
 
-measuredValue PSAPowersupply::get_current()
+measuredValue<double> PSAPowersupply::get_current()
 {
 //   exp_lenght=4; 
- measuredValue value;
+ measuredValue<double> value;
  std::string answer = this->inputOutput("\x02");
   if (answer.size() < 3)
-   return measuredValue();
+   return measuredValue<double>();
  boost::regex expr("(\\d*)(\\d\\d)\\$"); 
  boost::smatch result;
  boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
@@ -83,13 +83,13 @@ measuredValue PSAPowersupply::get_current()
  return value;
 }
 
-measuredValue PSAPowersupply::get_voltage()
+measuredValue<double> PSAPowersupply::get_voltage()
 {
 //  exp_lenght=4;
- measuredValue value;
+ measuredValue<double> value;
  std::string answer = this->inputOutput("\x01");
   if (answer.size() < 3)
-   return measuredValue();
+   return measuredValue<double>();
  boost::regex expr("(\\d*)(\\d\\d)\\$"); 
  boost::smatch result;
  boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
@@ -99,10 +99,10 @@ measuredValue PSAPowersupply::get_voltage()
   
 }
 
-measuredValue PSAPowersupply::get_temperature()
+measuredValue<double> PSAPowersupply::get_temperature()
 {
 //  exp_lenght=4;
- measuredValue value;
+ measuredValue<double> value;
  std::string answer = this->inputOutput("\x03");
  boost::regex expr("(\\d*)\\$"); 
  boost::smatch result;

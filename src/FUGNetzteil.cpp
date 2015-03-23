@@ -79,7 +79,7 @@ bool FUGNetzteil::isConnectedImplementation()
 }
 
 
-measuredValue FUGNetzteil::getMeasure(bool force)
+measuredValue<double> FUGNetzteil::getMeasure(bool force)
 {
   if(!force &&!storedMeasure.gettimestamp().is_not_a_date_time()&& storedMeasure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {
