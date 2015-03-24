@@ -68,7 +68,6 @@ namespace lughos
     Wt::WPushButton *sendUB;
     Wt::WDoubleSpinBox *uMinField;
     Wt::WDoubleSpinBox *uMaxField;
-    Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     std::string LastError;
     Wt::WPushButton * stateB;
@@ -190,14 +189,6 @@ namespace lughos
       this->addWidget(offB);
       this->addWidget(stateB);
       this->addWidget(resetOCB);
-//       this->sendIB->setDisabled(true);
-//       this->iField->setDisabled(true);
-//       this->sendUB->setDisabled(true);
-//       this->uMinField->setDisabled(true);
-//       this->uMaxField->setDisabled(true);
-      this->responseField =  new Wt::WTextArea("");
-      this->responseField->setReadOnly(true); 
-      this->addWidget(responseField);
       this->checkConnected();
 
     }
@@ -211,13 +202,12 @@ namespace lughos
       float f; 
 //       sstr<<str; 
 //       sstr>>f;
-//       responseField->setText(responseField->text().toUTF8()+std::to_string(fug->set_voltage_min(str)));
       
       std::string str = uMaxField->text().toUTF8();
       sstr<<str; 
       sstr>>f;
       this->stateF->setText("Voltages set: "+uMaxField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(fug->setU(f)));
+      fug->setU(f);
       
       std::string Error;
       Error = fug->getLastError();
@@ -241,7 +231,7 @@ namespace lughos
       sstr>>f;
 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(fug->setI(f)));
+      fug->setI(f);
 //     
       std::string Error;
       Error = fug->getLastError();
@@ -261,7 +251,6 @@ namespace lughos
       this->uMaxField->setText(str);
       str = std::to_string(fug->getU());
       this->uOutField->setText(str);
-      responseField->setText(responseField->text().toUTF8()+str);
 //     
       std::string Error;
       Error = fug->getLastError();
@@ -280,7 +269,6 @@ namespace lughos
       this->iOutField->setText(str);
 
 //       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+str);
 //     
       std::string Error;
       Error = fug->getLastError();

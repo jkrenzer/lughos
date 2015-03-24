@@ -194,15 +194,34 @@ virtual ~ConnectionStatusWidget()
     
   };
   
+//   class DeviceView : public Wt::WContainerWidget
+//   {
+//   public:
+//     DeviceView(WContainerWidget* parent = 0)
+//     {
+//       this->addStyleClass("DeviceView");
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 1")] ));
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 2")] ));
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 3")] ));
+//       this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] ));
+//       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
+//       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
+//       this->addWidget(new DeviceUI<RFG>(deviceMap[std::string("RFG 1")] ));   
+//       this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUGNetzteil 1")]));
+//       this->addWidget(new DeviceUI<FUGNetzteil>(deviceMap[std::string("FUGNetzteil 2")]));
+//     }
+// 
+//   };
+  
   class DeviceView : public Wt::WContainerWidget
   {
   public:
     DeviceView(WContainerWidget* parent = 0)
     {
       this->addStyleClass("DeviceView");
-      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 1")] ));
-      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 2")] ));
-      this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 3")] ));
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 1")] ));
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 2")] ));
+//       this->addWidget(new DeviceUI<PSAPowersupply>(deviceMap[std::string("PSA 3")] ));
       this->addWidget(new DeviceUI<Relais>(deviceMap[std::string("Relais 1")] ));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 1")]));
       this->addWidget(new DeviceUI<bronkhorst>(deviceMap[std::string("Flow Controll 2")]));
@@ -212,6 +231,7 @@ virtual ~ConnectionStatusWidget()
     }
 
   };
+  
   class ScatterPlotView : public Wt::WContainerWidget
   {
   public:
@@ -238,18 +258,22 @@ virtual ~ConnectionStatusWidget()
       ScatterPlotDummy* s2 = new ScatterPlotDummy();
       ScatterPlotDummy* s3 = new ScatterPlotDummy();
       ScatterPlotDummy* s4 = new ScatterPlotDummy();
-      s1->setWidth(WLength(40,WLength::Percentage));
-      s1->name = "Performance";
-      s2->setWidth(WLength(40,WLength::Percentage));
-      s2->name = "Pressures";
-      s3->setWidth(WLength(40,WLength::Percentage));
-      s3->name = "Voltages";
-      s4->setWidth(WLength(40,WLength::Percentage));
-      s1->name = "Temperature";
+//       s1->setWidth(WLength(40,WLength::Percentage));
+      s1->name->setText("Performance");
+      s1->chart->resize(WLength(7,WLength::Centimeter), WLength(5,WLength::Centimeter));
+//       s2->setWidth(WLength(40,WLength::Percentage));
+      s2->name->setText("Pressures");
+      s2->chart->resize(WLength(7,WLength::Centimeter), WLength(5,WLength::Centimeter));
+//       s3->setWidth(WLength(40,WLength::Percentage));
+      s3->name->setText("Voltages");
+      s3->chart->resize(WLength(7,WLength::Centimeter), WLength(5,WLength::Centimeter));
+//       s4->setWidth(WLength(40,WLength::Percentage));
+      s4->chart->resize(WLength(7,WLength::Centimeter), WLength(5,WLength::Centimeter));
+      s4->name->setText("Temperature");
       plotGrid->addWidget(s1,0,0);
       plotGrid->addWidget(s2,0,1);
-      plotGrid->addWidget(s3,1,0);
-      plotGrid->addWidget(s4,1,1);
+      plotGrid->addWidget(s3,0,2);
+      plotGrid->addWidget(s4,0,3);
       plots->setHeight(Wt::WLength(30,Wt::WLength::Percentage));
       this->layout()->addWidget(plots);
       this->layout()->addWidget(new DeviceView());
@@ -280,14 +304,14 @@ virtual ~ConnectionStatusWidget()
       Wt::WContainerWidget *headContainer = new Wt::WContainerWidget();
       Wt::WImage *logo = new WImage("./resources/logo.png");
       Wt::WImage *branding = new WImage("./resources/branding.png");
-      Wt::WText *headText = new WText("<h1>Lughos System Control</h1>");
-      logo->setHeight(100);
-      branding->setHeight(100);
+      Wt::WText *headText = new WText("<h1>R2D2 PSCU Interface</h1>");
+      logo->setHeight(Wt::WLength(10,Wt::WLength::Percentage));
+      branding->setHeight(Wt::WLength(10,Wt::WLength::Percentage));
       Wt::WHBoxLayout *headBox = new Wt::WHBoxLayout();
       headContainer->setLayout(headBox);
       headBox->addWidget(logo);
       headBox->addWidget(headText,1);
-      headBox->addWidget(branding);
+//       headBox->addWidget(branding);
 // 		    ofs.close();
       
       
