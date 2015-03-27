@@ -175,7 +175,7 @@ template <class T> class Value : public ValueImplementation<T>
 {
 public:
     
-  Value<T>()
+  Value<T>() 
   {
   }
   

@@ -24,10 +24,23 @@ public:
     dbo::field(a, this->timeStamp,     "timestamp");
     dbo::field(a, this->sensorName, "sensorName");
     dbo::field(a, this->unit,     "unit");
-    dbo::field(a, this->value,    "value");
+    if(this->isSet() && a.getsValue())
+      dbo::field(a, *this->valuePointer,    "value");
+    if(a.setsValue())
+    {
+      this->valuePointer.reset(new T()); //TODO How do we use getter and setter?
+      dbo::field(a, *this->valuePointer,    "value");
+    }
+    
+    
   }
   
   measuredDBValue(measuredValue<T> other) : measuredValue<T>(other)
+  {
+    
+  }
+  
+  measuredDBValue() : measuredValue<T>()
   {
     
   }

@@ -11,7 +11,7 @@
 
 using namespace lughos;
 
-class PressureMeasurement : public measuredValue
+class PressureMeasurement : public measuredValue<double>
 {
   
 };
@@ -28,12 +28,12 @@ class BronkhorstTest : public Task
      if( horst->isConnected())
       { 
 	try{
-	  measuredValue measure = this->horst->get_setpoint();
+	  measuredValue<double> measure = this->horst->get_setpoint();
 
 	  Wt::Dbo::Transaction transaction(*session);
-	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.getTimeStamp(), horst->getName())));
+	  this->session->add(static_cast<measuredDBValue<double>*>(&measure));
 	  transaction.commit();
-	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
+	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getValue()<<" "<<measure.getUnit()<< std::endl;
 	}
 	catch(...)
 	{
@@ -78,10 +78,10 @@ class RFGTest : public Task
      if( rfg->isConnected())
       { 
 	try{
-	  measuredValue measure = this->rfg->get_channel(sensor);
+	  measuredValue<double> measure = this->rfg->get_channel(sensor);
 
 	  Wt::Dbo::Transaction transaction(*session);
-	  this->session->add(static_cast<measuredDBValue*>(new measuredValue(measure.getvalue(),measure.getunit(),measure.getTimeStamp(), rfg->getName())));
+	  this->session->add(static_cast<measuredDBValue<double>*>(new measuredValue<double>(measure.getValue(),measure.getUnit(),measure.getTimeStamp(), rfg->getName())));
 	  transaction.commit();
 // 	  std::cout << "[*] Bronkhorst " << boost::posix_time::second_clock::local_time() << " -> " << measure.getvalue()<<" "<<measure.getunit()<< std::endl;
 	}

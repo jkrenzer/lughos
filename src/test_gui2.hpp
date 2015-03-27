@@ -56,7 +56,7 @@
 #include "DeviceUI.hpp"
 #include "ScatterPlot.hpp"
 #include "ScatterPlot_bronkhorst.hpp"
-// #include "ScatterPlot_dummy.hpp"
+#include "ScatterPlot_dummy.hpp"
 #include "WtSession.hpp"
 
 // template <class T, class S> T save_lexical_cast(S& source, T saveDefault)

@@ -230,9 +230,9 @@ int main(int argc, char **argv)
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
         boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
         session->setConnection(sqlite3);
-        session->mapClass<measuredDBValue>("measuredValue");
+        session->mapClass<measuredDBValue<double>>("measuredValue_double");
         session1->setConnection(sqlite3);
-        session1->mapClass<measuredDBValue>("measuredValue");
+        session1->mapClass<measuredDBValue<double>>("measuredValue_double");
 //   session1->setConnection(sqlite3);
 //   session1->mapClass<measuredDBValue>("measuredValue");
         try
