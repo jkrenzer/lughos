@@ -8,7 +8,7 @@ RFG::RFG()
 {
   for (int i=0;i<8;i++)
     {
-      channel_output[i].setunitvalue(0,"");
+      channel_output[i].setValueAndUnit(0,"");
     }
     
   this->internalResistance = 0.139; //Ohms
@@ -244,22 +244,22 @@ void RFG::switch_off()
 
 float RFG::getLimitMaxVoltage()
 {
-  return this->maxVoltage.getvalue();
+  return this->maxVoltage.getValue();
 }
 
 float RFG::getLimitMinVoltage()
 {
-  return this->minVoltage.getvalue();
+  return this->minVoltage.getValue();
 }
 
 float RFG::getLimitMaxCurrent()
 {
-  return this->maxCurrent.getvalue();
+  return this->maxCurrent.getValue();
 }
 
 float RFG::getTargetValue()
 {
-  return this->maxPower.getvalue();
+  return this->maxPower.getValue();
 }
 
 std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
@@ -460,15 +460,15 @@ bool RFG::readoutChannels()
     results.push_back(0);
     results[i] = 0;
     memcpy(&results[i],tmp.c_str(),tmp.size());
-    channel_output[i].settimestamp(now);
+    channel_output[i].setTimeStamp(now);
     this->channel_output_raw[i] = results[i];
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
   channel_output[0].setValueAndUnit(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
-//   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
-//   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
-//   channel_output[0].setunitvalue(results[0],"Voltage");
+//   channel_output[1].setUnitvalue(unitsToCurrentReg.xToY(results[1]),"A");
+//   channel_output[2].setUnitvalue(unitsToPowerReg.xToY(results[2]),"W");
+//   channel_output[0].setUnitvalue(results[0],"Voltage");
   channel_output[1].setValueAndUnit(rawCurrent,"A");
   channel_output[2].setValueAndUnit(results[2],"Power");
   channel_output[3].setValueAndUnit(results[3],"ReglerOut");
@@ -479,14 +479,14 @@ bool RFG::readoutChannels()
   std::cout << "RFG Channel Measurements:" << std::endl;
   for (int i = 0; i < 8; i++)
   {
-    std::cout << "Channel " << i << ": " << channel_output[i].getStringValue() << " (" << results[i] << ") " << std::endl;
+    std::cout << "Channel " << i << ": " << channel_output[i].getValueAsString() << " (" << results[i] << ") " << std::endl;
   }
   std::cout << "-------------------------" << std::endl << std::endl;
   
   return true;
 }
 
-bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
+bool RFG::readoutSetting(measuredValue<double>& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
 {
   std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w"))); //Provoke Error to get setting
   boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
@@ -499,12 +499,12 @@ bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string con
     stream << res1[1];
     stream >> std::hex >> valueTemp;
     if(raw)
-      value.setvalue(valueTemp);
+      value.setValue(valueTemp);
     else
-      value.setvalue(transformation.xToY(valueTemp));
-    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getStringValue() << unit <<  std::endl;
+      value.setValue(transformation.xToY(valueTemp));
+    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getValueAsString() << unit <<  std::endl;
     s = this->inputOutput(std::string("\x00")+controlChar+intToBinaryStr(valueTemp)+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w")));
-    value.setunit(unit);
+    value.setUnit(unit);
   }
 }
 
@@ -548,9 +548,9 @@ bool RFG::readout(bool raw)
 }
 
 
-measuredValue RFG::get_channel(int i, bool force)
+measuredValue<double> RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
+ if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output[i];
   }
@@ -561,7 +561,7 @@ measuredValue RFG::get_channel(int i, bool force)
 
 int RFG::get_channel_raw(int i, bool force)
 {
-  if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
+  if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output_raw[i];
   }

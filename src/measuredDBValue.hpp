@@ -13,18 +13,25 @@ using namespace std;
 using namespace lughos;
 namespace dbo = Wt::Dbo;
 
-class measuredDBValue : public measuredValue
+template <class T>
+class measuredDBValue : public measuredValue<T>
 {
 public:
   
   template<class Action>
   void persist(Action& a)
   {
-    dbo::field(a, timestamp,     "timestamp");
-    dbo::field(a, sensorName, "sensorName");
-    dbo::field(a, unit,     "unit");
-    dbo::field(a, value,    "value");
+    dbo::field(a, this->timeStamp,     "timestamp");
+    dbo::field(a, this->sensorName, "sensorName");
+    dbo::field(a, this->unit,     "unit");
+    dbo::field(a, this->value,    "value");
   }
+  
+  measuredDBValue(measuredValue<T> other) : measuredValue<T>(other)
+  {
+    
+  }
+  
 };
 
 #endif

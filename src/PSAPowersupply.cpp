@@ -78,8 +78,8 @@ measuredValue<double> PSAPowersupply::get_current()
  boost::regex expr("(\\d*)(\\d\\d)\\$"); 
  boost::smatch result;
  boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
- value.setStringValue(result[1] + '.' + result[2]);
- value.setunit("A");
+ value.setValueFromString(result[1] + '.' + result[2]);
+ value.setUnit("A");
  return value;
 }
 
@@ -93,8 +93,8 @@ measuredValue<double> PSAPowersupply::get_voltage()
  boost::regex expr("(\\d*)(\\d\\d)\\$"); 
  boost::smatch result;
  boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
- value.setStringValue(result[1] + '.' + result[2]);
- value.setunit("V");
+ value.setValueFromString(result[1] + '.' + result[2]);
+ value.setUnit("V");
  return value;
   
 }
@@ -107,8 +107,8 @@ measuredValue<double> PSAPowersupply::get_temperature()
  boost::regex expr("(\\d*)\\$"); 
  boost::smatch result;
  boost::regex_search( answer.cbegin(),answer.cend(),result,expr);
- value.setStringValue(result[1]);
- value.setunit("°C");
+ value.setValueFromString(result[1]);
+ value.setUnit("°C");
  return value;
   
 }
@@ -131,5 +131,5 @@ void PSAPowersupply::shutdownImplementation()
 
 bool PSAPowersupply::isConnectedImplementation()
 {
-  return !isnan(this->get_temperature());
+  return this->get_temperature().isSet();
 }

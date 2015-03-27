@@ -41,7 +41,7 @@ public:
   
   virtual bool isSet() const = 0;
   
-  virtual bool unset() = 0;
+  virtual void unset() = 0;
    
 };
 
@@ -108,12 +108,17 @@ public:
   
   Type<T> type;
     
- ValueImplementation()
+ ValueImplementation() : mutex()
  {
  }
  
   ~ValueImplementation()
   {
+  }
+  
+  ValueImplementation<T>(const ValueImplementation<T>& other) : ValueInterface(other), mutex()
+  {
+    this->valuePointer = other.valuePointer;
   }
      
   virtual bool setValue(T value)
@@ -127,6 +132,12 @@ public:
     }
     else
       return false;
+  }
+  
+  virtual ValueImplementation<T>& operator=(T value)
+  {
+    this->setValue(value);
+    return *this;
   }
   
   virtual T getValue()
@@ -153,7 +164,7 @@ public:
     this->valuePointer.reset();
   }
   
-  bool isSet()
+  bool isSet() const
   {
     return (bool) this->valuePointer;
   }
@@ -178,23 +189,32 @@ public:
     this->setValue(value);
   }
   
+  Value<T>(const Value<T>& other) : ValueImplementation<T>(other)
+  {
+    
+  }
+  
   Value<T>& operator=(const T &other)
   {
     this->setValue(other);
     return *this;
   }	
     
-  Value<T>& operator=(const Value<T> &other)
+  Value<T>& operator=(Value<T> &other)
   {
     this->setValue(other.getValue());
     return *this;
   }
-  
-  operator T() const
+/*  
+  operator T()
   {
     return this->getValue();
-  }
+  }*/
   
+  operator T&()
+  {
+    return *this->valuePointer;
+  }
   
   
 };

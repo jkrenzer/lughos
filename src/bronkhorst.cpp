@@ -53,10 +53,10 @@ std::string bronkhorst::interpretAnswer(std::string s)
 
 }
 
-measuredValue bronkhorst::get_setpoint()
+measuredValue<double> bronkhorst::get_setpoint()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-    measuredValue returnvalue;
+    measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
@@ -87,9 +87,9 @@ measuredValue bronkhorst::get_setpoint()
     setpoint=0.0;
   }
   
-  returnvalue.settimestamp(now);
-  returnvalue.setvalue(setpoint);
-  returnvalue.setunit("sccm");
+  returnvalue.setTimeStamp(now);
+  returnvalue.setValue(setpoint);
+  returnvalue.setUnit("sccm");
   return returnvalue;
   
 }
@@ -100,10 +100,10 @@ float bronkhorst::getMaxCapacity()
 }
 
 
-measuredValue bronkhorst::get_flow()
+measuredValue<double> bronkhorst::get_flow()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-    measuredValue returnvalue;
+    measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
@@ -135,9 +135,9 @@ measuredValue bronkhorst::get_flow()
     setpoint=0.0;
   }
   
-  returnvalue.settimestamp(now);
-  returnvalue.setvalue(setpoint);
-  returnvalue.setunit("sccm");
+  returnvalue.setTimeStamp(now);
+  returnvalue.setValue(setpoint);
+  returnvalue.setUnit("sccm");
   return returnvalue;
   
 }

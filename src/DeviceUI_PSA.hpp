@@ -157,11 +157,11 @@ namespace lughos
      
     void getState()
     {
-      measuredValue voltage, current, power;
+      measuredValue<double> voltage, current, power;
       voltage = this->powersupply->get_voltage();
       current = this->powersupply->get_current();
       power = voltage * current;
-      power.setunit("W");
+      power.setUnit("W");
       this->voltageF->setText(Wt::WString::fromUTF8(voltage.getString()));
       this->currentF->setText(Wt::WString::fromUTF8(current.getString()));
       this->temperaturF->setText(Wt::WString::fromUTF8(this->powersupply->get_temperature().getString()));

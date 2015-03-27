@@ -73,7 +73,7 @@ int main()
   std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
   for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-    std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+    std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
   
   typedef boost::tuple<double, boost::posix_time::ptime> Item;
   dbo::QueryModel<Item> *model = new dbo::QueryModel<Item>();

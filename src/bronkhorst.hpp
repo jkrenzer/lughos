@@ -43,8 +43,8 @@ public:
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
-	measuredValue get_setpoint();
-	measuredValue get_flow();
+	measuredValue<double> get_setpoint();
+	measuredValue<double> get_flow();
 	float getMaxCapacity();
 	std::string set_flow(float value);
 protected:
@@ -52,7 +52,7 @@ protected:
 	std::string composeRequest(std::string query);
 	float maxCapacity;
 	
-	measuredValue storedMeasure;
+	measuredValue<double> storedMeasure;
 };
 
 

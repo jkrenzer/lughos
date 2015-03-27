@@ -19,30 +19,32 @@ namespace lughos
       
       virtual ~measuredValue();
       
-//       measuredValue& operator=(measuredValue other);
-//       
-//       measuredValue& operator=(unitValue other);
+      measuredValue& operator=(measuredValue<T> other);
       
-      void setTimestamp(boost::posix_time::ptime timeStamp);
+      measuredValue& operator=(unitValue<T> other);
       
-      boost::posix_time::ptime getTimestamp();
+      using Value<T>::operator=;
+      
+      void setTimeStamp(boost::posix_time::ptime timeStamp);
+      
+      boost::posix_time::ptime getTimeStamp();
       
       void setSensorName(std::string sensorName);
       
-      std::string getsensorName();
+      std::string getSensorName();
       
   };
   
   //Definition of template class
   
   template <class T>
-  void measuredValue<T>::setTimestamp(boost::posix_time::ptime timeStamp)
+  void measuredValue<T>::setTimeStamp(boost::posix_time::ptime timeStamp)
   {
     this->timeStamp = timeStamp;
   }
   
   template <class T>
-  boost::posix_time::ptime measuredValue<T>::getTimestamp()
+  boost::posix_time::ptime measuredValue<T>::getTimeStamp()
   {
     return this->timeStamp;
   }
@@ -54,7 +56,7 @@ namespace lughos
   }
   
   template <class T>
-  std::string measuredValue<T>::getsensorName()
+  std::string measuredValue<T>::getSensorName()
   {
     return this->sensorName;
   }
@@ -63,7 +65,7 @@ namespace lughos
   measuredValue<T>::measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp, std::string sensorName): timeStamp(timestamp), sensorName(sensorName)
   {
     static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 support in float required");
-    this->value = value;
+    *this->valuePointer = value;
     this->unit = unit;
   }
   
@@ -79,23 +81,23 @@ namespace lughos
     
   }
   
-//   template <class T>
-//   measuredValue& measuredValue<T>::operator=(measuredValue other)
-//   {
-//     this->value = other.getvalue();
-//     this->unit = other.getunit();
-//     this->timestamp = other.gettimestamp();
-//     this->sensorName = other.getsensorName();
-//     return *this;
-//   }
-// 
-//   template <class T>
-//   measuredValue& measuredValue<T>::operator=(unitValue other)
-//   {
-//     this->value = other.getvalue();
-//     this->unit = other.getunit();
-//     return *this;
-//   }
+  template <class T>
+  measuredValue<T>& measuredValue<T>::operator=(measuredValue<T> other)
+  {
+    *this->valuePointer = other.getValue();
+    this->unit = other.getUnit();
+    this->timeStamp = other.getTimeStamp();
+    this->sensorName = other.getSensorName();
+    return *this;
+  }
+
+  template <class T>
+  measuredValue<T>& measuredValue<T>::operator=(unitValue<T> other)
+  {
+    *this->valuePointer = other.getvalue();
+    this->unit = other.getunit();
+    return *this;
+  }
   
 }
 #endif

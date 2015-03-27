@@ -18,7 +18,7 @@ namespace lughos
   public:
     std::string getUnit () const;
     void setUnit (std::string putunit);
-    virtual std::string getString () const = 0;
+    virtual std::string getString () = 0;
 
   };
 
@@ -27,15 +27,15 @@ namespace lughos
   {
   public:
     unitValueTemplate (void);
+    unitValueTemplate (const unitValueTemplate<T>& other);
     unitValueTemplate (T putvalue, std::string putunit);
     virtual ~unitValueTemplate (void);
 
     void setValueAndUnit (T putvalue, std::string putunit);
-    void setvalue (T putvalue);
-    virtual std::string getString () const;
+    virtual std::string getString ();
   };
 
-template < class T > class unitValue:public unitValueTemplate<T>
+template < class T > class unitValue: public unitValueTemplate<T>
   {
 
   };
@@ -46,6 +46,13 @@ template < class T > class unitValue:public unitValueTemplate<T>
   {
     
   }
+  
+  template <class T> unitValueTemplate<T>::unitValueTemplate (const unitValueTemplate < T > &other) : Value<T>(other)
+  {
+    this->unit = other.unit;
+  }
+
+
 
   template <class T> unitValueTemplate<T>::unitValueTemplate(T putvalue, std::string putunit)
   {
@@ -58,15 +65,15 @@ template < class T > class unitValue:public unitValueTemplate<T>
 
   }
   
-  template <class T> std::string unitValueTemplate<T>::getString() const
+  template <class T> std::string unitValueTemplate<T>::getString()
   {
     return this->getValueAsString() + this->unit;
   }
   
   template <class T> void unitValueTemplate<T>::setValueAndUnit(T putvalue, std::string putunit)
   {
-    setValue(putvalue);
-    setUnit(putunit);
+    this->setValue(putvalue);
+    this->setUnit(putunit);
       return;
   }
   

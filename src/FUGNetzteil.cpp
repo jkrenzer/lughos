@@ -81,7 +81,7 @@ bool FUGNetzteil::isConnectedImplementation()
 
 measuredValue<double> FUGNetzteil::getMeasure(bool force)
 {
-  if(!force &&!storedMeasure.gettimestamp().is_not_a_date_time()&& storedMeasure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
+  if(!force &&!storedMeasure.getTimeStamp().is_not_a_date_time()&& storedMeasure.getTimeStamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {
     return storedMeasure;
    }
@@ -95,24 +95,24 @@ measuredValue<double> FUGNetzteil::getMeasure(bool force)
   double number = save_lexical_cast<double>(res[1],-1);
 
   s=res[2];
-  measuredValue value;
+  measuredValue<double> value;
   if(!s.empty() && number == 0)
   {
-    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-    value.setunit(s);
+    value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setUnit(s);
     storedMeasure=value;
   }
     if(s.empty() && number == 0)
   {
-    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-    value.setunit("");
+    value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setUnit("");
     storedMeasure=value;    
   }
   else 
   {
-    value.setvalue(number);
-    value.setunit(s);
-    value.settimestamp(boost::posix_time::second_clock::local_time());
+    value.setValue(number);
+    value.setUnit(s);
+    value.setTimeStamp(boost::posix_time::second_clock::local_time());
     storedMeasure=value;
   }
 

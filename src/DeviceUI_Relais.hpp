@@ -195,7 +195,7 @@ namespace lughos
     
         void changeChannels()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::string ss;
       std::string channelSequence="";
       

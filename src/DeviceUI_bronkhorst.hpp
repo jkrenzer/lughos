@@ -179,14 +179,14 @@ namespace lughos
     
     void getSetpoint()
     {
-      measuredValue v = horst->get_setpoint();
-      this->setpoint->field()->setText(std::string(v.getStringValue()));
+      measuredValue<double> v = horst->get_setpoint();
+      this->setpoint->field()->setText(std::string(v.getValueAsString()));
     }
     
     void getFlow()
     {
-      measuredValue v = horst->get_flow();
-      this->flowMeasurementField1->setText(std::string(v.getStringValue()));
+      measuredValue<double> v = horst->get_flow();
+      this->flowMeasurementField1->setText(std::string(v.getValueAsString()));
     }
     
     void start()

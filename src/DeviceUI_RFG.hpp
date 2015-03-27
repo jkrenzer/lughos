@@ -355,7 +355,7 @@ namespace lughos
     
     void getState()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::stringstream ss;
       this->rfg->readout(this->rawMode->isChecked());
       if (this->rfg->isConnected())
@@ -363,15 +363,15 @@ namespace lughos
       for (int i; i<8;i++)
       {
 	v = this->rfg->get_channel(i);
-	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
+	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
       }
       this->stateF->setText(ss.str());
       this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
       this->targetField->setValue(this->rfg->getTargetValue());
-      this->uOutField->setText(this->rfg->get_channel(0).getStringValue());
-      this->iOutField->setText(this->rfg->get_channel(1).getStringValue());
+      this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
+      this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
     }
     
 //     void start()

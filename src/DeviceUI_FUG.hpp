@@ -318,12 +318,12 @@ namespace lughos
     
     void getMeasure()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::stringstream ss;
       for (int i; i<8;i++)
       {
 	v = this->fug->getMeasure();
-	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
+	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
       }
       this->stateF->setText(ss.str());
       std::string Error;
