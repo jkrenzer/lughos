@@ -11,10 +11,12 @@
    class ScatterPlotWidget : public Wt::WContainerWidget
   {
   public:
-    std::string name;
+    Wt::WText* name;
     ScatterPlotWidget()
     {
       this->setStyleClass("ScatterPlotContainer");
+      this->name = new Wt::WText();
+      this->addWidget(name);
     }
   };
   
@@ -23,8 +25,6 @@
   public:
     ScatterPlot<S>()
     {
-
-      this->addWidget(new Wt::WText(this->name.c_str()));
       this->addWidget(new Wt::WText("No GUI for scatter plots availible!"));
     }
   };

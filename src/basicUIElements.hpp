@@ -28,6 +28,7 @@ namespace lughos
         this->setLayout(new Wt::WHBoxLayout());
         this->layout()->addWidget(this->field_);
         this->layout()->addWidget(this->button_);
+        this->setPadding(0);
       }
       
       F* field()
@@ -53,6 +54,7 @@ namespace lughos
       HContainer(WContainerWidget* parent = 0)
       {
 	this->setLayout(new Wt::WHBoxLayout());
+	this->setPadding(0);
       }
     };
     
@@ -61,6 +63,7 @@ namespace lughos
       VContainer(WContainerWidget* parent = 0)
       {
 	this->setLayout(new Wt::WVBoxLayout());
+	this->setPadding(0);
       }
     };
     
@@ -69,6 +72,7 @@ namespace lughos
       GridContainer(WContainerWidget* parent = 0)
       {
 	this->setLayout(new Wt::WGridLayout());
+	this->setPadding(0);
       }
     };
   }

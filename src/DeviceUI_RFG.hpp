@@ -78,7 +78,6 @@ namespace lughos
     Wt::WPushButton *voltageControl;
     Wt::WPushButton *currentControl;
     Wt::WPushButton *powerControl;
-    Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
 //     Wt::WPushButton * stopB;
@@ -240,9 +239,6 @@ namespace lughos
 //       this->sendUB->setDisabled(true);
 //       this->uMinField->setDisabled(true);
 //       this->uMaxField->setDisabled(true);
-      this->responseField =  new Wt::WTextArea("");
-      this->responseField->setReadOnly(true); 
-      this->addWidget(responseField);
       this->checkConnected();
 
     }
@@ -287,15 +283,15 @@ namespace lughos
 
       float f = uMinField->value(); 
       if(this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min_raw(f)));
+	rfg->set_voltage_min_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
+	rfg->set_voltage_min(f);
       f = uMaxField->value();
       this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
       if(this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max_raw(f)));
+	rfg->set_voltage_max_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
+	rfg->set_voltage_max(f);
 //     
       
     }
@@ -306,9 +302,9 @@ namespace lughos
       float f = iField->value(); 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
       if (this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim_raw(f)));
+	rfg->set_current_lim_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
+	rfg->set_current_lim(f);
 //     
       
     }
@@ -318,9 +314,9 @@ namespace lughos
       float f = targetField->value(); 
       this->stateF->setText("Target set:"+iField->text().toUTF8());
       if (this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value_raw(f)));
+	rfg->set_target_value_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value(f)));
+	rfg->set_target_value(f);
     }
     
     void switchOn()

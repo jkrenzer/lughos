@@ -68,7 +68,6 @@ using namespace lughos;
       this->session->mapClass<measuredDBValue<double> >("measuredValue");
       this->name=horst->getName();
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
       
