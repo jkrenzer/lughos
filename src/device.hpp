@@ -4,9 +4,11 @@
 #include <ostream>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/regex.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include "connectionImpl.hpp"
 #include "BasicObject.hpp"
+#include "basicTypes.hpp"
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
 
@@ -21,7 +23,11 @@ namespace lughos
   class DeviceImpl : public BasicObject
   {
   protected:
+    
     Mutex mutex;
+    
+    boost::shared_ptr<boost::asio::io_service> ioService;
+    boost::shared_ptr<boost::asio::io_service::work> ioServiceWork;
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
@@ -32,24 +38,6 @@ namespace lughos
     virtual bool isConnectedImplementation() = 0;
     
     virtual void shutdownImplementation() = 0;
-    
-    virtual std::string composeRequest(std::string query) = 0;
-    
-    virtual std::string interpretAnswer(std::string query) = 0;
-    
-    virtual std::string inputOutputImplementation(std::string query)
-    {
-      connection->write(this->composeRequest(query));
-      connection->waitForCompletion();
-      return this->interpretAnswer(connection->read());
-    }
-    
-    virtual std::string inputOutputImplementation(std::string query, boost::regex regExpr)
-    {
-      connection->write(this->composeRequest(query), regExpr);
-      connection->waitForCompletion();
-      return this->interpretAnswer(connection->read());
-    }
     
   public:
     
@@ -62,8 +50,8 @@ namespace lughos
      */
     void init()
     {
-      GUARD
       this->initImplementation();
+      ExclusiveLock lock(this->mutex);
       this->initialized = true;
     }
     
@@ -76,42 +64,58 @@ namespace lughos
      */
     void shutdown()
     {
-      GUARD
       this->shutdownImplementation();
+      ExclusiveLock lock(this->mutex);
       this->initialized = false;
     }
     
     bool connect(boost::shared_ptr<ConnectionImpl> connection)
     {
-      GUARD
-      this->connection = boost::shared_ptr<ConnectionImpl>(connection);
-      this->connected = this->connection->testconnection();
+      {
+	ExclusiveLock lock(this->mutex);
+	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
+	this->connection->ioService(this->ioService);
+	this->connected = this->connection->test();
+      }
+      SharedLock lock(this->mutex);
       if(this->connected)
+      {
+	lock.unlock();
 	this->init();
+	lock.lock();
+      }
       return this->connected;
     }
     
     bool isConnected()
     {
-      GUARD
-      bool currentlyConnected = this->connection->testconnection();
-      if(currentlyConnected && !this->connected)
-	this->init();
-      else if (!currentlyConnected && this->connected)
-	this->initialized = false;
-      this->connected = currentlyConnected ? this->isConnectedImplementation() : false;
+      bool currentlyConnected = this->connection->test();
+      UpgradeLock lock(this->mutex);
+      if (!currentlyConnected && this->connected)
+      {
+	upgradeLockToExclusive llock(lock);
+	this->connected = false;
+      }
+      {
+	lock.unlock();
+	bool isConnected = this->isConnectedImplementation();
+	lock.lock();
+	upgradeLockToExclusive llock(lock);
+	this->connected = currentlyConnected ? isConnected  : false;
+      }
       return this->connected;
     }
     
     bool isInitialized()
     {
-      GUARD
+      SharedLock lock(this->mutex);
       return this->initialized;
     }
     
     void disconnect()
     {
       this->shutdown();
+      ExclusiveLock lock(this->mutex);
       if(this->connection)
 	this->connection.reset();
       this->connected = false;
@@ -119,30 +123,64 @@ namespace lughos
     
     const ConnectionImpl* const getConnection()
     {
+      SharedLock lock(this->mutex);
       return this->connection.get();
     }
     
-    std::string inputOutput(std::string query)
+    std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
-      GUARD
+      SharedLock lock(this->mutex);
       if(this->connected)
-	return this->inputOutputImplementation(query);
+      {
+	boost::shared_ptr<Query> q(new Query(query));
+	if(!regExpr.empty())
+	  q->setEOLPattern(regExpr);
+	this->connection->execute(q);
+	try
+	{
+	  std::string answer = q->getAnswer();
+	  return answer;
+	}
+	catch(...)
+	{
+	  return std::string("");
+	}
+      }
       else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+	return std::string("");
+//       else
+//  	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+//         return std::string("");
     }
     
-    std::string inputOutput(std::string query, boost::regex regExpr)
+    void input(std::string query, boost::regex regExpr = boost::regex())
     {
-      GUARD
+      SharedLock lock(this->mutex);
       if(this->connected)
-	return this->inputOutputImplementation(query,regExpr);
+      {
+	boost::shared_ptr<Query> q(new Query(query));
+	if(!regExpr.empty())
+	  q->setEOLPattern(regExpr);
+	this->connection->execute(q);
+	return;
+      }
       else
-	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
+	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("input_without_connection")) << errorTitle("Input was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
     }
     
-    DeviceImpl() : connection()
+    boost::shared_ptr<boost::asio::io_service> getIoService()
     {
-      
+      return this->ioService;
+    }
+    
+    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService))
+    {
+      boost::thread thread(boost::bind(&boost::asio::io_service::run, this->ioService));
+    }
+    
+    virtual ~DeviceImpl()
+    {
+
     }
   
   };

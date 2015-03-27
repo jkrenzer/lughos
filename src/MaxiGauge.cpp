@@ -225,7 +225,7 @@ void MaxiGauge::shutdownImplementation()
 
 measuredValue MaxiGauge::getPressure(int sensor, bool force)
 {
-    if(!force &&!storedPressure.gettimestamp().is_not_a_date_time()&& storedPressure.gettimestamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
+    if(!force &&!storedPressure.getTimeStamp().is_not_a_date_time()&& storedPressure.getTimeStamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {
     return storedPressure;
    }
@@ -240,20 +240,20 @@ measuredValue MaxiGauge::getPressure(int sensor, bool force)
   measuredValue value;
   if(!s.empty() && state == 0)
   {
-    value.setvalue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+    value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
   }
   else if (state == 1)
   {
-    value.setvalue(-std::numeric_limits<double>::infinity());
+    value.setValue(-std::numeric_limits<double>::infinity());
   }
   else if (state == 2)
   {
-    value.setvalue(std::numeric_limits<double>::infinity());
+    value.setValue(std::numeric_limits<double>::infinity());
   }
   else
   {
-    value.setvalue(std::numeric_limits<double>::signaling_NaN());
+    value.setValue(std::numeric_limits<double>::signaling_NaN());
   }
-    value.settimestamp(boost::posix_time::second_clock::local_time());
+    value.setTimeStamp(boost::posix_time::second_clock::local_time());
     return value;
 }

@@ -2,173 +2,137 @@
 #include <fstream>
 
 #include "tcpConnections.hpp"
-#include "Dict.hpp"
+#include "log.hpp"
 
 #ifdef WIN32
 #include <windows.h>
 #include <winioctl.h>
 #endif
 
-#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
+using namespace lughos;
 
-
-
-Connection<tcpContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) :timeoutTimer(*io_service), request(), response(), endpoint(new tcp::endpoint())
+tcpConnection::tcpConnection() : endpoint(new tcp::endpoint())
 {
-this->io_service_= io_service;
-this->connected = false;
+this->isConnected = false;
+this->endOfLineRegExpr_ = boost::regex ( "\n" );
 }
 
-
-
-Connection<tcpContext>::~Connection(void)
+tcpConnection::~tcpConnection(void)
 {
 // 	stop();
 }
 
-
-bool Connection<tcpContext>::start()
+void tcpConnection::initialize()
 {
-//       server_name = port_name;
-    	if (server_name.empty()||port_name.empty()) {
-		std::cout << "please set server/port name before start" << std::endl;
-		return false;
+  ExclusiveLock lock(this->mutex);
+  this->isConnected = false;
+  this->isInitialized = false;
+    if (server_name.empty()||port_name.empty()) {
+		lughos::debugLog("Connection not initialized. Please set server/port name!");
+		return;
 	}
-//     server=server_name;
-    std::cout << "server: "<<server_name<<" port: "<<port_name << std::endl;
-    resolver= boost::shared_ptr<tcp::resolver>(new tcp::resolver(*this->io_service_));
-    query= boost::shared_ptr<tcp::resolver::query>(new tcp::resolver::query(server_name, port_name));
-    socket= boost::shared_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(*this->io_service_));
-    this->connected = false;
-    return true;
-    
-  
-	
+    lughos::debugLog("Initializing TCP-connection to" + server_name + ":" + port_name);
+    resolver.reset(new tcp::resolver(*this->io_service));
+    query.reset(new tcp::resolver::query(server_name, port_name));
+    socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
+    endpoint.reset(new tcp::endpoint());
+//     boost::asio::socket_base::keep_alive keepAlive(true);
+//     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
+    this->isInitialized = true;
 }
 
-
-
-void Connection<tcpContext>::reset()
+void tcpConnection::set_port(std::string port)
 {
-}
-
-
-void Connection<tcpContext>::stop()
-{
-
-    try
-    {
-	resolver->cancel();
-      if (query) 
-	{  
-
-	}
-    }
-    catch(...)
-    {
-      std::cout<<"stop failed"<<std::endl;
-    }
-
-}
-
-
-
-void Connection<tcpContext>::compose_request(const std::string &buf)
-{
-
-}
-
-
-void Connection<tcpContext>::set_port(std::string port)
-{
+  ExclusiveLock lock(this->mutex);
   port_name=port;
 }
 
-
-  
- void Connection<tcpContext>::handle_read_check_response(const boost::system::error_code& err)
+void tcpConnection::connect(boost::function<void(const boost::system::error_code& err)> callback)
+{
+  ExclusiveLock lock(this->mutex);
+  this->socket.reset(new tcp::socket(*io_service));
+  if (!this->endpoint->address().is_unspecified())
   {
-
-        // Check that response is OK.
-      std::istream response_stream(&response);
-      std::string http_version;
-      response_stream >> http_version;
-      unsigned int status_code;
-      response_stream >> status_code;
-      std::string status_message;
-      std::getline(response_stream, status_message);
-      if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-      {
-        std::cout << "Invalid response\n";
-        return;
-      }
-      if (status_code != 200)
-      {
-        std::cout << "Response returned with status code ";
-        std::cout << status_code << "\n";
-        return;
-      }
-   
+    socket->async_connect(*this->endpoint,
+        boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, tcp::resolver::iterator()));
+    lughos::debugLog(std::string("Connecting to server ")+server_name);
+  }
+  else
+  {
+    resolver->async_resolve(*this->query, boost::bind(&tcpConnection::handle_resolve, this, callback,
+          boost::asio::placeholders::error, boost::asio::placeholders::iterator));
+    lughos::debugLog(std::string("Trying to resolve ") + server_name);
+  }
 }
 
-
-void Connection<tcpContext>::handle_read_headers_process()
+void tcpConnection::disconnect()
 {
-        // Process the response headers.
-      std::istream response_stream(&response);
-      std::string header;
-      while (std::getline(response_stream, header) && header != "\r");
-// 	std::cout << header << "\n";
-//       std::cout << "\n";
-      
-     // Write whatever content we already have to output.
-//       if (response_.size() > 0) //response_string_stream<<&response_;
-//         std::cout << &response_;
-//       response_string_stream
-      
+  this->abort();
+}
+
+void tcpConnection::handle_resolve(boost::function<void(const boost::system::error_code& err)> callback, const boost::system::error_code& err,
+      tcp::resolver::iterator endpoint_iterator)
+{
+
+  if (!err)
+  {
+    ExclusiveLock lock(this->mutex);
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
+        boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, ++endpoint_iterator));
+    lughos::debugLog(std::string("Resolved address of server ")+server_name);
+  }
+  else
+  {
+    lughos::debugLog(std::string("Unable to resolve address of server ")+server_name+std::string(". Got error: ")+err.message());
+  }
 
 }
 
-std::string Connection<tcpContext>::read()
-{
-        std::string s = response_string_stream.str();
-	response_string_stream.str(std::string(""));
-// 	stop();
-    return s;  
-
+void tcpConnection::handle_connect(boost::function<void (const boost::system::error_code& err)> callback, const boost::system::error_code& err,
+      tcp::resolver::iterator endpoint_iterator)
+{ 
+  if(!err)
+  {
+    ExclusiveLock lock(this->mutex);
+    this->isConnected = true;
+    lock.unlock();
+    lughos::debugLog(std::string("Connected successfully to ")+server_name);
+    if(callback)
+      callback(err);
+    return;
+  }
+  if (endpoint_iterator != tcp::resolver::iterator())
+  {
+    // The connection failed. Try the next endpoint in the list.
+    ExclusiveLock lock(this->mutex);
+    socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
+    *this->endpoint = *endpoint_iterator;
+    socket->async_connect(*this->endpoint,
+        boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, ++endpoint_iterator));
+    lughos::debugLog(std::string("Connection failed, trying next possible resolve of ")+server_name);
+  }
+  else
+  {
+    ExclusiveLock lock(this->mutex);
+    lughos::debugLog(std::string("Unable to connect to server ")+server_name+std::string(". Got error: ")+err.message());
+    this->endpoint.reset(new tcp::endpoint);
+    return;
+  }
 }
 
-bool Connection<tcpContext>::testconnection()
+void tcpConnection::shutdown()
 {
- GUARD
-  bool ConnectionEstablished = false;
-     try 
-     {
-      ConnectionEstablished = this->start();
-     }
-     catch(...)
-     {
-       ConnectionEstablished = false;
-     }
-     if(ConnectionEstablished)
-     {
-       this->stop();
-     }
-     return ConnectionEstablished;
-}
-
-int Connection<tcpContext>::write(std::string query)
-{
-  return 0;  
-}
-
-int Connection<tcpContext>::write_only(std::string query)
-{
-  return 0;  
-}
-
-
-void Connection<tcpContext>::set_default()
-{
-    
+  this->abort();
+  ExclusiveLock lock(this->mutex);
+  this->socket->close();
+  this->socket.reset();
+  this->query.reset();
+  this->resolver.reset();
+  this->endpoint.reset();
+  this->isInitialized = false;
+  return;
 }

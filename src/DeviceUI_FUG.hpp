@@ -45,12 +45,9 @@
 #include "FUGNetzteil.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<FUGNetzteil> : public DeviceUIInterface
+namespace lughos 
+{
+  template <> class DeviceUI<FUGNetzteil> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<FUGNetzteil> fug;
@@ -71,7 +68,6 @@ using namespace lughos;
     Wt::WPushButton *sendUB;
     Wt::WDoubleSpinBox *uMinField;
     Wt::WDoubleSpinBox *uMaxField;
-    Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     std::string LastError;
     Wt::WPushButton * stateB;
@@ -98,14 +94,6 @@ using namespace lughos;
     {
       if(fug->isConnected())
       {
-// 	measuredValue getMeasure(bool force=false);	
-// 	int setI(double I );
-// 	int setU(double I );
-// 	double getI();
-// 	double getU();
-// 	std::string getLastError();
-// 	std::string getIDN();
-	
 	this->stateF->setText(fug->getIDN());
         this->stateB->setText("Status");
 	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
@@ -129,6 +117,7 @@ using namespace lughos;
 	intervalTimer->stop();
 	this->stateF->setText("Not connected!");
         this->stateB->setText("Try again");
+	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
@@ -145,7 +134,7 @@ using namespace lughos;
     {
      this->name=fug->getName();
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
     
@@ -200,14 +189,6 @@ using namespace lughos;
       this->addWidget(offB);
       this->addWidget(stateB);
       this->addWidget(resetOCB);
-//       this->sendIB->setDisabled(true);
-//       this->iField->setDisabled(true);
-//       this->sendUB->setDisabled(true);
-//       this->uMinField->setDisabled(true);
-//       this->uMaxField->setDisabled(true);
-      this->responseField =  new Wt::WTextArea("");
-      this->responseField->setReadOnly(true); 
-      this->addWidget(responseField);
       this->checkConnected();
 
     }
@@ -221,13 +202,12 @@ using namespace lughos;
       float f; 
 //       sstr<<str; 
 //       sstr>>f;
-//       responseField->setText(responseField->text().toUTF8()+std::to_string(fug->set_voltage_min(str)));
       
       std::string str = uMaxField->text().toUTF8();
       sstr<<str; 
       sstr>>f;
       this->stateF->setText("Voltages set: "+uMaxField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(fug->setU(f)));
+      fug->setU(f);
       
       std::string Error;
       Error = fug->getLastError();
@@ -251,7 +231,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+std::to_string(fug->setI(f)));
+      fug->setI(f);
 //     
       std::string Error;
       Error = fug->getLastError();
@@ -271,7 +251,6 @@ using namespace lughos;
       this->uMaxField->setText(str);
       str = std::to_string(fug->getU());
       this->uOutField->setText(str);
-      responseField->setText(responseField->text().toUTF8()+str);
 //     
       std::string Error;
       Error = fug->getLastError();
@@ -290,7 +269,6 @@ using namespace lughos;
       this->iOutField->setText(str);
 
 //       this->stateF->setText("Current set:"+iField->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+str);
 //     
       std::string Error;
       Error = fug->getLastError();
@@ -328,12 +306,12 @@ using namespace lughos;
     
     void getMeasure()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::stringstream ss;
       for (int i; i<8;i++)
       {
 	v = this->fug->getMeasure();
-	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
+	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
       }
       this->stateF->setText(ss.str());
       std::string Error;
@@ -364,10 +342,6 @@ using namespace lughos;
     }
     
   };
-
-  
-  
-
-
+} //namespace
  #endif 
   

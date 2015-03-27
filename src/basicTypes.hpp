@@ -9,20 +9,20 @@
 namespace lughos
 {
 
-template <> class ValueDeclaration<int>
+template <> class Type<int> : public TypeImplementation<int>
 {
 public:
-  std::string getTypeName()
+  std::string getName()
   {
     return std::string("int");
   }
   
-  std::string getTypeShortDescription()
+  std::string getShortDescription()
   {
     return std::string("Simple, standard integer value.");
   }
   
-  std::string getTypeDescription()
+  std::string getDescription()
   {
     return std::string("Simple, standard integer value.");
   }
@@ -34,20 +34,20 @@ public:
   
 };
 
-template <> class ValueDeclaration<std::string>
+template <> class Type<std::string>  : public TypeImplementation<std::string>
 {
 public:
-  std::string getTypeName()
+  std::string getName()
   {
     return std::string("string");
   }
   
-  std::string getTypeShortDescription()
+  std::string getShortDescription()
   {
     return std::string("Simple, standard string value.");
   }
   
-  std::string getTypeDescription()
+  std::string getDescription()
   {
     return std::string("Simple, standard string value.");
   }
@@ -59,20 +59,20 @@ public:
     
 };
 
-template <> class ValueDeclaration<double>
+template <> class Type<double>  : public TypeImplementation<double>
 {
 public:
-  std::string getTypeName()
+  std::string getName()
   {
     return std::string("double");
   }
   
-  std::string getTypeShortDescription()
+  std::string getShortDescription()
   {
     return std::string("Simple, standard double value.");
   }
   
-  std::string getTypeDescription()
+  std::string getDescription()
   {
     return std::string("Simple, standard double value.");
   }

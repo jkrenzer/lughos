@@ -12,8 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <bitset>
@@ -22,10 +20,11 @@
 
 using namespace lughos;
 
-class RelaisConnection : public serialAsync
+class RelaisConnection : public serialConnection
 {
 public:
     RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    RelaisConnection();
 };
 
 class Relais :public Device

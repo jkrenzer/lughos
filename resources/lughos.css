@@ -13,5 +13,7 @@
 	margin: 1em;
 }
 
-
+.inlineDisplay {
+    display:inline;
+}
 

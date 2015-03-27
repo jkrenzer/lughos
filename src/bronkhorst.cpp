@@ -3,7 +3,6 @@
 #include <ostream>
 #include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialAsync.hpp"
 #include "bronkhorst.hpp"
 
 #define Bronkhorst_100Percent 32000
@@ -21,7 +20,7 @@ bronkhorst::~bronkhorst(void)
 }
 
 
-bronkhorstConnection::bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service) : serialAsync(io_service), Connection<serialContext>(io_service)
+bronkhorstConnection::bronkhorstConnection()
 {
     std::cout << "########################## Setting connection-parameters!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     this->baud_rate=boost::asio::serial_port_base::baud_rate(38400);
@@ -33,6 +32,8 @@ bronkhorstConnection::bronkhorstConnection(boost::shared_ptr<boost::asio::io_ser
 
     
 }
+
+
 
 std::string bronkhorst::composeRequest(std::string query)
 {
@@ -52,10 +53,10 @@ std::string bronkhorst::interpretAnswer(std::string s)
 
 }
 
-measuredValue bronkhorst::get_setpoint()
+measuredValue<double> bronkhorst::get_setpoint()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-    measuredValue returnvalue;
+    measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
@@ -86,17 +87,23 @@ measuredValue bronkhorst::get_setpoint()
     setpoint=0.0;
   }
   
-  returnvalue.settimestamp(now);
-  returnvalue.setvalue(setpoint);
-  returnvalue.setunit("sccm");
+  returnvalue.setTimeStamp(now);
+  returnvalue.setValue(setpoint);
+  returnvalue.setUnit("sccm");
   return returnvalue;
   
 }
 
-measuredValue bronkhorst::get_flow()
+float bronkhorst::getMaxCapacity()
+{
+  return this->maxCapacity;
+}
+
+
+measuredValue<double> bronkhorst::get_flow()
 {
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
-    measuredValue returnvalue;
+    measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
     m1.setNode(3);
     m1.setType(4);
@@ -128,9 +135,9 @@ measuredValue bronkhorst::get_flow()
     setpoint=0.0;
   }
   
-  returnvalue.settimestamp(now);
-  returnvalue.setvalue(setpoint);
-  returnvalue.setunit("sccm");
+  returnvalue.setTimeStamp(now);
+  returnvalue.setValue(setpoint);
+  returnvalue.setUnit("sccm");
   return returnvalue;
   
 }

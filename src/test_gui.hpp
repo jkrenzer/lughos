@@ -120,9 +120,9 @@ namespace lughos
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //   
       model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Temperature Monitor 1").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");
@@ -212,9 +212,9 @@ namespace lughos
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //   
       model->setQuery(this->session->query<Item>("select t1.timestamp, t1.value, t2.timestamp, t2.value, t3.timestamp, t3.value from measuredValue t1, measuredValue t2, measuredValue t3 where t1.sensorName = 'Pressure Monitor 11' and t2.sensorName = 'Pressure Monitor 12' and t3.sensorName = 'Pressure Monitor 13' and (t2.id-1)/3 = (t1.id-1)/3 and (t3.id-1)/3 = (t1.id-1)/3").orderBy(" t1.timestamp DESC").orderBy(" t2.timestamp DESC").orderBy(" t3.timestamp DESC").limit(300));
 //  , sensor2.timestamp, sensor2.value , ( SELECT timestamp, value FROM `measuredValues` WHERE sensorName = `Pressure Monitor 12`) sensor2

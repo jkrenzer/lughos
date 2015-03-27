@@ -13,18 +13,38 @@ using namespace std;
 using namespace lughos;
 namespace dbo = Wt::Dbo;
 
-class measuredDBValue : public measuredValue
+template <class T>
+class measuredDBValue : public measuredValue<T>
 {
 public:
   
   template<class Action>
   void persist(Action& a)
   {
-    dbo::field(a, timestamp,     "timestamp");
-    dbo::field(a, sensorName, "sensorName");
-    dbo::field(a, unit,     "unit");
-    dbo::field(a, value,    "value");
+    dbo::field(a, this->timeStamp,     "timestamp");
+    dbo::field(a, this->sensorName, "sensorName");
+    dbo::field(a, this->unit,     "unit");
+    if(this->isSet() && a.getsValue())
+      dbo::field(a, *this->valuePointer,    "value");
+    if(a.setsValue())
+    {
+      this->valuePointer.reset(new T()); //TODO How do we use getter and setter?
+      dbo::field(a, *this->valuePointer,    "value");
+    }
+    
+    
   }
+  
+  measuredDBValue(measuredValue<T> other) : measuredValue<T>(other)
+  {
+    
+  }
+  
+  measuredDBValue() : measuredValue<T>()
+  {
+    
+  }
+  
 };
 
 #endif

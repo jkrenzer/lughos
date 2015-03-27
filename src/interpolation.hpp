@@ -29,6 +29,10 @@ namespace lughos
     double xMin;
     double yMax;
     double yMin;
+    double xMaxLimit;
+    double xMinLimit;
+    double yMaxLimit;
+    double yMinLimit;
     gsl_interp_accel *xToYSplineAcc;
     gsl_spline *xToYSpline;
     gsl_interp_accel *yToXSplineAcc;
@@ -44,6 +48,10 @@ namespace lughos
       this->xToYSpline = nullptr;
       this->yToXSplineAcc = nullptr;
       this->yToXSpline = nullptr;
+      this->xMaxLimit = std::numeric_limits<double>::infinity();
+      this->yMaxLimit = std::numeric_limits<double>::infinity();
+      this->xMinLimit = -std::numeric_limits<double>::infinity();
+      this->yMinLimit = -std::numeric_limits<double>::infinity();
     }
     
     ~SplineTransformation()
@@ -145,28 +153,50 @@ namespace lughos
       return true;
     }
     
+    double extrapolate(double value, double refValue,gsl_spline* spline, gsl_interp_accel* accel)
+    {
+      double firstDerivative = gsl_spline_eval_deriv(spline,refValue,accel) + (gsl_spline_eval_deriv2(spline,refValue,accel) * (value - refValue));
+      double result = gsl_spline_eval(spline,refValue,accel) + (firstDerivative * (value - refValue));
+      std::cout << "EXTRAPOLATE: " << refValue << " + " << firstDerivative << " * (" << value << " - " << refValue << ") = " << result << std::endl;
+      return gsl_spline_eval(spline,refValue,accel) + (firstDerivative * (value - refValue));
+    }
+    
     double xToY(double x)
     {
+      double y = 0.0;
       if (isInitialized && x <= this->xMax && x >= this->xMin)
-	return gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
+	y = gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
       else if (x > this->xMax)
-	return this->yMax;
+	y = extrapolate(x,this->xMax,xToYSpline,xToYSplineAcc);
       else if (x < this->xMin)
-	return this->yMin;
+	y = extrapolate(x,this->xMin,xToYSpline,xToYSplineAcc);
       else
 	return NAN;
+      if(y > yMaxLimit)
+	return yMaxLimit;
+      else if(y < yMinLimit)
+	return yMinLimit;
+      else
+	return y;
     }
     
     double yToX(double y)
     {
+      double x;
       if (isInitialized && y <= this->yMax && y >= this->yMin)
-	return gsl_spline_eval (yToXSpline, y, yToXSplineAcc);
+	x = gsl_spline_eval (yToXSpline, y, yToXSplineAcc);
       else if (y > this->yMax)
-	return this->xMax;
+	x = extrapolate(y,this->yMax,yToXSpline,yToXSplineAcc);
       else if (y < this->yMin)
-	return this->xMin;
+	x = extrapolate(y,this->yMin,yToXSpline,yToXSplineAcc);
       else
 	return NAN;
+      if(x > xMaxLimit)
+	return xMaxLimit;
+      else if(x < xMinLimit)
+	return xMinLimit;
+      else
+	return x;
     }
     
   };

@@ -12,35 +12,40 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
+#include "measuredValue.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
 #include "device.hpp"
 
 using namespace lughos;
-class PSANetzteil : public Device
+
+class PSAPowersupplyConnection : public serialConnection
+{
+public:
+  PSAPowersupplyConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+  PSAPowersupplyConnection();
+};
+
+class PSAPowersupply : public Device
 {
   private:
-	PSANetzteil(const PSANetzteil &p);
-	PSANetzteil &operator=(const PSANetzteil &p);
+	PSAPowersupply(const PSAPowersupply &p);
+	PSAPowersupply &operator=(const PSAPowersupply &p);
 	
 	
   public:
-	PSANetzteil();
-	~PSANetzteil(void);
+	PSAPowersupply();
+	virtual ~PSAPowersupply(void);
 	
-	virtual std::string inputoutput(const std::string input, const int async=0);
-	template <class T> void setDefaultImpl(T& connection);
-	virtual void set_default();
 	void initImplementation();
+	bool isConnectedImplementation();
 	void shutdownImplementation();
 	void off();
 	void on();
-	std::string get_current();
-	std::string get_voltage();
-	std::string get_temperature();
+	measuredValue<double> get_current();
+	measuredValue<double> get_voltage();
+	measuredValue<double> get_temperature();
 // 	bool is_on;
 protected:
 	std::string interpretAnswer(std::string query);

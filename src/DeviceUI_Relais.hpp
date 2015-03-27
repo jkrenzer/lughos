@@ -50,12 +50,9 @@
 #include "Relais.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<Relais> : public DeviceUIInterface
+namespace lughos
+{
+  template <> class DeviceUI<Relais> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<Relais> relais;
@@ -123,7 +120,7 @@ using namespace lughos;
       
      this->name=relais->getName();
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
       this->changeChannelsB = new Wt::WPushButton("Send");
@@ -198,7 +195,7 @@ using namespace lughos;
     
         void changeChannels()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::string ss;
       std::string channelSequence="";
       
@@ -227,7 +224,7 @@ using namespace lughos;
     
   };
 
-  
+} //namespace
   
 
 

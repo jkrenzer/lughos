@@ -9,7 +9,8 @@
 #include <typeinfo>       // operator typeid
 #include <typeindex>
 #include "errorHandling.hpp"
-#include "transformations.hpp"
+#include "threadSafety.hpp"
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 #define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& get ## name (name<T> &d) { return d; }
 
@@ -23,7 +24,6 @@ class data
   
 class ValueInterface : public data
 {
-protected:
 public:
   
   ValueInterface()
@@ -37,120 +37,185 @@ public:
    
   virtual std::string getValueAsString() = 0;
   
-  virtual void setValueFromString(std::string string) = 0;
+  virtual bool setValueFromString(std::string str) = 0;
+  
+  virtual bool isSet() const = 0;
+  
+  virtual void unset() = 0;
    
 };
 
-class ValueDeclarationInterface
+class TypeInterface
 {
 public:
-  virtual bool verify() = 0;
   
-  virtual std::string getTypeName() = 0;
+  virtual std::string getName() = 0;
   
-  virtual std::string getTypeShortDescription() = 0;
+  virtual std::string getShortDescription() = 0;
         
-  virtual std::string getTypeDescription() = 0;
+  virtual std::string getDescription() = 0;
 
 };
 
-template <class T> class ValueDeclarationImplementation
+// template <class T> class ValueDeclarationImplementation
+// {
+// public:
+//   
+// };
+
+template <class T> class TypeImplementation : public TypeInterface
 {
 public:
   
-};
+  virtual bool verify(T value) = 0;
 
-template <class T> class ValueDeclaration
-{
-public:
-  bool verify(T value)
+  
+  virtual std::string toString(T t)
   {
-//     BOOST_THROW_EXCEPTION( exception() << errorName("no_value_verification_implemented") << errorTitle("The provided data could not verified. No suitable function has been implemented at compile-time.") << errorSeverity(severity::ShouldNot) );
-    return true;
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+  
+  virtual T fromString(std::string str)
+  {
+    std::stringstream ss(str);
+    T t;
+    ss >> t;
+    return t;
   }
   
 };
 
-template <class T> class ValueImplementation : public ValueInterface, public ValueDeclaration<T>
+template <class T> class Type : public TypeImplementation<T>
 {
+};
+
+template <class T> Type<T> getType(T t)
+{
+  return Type<T>();
+}
+
+template <class T> class ValueImplementation : public ValueInterface
+{
+private:
+  Mutex mutex;
 protected:
   
-  T* value;
-  bool isOwner;
+  boost::shared_ptr<T> valuePointer;
 
-//TODO Add callback-functionality on change
-
-  void clearOldValue()
-  {
-    if(this->value != NULL && isOwner)
-    {
-      delete this->value;
-    }
-  }
-  
 public:
+  
+  Type<T> type;
     
- ValueImplementation()
+ ValueImplementation() : mutex()
  {
-   this->value = NULL;
-   this->isOwner = true;
  }
  
   ~ValueImplementation()
   {
-    this->clearOldValue();
+  }
+  
+  ValueImplementation<T>(const ValueImplementation<T>& other) : ValueInterface(other), mutex()
+  {
+    this->valuePointer = other.valuePointer;
   }
      
-  virtual void setValue(T value)
+  virtual bool setValue(T value)
   {
-    if(this->verify((T) value))
+    if(this->type.verify((T) value))
     {
-      this->clearOldValue();
-      this->value = new T(value);
-      this->isOwner = true;
+      ExclusiveLock lock(this->mutex);
+      this->valuePointer.reset( new T(value));
+      lock.unlock();
+      return true;
     }
     else
-   BOOST_THROW_EXCEPTION( exception() << errorName(std::string("invalid_value_supplied_type_")+std::string(typeid(T).name())) << errorTitle("The provided data could not be transformed in a veritable value.") << errorSeverity(severity::Informative) );
+      return false;
   }
   
-  virtual T getValue() const
+  virtual ValueImplementation<T>& operator=(T value)
   {
-    return *this->value;
+    this->setValue(value);
+    return *this;
   }
   
-  std::string getValueAsString()
+  virtual T getValue()
   {
-    return transformTo<std::string>::from(this->getValue());
+    SharedLock lock(this->mutex);
+    if(this->valuePointer)
+      return *this->valuePointer;
+    else
+      BOOST_THROW_EXCEPTION(exception() << errorName("value_accessed_but_no_value_set") << errorSeverity(severity::ShouldNot));
   }
   
-  void setValueFromString(std::string string)
+  virtual std::string getValueAsString()
   {
-    this->setValue(transformTo<T>::from(string));
+    return type.toString(this->getValue());
+  }
+  
+  virtual bool setValueFromString(std::string string)
+  {
+    return this->setValue(type.fromString(string));
+  }
+    
+  void unset()
+  {
+    this->valuePointer.reset();
+  }
+  
+  bool isSet() const
+  {
+    return (bool) this->valuePointer;
   }
   
 };
 
 template <class T> class Value : public ValueImplementation<T>
 {
-protected:
-  
 public:
-  
-  typedef T type;
     
-  Value<T>()
+  Value<T>() 
   {
   }
   
   template <class E> Value<T>(Value<E> &e)
   {
-    this->setValue(transformTo<T>::from(e.getValue()));
+    this->setValue = (T) e.getValue();
   }
   
-  Value<T>(T value)
+  Value<T>(T& value)
   {
     this->setValue(value);
   }
+  
+  Value<T>(const Value<T>& other) : ValueImplementation<T>(other)
+  {
+    
+  }
+  
+  Value<T>& operator=(const T &other)
+  {
+    this->setValue(other);
+    return *this;
+  }	
+    
+  Value<T>& operator=(Value<T> &other)
+  {
+    this->setValue(other.getValue());
+    return *this;
+  }
+/*  
+  operator T()
+  {
+    return this->getValue();
+  }*/
+  
+  operator T&()
+  {
+    return *this->valuePointer;
+  }
+  
   
 };
 
@@ -161,25 +226,25 @@ public:
   Pointer(T* ptr)
   {
     this->setPtr(ptr);
-    this->isOwner = false;
   }
   
-  void setPtr(T* ptr, bool isOwner = false)
+  void setPtr(T* ptr)
   {
-    this->value = ptr;
-    this->isOwner = isOwner;
+    ExclusiveLock lock(this->mutex);
+    this->valuePointer.reset(ptr);
   }
   
   T* getPtr()
   {
-    return this->value;
+    SharedLock lock(this->mutex);
+    return this->valuePointer.get();
   }
   
 };
 
 typedef ValueInterface Values;
 
-REGISTER_CLASS_FAMILY(ValueDeclaration)
+REGISTER_CLASS_FAMILY(Type)
 
 REGISTER_CLASS_FAMILY(Value)
 

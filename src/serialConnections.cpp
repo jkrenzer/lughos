@@ -2,478 +2,422 @@
 #include <fstream>
 
 #include "serialConnections.hpp"
-// #include "Dict.hpp"
-// #include "httpDict.hpp"
+#include "log.hpp"
 
 #ifdef WIN32
 #include <windows.h>
 #include <winioctl.h>
 #endif
 
-#define GUARD boost::lock_guard<boost::recursive_mutex> guard(mutex);
+using namespace lughos;
 
-// connection<serialContext>::connection(void) : end_of_line_char_('\r'), io_service_(), flow_control(), baud_rate(), character_size()
-// {
-// 
-// }
-
-Connection<serialContext>::Connection(boost::shared_ptr<boost::asio::io_service> io_service) : flow_control(), baud_rate(), character_size(), timeoutTimer(*io_service), request(), response()
+serialConnection::serialConnection ( boost::shared_ptr<boost::asio::io_service> io_service ) : flow_control(), baud_rate(), character_size()
 {
-this->io_service_= io_service;
-this->endOfLineRegExpr_ = boost::regex("\n");
-
+  this->ioService ( io_service );
+  this->endOfLineRegExpr_ = boost::regex ( "\n" );
+  boost::asio::serial_port_base::flow_control flow_control(boost::asio::serial_port::flow_control::none);
+  boost::asio::serial_port_base::character_size character_size(boost::asio::serial_port::character_size(8));
+  boost::asio::serial_port_base::baud_rate baud_rate(boost::asio::serial_port::baud_rate(9600));
+  boost::asio::serial_port_base::parity parity(boost::asio::serial_port::parity::none);
+  boost::asio::serial_port_base::stop_bits stop_bits(boost::asio::serial_port::stop_bits::one);
 }
 
-Connection<serialContext>::~Connection(void)
+serialConnection::serialConnection() : flow_control(), baud_rate(), character_size()
 {
-	stop();
-}
-
-boost::regex Connection<serialContext>::endOfLineRegExpr() const
-{
-    return this->endOfLineRegExpr_;
-}
-
-void Connection<serialContext>::endOfLineRegExpr(boost::regex c)
-{
-  this->endOfLineRegExpr_ = c;
+  this->endOfLineRegExpr_ = boost::regex ( "\n" );
+  boost::asio::serial_port_base::flow_control flow_control(boost::asio::serial_port::flow_control::none);
+  boost::asio::serial_port_base::character_size character_size(boost::asio::serial_port::character_size(8));
+  boost::asio::serial_port_base::baud_rate baud_rate(boost::asio::serial_port::baud_rate(9600));
+  boost::asio::serial_port_base::parity parity(boost::asio::serial_port::parity::none);
+  boost::asio::serial_port_base::stop_bits stop_bits(boost::asio::serial_port::stop_bits::one);
 }
 
 
-bool Connection<serialContext>::start()
+serialConnection::~serialConnection ( void )
 {
-//   std::ofstream ofs ("/home/irina/projects/serialConnection_start.txt", std::ofstream::out);
- 	std::cout << "### Starting connection! ###" << std::endl;
- 	std::cout << "baud_rate: "<<baud_rate.value() << std::endl;
- 	std::cout << "character_size: "<<character_size.value() << std::endl;
- 	std::cout << "stop_bits: "<<stop_bits.value()<< std::endl;
- 	std::cout << "parity: "<<parity.value() << std::endl;
- 	std::cout << "flow_control: "<<flow_control.value() << std::endl;
-  std::cout<<"eolc: "<< endOfLineRegExpr()<< std::endl;
-  std::cout<<"port name: "<< port_name<< std::endl;
-  std::cout << "#############################" << std::endl;
-
-  	if (port_name.empty()) {
-		std::cout << "please set port name before start" << std::endl;
-// 		ofs<< "please set port name before start" << std::endl;
-// 		ofs.close();
-		stop();
-		return false;
-	}
-  
-// 	this->end_of_line_char(end_of_line_char_);
-	boost::system::error_code ec;
-
-	if (port_) {
-// 		stop();
-// 		return false;
-	}
-	port_ = serial_port_ptr(new boost::asio::serial_port(*io_service_));
-	
-	/* As windows is volatile with it's serial ports we have to be prepared for anything. So try and catch as if running for your life! */
-	
-	try { 
-	  port_->open(port_name.c_str(), ec); //Keep your fingers crossed...
-	  if (ec) { // Boost gave us an error-message
-		  std::cout << "error : port_->open() failed...com_port_name="
-			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-// 		  ofs << "error : port_->open() failed...com_port_name="
-// 			  << port_name.c_str() << ", e=" << ec.message().c_str() << std::endl; 
-// 			  ofs.close();
-		  stop();
-		  return false;
-	  }
-	}
-	catch(...)
-	{ // Unfortunatle we got an arbitrary system-exception. :/
-	  std::cout << "error : port_->open() failed...com_port_name="
-			  << port_name.c_str() << ", system threw an exception!"  << std::endl;
-	  stop();
-	  return false;
-	}
-	
-// 	this->reset();
-	// option settings...
+  shutdown();
+}
 
 
-	  try 
-	  {
-	      port_->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
-	  }
-	  catch(...)
-	  {
-// 	      ofs << "baud rate problems" << std::endl;
-	  }
+void serialConnection::initialize()
+{
+  /*
+   	std::cout <<  "### Starting connection! ###" << std::endl;
+   	std::cout << "baud_rate: "<<baud_rate.value() << std::endl;
+   	std::cout << "character_size: "<<character_size.value() << std::endl;
+   	std::cout << "stop_bits: "<<stop_bits.value()<< std::endl;
+   	std::cout << "parity: "<<parity.value() << std::endl;
+   	std::cout << "flow_control: "<<flow_control.value() << std::endl;
+    std::cout<<"eolc: "<< endOfLineRegExpr()<< std::endl;
+    std::cout<<"port name: "<< port_name<< std::endl;
+    std::cout << "#############################" << std::endl;*/
 
-	  try 
-	  {
-	  port_->set_option(boost::asio::serial_port_base::character_size(character_size.value()));
-	  }
-	  catch(...)
-	  {
-// 	      ofs << "character_size problems" << std::endl;
-	  }
+  ExclusiveLock lock(this->mutex);
+  this->isInitialized = false;
+  lughos::debugLog ( std::string ( "initializing serial connection on port" ) + this->port_name );
+  if ( port_name.empty() )
+    {
+      lughos::debugLog ( std::string ( "Serial connection not initialized. No port-name set." ) );
+      lock.unlock();
+      shutdown();
+      return;
+    }
 
-	  try 
-	  {
-	    int i=0;
-	  port_->set_option(stop_bits);
-	  }
-	  catch(...)
-	  {
-// 	      ofs << "stop_bits problems" << std::endl;
-	  }
-	
-	
-	  try 
-	  {
-	    int i=0;
-	    port_->set_option(boost::asio::serial_port_base::parity(parity));
-	  }
-	  catch(...)
-	  {
-// 	      ofs << "parity problems" << std::endl;
-	  }
-	
-	  try 
-	  {
-	    port_->set_option(boost::asio::serial_port_base::flow_control(flow_control));	  }
-	  catch(...)
-	  {
-// 	      ofs << "flow_control problems" << std::endl;
-	  }
+  if ( !io_service )
+    {
+      lughos::debugLog ( std::string ( "Serial connection not initialized. No valid io_service." ) );
+      lock.unlock();
+      shutdown();
+      return;
+    }
 
-// 	ofs << "start is fine" << std::endl;
-// 	ofs.flush();
-// 	/*/*/*/*ofs*/*/*/*/.close();
-// 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
-//   io_service_->run();
-	return true;
+  socket.reset ( new boost::asio::serial_port ( *io_service ) );
+
+  try
+    {
+      socket->set_option ( boost::asio::serial_port_base::baud_rate ( baud_rate ) );
+    }
+  catch ( ... )
+    {
+	lughos::debugLog ( std::string ( "Could not set baud rate." ) );
+    }
+
+  try
+    {
+      socket->set_option ( boost::asio::serial_port_base::character_size ( character_size.value() ) );
+    }
+  catch ( ... )
+    {
+      lughos::debugLog ( std::string ( "Could not set character size." ) );
+    }
+
+  try
+    {
+      int i=0;
+      socket->set_option ( stop_bits );
+    }
+  catch ( ... )
+    {
+      lughos::debugLog ( std::string ( "Could not set stop bits." ) );
+    }
+
+
+  try
+    {
+      int i=0;
+      socket->set_option ( boost::asio::serial_port_base::parity ( parity ) );
+    }
+  catch ( ... )
+    {
+      lughos::debugLog ( std::string ( "Could not set parity." ) );
+    }
+
+  try
+    {
+      socket->set_option ( boost::asio::serial_port_base::flow_control ( flow_control ) );
+    }
+  catch ( ... )
+    {
+      lughos::debugLog ( std::string ( "Could not set flow control." ) );
+    }
+
+  this->isInitialized = true;
+  return;
+
+
+}
+
+void serialConnection::connect ( boost::function<void(const boost::system::error_code& err) > callback )
+{
+  ExclusiveLock lock(this->mutex);
+  this->isConnected = false;
+
+  try
+    {
+      if (this->socket && !this->socket->is_open())
+      {
+        debugLog(std::string("Trying to connect to port ") + this->port_name);
+         boost::system::error_code ec;
+        this->socket->open ( this->port_name,  ec);
+        if (ec)
+        {
+          debugLog(std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message());
+        }
+      }
+      else if (this->socket && this->socket->is_open())
+      {
+        debugLog(std::string("Already connected to port ") + this->port_name);
+        this->isConnected = true;
+        return;
+      }
+      else if (!this->socket)
+      {
+        debugLog(std::string("Port is not initialized,  so wie cannot connect.") + this->port_name);
+        this->isInitialized = false;
+        return;
+      }
+      else
+      {
+        debugLog(std::string("Unable to connect to port ") + this->port_name);
+        return;
+      }
+    }
+  catch ( std::exception& e )
+    {
+      debugLog(std::string("Exception while trying to access port ") + this->port_name + std::string(". Exception-Message: ") + e.what());
+      return;
+    }
+    if (this->socket && this->socket->is_open())
+    {
+      this->isConnected = true;
+      debugLog(std::string("Port ") + this->port_name + std::string(" sucessfully opened."));
+    }
+    else
+      debugLog(std::string("Port ") + this->port_name + std::string(" did not open up."));
     
-    
+  if ( callback && this->isConnected )
+    {
+      debugLog(std::string("Calling callback function."));
+      lock.unlock();
+      callback(boost::system::error_code());
+    }
+  return;
 }
 
-
-
-void Connection<serialContext>::reset()
+void serialConnection::reset()
 {
- 
+  this->abort();
+  this->shutdown();
+  this->initialize();
+  ExclusiveLock lock(this->mutex);
 #ifdef WIN32
 
-DCB dcb;
+  DCB dcb;
 
-HANDLE h_Port = CreateFile(port_name.c_str(),GENERIC_READ |  GENERIC_WRITE,0,0,OPEN_EXISTING,0,0);
+  HANDLE h_Port = CreateFile ( port_name.c_str(),GENERIC_READ |  GENERIC_WRITE,0,0,OPEN_EXISTING,0,0 );
 
-GetCommState(h_Port, &dcb);
-//       int pid = *port_->native();
-      // play with RTS & DTR
-      int iFlags=0;
-// 	std::cout << "iFlags="<< iFlags<< std::endl; 
-//       std::cout << "port_type="<< porttype << std::endl; 
-      if (context.DCD)
-      {
-	iFlags = 1;
+  GetCommState ( h_Port, &dcb );
+//       int pid = *socket->native();
+  // play with RTS & DTR
+  int iFlags=0;
+// 	std::cout << "iFlags="<< iFlags<< std::endl;
+//       std::cout << "sockettype="<< porttype << std::endl;
+  if ( context.DCD )
+    {
+      iFlags = 1;
 // 	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.DCD)
-      {
-	iFlags = 0;
+    }
+  else if ( !context.DCD )
+    {
+      iFlags = 0;
 // 	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      else{
-	
-      }
-      if (context.DTR)
-      {
-// 	std::cout << "iFlags DTR="<< iFlags << std::endl; 
-	dcb.fDtrControl =DTR_CONTROL_ENABLE;
+    }
+  else
+    {
+
+    }
+  if ( context.DTR )
+    {
+// 	std::cout << "iFlags DTR="<< iFlags << std::endl;
+      dcb.fDtrControl =DTR_CONTROL_ENABLE;
 // 	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.DTR)
-      {
-	dcb.fDtrControl =DTR_CONTROL_DISABLE;
-      }
-      if (context.DSR)
-      {
+    }
+  else if ( !context.DTR )
+    {
+      dcb.fDtrControl =DTR_CONTROL_DISABLE;
+    }
+  if ( context.DSR )
+    {
 
-      }
-      else if (!context.DSR)
-      {
+    }
+  else if ( !context.DSR )
+    {
 
-      }
-      if (context.RTS)
-      {
-	dcb.fRtsControl = RTS_CONTROL_ENABLE;
+    }
+  if ( context.RTS )
+    {
+      dcb.fRtsControl = RTS_CONTROL_ENABLE;
 
-      }
-      else if (!context.RTS)
-      {
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-      }
-      if (context.CTS)
-      {
+    }
+  else if ( !context.RTS )
+    {
+      dcb.fRtsControl = RTS_CONTROL_DISABLE;
+    }
+  if ( context.CTS )
+    {
 
-      }
-      else if (!context.CTS)
-      {
+    }
+  else if ( !context.CTS )
+    {
 
-      }
-      if (context.RI)
-      {
+    }
+  if ( context.RI )
+    {
 
-      }
-      else if (!context.RI)
-      {
+    }
+  else if ( !context.RI )
+    {
 
-      }
+    }
 
-  
+
 #else
 
 
-      int pid = port_->native();
-      // play with RTS & DTR
-      int iFlags=0;
-// 	std::cout << "iFlags="<< iFlags<< std::endl; 
-//       std::cout << "port_type="<< porttype << std::endl; 
-      if (context.DCD)
-      {
-	iFlags = 1;
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.DCD)
-      {
-	iFlags = 0;
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      else{
-	
-      }
-      if (context.DTR)
-      {
-	iFlags = TIOCM_DTR;
-// 	std::cout << "iFlags DTR="<< iFlags << std::endl; 
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.DTR)
-      {
-	iFlags= TIOCM_DTR;
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      if (context.DSR)
-      {
-	iFlags = TIOCM_DSR;
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.DSR)
-      {
-	iFlags = TIOCM_DSR;
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      if (context.RTS)
-      {
-	iFlags = TIOCM_RTS;
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.RTS)
-      {
-	iFlags = TIOCM_RTS;
-// 	std::cout << "iFlags RTS="<< iFlags << std::endl; 
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      if (context.CTS)
-      {
-	iFlags = TIOCM_CTS;
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.CTS)
-      {
-	iFlags = TIOCM_CTS;
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
-      if (context.RI)
-      {
-	iFlags = TIOCM_RI;
-	ioctl(pid, TIOCMBIS, &iFlags);
-      }
-      else if (!context.RI)
-      {
-	iFlags = TIOCM_RI;
-	ioctl(pid, TIOCMBIC, &iFlags);
-      }
- 
-#endif 
-}
-
-
-void Connection<serialContext>::stop()
-{
-// 	boost::mutex::scoped_lock look(mutex_)
-//   std::cout<<"trying to close port"<<std::endl;
-    try
+  int pid = socket->native();
+  // play with RTS & DTR
+  int iFlags=0;
+// 	std::cout << "iFlags="<< iFlags<< std::endl;
+//       std::cout << "sockettype="<< porttype << std::endl;
+  if ( context.DCD )
     {
-	if (port_) 
-	{  
-		std::cout<<"Closing port"<<std::endl;
-		port_->cancel();
-		port_->close();
-		port_.reset();
-
-	}
+      iFlags = 1;
+      ioctl ( pid, TIOCMBIS, &iFlags );
     }
-    catch(...)
+  else if ( !context.DCD )
     {
+      iFlags = 0;
+      ioctl ( pid, TIOCMBIC, &iFlags );
     }
-// 	io_service_->stop();
-// 	io_service_->reset();
+  else
+    {
+
+    }
+  if ( context.DTR )
+    {
+      iFlags = TIOCM_DTR;
+// 	std::cout << "iFlags DTR="<< iFlags << std::endl;
+      ioctl ( pid, TIOCMBIS, &iFlags );
+    }
+  else if ( !context.DTR )
+    {
+      iFlags= TIOCM_DTR;
+      ioctl ( pid, TIOCMBIC, &iFlags );
+    }
+  if ( context.DSR )
+    {
+      iFlags = TIOCM_DSR;
+      ioctl ( pid, TIOCMBIS, &iFlags );
+    }
+  else if ( !context.DSR )
+    {
+      iFlags = TIOCM_DSR;
+      ioctl ( pid, TIOCMBIC, &iFlags );
+    }
+  if ( context.RTS )
+    {
+      iFlags = TIOCM_RTS;
+      ioctl ( pid, TIOCMBIS, &iFlags );
+    }
+  else if ( !context.RTS )
+    {
+      iFlags = TIOCM_RTS;
+// 	std::cout << "iFlags RTS="<< iFlags << std::endl;
+      ioctl ( pid, TIOCMBIC, &iFlags );
+    }
+  if ( context.CTS )
+    {
+      iFlags = TIOCM_CTS;
+      ioctl ( pid, TIOCMBIS, &iFlags );
+    }
+  else if ( !context.CTS )
+    {
+      iFlags = TIOCM_CTS;
+      ioctl ( pid, TIOCMBIC, &iFlags );
+    }
+  if ( context.RI )
+    {
+      iFlags = TIOCM_RI;
+      ioctl ( pid, TIOCMBIS, &iFlags );
+    }
+  else if ( !context.RI )
+    {
+      iFlags = TIOCM_RI;
+      ioctl ( pid, TIOCMBIC, &iFlags );
+    }
+
+#endif
 }
 
-
-
-void Connection<serialContext>::compose_request(const std::string &buf)
+void serialConnection::set_port ( std::string port )
 {
-//   	                std::cout<<"wrong compose"<<std::endl;
+  ExclusiveLock lock(this->mutex);
+  this->port_name = port;
 }
 
-void Connection<serialContext>::set_port(std::string port)
+void serialConnection::set_baud_rate ( const int baud )
 {
-
+  ExclusiveLock lock(this->mutex);
+  baud_rate=boost::asio::serial_port_base::baud_rate ( baud );
+}
+void serialConnection::set_character_size ( const int size )
+{
+  ExclusiveLock lock(this->mutex);
+  character_size=boost::asio::serial_port_base::character_size ( size );
 }
 
-
-  
-void Connection<serialContext>::handle_read_check_response(const boost::system::error_code& err)
-  {
-  
-  }
-
-
-void Connection<serialContext>::handle_read_headers_process()
+void serialConnection::set_flow_controll ( flow_constroll_bit controll_type )
 {
-
-}
-
-std::string Connection<serialContext>::read()
-{
-        std::string s = response_string_stream.str();
-	response_string_stream.str(std::string(""));
-// 	stop();
-    return s;  
-
-}
-
-void Connection<serialContext>::set_baud_rate(const int baud)
-{
-    
-  baud_rate=boost::asio::serial_port_base::baud_rate(baud);
-
-}
-void Connection<serialContext>::set_character_size(const int size)
-{
-    
-  character_size=boost::asio::serial_port_base::character_size(size);
-
-}
-
-void Connection<serialContext>::set_flow_controll(flow_constroll_bit controll_type)
-{
-    
-  switch(controll_type)
-  {
-  case off:  // (can I just type case EASY?)
-	  flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
-  break;
-
-  case software: 
-	  flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::software);
-  break;
-
-  case hardware: flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::hardware);
-
-  default:;
-
-  }
-}
-
-void Connection<serialContext>::set_parity(parity_bit parity_type)
-{
-    
-  switch(parity_type)
-  {
-  case none:  
-	parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
+  ExclusiveLock lock(this->mutex);
+  switch ( controll_type )
+    {
+    case off:  // (can I just type case EASY?)
+      flow_control=boost::asio::serial_port_base::flow_control ( boost::asio::serial_port_base::flow_control::none );
       break;
 
-  case odd: 
-	 parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::odd);
+    case software:
+      flow_control=boost::asio::serial_port_base::flow_control ( boost::asio::serial_port_base::flow_control::software );
       break;
 
-  case even:parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::even);
+    case hardware:
+      flow_control=boost::asio::serial_port_base::flow_control ( boost::asio::serial_port_base::flow_control::hardware );
 
-  default:;
+    default:
+      ;
 
-  }
+    }
 }
 
-void Connection<serialContext>::set_stop_bits(stop_bits_num stop_bits_type)
+void serialConnection::set_parity ( parity_bit parity_type )
 {
-    
-  switch(stop_bits_type)
-  {
-  case one:  
-	stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
+  ExclusiveLock lock(this->mutex);
+  switch ( parity_type )
+    {
+    case none:
+      parity=boost::asio::serial_port_base::parity ( boost::asio::serial_port_base::parity::none );
       break;
 
-  case onepointfive: 
-	 stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::onepointfive);
+    case odd:
+      parity=boost::asio::serial_port_base::parity ( boost::asio::serial_port_base::parity::odd );
       break;
 
-  case two: stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::two);
+    case even:
+      parity=boost::asio::serial_port_base::parity ( boost::asio::serial_port_base::parity::even );
 
-  default:;
+    default:
+      ;
 
-  }
+    }
 }
 
-
-
-void Connection<serialContext>::set_default()
+void serialConnection::set_stop_bits ( stop_bits_num stop_bits_type )
 {
-    
-}
+  ExclusiveLock lock(this->mutex);
+  switch ( stop_bits_type )
+    {
+    case one:
+      stop_bits=boost::asio::serial_port_base::stop_bits ( boost::asio::serial_port_base::stop_bits::one );
+      break;
 
+    case onepointfive:
+      stop_bits=boost::asio::serial_port_base::stop_bits ( boost::asio::serial_port_base::stop_bits::onepointfive );
+      break;
 
+    case two:
+      stop_bits=boost::asio::serial_port_base::stop_bits ( boost::asio::serial_port_base::stop_bits::two );
 
-bool Connection<serialContext>::testconnection()
-{
- GUARD
-  bool ConnectionEstablished = false;
-     try 
-     {
-      ConnectionEstablished = this->start();
-     }
-     catch(...)
-     {
-       ConnectionEstablished = false;
-     }
-     if(ConnectionEstablished)
-     {
-       try 
-       {
-	this->stop();
-       }
-       catch(...)
-       {}
-     }
-     return ConnectionEstablished;
-}
+    default:
+      ;
 
-int Connection<serialContext>::write(std::string query)
-{
-  return 0;  
-}
-
-int Connection<serialContext>::write_only(std::string query)
-{
-  return 0;  
+    }
 }

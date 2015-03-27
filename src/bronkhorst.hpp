@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -23,10 +22,11 @@
 
 using namespace lughos;
 
-class bronkhorstConnection : public serialAsync
+class bronkhorstConnection : public serialConnection
 {
 public:
     bronkhorstConnection(boost::shared_ptr<boost::asio::io_service> io_service);
+    bronkhorstConnection();
 };
 
 class bronkhorst : public Device
@@ -43,15 +43,16 @@ public:
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
-	measuredValue get_setpoint();
-	measuredValue get_flow();
+	measuredValue<double> get_setpoint();
+	measuredValue<double> get_flow();
+	float getMaxCapacity();
 	std::string set_flow(float value);
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
 	float maxCapacity;
 	
-	measuredValue storedMeasure;
+	measuredValue<double> storedMeasure;
 };
 
 

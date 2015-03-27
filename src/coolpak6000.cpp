@@ -102,8 +102,8 @@ std::string coolpak6000::interpretAnswer(std::string s)
 	 boost::regex_search(s.c_str(), res, e);
 	 
 	 software_version= res[1];
-	 operating_hours.setunitvalue(save_lexical_cast<double>(res[3],-1), "h");
-	 delay.setunitvalue(save_lexical_cast<double>(res[7],-1), "sec");
+	 operating_hours.setUnitvalue(save_lexical_cast<double>(res[3],-1), "h");
+	 delay.setUnitvalue(save_lexical_cast<double>(res[7],-1), "sec");
 	 compressor_state=save_lexical_cast<int>(res[8],-1);
 	 command_state=save_lexical_cast<int>(res[9],-1);
 	 coolhead1_state=save_lexical_cast<int>(res[10],-1);

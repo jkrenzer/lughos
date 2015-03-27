@@ -2,6 +2,7 @@
 #define BASIC_OBJECT_HPP
 
 #include <Wt/Dbo/Dbo>
+#include "threadSafety.hpp"
 
 namespace lughos
 {
@@ -9,6 +10,8 @@ namespace lughos
 class BasicObject
 {
 private:
+  
+  Mutex mutex;
   
   std::string getType_()
   {
@@ -37,11 +40,13 @@ public:
   
   std::string getName()
   {
+    SharedLock lock(this->mutex);
     return this->name;
   }
   
   void setName(std::string name)
   {
+    ExclusiveLock lock(this->mutex);
     this->name = name;
   }
   
@@ -50,13 +55,13 @@ public:
     return this->getType_();
   }
 
-     Wt::Dbo::collection< Wt::Dbo::ptr<BasicObject> > channel;
-    template<class Action>
-    void persist(Action& a)
-    {
-      Wt::Dbo::field(a, name, "name");
-      Wt::Dbo::hasMany(a, channel, Wt::Dbo::ManyToOne, "device");
-    } 
+//      Wt::Dbo::collection< Wt::Dbo::ptr<BasicObject> > channel;
+//     template<class Action>
+//     void persist(Action& a)
+//     {
+//       Wt::Dbo::field(a, name, "name");
+//       Wt::Dbo::hasMany(a, channel, Wt::Dbo::ManyToOne, "device");
+//     } 
    
 };
 

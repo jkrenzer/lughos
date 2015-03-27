@@ -45,12 +45,9 @@
 #include "RFG.hpp"
 #include "DeviceUI.hpp"
 
-using namespace lughos;
-
-  
- 
-
-    template <> class DeviceUI<RFG> : public DeviceUIInterface
+namespace lughos
+{ 
+  template <> class DeviceUI<RFG> : public DeviceUIInterface
   {
   protected:
     boost::shared_ptr<RFG> rfg;
@@ -81,7 +78,6 @@ using namespace lughos;
     Wt::WPushButton *voltageControl;
     Wt::WPushButton *currentControl;
     Wt::WPushButton *powerControl;
-    Wt::WTextArea *responseField;
 //     Wt::WPushButton * startB;
     Wt::WPushButton * stateB;
 //     Wt::WPushButton * stopB;
@@ -160,7 +156,7 @@ using namespace lughos;
     {
      this->name=rfg->getName();
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
+      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
     
@@ -243,9 +239,6 @@ using namespace lughos;
 //       this->sendUB->setDisabled(true);
 //       this->uMinField->setDisabled(true);
 //       this->uMaxField->setDisabled(true);
-      this->responseField =  new Wt::WTextArea("");
-      this->responseField->setReadOnly(true); 
-      this->addWidget(responseField);
       this->checkConnected();
 
     }
@@ -290,15 +283,15 @@ using namespace lughos;
 
       float f = uMinField->value(); 
       if(this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min_raw(f)));
+	rfg->set_voltage_min_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_min(f)));
+	rfg->set_voltage_min(f);
       f = uMaxField->value();
       this->stateF->setText("Voltages set: Min: "+uMinField->text().toUTF8()+" Max: "+uMaxField->text().toUTF8());
       if(this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max_raw(f)));
+	rfg->set_voltage_max_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_voltage_max(f)));
+	rfg->set_voltage_max(f);
 //     
       
     }
@@ -309,9 +302,9 @@ using namespace lughos;
       float f = iField->value(); 
       this->stateF->setText("Current set:"+iField->text().toUTF8());
       if (this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim_raw(f)));
+	rfg->set_current_lim_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_current_lim(f)));
+	rfg->set_current_lim(f);
 //     
       
     }
@@ -321,9 +314,9 @@ using namespace lughos;
       float f = targetField->value(); 
       this->stateF->setText("Target set:"+iField->text().toUTF8());
       if (this->rawMode->isChecked())
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value_raw(f)));
+	rfg->set_target_value_raw(f);
       else
-	responseField->setText(responseField->text().toUTF8()+std::to_string(rfg->set_target_value(f)));
+	rfg->set_target_value(f);
     }
     
     void switchOn()
@@ -358,7 +351,7 @@ using namespace lughos;
     
     void getState()
     {
-      measuredValue v;
+      measuredValue<double> v;
       std::stringstream ss;
       this->rfg->readout(this->rawMode->isChecked());
       if (this->rfg->isConnected())
@@ -366,15 +359,15 @@ using namespace lughos;
       for (int i; i<8;i++)
       {
 	v = this->rfg->get_channel(i);
-	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
+	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
       }
       this->stateF->setText(ss.str());
       this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
       this->uMinField->setValue(this->rfg->getLimitMinVoltage());
       this->iField->setValue(this->rfg->getLimitMaxCurrent());
       this->targetField->setValue(this->rfg->getTargetValue());
-      this->uOutField->setText(this->rfg->get_channel(0).getStringValue());
-      this->iOutField->setText(this->rfg->get_channel(1).getStringValue());
+      this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
+      this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
     }
     
 //     void start()
@@ -390,10 +383,6 @@ using namespace lughos;
     
     
   };
-
-  
-  
-
-
+}
  #endif 
   

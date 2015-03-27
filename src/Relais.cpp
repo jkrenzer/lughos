@@ -2,7 +2,6 @@
 
 #include <sstream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
 #include "Relais.hpp"
 #include <math.h>  
 
@@ -29,7 +28,7 @@ Relais::~Relais(void)
 
 }
 
-RelaisConnection::RelaisConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
+RelaisConnection::RelaisConnection()
 {
   
     this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);

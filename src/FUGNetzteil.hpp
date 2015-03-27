@@ -14,8 +14,6 @@
 #include <boost/asio.hpp>
 #include "connectionImpl.hpp"
 #include "tcpConnections.hpp"
-#include "tcpAsync.hpp"
-
 #include <iostream>
 #include <boost/array.hpp>
 #include "device.hpp"
@@ -27,10 +25,11 @@ using boost::asio::ip::tcp;
 
 using namespace lughos;
 
-class FUGNetzteilConnection : public tcpAsync
+class FUGNetzteilConnection : public tcpConnection
 {
 public:
     FUGNetzteilConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    FUGNetzteilConnection();
 };
 
   class FUGNetzteil : public Device
@@ -46,7 +45,7 @@ public:
 	  void shutdownImplementation();
 	  bool isConnectedImplementation();
 	  
-	  measuredValue storedMeasure;
+	  measuredValue<double> storedMeasure;
 	  int voltagesOnOf=3;
 	  std::string serverName;
 	  
@@ -65,7 +64,7 @@ public:
     public:
 	  FUGNetzteil(void);
 	  virtual ~FUGNetzteil(void);
-	  measuredValue getMeasure(bool force=false);	
+	  measuredValue<double> getMeasure(bool force=false);	
 	  int setI(double I );
 	  int setU(double I );
 	  cachedFunction<double> getSetpointU;

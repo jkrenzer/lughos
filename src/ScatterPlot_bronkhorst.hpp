@@ -65,15 +65,14 @@ using namespace lughos;
         void init()
     {	
      this->session->setConnection(this->dbBackend);
-      this->session->mapClass<measuredDBValue>("measuredValue");
-      this->name=horst->getName();
+      this->session->mapClass<measuredDBValue<double> >("measuredValue");
+      this->name->setText(horst->getName());
 //      this->setWidth(500);
-      this->addWidget(new Wt::WText(this->name.c_str()));
       this->chart = new Wt::Chart::WCartesianChart();
       this->chart->setBackground(Wt::WColor(220, 220, 220));
       
       Wt::Dbo::Transaction transaction(*this->session);
-      Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue> > measuredValues = this->session->find<measuredDBValue>(); //////
+      Wt::Dbo::collection< Wt::Dbo::ptr<measuredDBValue<double> > > measuredValues = this->session->find<measuredDBValue<double> >(); //////
       
 //       typedef boost::tuple<double, boost::posix_time::ptime> Item;
       typedef boost::tuple<double, Wt::WDateTime> Item;
@@ -82,9 +81,9 @@ using namespace lughos;
       std::cerr << "We have " << measuredValues.size() << " values in our database:" << std::endl;
 
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cerr << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //       for (auto i = measuredValues.begin(); i != measuredValues.end(); ++i)
-//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->gettimestamp() << std::endl;
+//       std::cout << " Value: " << (*i)->getvalue() << " " << (*i)->getunit() << " @ " << (*i)->getTimeStamp() << std::endl;
 //   
       model->setQuery(this->session->query<Item>("SELECT value, timestamp FROM measuredValue").where("sensorName = ?").bind("Flow Controll 1").limit(100).orderBy("timestamp DESC"));
       model->addColumn("value");

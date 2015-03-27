@@ -11,7 +11,7 @@
 using namespace lughos;
 
 
-class A
+class A : public ExposedClass
 {
 public:
   int zahl;
@@ -23,7 +23,35 @@ public:
     this->str = s;
   }
   
+  void output(int i, std::string str1)
+  {
+    std::cout << i << " ### " << str1 << std::endl;
+  }
+  
+  void memberDeclaration()
+  {
+    addMember(zahl,"zahl");
+    addMember(str,"str");
+    addMember(new ExposedFunction<void,int,std::string>(boost::bind(&A::output,this,_1,_2),"output"));
+  }
+  
 };
+
+double mult(double a, double b)
+{
+  return a * b;
+}
+
+template <class T>
+void petze(T t)
+{
+  std::cout << "PETZE: " << t << std::endl;
+}
+
+bool limiter(int i)
+{
+  return i < 256 && i >= 0;
+}
 
 namespace lughos
 {
@@ -59,7 +87,19 @@ int main(int argc, char **argv) {
   try 
   {
     int i = 42;
-    ExposedValue<int>(i,"i");
+    ExposedValue<int> eI(i,"i");
+    eI.onValueChange.connect(&petze<int>);
+    eI.beforeValueChange.connect(&limiter);
+    std::cout << "Test1: " << eI.showStructure() << ": " << eI << std::endl;
+    eI = 127;
+    eI = 512;
+    eI = -1;
+    eI = 123;
+    ExposedFunction<double, double, double> eMult(&mult,"mult");
+    eMult.onExecute.connect(&petze<double>);
+    std::cout << "Test2: " << eMult(2,3) << std::endl;
+    A a(254,"Klasse!");
+    a["output"]->parse("1234 \"Hallo Welt!\"");
   }
   catch(lughos::exception e)
   {

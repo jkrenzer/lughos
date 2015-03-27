@@ -2,32 +2,30 @@
 
 #include <ostream>
 // #pragma comment(lib, "Setupapi.lib")
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 #include "RFG.hpp"
 
 RFG::RFG()
 {
   for (int i=0;i<8;i++)
     {
-      channel_output[i].setunitvalue(0,"");
+      channel_output[i].setValueAndUnit(0,"");
     }
     
-  this->internalResistance = 0.186; //Ohms
+  this->internalResistance = 0.139; //Ohms
     
   unitsToVoltageReg.fromFile("calibration_voltage_DAC.csv");
 
   SplineTransformation::XToYMap& x2y1a = unitsToVoltageLimMax.valueMap.left;
-  x2y1a.insert(SplineTransformation::XYPair(0, 0.22));
-  x2y1a.insert(SplineTransformation::XYPair(100, 1.436));
-  x2y1a.insert(SplineTransformation::XYPair(200, 2.649));
-  x2y1a.insert(SplineTransformation::XYPair(300, 3.861));
-  x2y1a.insert(SplineTransformation::XYPair(400, 5.073));
-  x2y1a.insert(SplineTransformation::XYPair(500, 6.286));
-  x2y1a.insert(SplineTransformation::XYPair(600, 7.499));
-  x2y1a.insert(SplineTransformation::XYPair(700, 8.712));
-  x2y1a.insert(SplineTransformation::XYPair(800, 9.925));
-  x2y1a.insert(SplineTransformation::XYPair(900, 11.137));
+  x2y1a.insert(SplineTransformation::XYPair(0,     0.22));
+  x2y1a.insert(SplineTransformation::XYPair(100,   1.436));
+  x2y1a.insert(SplineTransformation::XYPair(200,   2.649));
+  x2y1a.insert(SplineTransformation::XYPair(300,   3.861));
+  x2y1a.insert(SplineTransformation::XYPair(400,   5.073));
+  x2y1a.insert(SplineTransformation::XYPair(500,   6.286));
+  x2y1a.insert(SplineTransformation::XYPair(600,   7.499));
+  x2y1a.insert(SplineTransformation::XYPair(700,   8.712));
+  x2y1a.insert(SplineTransformation::XYPair(800,   9.925));
+  x2y1a.insert(SplineTransformation::XYPair(900,  11.137));
   x2y1a.insert(SplineTransformation::XYPair(1000, 12.35));
   x2y1a.insert(SplineTransformation::XYPair(1100, 13.563));
   x2y1a.insert(SplineTransformation::XYPair(1200, 14.776));
@@ -49,16 +47,16 @@ RFG::RFG()
   unitsToVoltageLimMax.init();
   
   SplineTransformation::XToYMap& x2y1b = unitsToVoltageLimMin.valueMap.left;
-  x2y1b.insert(SplineTransformation::XYPair(0, 0.154));
-  x2y1b.insert(SplineTransformation::XYPair(100, 1.37));
-  x2y1b.insert(SplineTransformation::XYPair(200, 2.583));
-  x2y1b.insert(SplineTransformation::XYPair(300, 3.796));
-  x2y1b.insert(SplineTransformation::XYPair(400, 5.009));
-  x2y1b.insert(SplineTransformation::XYPair(500, 6.221));
-  x2y1b.insert(SplineTransformation::XYPair(600, 7.434));
-  x2y1b.insert(SplineTransformation::XYPair(700, 8.646));
-  x2y1b.insert(SplineTransformation::XYPair(800, 9.859));
-  x2y1b.insert(SplineTransformation::XYPair(900, 11.072));
+  x2y1b.insert(SplineTransformation::XYPair(0,     0.154));
+  x2y1b.insert(SplineTransformation::XYPair(100,   1.37));
+  x2y1b.insert(SplineTransformation::XYPair(200,   2.583));
+  x2y1b.insert(SplineTransformation::XYPair(300,   3.796));
+  x2y1b.insert(SplineTransformation::XYPair(400,   5.009));
+  x2y1b.insert(SplineTransformation::XYPair(500,   6.221));
+  x2y1b.insert(SplineTransformation::XYPair(600,   7.434));
+  x2y1b.insert(SplineTransformation::XYPair(700,   8.646));
+  x2y1b.insert(SplineTransformation::XYPair(800,   9.859));
+  x2y1b.insert(SplineTransformation::XYPair(900,  11.072));
   x2y1b.insert(SplineTransformation::XYPair(1000, 12.284));
   x2y1b.insert(SplineTransformation::XYPair(1100, 13.498));
   x2y1b.insert(SplineTransformation::XYPair(1200, 14.711));
@@ -167,7 +165,7 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 
 
 
-RFGConnection::RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service): serialAsync(io_service), Connection<serialContext>(io_service)
+RFGConnection::RFGConnection()
 {
   std::cout << "--------------------->>>>>>>>>>>>>>>>> !!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<------------------------" << std::endl << std::endl << std::endl;
     this->baud_rate=boost::asio::serial_port_base::baud_rate(9600);
@@ -178,6 +176,8 @@ RFGConnection::RFGConnection(boost::shared_ptr< boost::asio::io_service > io_ser
     this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
     
 }
+
+
 
 
 RFG::~RFG(void)
@@ -244,22 +244,22 @@ void RFG::switch_off()
 
 float RFG::getLimitMaxVoltage()
 {
-  return this->maxVoltage.getvalue();
+  return this->maxVoltage.getValue();
 }
 
 float RFG::getLimitMinVoltage()
 {
-  return this->minVoltage.getvalue();
+  return this->minVoltage.getValue();
 }
 
 float RFG::getLimitMaxCurrent()
 {
-  return this->maxCurrent.getvalue();
+  return this->maxCurrent.getValue();
 }
 
 float RFG::getTargetValue()
 {
-  return this->maxPower.getvalue();
+  return this->maxPower.getValue();
 }
 
 std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
@@ -460,33 +460,33 @@ bool RFG::readoutChannels()
     results.push_back(0);
     results[i] = 0;
     memcpy(&results[i],tmp.c_str(),tmp.size());
-    channel_output[i].settimestamp(now);
+    channel_output[i].setTimeStamp(now);
     this->channel_output_raw[i] = results[i];
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
-  double rawCurrent = unitsToCurrentReg.xToY(results[1]);
-  channel_output[0].setunitvalue(rawVoltage + ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
-//   channel_output[1].setunitvalue(unitsToCurrentReg.xToY(results[1]),"A");
-//   channel_output[2].setunitvalue(unitsToPowerReg.xToY(results[2]),"W");
-//   channel_output[0].setunitvalue(results[0],"Voltage");
-  channel_output[1].setunitvalue(rawCurrent,"A");
-  channel_output[2].setunitvalue(results[2],"Power");
-  channel_output[3].setunitvalue(results[3],"ReglerOut");
-  channel_output[4].setunitvalue(results[4],"ReglerFb");
-  channel_output[5].setunitvalue(results[5],"Aux1");
-  channel_output[6].setunitvalue(results[6],"Aux2");
-  channel_output[7].setunitvalue(results[7],"°C");
+  double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
+  channel_output[0].setValueAndUnit(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
+//   channel_output[1].setUnitvalue(unitsToCurrentReg.xToY(results[1]),"A");
+//   channel_output[2].setUnitvalue(unitsToPowerReg.xToY(results[2]),"W");
+//   channel_output[0].setUnitvalue(results[0],"Voltage");
+  channel_output[1].setValueAndUnit(rawCurrent,"A");
+  channel_output[2].setValueAndUnit(results[2],"Power");
+  channel_output[3].setValueAndUnit(results[3],"ReglerOut");
+  channel_output[4].setValueAndUnit(results[4],"ReglerFb");
+  channel_output[5].setValueAndUnit(results[5],"Aux1");
+  channel_output[6].setValueAndUnit(results[6],"Aux2");
+  channel_output[7].setValueAndUnit(results[7],"°C");
   std::cout << "RFG Channel Measurements:" << std::endl;
   for (int i = 0; i < 8; i++)
   {
-    std::cout << "Channel " << i << ": " << channel_output[i].getStringValue() << " (" << results[i] << ") " << std::endl;
+    std::cout << "Channel " << i << ": " << channel_output[i].getValueAsString() << " (" << results[i] << ") " << std::endl;
   }
   std::cout << "-------------------------" << std::endl << std::endl;
   
   return true;
 }
 
-bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
+bool RFG::readoutSetting(measuredValue<double>& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
 {
   std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w"))); //Provoke Error to get setting
   boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
@@ -499,12 +499,12 @@ bool RFG::readoutSetting(measuredValue& value, std::string unit, std::string con
     stream << res1[1];
     stream >> std::hex >> valueTemp;
     if(raw)
-      value.setvalue(valueTemp);
+      value.setValue(valueTemp);
     else
-      value.setvalue(transformation.xToY(valueTemp));
-    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getStringValue() << unit <<  std::endl;
+      value.setValue(transformation.xToY(valueTemp));
+    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getValueAsString() << unit <<  std::endl;
     s = this->inputOutput(std::string("\x00")+controlChar+intToBinaryStr(valueTemp)+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w")));
-    value.setunit(unit);
+    value.setUnit(unit);
   }
 }
 
@@ -548,9 +548,9 @@ bool RFG::readout(bool raw)
 }
 
 
-measuredValue RFG::get_channel(int i, bool force)
+measuredValue<double> RFG::get_channel(int i, bool force)
 {
- if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
+ if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output[i];
   }
@@ -561,7 +561,7 @@ measuredValue RFG::get_channel(int i, bool force)
 
 int RFG::get_channel_raw(int i, bool force)
 {
-  if(!force &&!channel_output[0].gettimestamp().is_not_a_date_time()&& channel_output[0].gettimestamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
+  if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output_raw[i];
   }

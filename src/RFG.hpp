@@ -12,8 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -23,10 +21,11 @@
 
 using namespace lughos;
 
-class RFGConnection : public serialAsync
+class RFGConnection : public serialConnection
 {
 public:
     RFGConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    RFGConnection();
 };
 
 class RFG :public Device
@@ -60,7 +59,7 @@ class RFG :public Device
 	int set_voltage_min_raw(int i);
 	int set_current_lim_raw(int i);
 	int set_target_value_raw(int i);
-	measuredValue get_channel(int i, bool force=false);
+	measuredValue<double> get_channel(int i, bool force=false);
 	int get_channel_raw(int i, bool force=false);
 	float getLimitMaxVoltage();
 	float getLimitMaxCurrent();
@@ -76,12 +75,12 @@ protected:
 	bool bccMode;
 	double internalResistance;
 	ControllerMode controllerMode;
-	measuredValue channel_output[8];
+	measuredValue<double> channel_output[8];
 	int channel_output_raw[8];
-	measuredValue maxVoltage;
-	measuredValue minVoltage;
-	measuredValue maxCurrent;
-	measuredValue maxPower;
+	measuredValue<double> maxVoltage;
+	measuredValue<double> minVoltage;
+	measuredValue<double> maxCurrent;
+	measuredValue<double> maxPower;
 	SplineTransformation unitsToVoltageReg;
  	SplineTransformation unitsToCurrentReg;
  	SplineTransformation unitsToPowerReg;
@@ -91,7 +90,7 @@ protected:
  	SplineTransformation unitsToPowerLim;
 	SplineTransformation unitsToVoltageMeas;
 	SplineTransformation unitsToCurrentMeas;
-	bool readoutSetting(measuredValue& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = false);
+	bool readoutSetting(measuredValue<double>& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = false);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
 	std::string intToBinaryStr(uint16_t i);
