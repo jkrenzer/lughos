@@ -163,8 +163,8 @@ namespace lughos
 
       this->uMaxField =  new  Wt::WDoubleSpinBox(0);
 
-      this->sendIB = new Wt::WPushButton("Send");
-      this->sendUB = new Wt::WPushButton("Send");
+      this->sendIB = new Wt::WPushButton("Set");
+      this->sendUB = new Wt::WPushButton("Set");
       this->onB = new Wt::WPushButton("On");
       this->offB = new Wt::WPushButton("Off");
       this->stateB = new Wt::WPushButton("Status");

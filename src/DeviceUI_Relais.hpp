@@ -123,7 +123,7 @@ namespace lughos
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->stateF = new Wt::WLineEdit("Initializing...");
       this->stateF->setReadOnly(true);
-      this->changeChannelsB = new Wt::WPushButton("Send");
+      this->changeChannelsB = new Wt::WPushButton("Set");
       this->channelStateB = new Wt::WPushButton("Get states");
       this->stateL = new Wt::WLabel("Status:");
       this->stateL->setBuddy(stateF);
@@ -143,7 +143,7 @@ namespace lughos
       table->elementAt(0, 1)->addWidget(new Wt::WText("On"));
       table->elementAt(0, 2)->addWidget(new Wt::WText("Off"));
       table->elementAt(0, 3)->addWidget(new Wt::WText(""));
-      std::string names[8]={"I am your father!","","","","","","",""};
+      std::string names[8]={"Valve EV1","Valve EV2","Boost Unit","Ignition Pulse","Not used","Not used","Not used","Not used"};
 //        
     for (unsigned i = 0; i < 8; ++i) {
     group[i] = new Wt::WButtonGroup();
@@ -190,7 +190,7 @@ namespace lughos
 	  }
 	}
 
-      this->stateF->setText(ss);
+//       this->stateF->setText(ss);
     }
     
         void changeChannels()

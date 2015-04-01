@@ -193,11 +193,11 @@ namespace lughos
       this->targetField = new  Wt::WDoubleSpinBox(0);
       this->targetField->setMinimum(0);
       this->targetField->setMaximum(190);
-      this->sendIB = new Wt::WPushButton("Send");
-      this->sendUB = new Wt::WPushButton("Send");
+      this->sendIB = new Wt::WPushButton("Set");
+      this->sendUB = new Wt::WPushButton("Set");
       this->sendOnB = new Wt::WPushButton("On");
       this->sendOffB = new Wt::WPushButton("Off");
-      this->sendPB = new Wt::WPushButton("Send");
+      this->sendPB = new Wt::WPushButton("Set");
       this->stateB = new Wt::WPushButton("Status");
       this->modesL = new Wt::WLabel("Regulation Mode:");
       this->voltageControl = new Wt::WPushButton("Voltage");
