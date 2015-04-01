@@ -181,7 +181,7 @@ void bronkhorst::initImplementation()
     m1.setParameter(bronkhorstMessage::Parameter::Capacity);
     m1.setParameterType(bronkhorstMessage::ParameterType::Float);
     a1(this->inputOutput(m1));
-    if(!a1.isStatusMessage())
+    if(!a1.hasValue())
     {
       std::stringstream(a1.getValueString()) >> this->maxCapacity;
       std::cout << "MAXCAPACITY: " << this->maxCapacity;
@@ -194,7 +194,19 @@ void bronkhorst::initImplementation()
 
 bool bronkhorst::isConnectedImplementation()
 {
-  return true;
+  bronkhorstMessage m1,a1;
+  m1.setNode(3);
+    m1.setType(4);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::Capacity);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Float);
+    a1(this->inputOutput(m1));
+    if(!a1.hasValue())
+    {
+      std::stringstream(a1.getValueString()) >> this->maxCapacity;
+      return true;
+    }
+    return false;
 }
 
 void bronkhorst::shutdownImplementation()

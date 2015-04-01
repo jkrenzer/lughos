@@ -56,13 +56,10 @@ namespace lughos
   protected:
 
     boost::shared_ptr<bronkhorst> horst;
-    Wt::WLineEdit* stateF1;
     Wt::WLineEdit* flowF1;
-    Wt::WLabel* stateL1;
     Wt::WLabel* flowL1;
     Wt::WLabel* flowL2;
     Wt::WLineEdit *flowMeasurementField1;
-    Wt::WPushButton * stateB1;
     ui::Setting<Wt::WDoubleSpinBox>* setpoint;
 
     boost::shared_ptr<Wt::Dbo::Session> session;
@@ -86,29 +83,18 @@ namespace lughos
     {
       if(horst->isConnected())
       {
-	this->stateF1->setText("Connected!");
-        this->stateB1->setText("Status");
         this->setpoint->field()->setMaximum(this->horst->getMaxCapacity());
 	this->setpoint->field()->setMinimum(0);
-// 	this->startB->setDisabled(false);
-// 	this->stopB->setDisabled(false);
-// 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
-// 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
 	this->setpoint->setDisabled(false);
         this->setpoint->button()->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
-	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
+        this->led->setState<Connected>();
+	this->led->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
 	this->getState();
-
       }
       else
       {
-	this->stateF1->setText("Not connected!");
-// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
-        this->stateB1->setText("Try again");
- 	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::checkConnected);
-// 	this->startB->setDisabled(true);
-// 	this->stopB->setDisabled(true);
-
+        this->led->setState<Disconnected>();
+ 	this->led->clicked().connect(this,&DeviceUI<bronkhorst>::checkConnected);
       }
     }
   
@@ -118,23 +104,15 @@ namespace lughos
      this->name=horst->getName();
 //      this->setWidth(500);
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-     this->stateF1 = new Wt::WLineEdit("Initializing...");
-     this->stateF1->setReadOnly(true);
-     this->stateL1 = new Wt::WLabel("Status:");
      this->flowL1 = new Wt::WLabel("Set Flow:");
-     this->stateL1->setBuddy(stateF1);
      this->setpoint =  new  ui::Setting<Wt::WDoubleSpinBox>();
-     this->stateB1 = new Wt::WPushButton("Status");
      this->flowL2 = new Wt::WLabel("Measured Flow:");
      this->flowMeasurementField1 = new Wt::WLineEdit("0.0");
      this->flowMeasurementField1->setDisabled(true);
-     this->addWidget(stateL1);
-     this->addWidget(stateF1);
      this->addWidget(flowL2);
      this->addWidget(flowMeasurementField1);
      this->addWidget(flowL1);
      this->addWidget(setpoint);
-     this->addWidget(stateB1);
      this->setpoint->setDisabled(true);
      this->checkConnected();
 
@@ -147,7 +125,6 @@ namespace lughos
       stringstream sstr; 
       string str = setpoint->field()->text().toUTF8(); 
       float f = lughos::save_lexical_cast<float>(str,0.0);
-      this->stateF1->setText(std::string("Flow set: ")+ std::to_string(f));
       this->getSetpoint();
       this->getFlow();
 //     
@@ -170,7 +147,6 @@ namespace lughos
       sstr<<str; 
       sstr>>f;
 
-      this->stateF1->setText("Flow set:"+setpoint->field()->text().toUTF8());
       this->getSetpoint();
       this->getFlow();
 //     

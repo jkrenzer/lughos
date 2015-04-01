@@ -207,6 +207,16 @@ namespace lughos
 	this->expectedStringLength = expectedStringLength;
     }
     
+    bool isEmpty() const
+    {
+      return this->message.empty();
+    }
+    
+    bool hasValue() const
+    {
+      return !this->hexValue.empty();
+    }
+    
     bool isStatusMessage() const
     {
       return this->isStatus;

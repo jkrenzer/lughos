@@ -51,9 +51,7 @@ namespace lughos
   {
   protected:
     boost::shared_ptr<FUGNetzteil> fug;
-    Wt::WLineEdit* stateF;
     Wt::WLineEdit* flowF;
-    Wt::WLabel* stateL;
     Wt::WLabel* uL;
     Wt::WLabel* iL;
     Wt::WLabel* measFlowL;
@@ -70,7 +68,6 @@ namespace lughos
     Wt::WDoubleSpinBox *uMaxField;
 //     Wt::WPushButton * startB;
     std::string LastError;
-    Wt::WPushButton * stateB;
     Wt::WPushButton * onB;
     Wt::WPushButton * offB;
     Wt::WPushButton * resetOCB;
@@ -94,9 +91,8 @@ namespace lughos
     {
       if(fug->isConnected())
       {
-	this->stateF->setText(fug->getIDN());
-        this->stateB->setText("Status");
-	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
+	this->led->setState<Connected>();
+        this->led->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
@@ -115,9 +111,8 @@ namespace lughos
       else
       {
 	intervalTimer->stop();
-	this->stateF->setText("Not connected!");
-        this->stateB->setText("Try again");
-	this->stateB->clicked().connect(this,&DeviceUI<FUGNetzteil>::checkConnected);
+	this->led->setState<Disconnected>();
+        this->led->clicked().connect(this,&DeviceUI<FUGNetzteil>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
@@ -135,14 +130,6 @@ namespace lughos
      this->name=fug->getName();
 //      this->setWidth(500);
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-      this->stateF = new Wt::WLineEdit("Initializing...");
-      this->stateF->setReadOnly(true);
-    
-      this->stateL = new Wt::WLabel("Status:");
-      this->stateL->setBuddy(stateF);
-  
-      this->addWidget(stateL);
-      this->addWidget(stateF); 
       
       this->uL = new Wt::WLabel("Set U min and max:");
       this->iL = new Wt::WLabel("Set I:");
@@ -167,7 +154,6 @@ namespace lughos
       this->sendUB = new Wt::WPushButton("Set");
       this->onB = new Wt::WPushButton("On");
       this->offB = new Wt::WPushButton("Off");
-      this->stateB = new Wt::WPushButton("Status");
       this->resetOCB = new Wt::WPushButton("Reset OC");
 
       this->addWidget(iOutL);      
@@ -187,7 +173,6 @@ namespace lughos
       this->addWidget(pOutField);
       this->addWidget(onB);
       this->addWidget(offB);
-      this->addWidget(stateB);
       this->addWidget(resetOCB);
       this->checkConnected();
 
@@ -206,7 +191,6 @@ namespace lughos
       std::string str = uMaxField->text().toUTF8();
       sstr<<str; 
       sstr>>f;
-      this->stateF->setText("Voltages set: "+uMaxField->text().toUTF8());
       fug->setU(f);
       
       std::string Error;
@@ -214,7 +198,6 @@ namespace lughos
       if(Error!=this->LastError)
       {
 	LastError=Error;
-      this->stateF->setText("Error: "+LastError);
       }
       this->getState();
       
@@ -230,7 +213,6 @@ namespace lughos
       sstr<<str; 
       sstr>>f;
 
-      this->stateF->setText("Current set:"+iField->text().toUTF8());
       fug->setI(f);
 //     
       std::string Error;
@@ -238,7 +220,6 @@ namespace lughos
       if(Error!=this->LastError)
       {
 	LastError=Error;
-      this->stateF->setText("Error: "+LastError);
       }
       
       this->getState();
@@ -257,7 +238,6 @@ namespace lughos
       if(Error!=this->LastError)
       {
 	LastError=Error;
-      this->stateF->setText("Error: "+LastError);
       }  
     }
     
@@ -275,7 +255,6 @@ namespace lughos
       if(Error!=this->LastError)
       {
 	LastError=Error;
-      this->stateF->setText("Error: "+LastError);
       } 
     }
     
@@ -285,17 +264,25 @@ namespace lughos
        bool digital = this->fug->getDigitalRemote();
        bool local = !analogue && !digital;
        if (digital)
-	 this->stateF->setText("Remote on");
+	 this->led->setState<Connected>();
        else if(analogue)
-	 this->stateF->setText("Analogue on");
+       {
+	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
+         this->led->setToolTip(Wt::WString("Analogue control mode. Cannot command device!"));
+       }
        else
-	 this->stateF->setText("Local control");
+       {
+	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
+         this->led->setToolTip(Wt::WString("Local control mode. Cannot command device!"));
+       }
      }
      
      void getOC()
      {
        if(this->fug->getOvercurrent())
-	 this->stateF->setText("Overcurrent!!");
+       {
+         
+       }
      }
      
      void resetOC()
@@ -313,13 +300,11 @@ namespace lughos
 	v = this->fug->getMeasure();
 	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
       }
-      this->stateF->setText(ss.str());
       std::string Error;
       Error = fug->getLastError();
       if(Error!=this->LastError)
       {
 	LastError=Error;
-      this->stateF->setText("Error: "+LastError);
       }
     }
     
