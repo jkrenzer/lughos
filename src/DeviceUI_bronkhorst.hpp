@@ -135,12 +135,10 @@ namespace lughos
     {
       this->getSetpoint();
       this->getFlow();
-
     }
     
     void setFlow(boost::shared_ptr<bronkhorst> horst)
     {
-//       
       stringstream sstr; 
       string str = setpoint->field()->text().toUTF8(); 
       float f; 
@@ -149,8 +147,6 @@ namespace lughos
 
       this->getSetpoint();
       this->getFlow();
-//     
-      
     }
     
     void getSetpoint()
