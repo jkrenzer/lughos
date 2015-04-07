@@ -146,7 +146,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF1->setText("Flow set:"+flowField1->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+horst->set_flow(f));
+      responseField->setText(responseField->text().toUTF8()+horst->set_setpoint(f));
       this->getFlow();
 //     
       

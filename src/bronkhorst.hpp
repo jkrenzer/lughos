@@ -46,12 +46,11 @@ public:
 	measuredValue<double> get_setpoint();
 	measuredValue<double> get_flow();
 	float getMaxCapacity();
-	std::string set_flow(float value);
+	std::string set_setpoint(float value);
 protected:
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
 	float maxCapacity;
-	
 	measuredValue<double> storedMeasure;
 };
 

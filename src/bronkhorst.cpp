@@ -29,8 +29,6 @@ bronkhorstConnection::bronkhorstConnection()
     this->endOfLineRegExpr_= boost::regex("\r\n");
     this->parity=boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
     this->stop_bits=boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one);
-
-    
 }
 
 
@@ -40,9 +38,7 @@ std::string bronkhorst::composeRequest(std::string query)
     std::string requestString="";
     requestString+=query;
       requestString+=std::string("\r\n");
-
     return requestString;
-  
 }
 
 std::string bronkhorst::interpretAnswer(std::string s)
@@ -143,7 +139,7 @@ measuredValue<double> bronkhorst::get_flow()
 }
 
 
-std::string bronkhorst::set_flow(float value)
+std::string bronkhorst::set_setpoint(float value)
 {
   if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
   else if (value > this->maxCapacity) value = this->maxCapacity;

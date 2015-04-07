@@ -125,19 +125,34 @@ public:
   
   std::string showStructure();
 };
+
+class ExposedValueInterface :  public ExposedObject
+{
+public:
+   
+  virtual std::string showStructure() = 0;
+  virtual bool setValueFromString(std::string& str) = 0;
+  virtual std::string parse(std::string command) = 0;
+};
+
+template <class T> class ExposedValueTemplate : public ExposedValueInterface
+{
+public:
+  boost::signals2::signal<bool (T&), allSlotsTrue> beforeValueChange;
+  boost::signals2::signal<void (T&)> onValueChange;
+  boost::signals2::signal<void (T&)> onRequestValue;
   
-template <class T> class ExposedValue : public ExposedObject, public Value<T>
+  virtual bool setValue(T& newValue) = 0;
+  virtual operator T() = 0;
+};
+
+template <class T> class ExposedValue : public ExposedValueTemplate<T>, public Value<T>
   {
   private:
     Mutex mutex;
-  protected:
-    
+   
   public:
-    
-    boost::signals2::signal<bool (T&), allSlotsTrue> beforeValueChange;
-    boost::signals2::signal<void (T&)> onValueChange;
-    boost::signals2::signal<void (T&)> onRequestValue;
-    
+
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {
       this->name = name;
@@ -159,12 +174,12 @@ template <class T> class ExposedValue : public ExposedObject, public Value<T>
       return *this;
     }
     
-    bool setValue(T& other)
+    bool setValue(T& newValue)
     {
-      if(beforeValueChange(other))
+      if(this->beforeValueChange(newValue))
       {
-	Value<T>::setValue(other);
-	onValueChange(other);
+	Value<T>::setValue(newValue);
+	this->onValueChange(newValue);
 	return true;
       }
       return false;

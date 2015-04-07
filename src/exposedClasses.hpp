@@ -44,11 +44,31 @@ namespace lughos
       return members[name];
     }
     
+    template <class T>
+    ExposedValue<T>* get(std::string name)
+    {
+      ExposedValue<T>* ptr = dynamic_cast<ExposedValue<T>* >(this->operator[](name));
+      if(ptr != nullptr)
+        return ptr;
+      else
+        BOOST_THROW_EXCEPTION( exception() << errorName("wrong_cast_access_exposed_value"));
+    }
+    
     ExposedObject* operator[](int i)
     {
       if(!this->declared)
 	this->memberDeclaration();
       return members[i];
+    }
+    
+    template <class T>
+    ExposedValue<T>* get(int i)
+    {
+      ExposedValue<T>* ptr = dynamic_cast<ExposedValue<T>* >(this->operator[](i));
+      if(ptr != nullptr)
+        return ptr;
+      else
+        BOOST_THROW_EXCEPTION( exception() << errorName("wrong_cast_access_exposed_value"));
     }
     
     ExposedClass()

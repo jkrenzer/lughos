@@ -6,12 +6,29 @@
 
 namespace lughos
 {
-  template <class T>
-  class measuredValue : public unitValue<T>
+  class measuredValueInterface
   {
   protected:
     boost::posix_time::ptime timeStamp;
     std::string sensorName;
+    
+  public:
+    virtual void setTimeStamp(boost::posix_time::ptime timeStamp) = 0;
+    virtual boost::posix_time::ptime getTimeStamp() = 0;
+    virtual void setSensorName(std::string sensorName) = 0;
+    virtual std::string getSensorName() = 0;
+    
+    measuredValueInterface(boost::posix_time::ptime timestamp, std::string sensorName): timeStamp(timestamp), sensorName(sensorName)
+    {
+      
+    }
+    
+  };
+  
+  template <class T>
+  class measuredValue : public measuredValueInterface, public unitValue<T>
+  {
+
   public:
       measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName ="unknown");
       
@@ -62,7 +79,7 @@ namespace lughos
   }
   
   template <class T>
-  measuredValue<T>::measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp, std::string sensorName): timeStamp(timestamp), sensorName(sensorName)
+  measuredValue<T>::measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp, std::string sensorName): measuredValueInterface(timestamp,sensorName)
   {
     static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 support in float required");
     *this->valuePointer = value;

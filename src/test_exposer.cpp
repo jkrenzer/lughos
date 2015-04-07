@@ -7,6 +7,7 @@
 #include "exposedValues.hpp"
 #include "exposedFunctions.hpp"
 #include "errorHandling.hpp"
+#include "exposedMeasuredValues.hpp"
 
 using namespace lughos;
 
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
     ExposedValue<int> eI(i,"i");
     eI.onValueChange.connect(&petze<int>);
     eI.beforeValueChange.connect(&limiter);
-    std::cout << "Test1: " << eI.showStructure() << ": " << eI << std::endl;
+    std::cout << "Test1: " << eI.showStructure() << ": " << eI.getValueAsString() << std::endl;
     eI = 127;
     eI = 512;
     eI = -1;
@@ -100,6 +101,8 @@ int main(int argc, char **argv) {
     std::cout << "Test2: " << eMult(2,3) << std::endl;
     A a(254,"Klasse!");
     a["output"]->parse("1234 \"Hallo Welt!\"");
+    std::cout << "Zahl: " << a.get<int>("zahl")->getValue() << std::endl;
+    exposedMeasurement<double> m1(); //TODO Write constructors
   }
   catch(lughos::exception e)
   {
