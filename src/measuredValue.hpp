@@ -13,12 +13,12 @@ namespace lughos
     std::string sensorName;
     
   public:
-    virtual void setTimeStamp(boost::posix_time::ptime timeStamp) = 0;
-    virtual boost::posix_time::ptime getTimeStamp() = 0;
-    virtual void setSensorName(std::string sensorName) = 0;
-    virtual std::string getSensorName() = 0;
+    virtual void setTimeStamp(boost::posix_time::ptime timeStamp);
+    virtual boost::posix_time::ptime getTimeStamp();
+    virtual void setSensorName(std::string sensorName);
+    virtual std::string getSensorName();
     
-    measuredValueInterface(boost::posix_time::ptime timestamp, std::string sensorName): timeStamp(timestamp), sensorName(sensorName)
+    measuredValueInterface(boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName = std::string("N/A")): timeStamp(timestamp), sensorName(sensorName)
     {
       
     }
@@ -26,11 +26,11 @@ namespace lughos
   };
   
   template <class T>
-  class measuredValue : public measuredValueInterface, public unitValue<T>
+  class measuredValue : public measuredValueInterface, public unitValueTemplate<T>
   {
 
   public:
-      measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName ="unknown");
+      measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName ="N/A");
       
       measuredValue(void);
       
@@ -41,39 +41,27 @@ namespace lughos
       measuredValue& operator=(unitValue<T> other);
       
       using Value<T>::operator=;
-      
-      void setTimeStamp(boost::posix_time::ptime timeStamp);
-      
-      boost::posix_time::ptime getTimeStamp();
-      
-      void setSensorName(std::string sensorName);
-      
-      std::string getSensorName();
-      
+    
   };
   
   //Definition of template class
   
-  template <class T>
-  void measuredValue<T>::setTimeStamp(boost::posix_time::ptime timeStamp)
+  void measuredValueInterface::setTimeStamp(boost::posix_time::ptime timeStamp)
   {
     this->timeStamp = timeStamp;
   }
   
-  template <class T>
-  boost::posix_time::ptime measuredValue<T>::getTimeStamp()
+  boost::posix_time::ptime measuredValueInterface::getTimeStamp()
   {
     return this->timeStamp;
   }
   
-  template <class T>
-  void measuredValue<T>::setSensorName(std::string sensorName)
+  void measuredValueInterface::setSensorName(std::string sensorName)
   {
     this->sensorName = sensorName;
   }
   
-  template <class T>
-  std::string measuredValue<T>::getSensorName()
+  std::string measuredValueInterface::getSensorName()
   {
     return this->sensorName;
   }
@@ -87,7 +75,7 @@ namespace lughos
   }
   
   template <class T>
-  measuredValue<T>::measuredValue(void): unitValue<T>()
+  measuredValue<T>::measuredValue(void): unitValueTemplate<T>()
   {
     
   }

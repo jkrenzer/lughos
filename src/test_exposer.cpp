@@ -102,7 +102,10 @@ int main(int argc, char **argv) {
     A a(254,"Klasse!");
     a["output"]->parse("1234 \"Hallo Welt!\"");
     std::cout << "Zahl: " << a.get<int>("zahl")->getValue() << std::endl;
-    exposedMeasurement<double> m1(); //TODO Write constructors
+    exposedMeasurement<double> m1(std::string("Testmessung")); //TODO Write constructors
+    m1.setValue(987.654);
+    m1.setUnit("blah");
+    std::cout << "Measured value: " << m1.getValueAsString() << std::endl;
   }
   catch(lughos::exception e)
   {

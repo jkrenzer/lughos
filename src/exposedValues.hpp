@@ -142,11 +142,11 @@ public:
   boost::signals2::signal<void (T&)> onValueChange;
   boost::signals2::signal<void (T&)> onRequestValue;
   
-  virtual bool setValue(T& newValue) = 0;
+  virtual bool setValue(T newValue) = 0;
   virtual operator T() = 0;
 };
 
-template <class T> class ExposedValue : public ExposedValueTemplate<T>, public Value<T>
+template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual public Value<T>
   {
   private:
     Mutex mutex;
@@ -157,6 +157,12 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, public V
     {
       this->name = name;
       this->description = description;
+    }
+    
+    ExposedValue(std::string name) : Value<T>()
+    {
+      this->name = name;
+      this->description = std::string("N/A");
     }
     
     std::string showStructure()
@@ -174,7 +180,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, public V
       return *this;
     }
     
-    bool setValue(T& newValue)
+    bool setValue(T newValue)
     {
       if(this->beforeValueChange(newValue))
       {

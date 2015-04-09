@@ -23,7 +23,7 @@ namespace lughos
   };
 
   template < class T >
-  class unitValueTemplate:public unitValueInterface, public Value<T>
+  class unitValueTemplate:public unitValueInterface, virtual public Value<T>
   {
   public:
     unitValueTemplate (void);

@@ -257,7 +257,7 @@ target_link_libraries(test_ioservice ${Boost_LIBRARIES})
 
 # #Test for exposer
 add_executable(test_exposer src/test_exposer.cpp)
-target_link_libraries(test_exposer errorHandling ${Boost_LIBRARIES} exposedValues)
+target_link_libraries(test_exposer errorHandling ${Boost_LIBRARIES} exposedValues measuredValue unitValue)
  
 #Test for wt-dbo
 add_executable(test_wtdbo src/test_wtdbo.cpp)
