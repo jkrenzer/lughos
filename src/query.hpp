@@ -104,7 +104,7 @@ namespace lughos
       lughos::ExclusiveLock lock(this->mutex);
       this->busyLock.reset();
       this->error = true;
-      try
+      try //TODO why don't we end up here on connection-timeout?
       {
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
 	this->lastErrorMessage = errorMessage;
@@ -126,13 +126,18 @@ namespace lughos
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
+//       if(this->busyLock->try_lock());
       this->answer->timed_wait(boost::posix_time::seconds(2));
       if(answer->has_value() || answer->has_exception())
-        return this->answer->get();
+      {
+        std::string tmp = this->answer->get();
+        debugLog(std::string("Query ")+ idString + std::string(" got answer: ") + tmp);
+        return tmp;
+      }
       else
       {
-	debugLog(std::string("Query ")+ idString + std::string(": Not in busy mode! Call disallowed."));
-	BOOST_THROW_EXCEPTION( exception() << errorName("call_not_allowed") << errorDescription(idString + std::string(": Not in busy mode! Call disallowed.")) << errorSeverity(severity::MustNot) );
+	debugLog(std::string("Query ")+ idString + std::string("timed out and has no answer."));
+	BOOST_THROW_EXCEPTION( exception() << errorName("query_timed_out") << errorDescription(idString + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
 	}
     }
     
