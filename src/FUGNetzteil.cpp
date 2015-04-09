@@ -75,7 +75,8 @@ void FUGNetzteil::shutdownImplementation()
 
 bool FUGNetzteil::isConnectedImplementation()
 {
-  return true;
+  std::string test = this->getIDN();
+  return test.substr(0,3) == std::string("FUG");
 }
 
 

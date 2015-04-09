@@ -138,10 +138,6 @@ public:
 template <class T> class ExposedValueTemplate : public ExposedValueInterface
 {
 public:
-  boost::signals2::signal<bool (T&), allSlotsTrue> beforeValueChange;
-  boost::signals2::signal<void (T&)> onValueChange;
-  boost::signals2::signal<void (T&)> onRequestValue;
-  
   virtual bool setValue(T newValue) = 0;
   virtual operator T() = 0;
 };
@@ -152,6 +148,10 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     Mutex mutex;
    
   public:
+    
+    boost::signals2::signal<bool (ExposedValue<T>&), allSlotsTrue> beforeValueChange;
+    boost::signals2::signal<void (ExposedValue<T>&)> onValueChange;
+    boost::signals2::signal<void (ExposedValue<T>&)> onRequestValue;
 
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {
@@ -178,6 +178,15 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     {
       this->setValue(other);
       return *this;
+    }
+    
+    T getValue()
+    {
+      SharedLock lock(this->mutex);
+      if(this->valuePointer)
+        return *this->valuePointer;
+      else
+        BOOST_THROW_EXCEPTION(exception() << errorName("value_accessed_but_no_value_set") << errorSeverity(severity::ShouldNot));
     }
     
     bool setValue(T newValue)
