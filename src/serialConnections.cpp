@@ -53,7 +53,7 @@ void serialConnection::initialize()
     std::cout << "#############################" << std::endl;*/
 
   ExclusiveLock lock(this->mutex);
-  this->isInitialized = false;
+  this->isInitialized = true;
   lughos::debugLog ( std::string ( "initializing serial connection on port" ) + this->port_name );
   if ( port_name.empty() )
     {
@@ -77,18 +77,18 @@ void serialConnection::initialize()
     {
       socket->set_option ( boost::asio::serial_port_base::baud_rate ( baud_rate ) );
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-	lughos::debugLog ( std::string ( "Could not set baud rate." ) );
+	lughos::debugLog ( std::string ( "Could not set baud rate. Error: " ) + e.what() );
     }
 
   try
     {
       socket->set_option ( boost::asio::serial_port_base::character_size ( character_size.value() ) );
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set character size." ) );
+      lughos::debugLog ( std::string ( "Could not set character size. Error: " ) + e.what() );
     }
 
   try
@@ -96,9 +96,9 @@ void serialConnection::initialize()
       int i=0;
       socket->set_option ( stop_bits );
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set stop bits." ) );
+      lughos::debugLog ( std::string ( "Could not set stop bits. Error: " ) + e.what() );
     }
 
 
@@ -107,18 +107,18 @@ void serialConnection::initialize()
       int i=0;
       socket->set_option ( boost::asio::serial_port_base::parity ( parity ) );
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set parity." ) );
+      lughos::debugLog ( std::string ( "Could not set parity. Error: " ) + e.what() );
     }
 
   try
     {
       socket->set_option ( boost::asio::serial_port_base::flow_control ( flow_control ) );
     }
-  catch ( ... )
+  catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set flow control." ) );
+      lughos::debugLog ( std::string ( "Could not set flow control. Error: " ) + e.what() );
     }
 
   this->isInitialized = true;
@@ -142,6 +142,10 @@ void serialConnection::connect ( boost::function<void(const boost::system::error
         if (ec)
         {
           debugLog(std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message());
+        }
+        else
+        {
+          this->initialize();
         }
       }
       else if (this->socket && this->socket->is_open())
