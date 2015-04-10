@@ -61,6 +61,8 @@ namespace lughos
     {
       this->reset();
       this->setQuestion(question);
+      this->EndOfSendingPattern = std::string("\n");
+      this->EndOfReadingPattern = boost::regex("\n");
     }
     
     ~QueryImpl()
