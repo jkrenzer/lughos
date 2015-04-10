@@ -185,12 +185,6 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     query->setEORPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
   SharedLock lock(this->mutex);
-  if (!this->connected())
-  {
-    lock.unlock();
-    this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
-    return;
-  }
   if ( !this->initialized())
   {
     lock.unlock();
@@ -202,6 +196,12 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
       query->setError(std::string ( "Unable to initialize for sending." ));
       return;
     }
+  }
+  if (!this->connected())
+  {
+    lock.unlock();
+    this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
+    return;
   }
   lock.unlock();
   query->busy(this->busy);
