@@ -45,7 +45,8 @@ namespace lughos
     
     boost::shared_mutex mutex;
     
-    boost::regex EOLpattern;
+    boost::regex EndOfReadingPattern;
+    std::string EndOfSendingPattern;
     
     std::string lastErrorMessage;
     
@@ -67,16 +68,28 @@ namespace lughos
 
     }
     
-    boost::regex getEOLPattern()
+    boost::regex getEORPattern()
     {
       lughos::SharedLock lock(this->mutex);
-      return this->EOLpattern;
+      return this->EndOfReadingPattern;
     }
     
-    void setEOLPattern(boost::regex EOLPattern)
+    void setEORPattern(boost::regex EOLPattern)
     {
       lughos::ExclusiveLock lock(this->mutex);
-      this->EOLpattern = EOLPattern;
+      this->EndOfReadingPattern = EOLPattern;
+    }
+    
+    std::string getEOSPattern()
+    {
+      lughos::SharedLock lock(this->mutex);
+      return this->EndOfSendingPattern;
+    }
+    
+    void setEORPattern(std::string EOSPattern)
+    {
+      lughos::ExclusiveLock lock(this->mutex);
+      this->EndOfSendingPattern = EOSPattern;
     }
     
     void setQuestion(std::string question)
@@ -158,7 +171,7 @@ namespace lughos
       lughos::SharedLock lock(this->mutex);
       BOOST_ASSERT_MSG(busyLock,idString.c_str());
       std::ostream ostream ( request.get() );
-      ostream << this->question;
+      ostream << this->question << this->EndOfSendingPattern;
       return *this->request;
     }
     

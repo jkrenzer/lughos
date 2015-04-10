@@ -134,7 +134,7 @@ namespace lughos
       {
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
-	  q->setEOLPattern(regExpr);
+	  q->setEORPattern(regExpr);
 	this->connection->execute(q);
 	try
 	{
@@ -160,7 +160,7 @@ namespace lughos
       {
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
-	  q->setEOLPattern(regExpr);
+	  q->setEORPattern(regExpr);
 	this->connection->execute(q);
 	return;
       }

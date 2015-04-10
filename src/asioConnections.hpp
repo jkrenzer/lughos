@@ -181,8 +181,8 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     return;
   }
   
-  if ( query->getEOLPattern().empty() )
-    query->setEOLPattern ( endOfLineRegExpr_ );
+  if ( query->getEORPattern().empty() )
+    query->setEORPattern ( endOfLineRegExpr_ );
   boost::system::error_code ec;
   SharedLock lock(this->mutex);
   if ( !this->initialized())
@@ -259,10 +259,10 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       // Read the response status line.
       SharedLock lock(this->mutex);
-      boost::asio::async_read_until ( *socket, query->input(), query->getEOLPattern(),
+      boost::asio::async_read_until ( *socket, query->input(), query->getEORPattern(),
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
-      lughos::debugLog ( std::string ( "Reading until \"" ) + query->getEOLPattern().str() );
+      lughos::debugLog ( std::string ( "Reading until \"" ) + query->getEORPattern().str() );
       return;
     }
   else
