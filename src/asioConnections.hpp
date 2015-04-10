@@ -259,6 +259,9 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       // Read the response status line.
       SharedLock lock(this->mutex);
+      this->timeoutTimer->expires_from_now(boost::posix_time::seconds(2));
+      this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+                                 boost::asio::placeholders::error ));
       boost::asio::async_read_until ( *socket, query->input(), query->getEORPattern(),
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
