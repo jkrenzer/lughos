@@ -72,6 +72,14 @@ void serialConnection::initialize()
     }
 
   socket.reset ( new boost::asio::serial_port ( *io_service ) );
+  boost::system::error_code ec;
+  this->socket->open( this->port_name,  ec);
+  if (ec)
+  {
+    debugLog(std::string("Error while trying to open port ") + this->port_name + std::string(" for initialization. Error-message: ") + ec.message());
+    this->isInitialized = false;
+    return;
+  }
 
   try
     {
@@ -101,7 +109,6 @@ void serialConnection::initialize()
       lughos::debugLog ( std::string ( "Could not set stop bits. Error: " ) + e.what() );
     }
 
-
   try
     {
       int i=0;
@@ -120,8 +127,6 @@ void serialConnection::initialize()
     {
       lughos::debugLog ( std::string ( "Could not set flow control. Error: " ) + e.what() );
     }
-
-  this->isInitialized = true;
   return;
 
 
