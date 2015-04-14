@@ -141,7 +141,7 @@ namespace lughos
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
-//       if(this->busyLock->try_lock());
+      if(this->busyLock->try_lock());
       this->answer->timed_wait(boost::posix_time::seconds(2));
       if(answer->has_value() || answer->has_exception())
       {
