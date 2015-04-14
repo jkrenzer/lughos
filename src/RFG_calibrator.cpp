@@ -178,11 +178,39 @@ boost::program_options::notify(vm);
         unitsDAC = i*stepSize;
 	rfg->set_target_value_raw(unitsDAC);
 	boost::this_thread::sleep_for(boost::chrono::seconds(2));
+        double keithleyMeasurement = 0.0;
+        int unitsADCSetting = 0;
 	for (int j = 0; j < measureTimes; j++)
 	{
-	  keithleyValues.push_back(interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))));
-	  unitsADCValues.push_back(rfg->get_channel_raw(measureChannel,true));
-          mfileRaw << *(unitsADCValues.rbegin()) << " , " << unitsDAC << " , " << *(keithleyValues.rbegin());
+          keithleyMeasurement = interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>")));
+          if(keithleyMeasurement >= measureLimit)
+          {
+            std::cout << "Maximum reached. Aborting!" << std::endl;
+            mfileDAC << "% Maximum reached. Aborting!" << std::endl;
+            mfileADC << "% Maximum reached. Aborting!" << std::endl;
+            mfileRaw << "% Maximum reached. Aborting!" << std::endl;
+            rfg->switch_off();
+            rfg->set_target_value_raw(0);
+            goto EndOfMeasurement;
+          }
+          else if(std::isnan(keithleyMeasurement))
+          {
+            std::cout << "Keithley not answering. Aborting!" << std::endl;
+            mfileDAC << "% Keithley not answering. Aborting!" << std::endl;
+            mfileADC << "% Keithley not answering. Aborting!" << std::endl;
+            mfileRaw << "% Keithley not answering. Aborting!" << std::endl;
+            rfg->switch_off();
+            rfg->set_target_value_raw(0);
+            mfileADC.flush();
+            mfileDAC.flush();
+            mfileRaw.flush();
+            goto EndOfMeasurement;
+            
+          }
+          unitsADCSetting = rfg->get_channel_raw(measureChannel,true);
+	  keithleyValues.push_back(keithleyMeasurement);
+	  unitsADCValues.push_back(unitsADCSetting);
+          mfileRaw << unitsADCSetting << " , " << unitsDAC << " , " << keithleyMeasurement;
 	}
 	keithleyValue = calculateMean(keithleyValues);
 	unitsADC = calculateMean(unitsADCValues);
@@ -193,28 +221,7 @@ boost::program_options::notify(vm);
 	unitsADCValues.clear();
 	keithleyValue = 0;
 	unitsADC = 0;
-	if(keithleyValue >= measureLimit)
-	{
-	  std::cout << "Maximum reached. Aborting!" << std::endl;
-	  mfileDAC << "% Maximum reached. Aborting!" << std::endl;
-	  mfileADC << "% Maximum reached. Aborting!" << std::endl;
-          mfileRaw << "% Maximum reached. Aborting!" << std::endl;
-	  rfg->switch_off();
-	  rfg->set_target_value_raw(0);
-	  break;
-	}
-	else if(std::isnan(keithleyValue))
-	{
-	  std::cout << "Keithley not answering. Aborting!" << std::endl;
-	  mfileDAC << "% Keithley not answering. Aborting!" << std::endl;
-	  mfileADC << "% Keithley not answering. Aborting!" << std::endl;
-          mfileRaw << "% Keithley not answering. Aborting!" << std::endl;
-	  rfg->switch_off();
-	  rfg->set_target_value_raw(0);
-	  break;
-	  mfileADC.flush();
-	  mfileDAC.flush();
-	}
+	
     }
   }
   catch(...)
@@ -224,6 +231,7 @@ boost::program_options::notify(vm);
     mfileADC << "% Crashed. Setting save and aborting!" << std::endl;
     mfileRaw << "% Crashed. Setting save and aborting!" << std::endl;
   }
+EndOfMeasurement:
   std::cout << "Finished.Switching off." << std::endl;
   rfg->switch_off();
   rfg->set_target_value_raw(0);
