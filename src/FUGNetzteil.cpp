@@ -181,7 +181,6 @@ std::string FUGNetzteil::getLastError()
 
 std::string FUGNetzteil::getIDN()
 {
-  std::cout << "FIRST TRY: " << inputOutput("?") << std::endl;
   return inputOutput("?");
 }
 

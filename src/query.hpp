@@ -29,7 +29,7 @@ namespace lughos
     
     bool sentBit;
     bool awaitingAnswer;
-    bool continous; 
+    bool continous;
     bool doneBit;
     bool error;
     
@@ -48,7 +48,6 @@ namespace lughos
     
     boost::regex EndOfReadingPattern;
     std::string EndOfSendingPattern;
-    
     std::string lastErrorMessage;
     
     

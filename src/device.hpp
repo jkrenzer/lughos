@@ -91,7 +91,9 @@ namespace lughos
     
     bool isConnected()
     {
+      std::stringstream tmp;
       bool currentlyConnected = this->connection->test();
+      tmp << "Connection test state: " << currentlyConnected << " ";
       UpgradeLock lock(this->mutex);
       if (!currentlyConnected && this->connected)
       {
@@ -101,10 +103,13 @@ namespace lughos
       {
 	lock.unlock();
 	bool isConnected = this->isConnectedImplementation();
+        tmp << "Device test state: " << isConnected << " ";
 	lock.lock();
 	upgradeLockToExclusive llock(lock);
 	this->connected = currentlyConnected ? isConnected  : false;
       }
+      tmp << "Overall state: " << this->connected;
+      debugLog(std::string("Device checked connection. Connection: ") + tmp.str() );
       return this->connected;
     }
     

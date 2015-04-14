@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Wt/WImage>
 #include <Wt/WStackedWidget>
+#include <Wt/WPopupMenu>
+#include <Wt/WPushButton>
 
 namespace lughos
 {
@@ -13,6 +15,8 @@ namespace lughos
     friend class StatusLEDWtWidget;
     
     virtual void set(StatusLEDWtWidget* statusLED) = 0;
+  public:
+        Wt::WString message;
   };
 
   class StatusLEDWtWidget : public Wt::WStackedWidget
@@ -26,13 +30,16 @@ namespace lughos
     Wt::WImage* blue;
     Wt::WImage* yellow;
     Wt::WImage* orange;
+    Wt::WPopupMenu *popup;
+    Wt::WPopupMenuItem *popupState;
     Color color;
     
     boost::shared_ptr<StatusLEDStateInterface> state;
+    Wt::WString statusMessage;
     
   public:
     
-  StatusLEDWtWidget(WContainerWidget* parent = 0) : WStackedWidget(parent)
+  StatusLEDWtWidget(WContainerWidget* parent = 0) : WStackedWidget(parent) , statusMessage("State undetermined")
   {
     this->off = new Wt::WImage("./resources/LED_off.png");
     this->red = new Wt::WImage("./resources/LED_red.png");
@@ -40,6 +47,7 @@ namespace lughos
     this->blue = new Wt::WImage("./resources/LED_blue.png");
     this->yellow = new Wt::WImage("./resources/LED_yellow.png");
     this->orange = new Wt::WImage("./resources/LED_orange.png");
+    this->popup = new Wt::WPopupMenu();
     
     this->addWidget(off);
     this->addWidget(red);
@@ -50,6 +58,9 @@ namespace lughos
     
     this->color = Green;
     this->switchOff();
+    this->popupState = this->popup->addItem(this->statusMessage);
+    this->popup->addSeparator();
+    this->clicked().connect(boost::bind(&Wt::WPopupMenu::popup,this->popup,this,Wt::Orientation::Vertical));
   }
 
   virtual ~StatusLEDWtWidget()
@@ -60,7 +71,6 @@ namespace lughos
     delete this->blue;
     delete this->yellow;
     delete this->orange;
-    
   }
 
   void setState(boost::shared_ptr<StatusLEDStateInterface> state)
@@ -102,6 +112,18 @@ namespace lughos
     this->color = color;
     this->setCurrentIndex(color);  
   }
+  
+  Wt::WPopupMenu* popupMenu()
+  {
+    return this->popup;
+  }
+  
+  void setStatusMessage(Wt::WString message)
+  {
+    this->statusMessage = message;
+    this->setToolTip(this->statusMessage,Wt::TextFormat::PlainText);
+    this->popupState->setText(message);
+  }
     
   };
   
@@ -110,7 +132,6 @@ namespace lughos
   public:
     typedef StatusLEDWtWidget::Color Color;
     Color color;
-    Wt::WString message;
   protected:
     
     friend class StatusLEDWtWidget;
@@ -118,8 +139,8 @@ namespace lughos
     virtual void set(StatusLEDWtWidget* statusLED) 
     {
       statusLED->setColor(this->color);
-      statusLED->setToolTip(this->message,Wt::TextFormat::PlainText);
+      statusLED->setStatusMessage(this->message);
     }
   };
-
+  
 } //namespace lughos
