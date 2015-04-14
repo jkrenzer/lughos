@@ -99,8 +99,8 @@ boost::program_options::notify(vm);
   {
     std::cout << "No valid config found!" << std::endl;
   }
-  boost::shared_ptr<serialAsync> connection1(new RFGConnection(ioService) );
-  boost::shared_ptr<tcpAsync> connection2(new KeithleyConnection(ioService) );
+  boost::shared_ptr<serialConnection> connection1(new RFGConnection() );
+  boost::shared_ptr<tcpConnection> connection2(new KeithleyConnection() );
   connection1->port_name = config.get<std::string>("devices.rfg1.connection.port");
   connection2->port_name = config.get<std::string>("devices.keithley1.connection.port");
   connection2->server_name = config.get<std::string>("devices.keithley1.connection.server");
@@ -151,6 +151,7 @@ boost::program_options::notify(vm);
   filename << "calibration" << "_" << typeDesignation << "_"; 
   ofstream mfileDAC(filename.str()+"DAC.txt");
   ofstream mfileADC(filename.str()+"ADC.txt");
+  ofstream mfileRaw(filename.str()+"RAW.txt");
   if (!mfileDAC.is_open() || !mfileDAC.is_open())
   {
     std::cout << "Could not open file to write. aborting!" << std::endl;
@@ -168,6 +169,7 @@ boost::program_options::notify(vm);
   std::vector<double> keithleyValues;
   mfileDAC << "% units(DAC) , " << typeDesignation << std::endl;
   mfileADC << "% units(ADC) , " << typeDesignation << std::endl;
+  mfileRaw << "% units(ADC) , " << "units(DAC)" << typeDesignation << std::endl;
   
   try 
   {
@@ -180,6 +182,7 @@ boost::program_options::notify(vm);
 	{
 	  keithleyValues.push_back(interpretKeithleyValue(keithley->inputOutput(keithleyQuery,boost::regex("<body>(.*)</body>"))));
 	  unitsADCValues.push_back(rfg->get_channel_raw(measureChannel,true));
+          mfileRaw << *(unitsADCValues.rbegin()) << " , " << unitsDAC << " , " << *(keithleyValues.rbegin());
 	}
 	keithleyValue = calculateMean(keithleyValues);
 	unitsADC = calculateMean(unitsADCValues);
@@ -195,6 +198,7 @@ boost::program_options::notify(vm);
 	  std::cout << "Maximum reached. Aborting!" << std::endl;
 	  mfileDAC << "% Maximum reached. Aborting!" << std::endl;
 	  mfileADC << "% Maximum reached. Aborting!" << std::endl;
+          mfileRaw << "% Maximum reached. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
@@ -204,6 +208,7 @@ boost::program_options::notify(vm);
 	  std::cout << "Keithley not answering. Aborting!" << std::endl;
 	  mfileDAC << "% Keithley not answering. Aborting!" << std::endl;
 	  mfileADC << "% Keithley not answering. Aborting!" << std::endl;
+          mfileRaw << "% Keithley not answering. Aborting!" << std::endl;
 	  rfg->switch_off();
 	  rfg->set_target_value_raw(0);
 	  break;
@@ -217,12 +222,14 @@ boost::program_options::notify(vm);
     std::cout << "Crashed. Setting save and aborting!" << std::endl;
     mfileDAC << "% Crashed. Setting save and aborting!" << std::endl;
     mfileADC << "% Crashed. Setting save and aborting!" << std::endl;
+    mfileRaw << "% Crashed. Setting save and aborting!" << std::endl;
   }
   std::cout << "Finished.Switching off." << std::endl;
   rfg->switch_off();
   rfg->set_target_value_raw(0);
   mfileDAC.close();
   mfileADC.close();
+  mfileRaw.close();
   
   return 0;
 }

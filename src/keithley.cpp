@@ -1,10 +1,10 @@
 // #include "StdAfx.h"
 
 #include <ostream>
-#include "tcpAsync.hpp"
+#include "tcpConnections.hpp"
 #include "keithley.hpp"
 
-KeithleyConnection::KeithleyConnection(boost::shared_ptr< boost::asio::io_service > io_service)  :  tcpAsync(io_service) , Connection<tcpContext>(io_service)
+KeithleyConnection::KeithleyConnection()
 {
 
 }
@@ -25,15 +25,6 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
     return saveDefault;
   }
   
-}
-
-template <class T> void Keithley::setDefaultImpl(T& connection)
-{
-}
-
-template <> void Keithley::setDefaultImpl< Connection<tcpContext> > (Connection<tcpContext>& connection)
-{
-  serverName= connection.server_name;  
 }
 
 Keithley::~Keithley(void)
@@ -102,7 +93,7 @@ bool Keithley::isConnectedImplementation()
 }
 
 
-measuredValue Keithley::getMeasure(bool force)
+measuredValue<double> Keithley::getMeasure(bool force)
 {
   if(!force &&!storedMeasure.getTimeStamp().is_not_a_date_time()&& storedMeasure.getTimeStamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
   {
@@ -118,7 +109,7 @@ measuredValue Keithley::getMeasure(bool force)
   double number = save_lexical_cast<double>(res[1],-1);
 
   s=res[2];
-  measuredValue value;
+  measuredValue<double> value;
   if(!s.empty() && number == 0)
   {
     value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));

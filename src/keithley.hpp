@@ -14,7 +14,6 @@
 
 #include "connectionImpl.hpp"
 #include "tcpConnections.hpp"
-#include "tcpAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -25,10 +24,11 @@
 using namespace lughos;
 using boost::asio::ip::tcp;
 
-class KeithleyConnection : public tcpAsync
+class KeithleyConnection : public tcpConnection
 {
 public:
-    KeithleyConnection(boost::shared_ptr< boost::asio::io_service > io_service);
+    KeithleyConnection();
+    KeithleyConnection (boost::shared_ptr<boost::asio::io_service> io_service);
 };
 
 class Keithley : public Device
@@ -45,13 +45,13 @@ class Keithley : public Device
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
-	measuredValue storedMeasure;
+	measuredValue<double> storedMeasure;
 	std::string serverName;
 	
   public:
 	Keithley(void);
 	~Keithley(void);
-	measuredValue getMeasure(bool force=false);	
+	measuredValue<double> getMeasure(bool force=false);	
 
 protected:
 	std::string interpretAnswer(std::string query);
