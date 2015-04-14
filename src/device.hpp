@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/smart_ptr/shared_array.hpp>
 #include <boost/regex.hpp>
 #include <boost/asio/io_service.hpp>
 
@@ -28,6 +29,7 @@ namespace lughos
     
     boost::shared_ptr<boost::asio::io_service> ioService;
     boost::shared_ptr<boost::asio::io_service::work> ioServiceWork;
+    std::vector<boost::shared_ptr<boost::thread> > threadPool;
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
@@ -175,7 +177,8 @@ namespace lughos
     
     DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService))
     {
-      boost::thread thread(boost::bind(&boost::asio::io_service::run, this->ioService));
+      this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
+      this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
     }
     
     virtual ~DeviceImpl()

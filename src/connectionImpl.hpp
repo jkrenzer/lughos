@@ -7,6 +7,7 @@
 #include <boost/regex.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/signals2/signal.hpp>
@@ -32,6 +33,8 @@ namespace lughos
 			    boost::asio::io_service > io_service)
     {
       this->io_service = io_service;
+      this->timingStrand.reset(new boost::asio::strand(*io_service));
+      this->ioStrand.reset(new boost::asio::strand(*io_service));
       this->timeoutTimer.reset (new boost::asio::deadline_timer (*io_service));
     } 
     
@@ -114,6 +117,8 @@ namespace lughos
     boost::mutex busy;
     boost::shared_ptr < boost::asio::io_service > io_service;
     boost::shared_ptr < boost::asio::deadline_timer > timeoutTimer;
+    boost::shared_ptr < boost::asio::strand> timingStrand;
+    boost::shared_ptr < boost::asio::strand> ioStrand;
 
     //    virtual int write(const std::string &buf)=0;
     //    virtual int write_async(const std::string &buf)=0;

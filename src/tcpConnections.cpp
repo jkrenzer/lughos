@@ -54,14 +54,14 @@ void tcpConnection::connect(boost::function<void(const boost::system::error_code
   if (!this->endpoint->address().is_unspecified())
   {
     socket->async_connect(*this->endpoint,
-        boost::bind(&tcpConnection::handle_connect, this, callback,
-          boost::asio::placeholders::error, tcp::resolver::iterator()));
+        this->ioStrand->wrap(boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, tcp::resolver::iterator())));
     lughos::debugLog(std::string("Connecting to server ")+server_name);
   }
   else
   {
-    resolver->async_resolve(*this->query, boost::bind(&tcpConnection::handle_resolve, this, callback,
-          boost::asio::placeholders::error, boost::asio::placeholders::iterator));
+    resolver->async_resolve(*this->query, this->ioStrand->wrap(boost::bind(&tcpConnection::handle_resolve, this, callback,
+          boost::asio::placeholders::error, boost::asio::placeholders::iterator)));
     lughos::debugLog(std::string("Trying to resolve ") + server_name);
   }
 }
@@ -80,8 +80,8 @@ void tcpConnection::handle_resolve(boost::function<void(const boost::system::err
     ExclusiveLock lock(this->mutex);
     *this->endpoint = *endpoint_iterator;
     socket->async_connect(*this->endpoint,
-        boost::bind(&tcpConnection::handle_connect, this, callback,
-          boost::asio::placeholders::error, ++endpoint_iterator));
+        this->ioStrand->wrap(boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, ++endpoint_iterator)));
     lughos::debugLog(std::string("Resolved address of server ")+server_name);
   }
   else
@@ -111,8 +111,8 @@ void tcpConnection::handle_connect(boost::function<void (const boost::system::er
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
     *this->endpoint = *endpoint_iterator;
     socket->async_connect(*this->endpoint,
-        boost::bind(&tcpConnection::handle_connect, this, callback,
-          boost::asio::placeholders::error, ++endpoint_iterator));
+        this->ioStrand->wrap(boost::bind(&tcpConnection::handle_connect, this, callback,
+          boost::asio::placeholders::error, ++endpoint_iterator)));
     lughos::debugLog(std::string("Connection failed, trying next possible resolve of ")+server_name);
   }
   else
