@@ -207,9 +207,9 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   query->busy(this->busy);
   {
     ExclusiveLock llock(this->mutex);
-    this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
-    this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
-                                 boost::asio::placeholders::error ));
+//     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
+//     this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+//                                  boost::asio::placeholders::error ));
   }
   lock.lock();
   boost::asio::async_write ( *socket, query->output(),
@@ -259,9 +259,9 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       // Read the response status line.
       SharedLock lock(this->mutex);
-      this->timeoutTimer->expires_from_now(boost::posix_time::seconds(2));
-      this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
-                                 boost::asio::placeholders::error ));
+//       this->timeoutTimer->expires_from_now(boost::posix_time::seconds(2));
+//       this->timeoutTimer->async_wait(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+//                                  boost::asio::placeholders::error ));
       boost::asio::async_read_until ( *socket, query->input(), query->getEORPattern(),
                                       boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error ) );
@@ -274,7 +274,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
       query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
-      this->timeoutTimer->cancel();
+//       this->timeoutTimer->cancel();
     }
 }
 
@@ -282,7 +282,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
 {
   {
     ExclusiveLock lock(this->mutex);
-    this->timeoutTimer->cancel();
+//     this->timeoutTimer->cancel();
   }
   if ( !err )
     {
