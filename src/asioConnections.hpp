@@ -204,7 +204,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     return;
   }
   lock.unlock();
-  query->busy(this->busy);
+  query->busy();
   {
     ExclusiveLock llock(this->mutex);
     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));

@@ -27,10 +27,10 @@ namespace lughos
   {
   protected:
     
-    bool sent;
+    bool sentBit;
     bool awaitingAnswer;
     bool continous; 
-    bool done;
+    bool doneBit;
     bool error;
     
     boost::signals2::signal<void (std::vector<std::string>&)> onReceived;
@@ -41,7 +41,8 @@ namespace lughos
     boost::shared_ptr< boost::promise< std::string > > promise;
     boost::shared_ptr<boost::asio::streambuf> response;
     boost::shared_ptr<boost::asio::streambuf> request;
-    boost::shared_ptr<boost::unique_lock<boost::mutex> > busyLock;
+    
+    bool busyBit;
     
     boost::shared_mutex mutex;
     
@@ -103,7 +104,7 @@ namespace lughos
     void receive(std::string answer)
     {
       lughos::ExclusiveLock lock(this->mutex);
-      this->busyLock.reset();
+      this->busyBit = false;
       if(this->promise && !this->answer->has_value() && !this->answer->has_exception())
       {
         this->promise->set_value(answer);
@@ -111,13 +112,13 @@ namespace lughos
         return;
       }
       debugLog(std::string("Query ")+ idString + std::string(" ignored: ") + answer);
-      this->done = true;
+      this->doneBit = true;
     }
     
     void setError(std::string errorMessage)
     {
       lughos::ExclusiveLock lock(this->mutex);
-      this->busyLock.reset();
+      this->busyBit = false;
       this->error = true;
       try //TODO why don't we end up here on connection-timeout?
       {
@@ -129,37 +130,37 @@ namespace lughos
       {
 	debugLog(std::string("Query ")+ idString + std::string(" promise already satisfied and new error:") + errorMessage);
       }
-      this->done = true;
+      this->doneBit = true;
     }
     
     bool isSent()
     {
       lughos::SharedLock lock(this->mutex);
-      return this->sent;
+      return this->sentBit;
     }
 
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
-      if(this->busyLock->try_lock());
-      this->answer->timed_wait(boost::posix_time::seconds(2));
+      if(busyBit)
+          this->answer->timed_wait(boost::posix_time::seconds(2));
       if(answer->has_value() || answer->has_exception())
       {
         std::string tmp = this->answer->get();
-        debugLog(std::string("Query ")+ idString + std::string(" got answer: ") + tmp);
+        debugLog(std::string("Query ")+ idString + std::string(" has answer: ") + tmp);
         return tmp;
       }
       else
       {
-	debugLog(std::string("Query ")+ idString + std::string("timed out and has no answer."));
-	BOOST_THROW_EXCEPTION( exception() << errorName("query_timed_out") << errorDescription(idString + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
+	debugLog(std::string("Waiting for answer on Query ")+ idString + std::string("timed out!"));
+	BOOST_THROW_EXCEPTION( exception() << errorName("query_answer_timed_out") << errorDescription(idString + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
 	}
     }
     
     boost::asio::streambuf& input()
     {
       lughos::SharedLock lock(this->mutex);
-      if(busyLock)
+      if(busyBit)
 	return *this->response;
       else
       {
@@ -171,7 +172,7 @@ namespace lughos
     boost::asio::streambuf& output()
     {
       lughos::SharedLock lock(this->mutex);
-      BOOST_ASSERT_MSG(busyLock,idString.c_str());
+//       BOOST_ASSERT_MSG(busyLock,idString.c_str());
       std::ostream ostream ( request.get() );
       ostream << this->question << this->EndOfSendingPattern;
       return *this->request;
@@ -186,9 +187,14 @@ namespace lughos
       this->receive(sstream.str());
     }
     
-    void busy(boost::mutex& busyMutex)
+    void busy(bool busy = true)
     {
-      this->busyLock.reset(new boost::unique_lock<boost::mutex>(busyMutex));
+      this->busyBit = busy;
+    }
+    
+    bool busy() const
+    {
+      return this->busyBit;
     }
     
     std::string getAnswer()
@@ -203,9 +209,9 @@ namespace lughos
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->request.reset(new boost::asio::streambuf());
       this->response.reset(new boost::asio::streambuf());
-      this->busyLock.reset();
-      this->sent = false;
-      this->done = false;
+      this->busyBit = false;
+      this->sentBit = false;
+      this->doneBit = false;
       this->error = false;
       this->lastErrorMessage.clear();
     }
