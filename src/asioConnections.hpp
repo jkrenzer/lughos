@@ -377,7 +377,7 @@ template <class C> bool asioConnection<C>::test()
   try
     {
       lughos::debugLog ( std::string ( "Testing connection." ));
-      this->initialize();
+      this->initialize(); //TODO we need to connect, for better or for worse...
       bool success = this->initialized();
       this->shutdown();
       return success;
@@ -400,10 +400,13 @@ template <class C> void asioConnection<C>::shutdown()
       if ( socket )
         {
           debugLog ( std::string ( "Shutting connection down." ) );
-          lock.unlock();
-          this->abort();
-          lock.lock();
-          socket->close();
+          if (this->socket->is_open())
+          {
+            lock.unlock();
+            this->abort();
+            lock.lock();
+            socket->close();
+          }
           socket.reset();
           lock.unlock();
         }

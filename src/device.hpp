@@ -52,6 +52,7 @@ namespace lughos
      */
     void init()
     {
+      lughos::debugLog ( std::string ( "Device is initializing." ));
       this->initImplementation();
       ExclusiveLock lock(this->mutex);
       this->initialized = true;
@@ -66,6 +67,7 @@ namespace lughos
      */
     void shutdown()
     {
+      lughos::debugLog ( std::string ( "Device is shutting down." ));
       this->shutdownImplementation();
       ExclusiveLock lock(this->mutex);
       this->initialized = false;
@@ -75,6 +77,7 @@ namespace lughos
     {
       {
 	ExclusiveLock lock(this->mutex);
+        lughos::debugLog ( std::string ( "Device is connecting." ));
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
 	this->connection->ioService(this->ioService);
 	this->connected = this->connection->test();
@@ -83,9 +86,12 @@ namespace lughos
       if(this->connected)
       {
 	lock.unlock();
+        lughos::debugLog ( std::string ( "Device successfully connected." ));
 	this->init();
 	lock.lock();
       }
+      else
+        lughos::debugLog ( std::string ( "Device could not connect!" ));
       return this->connected;
     }
     
@@ -121,6 +127,7 @@ namespace lughos
     
     void disconnect()
     {
+      lughos::debugLog ( std::string ( "Device is disconnecting." ));
       this->shutdown();
       ExclusiveLock lock(this->mutex);
       if(this->connection)
