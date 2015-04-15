@@ -200,6 +200,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if (!this->connected())
   {
     lock.unlock();
+    lughos::debugLog ( std::string ( "Connecting for sending." ) );
     this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
     return;
   }

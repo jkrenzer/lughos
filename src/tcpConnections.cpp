@@ -31,13 +31,11 @@ void tcpConnection::initialize()
 		lughos::debugLog("Connection not initialized. Please set server/port name!");
 		return;
 	}
-    lughos::debugLog("Initializing TCP-connection to" + server_name + ":" + port_name);
+    lughos::debugLog("Initializing TCP-connection to " + server_name + ":" + port_name);
     resolver.reset(new tcp::resolver(*this->io_service));
     query.reset(new tcp::resolver::query(server_name, port_name));
     socket.reset(new boost::asio::ip::tcp::socket(*this->io_service));
     endpoint.reset(new tcp::endpoint());
-//     boost::asio::socket_base::keep_alive keepAlive(true);
-//     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
     this->isInitialized = true;
 }
 
@@ -100,11 +98,13 @@ void tcpConnection::handle_connect(boost::function<void (const boost::system::er
     this->isConnected = true;
     lock.unlock();
     lughos::debugLog(std::string("Connected successfully to ")+server_name);
+    boost::asio::socket_base::keep_alive keepAlive(true);
+    socket->set_option(keepAlive); //Seems to be only allowed after connect :/
     if(callback)
       callback(err);
     return;
   }
-  if (endpoint_iterator != tcp::resolver::iterator())
+  else if (endpoint_iterator != tcp::resolver::iterator())
   {
     // The connection failed. Try the next endpoint in the list.
     ExclusiveLock lock(this->mutex);
