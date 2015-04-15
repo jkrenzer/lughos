@@ -188,6 +188,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if ( !this->initialized())
   {
     lock.unlock();
+    lughos::debugLog ( std::string ( "Initalizing for sending." ) );
     this->initialize();
     lock.lock();
     if (!this->initialized() || !socket)
@@ -375,6 +376,7 @@ template <class C> bool asioConnection<C>::test()
 {
   try
     {
+      lughos::debugLog ( std::string ( "Testing connection." ));
       this->initialize();
       bool success = this->initialized();
       this->shutdown();
