@@ -95,7 +95,6 @@ namespace lughos
       if(rfg->isConnected())
       {
         this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<RFG>::getState);
         this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
@@ -126,8 +125,7 @@ namespace lughos
       else
       {
 
-	this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<RFG>::checkConnected);
+	this->led->setState<Disonnected>();
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);

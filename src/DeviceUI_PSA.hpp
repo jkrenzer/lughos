@@ -82,7 +82,6 @@ namespace lughos
       if(powersupply->isConnected())
       {
         this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<PSAPowersupply>::getState);
 	this->onB->setDisabled(false);
 	this->offB->setDisabled(false);
         this->onB->clicked().connect(this,&DeviceUI<PSAPowersupply>::switchOn);
@@ -93,7 +92,8 @@ namespace lughos
       else
       {
         this->led->setState<Disconnected>();
-        this->led->clicked().connect(this,&DeviceUI<PSAPowersupply>::checkConnected);
+        this->onB->setDisabled(true);
+        this->offB->setDisabled(true);
       }
     }
   

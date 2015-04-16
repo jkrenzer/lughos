@@ -92,7 +92,6 @@ namespace lughos
       if(fug->isConnected())
       {
 	this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<FUGNetzteil>::getState);
 	this->sendIB->setDisabled(false);
 	this->iField->setDisabled(false);
 	this->sendUB->setDisabled(false);
@@ -112,7 +111,6 @@ namespace lughos
       {
 	intervalTimer->stop();
 	this->led->setState<Disconnected>();
-        this->led->clicked().connect(this,&DeviceUI<FUGNetzteil>::checkConnected);
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
