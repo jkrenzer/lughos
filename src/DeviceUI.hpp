@@ -77,6 +77,10 @@ namespace lughos
     {
       this->container->addWidget (widget);
     }
+    
+    virtual void checkConnected() = 0;
+    
+    virtual void getState() = 0;
 
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
@@ -88,6 +92,10 @@ namespace lughos
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
+      Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reconnect");
+      reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected);
+      Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh");
+      state->triggered().connect(this,&DeviceUIInterface::getState);
     }
 
     virtual ~ DeviceUIInterface ()

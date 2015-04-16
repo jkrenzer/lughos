@@ -583,7 +583,7 @@ this->controllerMode=ControllerMode::Voltage;
 bool RFG::isConnectedImplementation()
 {
   std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
-  this->connected = initStr == std::string("@");
+  this->connected = (initStr == std::string("@"));
   return this->connected;
 }
 
