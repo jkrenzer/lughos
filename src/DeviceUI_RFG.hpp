@@ -125,7 +125,7 @@ namespace lughos
       else
       {
 
-	this->led->setState<Disonnected>();
+	this->led->setState<Disconnected>();
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
 	this->sendUB->setDisabled(true);
