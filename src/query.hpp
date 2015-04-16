@@ -142,7 +142,10 @@ namespace lughos
     {
       lughos::SharedLock lock(this->mutex);
       if(busyBit)
-          this->answer->timed_wait(boost::posix_time::seconds(2));
+      {
+        debugLog(std::string("Waiting on query ")+ idString + std::string(" for answer..."));
+        this->answer->timed_wait(boost::posix_time::seconds(2));
+      }
       if(answer->has_value() || answer->has_exception())
       {
         std::string tmp = this->answer->get();

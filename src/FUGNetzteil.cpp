@@ -363,7 +363,7 @@ bool FUGNetzteil::readLocalControl()
 
 void FUGNetzteil::resetOvercurrent()
 {
-  inputOutput(">B1 1");
+  inputOutput(">B1 0"); //Check
 }
 
 
