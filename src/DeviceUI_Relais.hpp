@@ -59,13 +59,10 @@ namespace lughos
     Wt::WRadioButton *rbOn[8];
     Wt::WRadioButton *rbOff[8];
     Wt::WButtonGroup *group[8];
-    Wt::WLineEdit* stateF;
     Wt::WLineEdit* flowF;
-    Wt::WLabel* stateL;
 
     Wt::WTextArea *responseField;
     Wt::WPushButton * changeChannelsB;
-    Wt::WPushButton * stateB;
     Wt::WPushButton * channelStateB;
     
   public:
@@ -84,8 +81,8 @@ namespace lughos
     {
       if(relais->isConnected())
       {
-	this->stateF->setText("Connected!");
-        this->stateB->setText("Status");
+        this->led->setState<Connected>();
+        this->led->clicked().connect(this,&DeviceUI<Relais>::getState);
 	
         this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
         this->channelStateB->clicked().connect(this,&DeviceUI<Relais>::getState);
@@ -95,10 +92,9 @@ namespace lughos
       else
       {
 
-	this->stateF->setText("Not connected!");
-// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
-        this->stateB->setText("Try again");
-	this->stateB->clicked().connect(this,&DeviceUI<Relais>::checkConnected);
+	this->led->setState<Connected>();
+        this->led->clicked().connect(this,&DeviceUI<Relais>::checkConnected);
+        
 	std::cout<<"not f*cking connected!"<<std::endl;
 	this->changeChannelsB->setDisabled(true);
 	this->channelStateB->setDisabled(true);
@@ -121,20 +117,9 @@ namespace lughos
      this->name=relais->getName();
 //      this->setWidth(500);
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-      this->stateF = new Wt::WLineEdit("Initializing...");
-      this->stateF->setReadOnly(true);
       this->changeChannelsB = new Wt::WPushButton("Set");
       this->channelStateB = new Wt::WPushButton("Get states");
-      this->stateL = new Wt::WLabel("Status:");
-      this->stateL->setBuddy(stateF);
-      
-      this->addWidget(stateL);
-      this->addWidget(stateF); 
-
-
-      this->stateB = new Wt::WPushButton("Status");
-      this->addWidget(stateB);
-     
+    
       
       Wt::WTable *table = new Wt::WTable();
       table->setHeaderCount(1);

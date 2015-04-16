@@ -51,19 +51,16 @@ namespace lughos
   protected:
 
     boost::shared_ptr<PSAPowersupply> powersupply;
-    Wt::WLineEdit* stateF;
     Wt::WLineEdit* voltageF;
     Wt::WLineEdit* currentF;
     Wt::WLineEdit* powerF;
     Wt::WLineEdit* temperaturF;
-    Wt::WLabel* stateL;
     Wt::WLabel* voltageL;
     Wt::WLabel* currentL;
     Wt::WLabel* powerL;
     Wt::WLabel* temperatureL;
     Wt::WPushButton *onB;
     Wt::WPushButton *offB;
-    Wt::WPushButton * stateB;
     boost::shared_ptr<Wt::Dbo::Session> session;
     
     
@@ -84,25 +81,19 @@ namespace lughos
     {
       if(powersupply->isConnected())
       {
-	this->stateF->setText("Connected!");
-        this->stateB->setText("Status");
+        this->led->setState<Connected>();
+        this->led->clicked().connect(this,&DeviceUI<PSAPowersupply>::getState);
 	this->onB->setDisabled(false);
 	this->offB->setDisabled(false);
         this->onB->clicked().connect(this,&DeviceUI<PSAPowersupply>::switchOn);
 	this->offB->clicked().connect(this,&DeviceUI<PSAPowersupply>::switchOff);
-	this->stateB->clicked().connect(this,&DeviceUI<PSAPowersupply>::getState);
 	this->getState();
 
       }
       else
       {
-	this->stateF->setText("Not connected!");
-// 	this->stateF->setText(std::to_string(coolpak->isConnected()));
-        this->stateB->setText("Try again");
- 	this->stateB->clicked().connect(this,&DeviceUI<PSAPowersupply>::checkConnected);
-// 	this->startB->setDisabled(true);
-// 	this->stopB->setDisabled(true);
-
+        this->led->setState<Disconnected>();
+        this->led->clicked().connect(this,&DeviceUI<PSAPowersupply>::checkConnected);
       }
     }
   
@@ -112,10 +103,6 @@ namespace lughos
      this->name=powersupply->getName();
 //      this->setWidth(500);
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-     this->stateF = new Wt::WLineEdit("Initializing...");
-     this->stateF->setReadOnly(true);
-     this->stateL = new Wt::WLabel("Status:");
-     this->stateL->setBuddy(stateF);
      this->voltageF = new Wt::WLineEdit("0.0");
      this->voltageF->setReadOnly(true);
      this->voltageL = new Wt::WLabel("Voltage");
@@ -134,9 +121,6 @@ namespace lughos
      this->temperatureL->setBuddy(temperaturF);
      this->onB = new Wt::WPushButton("On");
      this->offB = new Wt::WPushButton("Off");
-     this->stateB = new Wt::WPushButton("Status");
-     this->addWidget(stateL);
-     this->addWidget(stateF);
      this->addWidget(voltageL);
      this->addWidget(voltageF);
      this->addWidget(currentL);
@@ -147,7 +131,6 @@ namespace lughos
      this->addWidget(temperaturF);
      this->addWidget(onB);
      this->addWidget(offB);
-     this->addWidget(stateB);
      this->onB->setDisabled(true);
      this->offB->setDisabled(true);
      this->checkConnected();

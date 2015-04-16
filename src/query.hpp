@@ -144,7 +144,7 @@ namespace lughos
       if(!answer->has_value() && !answer->has_exception())
       {
         debugLog(std::string("Waiting on query ")+ idString + std::string(" for answer..."));
-        this->answer->timed_wait(boost::posix_time::seconds(2));
+        this->answer->timed_wait(boost::posix_time::seconds(3));
       }
       if(answer->has_value())
       {
