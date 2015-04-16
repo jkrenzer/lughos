@@ -290,7 +290,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       // Write all of the data that has been read so far.
       query->ready();
-      lughos::debugLog ( std::string ( "Read \"" ) + query->getAnswer() + std::string ( "\" into " ) + query->idString);
+      lughos::debugLog ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
       return;
     }
     else if (err == boost::asio::error::operation_aborted)
@@ -322,7 +322,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
 {
   if(!error)
   {
-    lughos::debugLog ( std::string ( "Timed out while waiting for answer." ));
+    lughos::debugLog ( std::string ( "Timed out while waiting for reply of device." ));
     this->abort();
     query->setError(std::string("Timed out."));           // TODO signal error states in query
     return;
