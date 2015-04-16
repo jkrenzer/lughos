@@ -144,8 +144,8 @@ namespace lughos
     std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);
-      if(this->connected)
-      {
+//       if(this->connected)
+//       {
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
@@ -159,9 +159,9 @@ namespace lughos
 	{
 	  return std::string("");
 	}
-      }
-      else
-	return std::string("");
+//       }
+//       else
+// 	return std::string("");
 //       else
 //  	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
 //         return std::string("");
