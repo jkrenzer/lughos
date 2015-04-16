@@ -158,6 +158,7 @@ void serialConnection::connect ( boost::function<void(const boost::system::error
         debugLog(std::string("Already connected to port ") + this->port_name + std::string(". Calling callback function."));
         this->isConnected = true;
         boost::system::error_code ec;
+        lock.unlock();
         if(callback)
           callback(ec);
         return;
