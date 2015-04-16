@@ -583,8 +583,8 @@ this->controllerMode=ControllerMode::Voltage;
 bool RFG::isConnectedImplementation()
 {
   std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
-  this->connected = (initStr == std::string("@"));
-  return this->connected;
+  lughos::debugLog(std::string("RFG is testing connection. Answer was: ") + initStr);
+  return initStr == std::string("@");
 }
 
 
