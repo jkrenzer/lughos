@@ -110,6 +110,7 @@ public:
     
  ValueImplementation() : mutex()
  {
+   this->valuePointer.reset(new T());
  }
  
   ~ValueImplementation()
@@ -228,10 +229,20 @@ public:
     this->setPtr(ptr);
   }
   
+  Pointer()
+  {
+    this->unsetPtr();
+  }
+  
   void setPtr(T* ptr)
   {
     ExclusiveLock lock(this->mutex);
     this->valuePointer.reset(ptr);
+  }
+  
+  void unsetPtr()
+  {
+    this->valuePointer.reset();
   }
   
   T* getPtr()
