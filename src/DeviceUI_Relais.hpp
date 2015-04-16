@@ -82,8 +82,6 @@ namespace lughos
       if(relais->isConnected())
       {
         this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<Relais>::getState);
-	
         this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
         this->channelStateB->clicked().connect(this,&DeviceUI<Relais>::getState);
 	this->getState();
@@ -93,7 +91,6 @@ namespace lughos
       {
 
 	this->led->setState<Connected>();
-        this->led->clicked().connect(this,&DeviceUI<Relais>::checkConnected);
         
 	std::cout<<"not f*cking connected!"<<std::endl;
 	this->changeChannelsB->setDisabled(true);
