@@ -141,16 +141,21 @@ namespace lughos
     std::string spyAnswer()
     {
       lughos::SharedLock lock(this->mutex);
-      if(busyBit)
+      if(!answer->has_value() && !answer->has_exception())
       {
         debugLog(std::string("Waiting on query ")+ idString + std::string(" for answer..."));
         this->answer->timed_wait(boost::posix_time::seconds(2));
       }
-      if(answer->has_value() || answer->has_exception())
+      if(answer->has_value())
       {
         std::string tmp = this->answer->get();
         debugLog(std::string("Query ")+ idString + std::string(" has answer: ") + tmp);
         return tmp;
+      }
+      else if (answer->has_exception())
+      {
+        debugLog(std::string("Query ")+ idString + std::string(" got exception. Rethrowing. "));
+        this->answer->get();
       }
       else
       {

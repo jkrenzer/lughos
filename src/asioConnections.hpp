@@ -206,7 +206,6 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     return;
   }
   lock.unlock();
-  query->busy();
   {
     ExclusiveLock llock(this->mutex);
     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
@@ -214,6 +213,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
                                  boost::asio::placeholders::error )));
   }
   lock.lock();
+  query->busy();
   boost::asio::async_write ( *socket, query->output(),
                              this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error )) );
