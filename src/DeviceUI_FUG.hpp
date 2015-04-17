@@ -281,6 +281,7 @@ namespace lughos
      {
        if(this->fug->getOvercurrent())
        {
+         std::cout << std::endl << std::endl << "############>>>>>>>>>>>> Overcurrent!" << std::endl << std::endl;
          this->led->setColor(lughos::StatusLEDWtWidget::Orange);
          this->led->setToolTip(Wt::WString("Overcurrent detected!"));
          this->led->setStatusMessage(Wt::WString("Overcurrent detected!"));

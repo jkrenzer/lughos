@@ -273,14 +273,18 @@ bool FUGNetzteil::readOvercurrent()
   if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
-   lughos::debugLog(std::string("FUG Powersupply ") + this->name + std::string(" reports overcurrent!"));
-   return std::stod(answer) == 1;
+   if (std::stod(answer) == 1)
+   {
+    lughos::debugLog(std::string("FUG Powersupply ") + this->name + std::string(" reports overcurrent!"));
+    return true;
+   }
+   else
+     return false;
   }
   else if (answer[0]=='E')
   {
   setError("hasOvercurrent", answer);
   }
-
   return false;
 }
 

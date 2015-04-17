@@ -43,6 +43,7 @@ namespace lughos
     if(!this->isValid() && readFunction)
     {
         this->tainted = false;
+        this->timestamp = boost::posix_time::microsec_clock::local_time();
         this->cachedValue = readFunction();
     }
     return cachedValue;
@@ -61,6 +62,7 @@ namespace lughos
   template <class R> cachedFunction<R>::cachedFunction()
   {
       this->tainted = true;
+      this->timestamp = boost::posix_time::microsec_clock::local_time();
       this->interval = boost::posix_time::seconds(1);
   }
 
