@@ -104,6 +104,17 @@ void tcpConnection::handle_connect(boost::function<void (const boost::system::er
       callback(err);
     return;
   }
+  else if (err == boost::asio::error::already_connected)
+  {
+    ExclusiveLock lock(this->mutex);
+    this->isConnected = true;
+    lock.unlock();
+    lughos::debugLog(std::string("Already connected to ")+server_name);
+    socket->set_option(keepAlive); //Seems to be only allowed after connect :/
+    if(callback)
+      callback(err);
+    return;
+  }
   else if (endpoint_iterator != tcp::resolver::iterator())
   {
     // The connection failed. Try the next endpoint in the list.
