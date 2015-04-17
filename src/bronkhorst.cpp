@@ -177,7 +177,7 @@ void bronkhorst::initImplementation()
     m1.setParameter(bronkhorstMessage::Parameter::Capacity);
     m1.setParameterType(bronkhorstMessage::ParameterType::Float);
     a1(this->inputOutput(m1));
-    if(!a1.hasValue())
+    if(a1.hasValue())
     {
       std::stringstream(a1.getValueString()) >> this->maxCapacity;
       std::cout << "MAXCAPACITY: " << this->maxCapacity;

@@ -16,13 +16,68 @@
 
 namespace lughos
 {
-    
+  
+  class StateMessage
+    {
+    public:
+      enum Type { Off, Save, Operational, Notice, Warning, Error, Special1 } type_;
+    protected:
+      std::string name_;
+      std::string description_;
+      std::string advice_;
+    public:
+      void advice(std::string advice)
+      {
+        this->advice_ = advice;
+      }
+      
+      std::string advice()
+      {
+        return this-advice_;
+      }
+      
+      void description(std::string description)
+      {
+        this->description_ = description;
+      }
+      
+      std::string description()
+      {
+        return this->description_;
+      }
+      
+      void name(std::string name)
+      {
+        this->name_ = name;
+      }
+      
+      std::string name()
+      {
+        return this->name_;
+      }
+      
+      void type(Type type)
+      {
+        this ->type_ = type;
+      }
+      
+      Type type()
+      {
+        return this->type_;
+      }
+      
+    };
+  
   /**
    * @brief Template-class which deklares the basic interface of a device
    * 
    */
   class DeviceImpl : public BasicObject
   {
+  public:
+  
+    
+    
   protected:
     
     Mutex mutex;
@@ -34,6 +89,8 @@ namespace lughos
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
     bool connected;
+    
+    std::vector<boost::shared_ptr<StateMessage> > stateMessages;
     
     virtual void initImplementation() = 0;
     
