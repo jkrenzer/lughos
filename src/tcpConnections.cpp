@@ -110,6 +110,7 @@ void tcpConnection::handle_connect(boost::function<void (const boost::system::er
     this->isConnected = true;
     lock.unlock();
     lughos::debugLog(std::string("Already connected to ")+server_name);
+    boost::asio::socket_base::keep_alive keepAlive(true);
     socket->set_option(keepAlive); //Seems to be only allowed after connect :/
     if(callback)
       callback(err);
