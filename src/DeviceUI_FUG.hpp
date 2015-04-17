@@ -267,11 +267,13 @@ namespace lughos
        {
 	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
          this->led->setToolTip(Wt::WString("Analogue control mode. Cannot command device!"));
+         this->led->setStatusMessage(Wt::WString("Analogue control mode. Cannot command device!"));
        }
        else
        {
 	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
          this->led->setToolTip(Wt::WString("Local control mode. Cannot command device!"));
+         this->led->setStatusMessage(Wt::WString("Local control mode. Cannot command device!"));
        }
      }
      
@@ -279,7 +281,13 @@ namespace lughos
      {
        if(this->fug->getOvercurrent())
        {
-         
+         this->led->setColor(lughos::StatusLEDWtWidget::Orange);
+         this->led->setToolTip(Wt::WString("Overcurrent detected!"));
+         this->led->setStatusMessage(Wt::WString("Overcurrent detected!"));
+       }
+       else
+       {
+         this->led->setState<Connected>();
        }
      }
      
@@ -320,8 +328,8 @@ namespace lughos
     {
       this->getU();
       this->getI();
-      this->getRemoteState();
       this->getOC();
+      this->getRemoteState();
     }
     
   };
