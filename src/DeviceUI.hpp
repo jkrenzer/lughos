@@ -6,6 +6,7 @@
 #include <Wt/WPanel>
 #include <Wt/WContainerWidget>
 #include <Wt/WText>
+#include <Wt/WTimer>
 #include <functional>
 #include "StatusLEDWtWidget.hpp"
 
@@ -16,6 +17,8 @@ namespace lughos
 
   class DeviceUIInterface : public Wt::WPanel
   {
+  protected:
+        boost::shared_ptr<Wt::WTimer> intervalTimer;
   public:
     std::string name;
     Wt::WContainerWidget * container;
@@ -92,15 +95,19 @@ namespace lughos
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
-      Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reconnect");
+      Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
       reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected);
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh");
       state->triggered().connect(this,&DeviceUIInterface::getState);
+      this->intervalTimer->setInterval(1001);
+      this->intervalTimer->timeout().connect(this,&DeviceUIInterface::getState); // Reload state every second
+      this->intervalTimer->start();
     }
 
     virtual ~ DeviceUIInterface ()
     {
       delete this->container;
+      this->intervalTimer->stop();
     }
 
   };

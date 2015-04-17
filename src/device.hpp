@@ -6,7 +6,6 @@
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/regex.hpp>
 #include <boost/asio/io_service.hpp>
-
 #include "connectionImpl.hpp"
 #include "BasicObject.hpp"
 #include "basicTypes.hpp"
@@ -33,7 +32,7 @@ namespace lughos
       
       std::string advice()
       {
-        return this-advice_;
+        return this->advice_;
       }
       
       void description(std::string description)
@@ -58,7 +57,7 @@ namespace lughos
       
       void type(Type type)
       {
-        this ->type_ = type;
+        this->type_ = type;
       }
       
       Type type()

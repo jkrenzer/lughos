@@ -33,7 +33,6 @@
 #include <Wt/WSpinBox>
 #include <Wt/WDoubleSpinBox>
 #include <Wt/WTableView>
-#include <Wt/WTimer>
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/QueryModel>
@@ -71,12 +70,12 @@ namespace lughos
     Wt::WPushButton * onB;
     Wt::WPushButton * offB;
     Wt::WPushButton * resetOCB;
-    boost::shared_ptr<Wt::WTimer> intervalTimer;
+
 //     Wt::WPushButton * stopB;
     
   public:
     
-    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : fug(boost::dynamic_pointer_cast<FUGNetzteil>(fug)), intervalTimer(new Wt::WTimer)
+    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : fug(boost::dynamic_pointer_cast<FUGNetzteil>(fug))
     {
 
       this->init();
@@ -103,9 +102,6 @@ namespace lughos
 	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
 	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
 	this->getState();
-// 	intervalTimer->setInterval(2000);
-// 	intervalTimer->timeout().connect(this,&DeviceUI< FUGNetzteil >::getState); // Reload state every 2 seconds
-// 	intervalTimer->start();
       }
       else
       {
@@ -262,7 +258,7 @@ namespace lughos
        bool digital = this->fug->getDigitalRemote();
        bool local = !analogue && !digital;
        if (digital)
-	 this->led->setState<Connected>();
+	 return;
        else if(analogue)
        {
 	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
@@ -285,10 +281,6 @@ namespace lughos
          this->led->setColor(lughos::StatusLEDWtWidget::Orange);
          this->led->setToolTip(Wt::WString("Overcurrent detected!"));
          this->led->setStatusMessage(Wt::WString("Overcurrent detected!"));
-       }
-       else
-       {
-         this->led->setState<Connected>();
        }
      }
      
@@ -327,6 +319,7 @@ namespace lughos
    
     void getState()
     {
+      this->led->setState<Connected>();
       this->getU();
       this->getI();
       this->getOC();
