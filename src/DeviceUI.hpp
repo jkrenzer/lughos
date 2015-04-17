@@ -87,6 +87,7 @@ namespace lughos
 
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
+      this->intervalTimer.reset(new Wt::WTimer());
       this->container = new Wt::WContainerWidget ();
       this->led = new StatusLEDWtWidget();
       this->led->setInline(true);
