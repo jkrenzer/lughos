@@ -140,7 +140,8 @@ void tcpConnection::shutdown()
 {
   this->abort();
   ExclusiveLock lock(this->mutex);
-  this->socket->close();
+  if(socket)
+    this->socket->close();
   this->socket.reset();
   this->query.reset();
   this->resolver.reset();
