@@ -105,7 +105,6 @@ namespace lughos
       }
       else
       {
-	intervalTimer->stop();
 	this->led->setState<Disconnected>();
 	this->sendIB->setDisabled(true);
 	this->iField->setDisabled(true);
