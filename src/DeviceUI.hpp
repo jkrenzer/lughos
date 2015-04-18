@@ -109,9 +109,9 @@ namespace lughos
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this)); // Reload measurements every second
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshState,this)); // Reload state every second
       this->intervalTimer->start();
-      this->refresh.connect(this->refreshMeasurements);
-      this->refresh.connect(this->refreshSettings);
-      this->refresh.connect(this->refreshState);
+      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this));
+      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshSettings,this));
+      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshState,this));
     }
 
     virtual ~ DeviceUIInterface ()

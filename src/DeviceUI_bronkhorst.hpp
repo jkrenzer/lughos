@@ -99,8 +99,9 @@ namespace lughos
   
       void init()
     {
-      std::cout << "Brankhorst init running..." << std::endl;
      this->name=horst->getName();
+     this->refreshMeasurements.connect(boost::bind(&DeviceUI< bronkhorst >::getFlow,this));
+     this->refreshSettings.connect(boost::bind(&DeviceUI< bronkhorst >::getSetpoint,this));
 //      this->setWidth(500);
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
      this->flowL1 = new Wt::WLabel("Set Flow:");

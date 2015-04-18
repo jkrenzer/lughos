@@ -101,6 +101,7 @@ namespace lughos
     {
       std::cout << "PSA-powersupply init running..." << std::endl;
      this->name=powersupply->getName();
+     this->refreshMeasurements.connect(boost::bind(&DeviceUI< PSAPowersupply >::getMeasurements,this));
 //      this->setWidth(500);
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
      this->voltageF = new Wt::WLineEdit("0.0");

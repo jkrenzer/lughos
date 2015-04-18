@@ -147,6 +147,8 @@ namespace lughos
     {
      this->name=rfg->getName();
 //      this->setWidth(500);
+      this->refreshMeasurements.connect(boost::bind(&DeviceUI< RFG >::getMeasurements,this));
+      this->refreshSettings.connect(boost::bind(&DeviceUI< RFG >::getSettings,this));
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       
       this->uL = new Wt::WLabel("Set U min and max [V]:");
@@ -233,7 +235,7 @@ namespace lughos
       this->targetField->setMinimum(0);
       this->targetField->setMaximum(65535);
       this->targetField->setDecimals(0);
-      this->getCompleteState();
+      this->refresh();
     }
     
     void unsetRawMode()
@@ -250,7 +252,7 @@ namespace lughos
       this->targetField->setMinimum(0);
       this->targetField->setMaximum(40);
       this->targetField->setDecimals(1);
-      this->getCompleteState();
+      this->refresh();
     }
     
     void setU()
@@ -320,12 +322,18 @@ namespace lughos
       this->rfg->use_power_controler();
     }
     
-    
-    void getCompleteState()
+    void getMeasurements()
     {
-      measuredValue<double> v;
-      std::stringstream ss;
       this->rfg->readout(this->rawMode->isChecked());
+      this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
+      this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
+      this->pOutField->setText(this->rfg->get_channel(2).getValueAsString());
+      
+    }
+    
+    void getSettings()
+    {
+      
       if (this->rfg->isConnected())
       {
 //       for (int i; i<8;i++)
@@ -337,8 +345,7 @@ namespace lughos
 	this->uMinField->setValue(this->rfg->getLimitMinVoltage());
 	this->iField->setValue(this->rfg->getLimitMaxCurrent());
 	this->targetField->setValue(this->rfg->getTargetValue());
-	this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
-	this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
+	
       }
     }
     
