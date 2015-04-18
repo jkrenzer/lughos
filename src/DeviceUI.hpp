@@ -104,10 +104,10 @@ namespace lughos
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
       reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected);
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
-      state->triggered().connect(DeviceUIInterface::refresh);
+      state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1001);
-      this->intervalTimer->timeout().connect(this->refreshMeasurements); // Reload measurements every second
-      this->intervalTimer->timeout().connect(this->refreshState); // Reload state every second
+      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this)); // Reload measurements every second
+      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshState,this)); // Reload state every second
       this->intervalTimer->start();
       this->refresh.connect(this->refreshMeasurements);
       this->refresh.connect(this->refreshSettings);

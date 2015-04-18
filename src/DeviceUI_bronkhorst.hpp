@@ -88,13 +88,12 @@ namespace lughos
 	this->setpoint->setDisabled(false);
         this->setpoint->button()->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
         this->led->setState<Connected>();
-	this->getCompleteState();
+        this->refresh();
       }
       else
       {
         this->led->setState<Disconnected>();
         this->setpoint->setDisabled(true);
-
       }
     }
   

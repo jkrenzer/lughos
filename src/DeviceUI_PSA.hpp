@@ -86,7 +86,7 @@ namespace lughos
 	this->offB->setDisabled(false);
         this->onB->clicked().connect(this,&DeviceUI<PSAPowersupply>::switchOn);
 	this->offB->clicked().connect(this,&DeviceUI<PSAPowersupply>::switchOff);
-	this->getCompleteState();
+	this->refresh();
 
       }
       else
@@ -138,7 +138,7 @@ namespace lughos
     }
     
      
-    void getCompleteState()
+    void getMeasurements()
     {
       measuredValue<double> voltage, current, power;
       voltage = this->powersupply->get_voltage();

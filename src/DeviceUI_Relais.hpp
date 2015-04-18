@@ -63,7 +63,6 @@ namespace lughos
 
     Wt::WTextArea *responseField;
     Wt::WPushButton * changeChannelsB;
-    Wt::WPushButton * channelStateB;
     
   public:
     
@@ -83,8 +82,7 @@ namespace lughos
       {
         this->led->setState<Connected>();
         this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
-        this->channelStateB->clicked().connect(this,&DeviceUI<Relais>::getCompleteState);
-	this->getCompleteState();
+	this->refresh();
 
       }
       else
@@ -94,7 +92,6 @@ namespace lughos
         
 	std::cout<<"not f*cking connected!"<<std::endl;
 	this->changeChannelsB->setDisabled(true);
-	this->channelStateB->setDisabled(true);
 	
 	    for (unsigned i = 0; i < 8; ++i) 
 	    {
@@ -115,7 +112,7 @@ namespace lughos
 //      this->setWidth(500);
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       this->changeChannelsB = new Wt::WPushButton("Set");
-      this->channelStateB = new Wt::WPushButton("Get states");
+      this->refreshState.connect(boost::bind(&DeviceUI< Relais >::getChannels,this));
     
       
       Wt::WTable *table = new Wt::WTable();
@@ -145,7 +142,6 @@ namespace lughos
 //       
       this->addWidget(table);
       this->addWidget(changeChannelsB);
-      this->addWidget(channelStateB);
 
 
       this->checkConnected();
@@ -154,12 +150,11 @@ namespace lughos
     
 
     
-    void getCompleteState()
+    void getChannels()
     {
 	std::string ss = this->relais->read_channels();
 	std::bitset<8> relais(ss);
-      
-
+	
 	for (int i = 0; i < 8; i++)
 	{
 	  if (relais[i])
@@ -175,6 +170,8 @@ namespace lughos
 //       this->stateF->setText(ss);
     }
     
+    
+    
         void changeChannels()
     {
       measuredValue<double> v;
@@ -189,7 +186,7 @@ namespace lughos
 	ss = this->relais->write_channels(channelSequence);
 // 	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
 
-	this->getCompleteState();
+	this->refresh();
     }
     
 //     void start()

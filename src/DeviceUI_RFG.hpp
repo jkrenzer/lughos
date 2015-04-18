@@ -118,7 +118,7 @@ namespace lughos
 	this->powerControl->clicked().connect(this,&DeviceUI<RFG>::setTargetPower);
 	this->rawMode->checked().connect(this,&DeviceUI<RFG>::setRawMode);
 	this->rawMode->unChecked().connect(this,&DeviceUI<RFG>::unsetRawMode);
-	this->getCompleteState();
+	this->refresh();
 	this->setTargetVoltage();
 
       }
@@ -215,11 +215,6 @@ namespace lughos
       this->addWidget(sendOnB);
       this->addWidget(sendOffB);
       this->addWidget(rawMode);
-//       this->sendIB->setDisabled(true);
-//       this->iField->setDisabled(true);
-//       this->sendUB->setDisabled(true);
-//       this->uMinField->setDisabled(true);
-//       this->uMaxField->setDisabled(true);
       this->checkConnected();
 
     }
@@ -325,24 +320,26 @@ namespace lughos
       this->rfg->use_power_controler();
     }
     
+    
     void getCompleteState()
     {
       measuredValue<double> v;
       std::stringstream ss;
       this->rfg->readout(this->rawMode->isChecked());
       if (this->rfg->isConnected())
-	
-      for (int i; i<8;i++)
       {
-	v = this->rfg->get_channel(i);
-	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
+//       for (int i; i<8;i++)
+//       {
+// 	v = this->rfg->get_channel(i);
+// 	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
+//       }
+	this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
+	this->uMinField->setValue(this->rfg->getLimitMinVoltage());
+	this->iField->setValue(this->rfg->getLimitMaxCurrent());
+	this->targetField->setValue(this->rfg->getTargetValue());
+	this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
+	this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
       }
-      this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
-      this->uMinField->setValue(this->rfg->getLimitMinVoltage());
-      this->iField->setValue(this->rfg->getLimitMaxCurrent());
-      this->targetField->setValue(this->rfg->getTargetValue());
-      this->uOutField->setText(this->rfg->get_channel(0).getValueAsString());
-      this->iOutField->setText(this->rfg->get_channel(1).getValueAsString());
     }
     
 //     void start()
