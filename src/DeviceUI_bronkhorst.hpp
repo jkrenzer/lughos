@@ -88,7 +88,7 @@ namespace lughos
 	this->setpoint->setDisabled(false);
         this->setpoint->button()->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
         this->led->setState<Connected>();
-	this->getState();
+	this->getCompleteState();
       }
       else
       {
@@ -129,12 +129,6 @@ namespace lughos
       this->getFlow();
 //     
       
-    }
-    
-    void getState()
-    {
-      this->getSetpoint();
-      this->getFlow();
     }
     
     void setFlow(boost::shared_ptr<bronkhorst> horst)

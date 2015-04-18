@@ -101,7 +101,7 @@ namespace lughos
 	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOn);
 	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
 	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
-	this->getState();
+	this->refresh();
       }
       else
       {
@@ -124,6 +124,12 @@ namespace lughos
      this->name=fug->getName();
 //      this->setWidth(500);
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
+      this->refreshMeasurements.connect(boost::bind(&DeviceUI< FUGNetzteil >::getU,this));
+      this->refreshMeasurements.connect(boost::bind(&DeviceUI< FUGNetzteil >::getI,this));
+      this->refreshSettings.connect(boost::bind(&DeviceUI< FUGNetzteil >::getSetpointU,this));
+      this->refreshSettings.connect(boost::bind(&DeviceUI< FUGNetzteil >::getSetpointI,this));
+      this->refreshState.connect(boost::bind(&DeviceUI< FUGNetzteil >::getOC,this));
+      this->refreshState.connect(boost::bind(&DeviceUI< FUGNetzteil >::getRemoteState,this));
       
       this->uL = new Wt::WLabel("Set U min and max:");
       this->iL = new Wt::WLabel("Set I:");
@@ -193,7 +199,7 @@ namespace lughos
       {
 	LastError=Error;
       }
-      this->getState();
+      this->refresh();
       
     }
     
@@ -216,15 +222,14 @@ namespace lughos
 	LastError=Error;
       }
       
-      this->getState();
+      this->refresh();
     }
     
         void getU()
     {
    
-      std::string str = std::to_string(fug->getSetpointU());
-      this->uMaxField->setText(str);
-      str = std::to_string(fug->getU());
+
+      string str = std::to_string(fug->getU());
       this->uOutField->setText(str);
 //     
       std::string Error;
@@ -235,11 +240,22 @@ namespace lughos
       }  
     }
     
+    void getSetpointU()
+    {
+      std::string str = std::to_string(fug->getSetpointU());
+      this->uMaxField->setText(str);
+      std::string Error;
+      Error = fug->getLastError();
+      if(Error!=this->LastError)
+      {
+        LastError=Error;
+      }
+    }
+    
         void getI()
     {
-      string str = std::to_string(fug->getSetpointI());
-      this->iField->setText(str);
-      str = std::to_string(fug->getI());
+      
+      string str = std::to_string(fug->getI());
       this->iOutField->setText(str);
 
 //       this->stateF->setText("Current set:"+iField->text().toUTF8());
@@ -249,6 +265,18 @@ namespace lughos
       if(Error!=this->LastError)
       {
 	LastError=Error;
+      } 
+    }
+    
+    void getSetpointI()
+    {
+      string str = std::to_string(fug->getSetpointI());
+      this->iField->setText(str);
+      std::string Error;
+      Error = fug->getLastError();
+      if(Error!=this->LastError)
+      {
+        LastError=Error;
       } 
     }
     
@@ -287,7 +315,7 @@ namespace lughos
      void resetOC()
      {
        this->fug->resetOvercurrent();
-       this->getState();
+       this->refresh();
      }
     
     void getMeasure()
@@ -316,15 +344,25 @@ namespace lughos
     {
       this->fug->switchVoltage(0);
     }
-   
-    void getState()
-    {
-      this->led->setState<Connected>();
-      this->getU();
-      this->getI();
-      this->getOC();
-      this->getRemoteState();
-    }
+    
+//     void getMeasurements()
+//     {
+//       this->getU();
+//       this->getI();
+//     }
+//     
+//     void getSettings()
+//     {
+//       this->getSetpointU();
+//       this->getSetpointI();
+//     }
+//     
+//     void getStatusInformation()
+//     {
+//       this->led->setState<Connected>();
+//       this->getOC();
+//       this->getRemoteState();
+//     }
     
   };
 } //namespace

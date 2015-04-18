@@ -83,8 +83,8 @@ namespace lughos
       {
         this->led->setState<Connected>();
         this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
-        this->channelStateB->clicked().connect(this,&DeviceUI<Relais>::getState);
-	this->getState();
+        this->channelStateB->clicked().connect(this,&DeviceUI<Relais>::getCompleteState);
+	this->getCompleteState();
 
       }
       else
@@ -154,7 +154,7 @@ namespace lughos
     
 
     
-    void getState()
+    void getCompleteState()
     {
 	std::string ss = this->relais->read_channels();
 	std::bitset<8> relais(ss);
@@ -189,7 +189,7 @@ namespace lughos
 	ss = this->relais->write_channels(channelSequence);
 // 	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
 
-	this->getState();
+	this->getCompleteState();
     }
     
 //     void start()

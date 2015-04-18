@@ -1,6 +1,7 @@
 #ifndef DEVICEUI_HPP
 #define DEVICEUI_HPP
 
+#include <boost/signals2/signal.hpp>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WPanel>
@@ -23,6 +24,11 @@ namespace lughos
     std::string name;
     Wt::WContainerWidget * container;
     StatusLEDWtWidget * led;
+    
+    boost::signals2::signal<void ()> refreshMeasurements;
+    boost::signals2::signal<void ()> refreshSettings;
+    boost::signals2::signal<void ()> refreshState;
+    boost::signals2::signal<void ()> refresh;
     
     class Disconnected : public StatusLEDState
     {
@@ -83,7 +89,6 @@ namespace lughos
     
     virtual void checkConnected() = 0;
     
-    virtual void getState() = 0;
 
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
@@ -98,17 +103,21 @@ namespace lughos
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
       reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected);
-      Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh");
-      state->triggered().connect(this,&DeviceUIInterface::getState);
+      Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
+      state->triggered().connect(DeviceUIInterface::refresh);
       this->intervalTimer->setInterval(1001);
-      this->intervalTimer->timeout().connect(this,&DeviceUIInterface::getState); // Reload state every second
+      this->intervalTimer->timeout().connect(this->refreshMeasurements); // Reload measurements every second
+      this->intervalTimer->timeout().connect(this->refreshState); // Reload state every second
       this->intervalTimer->start();
+      this->refresh.connect(this->refreshMeasurements);
+      this->refresh.connect(this->refreshSettings);
+      this->refresh.connect(this->refreshState);
     }
 
     virtual ~ DeviceUIInterface ()
     {
       delete this->container;
-      this->intervalTimer->stop();
+//       this->intervalTimer->stop();
     }
 
   };

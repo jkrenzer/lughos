@@ -370,7 +370,7 @@ namespace lughos
 	this->startB->clicked().connect(this,&DeviceUI<coolpak6000>::start);
 	this->stopB->clicked().connect(this,&DeviceUI<coolpak6000>::stop);
         this->stateB->clicked().connect(this,&DeviceUI<coolpak6000>::showData);
-	this->getState();
+	this->getCompleteState();
 
       }
       else
@@ -412,7 +412,7 @@ namespace lughos
       this->stateF->setText(coolpak->get_data());
     }
     
-    void getState()
+    void getCompleteState()
     {
       coolpak->get_data();
       std::string state;
@@ -469,7 +469,7 @@ namespace lughos
 	this->stateF->setText("System on");
       else
 	this->stateF->setText("Cannot start!");
-      this->getState();
+      this->getCompleteState();
     }
     
     void stop()
@@ -479,7 +479,7 @@ namespace lughos
 	this->stateF->setText("System off");
       else
 	this->stateF->setText("Cannot stop!");
-      this->getState();
+      this->getCompleteState();
     }
     
     
@@ -568,7 +568,7 @@ namespace lughos
 
 
 
-	this->getState();
+	this->getCompleteState();
       }
       else
       {
@@ -632,11 +632,11 @@ namespace lughos
     
     void showData()
     {
-      this->getState();
+      this->getCompleteState();
 //       this->stateF->setText("");
     }
     
-    void getState()
+    void getCompleteState()
     {
       std::string state;
       std::string enabled="Enabled channels: ";
@@ -681,7 +681,7 @@ namespace lughos
       }
 
       
-      this->getState();
+      this->getCompleteState();
     }
     
     void stopall()
@@ -692,7 +692,7 @@ namespace lughos
 	onB[i]->setDisabled(false);
 	offB[i]->setDisabled(true);
       }
-      this->getState();
+      this->getCompleteState();
     }
     
         void sensor_on(int i)
@@ -762,7 +762,7 @@ namespace lughos
 
 // 	Wt::WText *out = new Wt::WText("<p></p>", dialogField);
 
-	this->getState();
+	this->getCompleteState();
 	
 
       }
@@ -821,7 +821,7 @@ namespace lughos
       this->stateF->setText(keithley->inputOutput("*IDN?"));
     }
     
-    void getState()
+    void getCompleteState()
     {
       std::string state;
       state=keithley->inputOutput("*IDN?");
@@ -858,13 +858,13 @@ namespace lughos
     void start()
     {
       this->stateF->setText("Starting...");
-      this->getState();
+      this->getCompleteState();
     }
     
     void stop()
     {
       this->stateF->setText("Stopping...");
-      this->getState();
+      this->getCompleteState();
     }
     
   };

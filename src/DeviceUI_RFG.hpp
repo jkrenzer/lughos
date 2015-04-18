@@ -118,7 +118,7 @@ namespace lughos
 	this->powerControl->clicked().connect(this,&DeviceUI<RFG>::setTargetPower);
 	this->rawMode->checked().connect(this,&DeviceUI<RFG>::setRawMode);
 	this->rawMode->unChecked().connect(this,&DeviceUI<RFG>::unsetRawMode);
-	this->getState();
+	this->getCompleteState();
 	this->setTargetVoltage();
 
       }
@@ -238,7 +238,7 @@ namespace lughos
       this->targetField->setMinimum(0);
       this->targetField->setMaximum(65535);
       this->targetField->setDecimals(0);
-      this->getState();
+      this->getCompleteState();
     }
     
     void unsetRawMode()
@@ -255,7 +255,7 @@ namespace lughos
       this->targetField->setMinimum(0);
       this->targetField->setMaximum(40);
       this->targetField->setDecimals(1);
-      this->getState();
+      this->getCompleteState();
     }
     
     void setU()
@@ -325,7 +325,7 @@ namespace lughos
       this->rfg->use_power_controler();
     }
     
-    void getState()
+    void getCompleteState()
     {
       measuredValue<double> v;
       std::stringstream ss;

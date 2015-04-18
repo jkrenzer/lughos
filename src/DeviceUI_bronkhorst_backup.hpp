@@ -107,8 +107,8 @@ using namespace lughos;
 	this->sendB1->setDisabled(false);
 	this->setpointField1->setDisabled(false);
         this->sendB1->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
-	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::getState);
-	this->getState();
+	this->stateB1->clicked().connect(this,&DeviceUI<bronkhorst>::getCompleteState);
+	this->getCompleteState();
 
       }
       else
@@ -208,7 +208,7 @@ using namespace lughos;
       this->setpointField1->setText(std::string(v.getStringValue()));
     }
     
-    void getState()
+    void getCompleteState()
     {
       this->getSetpoint();
     }
