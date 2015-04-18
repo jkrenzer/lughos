@@ -89,6 +89,13 @@ namespace lughos
     
     virtual void checkConnected() = 0;
     
+    virtual void fireTimerSignals()
+    {
+      std::cout << "Fireing refresh..." << std::endl;
+      this->refreshMeasurements();
+      this->refreshState();
+    }
+    
 
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
@@ -106,8 +113,7 @@ namespace lughos
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1000);
-      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this)); // Reload measurements every second
-      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshState,this)); // Reload state every second
+      this->intervalTimer->timeout().connect(this,&DeviceUIInterface::fireTimerSignals); // Reload measurements every second
       this->intervalTimer->start();
       this->refresh.connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this));
       this->refresh.connect(boost::bind(&DeviceUIInterface::refreshSettings,this));
