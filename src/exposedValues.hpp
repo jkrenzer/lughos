@@ -1,6 +1,7 @@
 #ifndef EXPOSED_VALUES_HPP
 #define EXPOSED_VALUES_HPP
 
+#include "log.hpp"
 #include "BasicObject.hpp"
 #include "BasicParsers.hpp"
 #include "threadSafety.hpp"
@@ -149,9 +150,9 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
    
   public:
     
-    boost::signals2::signal<bool (ExposedValue<T>&), allSlotsTrue> beforeValueChange;
+    boost::signals2::signal<void (ExposedValue<T>&)> beforeValueChange;
     boost::signals2::signal<void (ExposedValue<T>&)> onValueChange;
-    boost::signals2::signal<void (ExposedValue<T>&)> onRequestValue;
+    boost::signals2::signal<void (ExposedValue<T>&)> beforeReadValue;
 
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {
@@ -183,6 +184,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     T getValue()
     {
       SharedLock lock(this->mutex);
+      this->beforeReadValue(*this);
       if(this->valuePointer)
         return *this->valuePointer;
       else
@@ -191,12 +193,25 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     
     bool setValue(T newValue)
     {
-      if(this->beforeValueChange(newValue))
+      try
+      {
+	this->beforeValueChange(*this);
+      }
+      catch(std::exception& e)
+      {
+// 	lughos::debuglog(std::string("beforeValueChange-function threw exception."));
+      }
+      try
       {
 	Value<T>::setValue(newValue);
-	this->onValueChange(newValue);
+	this->onValueChange(*this);
 	return true;
       }
+      catch(std::exception& e)
+      {
+// 	lughos::debuglog(std::string("Setting of value threw exception."));
+      }
+      
       return false;
     }
     
@@ -241,8 +256,8 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
   {
   protected:
 
-    boost::signals2::signal<bool (T*), allSlotsTrue> beforePointerChange;
-    boost::signals2::signal<void (T*)> onPointerChange;
+    boost::signals2::signal<void (ExposedPointer<T>&)> beforePointerChange;
+    boost::signals2::signal<void (ExposedPointer<T>&)> onPointerChange;
 
   public:
     ExposedPointer(T* pointer, std::string name, std::string description = std::string("N/A"))
@@ -264,11 +279,9 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     
     ExposedPointer<T>& operator=(T* other)
     {
-      if(beforePointerChange(other))
-      {
-	this->setPointer(other);
-	onPointerChange(other);
-      }
+      beforePointerChange(other);
+      this->setPointer(other);
+      onPointerChange(other);
       return *this;
     }
     

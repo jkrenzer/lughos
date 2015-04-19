@@ -84,6 +84,21 @@ namespace lughos
 //   return d;
 // }
 
+void logger(std::string str)
+{
+  std::cout << "LOG: " << str << std::endl;
+}
+
+double getter()
+{
+  return 123.456;
+}
+
+void setter(double d)
+{
+  std::cout << "Setting setter to " << d << std::endl;
+}
+
 int main(int argc, char **argv) {
   try 
   {
@@ -103,9 +118,24 @@ int main(int argc, char **argv) {
     a["output"]->parse("1234 \"Hallo Welt!\"");
     std::cout << "Zahl: " << a.get<int>("zahl")->getValue() << std::endl;
     exposedMeasurement<double> m1(std::string("Testmessung")); //TODO Write constructors
+    double test = 0.0;
+//     m1.onRequestValue.connect(boost::bind(&logger,std::string("Requested value of m1")));
+    m1.getter(&getter);
+    m1.setter(&setter);
+//     m1.onValueChange.connect(boost::bind(&logger,std::string("Set value of m1")));
     m1.setValue(987.654);
     m1.setUnit("blah");
-    std::cout << "Measured value: " << m1.getValueAsString() << std::endl;
+    boost::posix_time::time_duration corr = boost::posix_time::microsec_clock::local_time() - boost::posix_time::microsec_clock::local_time();
+    std::cout << "Time needed for allocation of timestamp: " << corr << std::endl;
+    boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+    double v1 = m1.getValue();
+    boost::posix_time::time_duration lapse1 = now - boost::posix_time::microsec_clock::local_time();
+    std::cout << "Measured value: " << v1 << " Time: " << lapse1 <<  std::endl;
+    boost::this_thread::sleep(boost::posix_time::seconds(1));
+    now = boost::posix_time::microsec_clock::local_time();
+    v1 = m1.getValue();
+    lapse1 = now - boost::posix_time::microsec_clock::local_time();
+    std::cout << "Measured value: " << v1 << " Time: " << lapse1 <<  std::endl;
   }
   catch(lughos::exception e)
   {

@@ -75,7 +75,10 @@ namespace lughos
   {
   public:
   
-    
+    boost::signals2::signal<void (DeviceImpl&)> onStateChange;
+    boost::signals2::signal<void (DeviceImpl&)> onConnect;
+    boost::signals2::signal<void (DeviceImpl&)> onDisconnect;
+    boost::signals2::signal<void (DeviceImpl&)> onError;
     
   protected:
     

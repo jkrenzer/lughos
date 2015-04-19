@@ -212,7 +212,7 @@ public:
     return this->getValue();
   }*/
   
-  operator T&()
+  operator T()
   {
     return *this->valuePointer;
   }
