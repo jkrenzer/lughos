@@ -17,8 +17,9 @@ class A : public ExposedClass
 public:
   int zahl;
   std::string str;
+  exposedMeasurement<double> meas;
   
-  A(int i, std::string s)
+  A(int i, std::string s) : meas("xxx")
   {
     this->zahl = i;
     this->str = s;
@@ -34,6 +35,8 @@ public:
     addMember(zahl,"zahl");
     addMember(str,"str");
     addMember(new ExposedFunction<void,int,std::string>(boost::bind(&A::output,this,_1,_2),"output"));
+    this->meas.setName("Measurement 1");
+    addMember(meas);
   }
   
 };
@@ -116,8 +119,8 @@ int main(int argc, char **argv) {
     std::cout << "Test2: " << eMult(2,3) << std::endl;
     A a(254,"Klasse!");
     a["output"]->parse("1234 \"Hallo Welt!\"");
-    std::cout << "Zahl: " << a.get<int>("zahl")->getValue() << std::endl;
-    exposedMeasurement<double> m1(std::string("Testmessung")); //TODO Write constructors
+    std::cout << "Zahl: " << a.getValue<int>("zahl") << std::endl;
+    exposedMeasurement<double>& m1 = *(a.get<exposedMeasurement<double> >("Measurement 1")); //TODO Write constructors
     double test = 0.0;
 //     m1.onRequestValue.connect(boost::bind(&logger,std::string("Requested value of m1")));
     m1.getter(&getter);

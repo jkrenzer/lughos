@@ -103,6 +103,12 @@ private:
 protected:
   
   boost::shared_ptr<T> valuePointer;
+  
+  virtual T* getPtr()
+  {
+    SharedLock lock(this->mutex);
+    return this->valuePointer.get();
+  }
 
 public:
   

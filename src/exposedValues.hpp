@@ -71,13 +71,14 @@ namespace lughos
     
   };
 
-  class ExposerRegistry
+  template <class T>
+  class ExposerRegistryTemplate
 {
 private:
   Mutex mutex;
 public:
   
-  typedef ExposedObject Object;
+  typedef T Object;
   
 protected:
   
@@ -126,6 +127,8 @@ public:
   
   std::string showStructure();
 };
+
+typedef ExposerRegistryTemplate<ExposedObject> ExposerRegistry;
 
 class ExposedValueInterface :  public ExposedObject
 {
@@ -226,6 +229,11 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       return this->getValue();
     }
     
+    operator T*()
+    {
+      return this->getPtr();
+    }
+    
     virtual std::string parse(std::string command)
     {
       bool success = false;
@@ -286,5 +294,101 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     }
     
   };
+
+/*
+ * Definition in same file as needed by C++-standard
+ */
+ template <class T>
+  void ExposerRegistryTemplate<T>::addObject(Object& object)
+  {
+    this->addObject(&object);
+    std::cout << "Got reference. Redirecting..." << std::endl;
+  }
+
+  template <class T>
+  void ExposerRegistryTemplate<T>::addObject(Object* object)
+  {
+    std::string name = object->getName();
+    ExclusiveLock lock(this->mutex);
+    this->exposedObjects.insert(std::pair<std::string,Object*>(name,object));
+    std::cout << "Added object " << name << " with address " << object << std::endl;
+  }
+
+  template <class T>
+  void ExposerRegistryTemplate<T>::deleteObject(Object& object)
+  {
+    ExclusiveLock lock(this->mutex);
+    this->exposedObjects.erase(object.getName());
+  }
+
+  template <class T>
+  void ExposerRegistryTemplate<T>::deleteObject(Object* object)
+  {
+    ExclusiveLock lock(this->mutex);
+    this->exposedObjects.erase(object->getName());
+  }
+
+  template <class T>
+  void ExposerRegistryTemplate<T>::deleteObject(std::string name)
+  {
+    ExclusiveLock lock(this->mutex);
+    this->exposedObjects.erase(name);
+  }
+
+  template <class T>
+  std::string ExposerRegistryTemplate<T>::showStructure()
+  {
+    std::stringstream ss;
+    SharedLock(this->mutex);
+    ss << "Map of " << this->exposedObjects.size() << " objects:" << std::endl
+      << "-----------------------------------" << std::endl;
+    for(typename ExposedObjects::iterator it = this->exposedObjects.begin(); it != this->exposedObjects.end(); it++)
+    {
+      ss << it->second->showStructure() << std::endl;
+    }
+    ss << "-----------------------------------";
+    return ss.str();
+  }
+
+  template <class T>
+  typename ExposerRegistryTemplate<T>::Object* ExposerRegistryTemplate<T>::getObject(std::string name)
+  {
+    SharedLock lock(this->mutex);
+    typename ExposedObjects::iterator it = exposedObjects.find(name);
+    if(it != exposedObjects.end())
+      return it->second;
+    else
+      throw std::runtime_error("Tried to access non-existant object by name");
+  }
+
+  template <class T>
+  typename ExposerRegistryTemplate<T>::Object* ExposerRegistryTemplate<T>::getObject(int i)
+  {
+    SharedLock lock(this->mutex);
+    if(i < exposedObjects.size() && i >= 0)
+    {
+      typename ExposedObjects::iterator it = exposedObjects.begin();
+      std::advance(it,i);
+      return it->second;
+    }
+    else if (i >= exposedObjects.size())
+      return exposedObjects.end()->second;
+    else
+      return exposedObjects.begin()->second;
+    
+  }
+
+  template <class T>
+  typename ExposerRegistryTemplate<T>::Object* ExposerRegistryTemplate<T>::operator[](int i)
+  {
+    
+    return this->getObject(i);
+  }
+
+  template <class T>
+  typename ExposerRegistryTemplate<T>::Object* ExposerRegistryTemplate<T>::operator[](std::string name)
+  {
+    return this->getObject(name);
+  }
 }//namespace lughos
 #endif
