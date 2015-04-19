@@ -67,7 +67,7 @@ namespace lughos
     
     ~QueryImpl()
     {
-
+      this->reset();
     }
     
     boost::regex getEORPattern()
@@ -217,8 +217,10 @@ namespace lughos
     lughos::ExclusiveLock lock(this->mutex);
       if (promise)
         this->promise->set_exception(make_exception_ptr(exception() << errorName("query_reset_abort") << errorSeverity(severity::Informative) << errorDescription("Query was reset so the waiting operations are aborted.") ));
-      if (answer)
+      while (answer && !answer->is_ready())
+      {
 	this->answer->wait();
+      }
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->request.reset(new boost::asio::streambuf());

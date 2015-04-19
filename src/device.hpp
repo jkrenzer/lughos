@@ -251,7 +251,10 @@ namespace lughos
     
     virtual ~DeviceImpl()
     {
-
+      for(std::vector<boost::shared_ptr<boost::thread> >::iterator it = this->threadPool.begin(); it != this->threadPool.end(); it++)
+      {
+	(*it)->join();
+      }
     }
   
   };

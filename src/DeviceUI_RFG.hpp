@@ -333,20 +333,10 @@ namespace lughos
     
     void getSettings()
     {
-      
-      if (this->rfg->isConnected())
-      {
-//       for (int i; i<8;i++)
-//       {
-// 	v = this->rfg->get_channel(i);
-// 	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
-//       }
 	this->uMaxField->setValue(this->rfg->getLimitMaxVoltage());
 	this->uMinField->setValue(this->rfg->getLimitMinVoltage());
 	this->iField->setValue(this->rfg->getLimitMaxCurrent());
 	this->targetField->setValue(this->rfg->getTargetValue());
-	
-      }
     }
     
 //     void start()
