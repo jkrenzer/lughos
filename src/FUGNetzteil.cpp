@@ -5,19 +5,46 @@
 #include "utils.hpp"
 
 #include <string>     // std::string, std::stoi
-FUGNetzteil::FUGNetzteil()
+FUGNetzteil::FUGNetzteil() : voltage("voltage"), current("current"), targetVoltage("targetVoltage"), targetCurrent("targetCurrent"), limit("limit"), controlMode("controlMode"), outputState("outputState"), overcurrent("overcurrent"), model("model")
 {
-  this->getI.setReadFunction(boost::bind(&FUGNetzteil::readI,this));
-  this->getU.setReadFunction(boost::bind(&FUGNetzteil::readU,this));
-  this->getSetpointI.setReadFunction(boost::bind(&FUGNetzteil::readSetpointI,this));
-  this->getSetpointU.setReadFunction(boost::bind(&FUGNetzteil::readSetpointU,this));
-  this->getOvercurrent.setReadFunction(boost::bind(&FUGNetzteil::readOvercurrent,this));
-  this->getCurrentLimitation.setReadFunction(boost::bind(&FUGNetzteil::readCurrentLimitation,this));
-  this->getVoltageLimitation.setReadFunction(boost::bind(&FUGNetzteil::readVoltageLimitation,this));
-  this->getDigitalRemote.setReadFunction(boost::bind(&FUGNetzteil::readDigitalRemote,this));
-  this->getAnalogueRemote.setReadFunction(boost::bind(&FUGNetzteil::readAnalogueRemote,this));
-  this->getLocalControl.setReadFunction(boost::bind(&FUGNetzteil::readLocalControl,this));
+//   this->getI.setReadFunction(boost::bind(&FUGNetzteil::readI,this));
+//   this->getU.setReadFunction(boost::bind(&FUGNetzteil::readU,this));
+//   this->getSetpointI.setReadFunction(boost::bind(&FUGNetzteil::readSetpointI,this));
+//   this->getSetpointU.setReadFunction(boost::bind(&FUGNetzteil::readSetpointU,this));
+//   this->getOvercurrent.setReadFunction(boost::bind(&FUGNetzteil::readOvercurrent,this));
+//   this->getCurrentLimitation.setReadFunction(boost::bind(&FUGNetzteil::readCurrentLimitation,this));
+//   this->getVoltageLimitation.setReadFunction(boost::bind(&FUGNetzteil::readVoltageLimitation,this));
+//   this->getDigitalRemote.setReadFunction(boost::bind(&FUGNetzteil::readDigitalRemote,this));
+//   this->getAnalogueRemote.setReadFunction(boost::bind(&FUGNetzteil::readAnalogueRemote,this));
+//   this->getLocalControl.setReadFunction(boost::bind(&FUGNetzteil::readLocalControl,this));
+this->voltage.getter(boost::bind(&FUGNetzteil::readU,this));
+this->current.getter(boost::bind(&FUGNetzteil::readI,this));
+this->targetVoltage.getter(boost::bind(&FUGNetzteil::readSetpointU,this));
+this->targetVoltage.setter(boost::bind(&FUGNetzteil::setU,this,_1));
+this->targetCurrent.getter(boost::bind(&FUGNetzteil::readSetpointI,this));
+this->targetCurrent.setter(boost::bind(&FUGNetzteil::setI,this,_1));
+this->limit.getter(boost::bind(&FUGNetzteil::readLimit,this));
+this->controlMode.getter(boost::bind(&FUGNetzteil::readControlMode,this));
+this->outputState.getter(boost::bind(&FUGNetzteil::readSwitch,this));
+this->outputState.setter(boost::bind(&FUGNetzteil::switchVoltage,this,_1));
+this->overcurrent.getter(boost::bind(&FUGNetzteil::readOvercurrent,this));
+this->overcurrent.setter(boost::bind(&FUGNetzteil::setOvercurrent,this,_1));
+this->model.getter(boost::bind(&FUGNetzteil::getIDN,this));
 }
+
+void FUGNetzteil::memberDeclaration()
+{
+  this->addMember(voltage);
+  this->addMember(current);
+  this->addMember(targetVoltage);
+  this->addMember(targetCurrent);
+  this->addMember(limit);
+  this->addMember(controlMode);
+  this->addMember(outputState);
+  this->addMember(overcurrent);
+  this->addMember(model);
+}
+
 
 FUGNetzteilConnection::FUGNetzteilConnection()
 {
@@ -123,19 +150,19 @@ measuredValue<double> FUGNetzteil::getMeasure(bool force)
 }
 
 
-int FUGNetzteil::switchVoltage(int i)
+bool FUGNetzteil::switchVoltage(bool i)
 {
-  int success=0;
+  bool success = false;
   std::string command="F";
-  command +=std::to_string(i);
+  command += (i ? std::string("1") : std::string("0"));
   command=inputOutput(command);
-  if (command=="E0"){ success = i;  voltagesOnOf=i;}
-  else success = 3;
-  return success;
-  
+  if (command=="E0") 
+    return true;
+  else
+    return false;
 }
 
-int FUGNetzteil::setI(double I)
+bool FUGNetzteil::setI(double I)
 {
   int success=0;
   std::string command="I";
@@ -143,19 +170,14 @@ int FUGNetzteil::setI(double I)
   command +=std::to_string(I);
   answer=inputOutput(command);
   std::cout<<"setI answer: "<<answer<<std::endl;
-  if (answer=="E0"){ success = 1;}
+  if (answer=="E0")
+    return true;
   else
-  {
-  success = 0;
-  setError(command, answer);
-  }
-
-  return success;
-  
+    return false;
 }
 
 
-int FUGNetzteil::setU(double U)
+bool FUGNetzteil::setU(double U)
 {
   int success=0;
   std::string command="U";
@@ -163,13 +185,10 @@ int FUGNetzteil::setU(double U)
   command +=std::to_string(U);
   answer=inputOutput(command);
   std::cout<<"setU answer: "<<answer<<std::endl;
-  if (answer=="E0"){ success = 1;}
+  if (answer=="E0")
+    return true;
   else
-  {
-  success = 0;
-  setError(command, answer);
-  }
-  return success;
+    return false;
   
 }
 
@@ -179,113 +198,184 @@ std::string FUGNetzteil::getLastError()
   
 }
 
-std::string FUGNetzteil::getIDN()
+measuredValue<std::string> FUGNetzteil::getIDN()
 {
-  return inputOutput("?");
+  measuredValue<std::string> tmp;
+  tmp.setValue(inputOutput("?"));
+  return tmp;
 }
 
 
-double FUGNetzteil::readI()
+measuredValue<double> FUGNetzteil::readI()
 {
   std::string answer="";
    answer=inputOutput(">M1?");
       std::cout<<"getI answer: "<<answer<<std::endl;
+  measuredValue<double> tmp;
   if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);
-  return std::stod(answer);
+   tmp.setUnit("A");
+   tmp.setValueFromString(answer);
+   tmp.setTimeStamp(boost::posix_time::microsec_clock::local_time());
+  return tmp;
   }
   else if (answer[0]=='E')
   {
-  setError("getI", answer);
+    setError("ReadI", answer);
+    return tmp;
   }
-
-  return -1;
-  
+  else 
+    return tmp;
 }
 
-double FUGNetzteil::readU()
+measuredValue<double> FUGNetzteil::readU()
 {
   std::string answer="";
 
   answer=inputOutput(">M0?");
   std::cout<<"getU answer: "<<answer<<std::endl;
+  measuredValue<double> tmp;
   if (answer[0]=='M')
   {
    answer= answer.erase(0, 3);
-  return std::stod(answer);
+   tmp.setUnit("V");
+   tmp.setValueFromString(answer);
+   tmp.setTimeStamp(boost::posix_time::microsec_clock::local_time());
+  return tmp;
   }
   else if (answer[0]=='E')
   {
-  setError("getU", answer);
+    setError("ReadU", answer);
+    return tmp;
   }
-
-  return -1;
+  else 
+    return tmp;
   
 }
 
-double FUGNetzteil::readSetpointI()
+measuredValue<double> FUGNetzteil::readSetpointI()
 {
   int success=0;
   std::string answer="";
   answer=inputOutput(">S1?");
       std::cout<<"readSetpointI answer: "<<answer<<std::endl;
+  measuredValue<double> tmp;
   if (answer[0]=='S')
   {
    answer= answer.erase(0, 3);
-  return std::stod(answer);
+   tmp.setUnit("V");
+   tmp.setValueFromString(answer);
+   tmp.setTimeStamp(boost::posix_time::microsec_clock::local_time());
+  return tmp;
   }
   else if (answer[0]=='E')
   {
-  setError("getSetpointI", answer);
+    setError("ReadSetpointI", answer);
+    return tmp;
   }
-
-  return -1;
-  
+  else 
+    return tmp;
 }
 
-double FUGNetzteil::readSetpointU()
+measuredValue<double> FUGNetzteil::readSetpointU()
 {
   int success=0;
   std::string answer="";
 
   answer=inputOutput(">S0?");
+  measuredValue<double> tmp;
   if (answer[0]=='S')
   {
    answer= answer.erase(0, 3);
-  return std::stod(answer);
+   tmp.setUnit("V");
+   tmp.setValueFromString(answer);
+   tmp.setTimeStamp(boost::posix_time::microsec_clock::local_time());
+  return tmp;
   }
   else if (answer[0]=='E')
   {
-  setError("getSetpointU", answer);
+    setError("ReadSetpointU", answer);
+    return tmp;
   }
-
-  return -1;
+  else 
+    return tmp;
   
 }
 
-bool FUGNetzteil::readOvercurrent()
+measuredValue<bool> FUGNetzteil::readOvercurrent()
 {
   int success=0;
   std::string answer="";
 
   answer=inputOutput(">D3R?");
+  measuredValue<bool> tmp;
   if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
    if (std::stod(answer) == 1)
    {
     lughos::debugLog(std::string("FUG Powersupply ") + this->name + std::string(" reports overcurrent!"));
-    return true;
+    tmp.setValue(true);
+    return tmp;
    }
    else
-     return false;
+   {
+     tmp.setValue(false);
+     return tmp;
+   }
   }
   else if (answer[0]=='E')
   {
-  setError("hasOvercurrent", answer);
+    setError("ReadOvercurrent", answer);
+    return tmp;
   }
-  return false;
+  else 
+    return tmp;
+}
+
+measuredValue<bool> FUGNetzteil::readSwitch()
+{
+  int success=0;
+  std::string answer="";
+
+  answer=inputOutput(">DON?");
+  measuredValue<bool> tmp;
+  if (answer[0]=='D')
+  {
+   answer= answer.erase(0, 4);
+   if (std::stod(answer) == 1)
+   {
+    tmp.setValue(true);
+    return tmp;
+   }
+   else
+   {
+     tmp.setValue(false);
+     return tmp;
+   }
+  }
+  else if (answer[0]=='E')
+  {
+    setError("ReadSwitch", answer);
+    return tmp;
+  }
+  else 
+    return tmp;
+}
+
+measuredValue<FUGNetzteil::OnLimit> FUGNetzteil::readLimit()
+{
+  bool currentLimit = readCurrentLimitation();
+  bool voltageLimit = readVoltageLimitation();
+  measuredValue<OnLimit> tmp;
+  if(voltageLimit)
+    tmp.setValue(OnLimit::Voltage);
+  else if (currentLimit)
+    tmp.setValue(OnLimit::Current);
+  else
+    tmp.setValue(OnLimit::None);
+  return tmp;
 }
 
 bool FUGNetzteil::readCurrentLimitation()
@@ -297,12 +387,22 @@ bool FUGNetzteil::readCurrentLimitation()
   if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
-  return std::stod(answer) == 1;
+   if (std::stod(answer) == 1)
+   {
+    return true;
+   }
+   else
+   {
+     return false;
+   }
   }
   else if (answer[0]=='E')
   {
-  setError("currentLimitation", answer);
+    setError("ReadCurrentLimitation", answer);
+    return false;
   }
+  else 
+    return false;
 }
 
 bool FUGNetzteil::readVoltageLimitation()
@@ -314,12 +414,39 @@ bool FUGNetzteil::readVoltageLimitation()
   if (answer[0]=='D')
   {
    answer= answer.erase(0, 4);
-  return std::stod(answer) == 1;
+   if (std::stod(answer) == 1)
+   {
+    return true;
+   }
+   else
+   {
+     return false;
+   }
   }
   else if (answer[0]=='E')
   {
-  setError("voltageLimitation", answer);
+    setError("ReadCurrentLimitation", answer);
+    return false;
   }
+  else 
+    return false;
+}
+
+
+measuredValue<FUGNetzteil::ControlMode> FUGNetzteil::readControlMode()
+{
+  ControlMode mode;
+  bool analogue = readAnalogueRemote();
+  bool digital = readDigitalRemote();
+  if(analogue)
+    mode = ControlMode::AnalogueRemote;
+  else if(digital)
+    mode = ControlMode::DigitalRemote;
+  else
+    mode = ControlMode::Local;
+   measuredValue<ControlMode> tmp;
+   tmp.setValue(mode);
+   return tmp;
 }
 
 bool FUGNetzteil::readAnalogueRemote()
@@ -362,9 +489,12 @@ bool FUGNetzteil::readLocalControl()
 }
 
 
-void FUGNetzteil::resetOvercurrent()
+void FUGNetzteil::setOvercurrent(bool state)
 {
-  inputOutput(">B1 1"); //Check
+  if(state)
+    inputOutput(">B1 0"); //Check
+  else
+    inputOutput(">B1 1"); //Check
 }
 
 

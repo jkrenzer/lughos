@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <climits>
+#include <type_traits>
 
 #include "values.hpp"
 
@@ -153,6 +154,60 @@ public:
   }
   
   bool verify(std::bitset<N> value)
+  {
+    return true;
+  }
+};
+
+//Enums *sigh*...
+
+template <class T> class TypeImplementation<T, typename std::enable_if<std::is_enum<T>::value>::type> : public TypeInterface
+{
+public:
+  
+  virtual bool verify(T value) = 0;
+
+  constexpr typename std::underlying_type<T>::type to_underlying(T t) 
+  {
+    return static_cast<typename std::underlying_type<T>::type>(t);
+  }
+  
+  virtual std::string toString(T t)
+  {
+    std::stringstream ss;
+    ss << to_underlying(t);
+    return ss.str();
+  }
+  
+  virtual T fromString(std::string str)
+  {
+    std::stringstream ss(str);
+    typename std::underlying_type<T>::type t;
+    ss >> t;
+    return static_cast<T>(t);
+  }
+  
+};
+
+template <class T> class Type<T, typename std::enable_if<std::is_enum<T>::value>::type> : public TypeImplementation<T, typename std::enable_if<std::is_enum<T>::value>::type>
+{
+  public:
+  std::string getName()
+  {
+    return std::string("enum");
+  }
+  
+  std::string getShortDescription()
+  {
+    return std::string("Silly old enum.");
+  }
+  
+  std::string getDescription()
+  {
+    return std::string("Silly old enum.");
+  }
+  
+  bool verify(T value)
   {
     return true;
   }

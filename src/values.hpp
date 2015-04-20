@@ -63,7 +63,7 @@ public:
 //   
 // };
 
-template <class T> class TypeImplementation : public TypeInterface
+template <class T, class C = void> class TypeImplementation : public TypeInterface
 {
 public:
   
@@ -87,13 +87,13 @@ public:
   
 };
 
-template <class T> class Type : public TypeImplementation<T>
+template <class T, class C = void> class Type : public TypeImplementation<T>
 {
 };
 
-template <class T> Type<T> getType(T t)
+template <class T, class C = void> Type<T,C> getType(T t)
 {
-  return Type<T>();
+  return Type<T,C>();
 }
 
 template <class T> class ValueImplementation : public ValueInterface
