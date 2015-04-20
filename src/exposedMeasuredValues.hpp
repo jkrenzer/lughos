@@ -13,9 +13,10 @@ namespace lughos
      Mutex mutex;
    protected:
      bool markedExpired_;
+     bool expires_;
      boost::posix_time::time_duration timeToLive_;
-     boost::function<T()> getter_;
-     boost::function<void(T)> setter_;
+     boost::function<measuredValue<T>()> getter_;
+     boost::function<void(measuredValue<T>)> setter_;
      boost::signals2::connection syncConnection;
      
    public:
@@ -24,6 +25,7 @@ namespace lughos
     exposedMeasurement(std::string name) : measuredValue<T>() , ExposedValue<T>(name)
     {
       markedExpired_ = true;
+      expires_ = true;
       timeToLive_ = boost::posix_time::seconds(1);
       this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
       this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
@@ -41,7 +43,7 @@ namespace lughos
       if(getter_)
       {
 	ExclusiveLock lock(mutex);
-	*(this->valuePointer) = getter_();
+	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
       }
     }
     
@@ -50,7 +52,7 @@ namespace lughos
       if(setter_)
       {
 	SharedLock lock(mutex);
-	this->setter_(*(this->valuePointer));
+	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
       }
     }
     
@@ -59,14 +61,28 @@ namespace lughos
       SharedLock lock(mutex);
       if(markedExpired_)
 	return true;
+      if(expires_)
+      {
       boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - this->timeStamp;
       if (diff > timeToLive_)
 	return true;
-      else
-	return false;
+      }
+      return false;
     }
     
-    void getter(boost::function<T()> getter_)
+    void expires(bool expires_ = true)
+    {
+      ExclusiveLock lock(mutex);
+      this->expires_ = expires_;
+    }
+    
+    bool expires()
+    {
+      SharedLock lock(mutex);
+      return this->expires_;
+    }
+    
+    void getter(boost::function<measuredValue<T>()> getter_)
     {
       ExclusiveLock lock(mutex);
       this->getter_ = getter_;
@@ -78,7 +94,7 @@ namespace lughos
       return this->getter_;
     }
     
-    void setter(boost::function<void(T)> setter_)
+    void setter(boost::function<void(measuredValue<T>)> setter_)
     {
       ExclusiveLock lock(mutex);
       this->setter_ = setter_;

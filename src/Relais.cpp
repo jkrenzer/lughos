@@ -6,9 +6,19 @@
 #include <math.h>  
 
 
-Relais::Relais()
+Relais::Relais() : relais("relais"), sensors("sensors")
 {
+  this->relais.getter(boost::bind(&Relais::get_relais,this));
+  this->relais.setter(boost::bind(&Relais::set_relais,this,_1));
+  this->sensors.getter(boost::bind(&Relais::get_sensors,this));
 }
+
+void Relais::memberDeclaration()
+{
+  this->addMember(this->relais);
+  this->addMember(this->sensors);
+}
+
 
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 {
@@ -50,49 +60,57 @@ std::string Relais::composeRequest(std::string query)
   
 }
 
-std::string Relais::read_channels()
+measuredValue< std::bitset<8> > Relais::get_relais()
+{
+  measuredValue< std::bitset<8> > tmp;
+  tmp.setValue(this->get_state_of(Module::RelaisModule));
+  return tmp;
+}
+
+measuredValue< std::bitset<8> > Relais::get_sensors()
+{
+  measuredValue< std::bitset<8> > tmp;
+  tmp.setValue(this->get_state_of(Module::SensorModule));
+  return tmp;
+}
+
+
+std::bitset<8> Relais::get_state_of(Module module)
 {
   std::string command;
   command += '\x0f';
   std::string state = this->inputOutput(command);
-  if(state.empty())
-    return channel_bench.to_string();
-  u_int8_t i = static_cast<u_int8_t>(state[1]);
-  channel_bench = std::bitset<8>(i);
-  i = static_cast<u_int8_t>(state[0]);
-  sensor_bench = std::bitset<8>(i);
+  if(!state.empty())
+  {
+    u_int8_t i = static_cast<u_int8_t>(state[module]);
+    return std::bitset<8>(i);
+  }
+  else
+    return std::bitset<8>(0); //TODO throw exception if we cannot read properly and set device offline
 
-  std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() <<" , sensors: " << sensor_bench.to_string() << ")" << std::endl; 
-  
- return  channel_bench.to_string();
+//   std::cout << "Relais: GET RESPONSE: " << state << " (" << channel_bench.to_string() <<" , sensors: " << sensor_bench.to_string() << ")" << std::endl; 
+
 }
 
-std::string Relais::write_channels(std::string channels)
+void Relais::set_relais(measuredValue< std::bitset<8> > relais_)
 {
-//     int input_int=0; 
-//     std::string::iterator i;
-//     int counter=0;
-//     for (i=channels.begin(); i!=channels.end(); i++)
-//     {
-//       counter++;
-//        if (*i!= '0'&&*i!= '1') return "Input error";
-//        else if (*i= '1') input_int+= std::pow(2,counter-1);
-// //        std::cout<<std::pow(2,counter-1)<<" "<< std::hex<<input_int<<std::endl;
-//     }
-    std::string tmp(channels.rbegin(),channels.rend()); //Reverse to keep the endian straight!
-    channels = tmp;
-    this->channel_bench = std::bitset<8>(channels);
+
 
     std::string s;
     s.clear();
     s = "\xf0";
-    s += static_cast<char>(this->channel_bench.to_ulong());
+    s += static_cast<char>(relais_.getValue().to_ulong());
     std::string  answer=this->inputOutput(s);
     std::bitset<8> answerBS;
     answerBS = (long unsigned int) answer[0];
-    if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answered"  << answer << " (" << answerBS << ")" << std::endl;
+//     if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))
+    if(answerBS != relais_)
+    {
+      std::cout << "Relais: SET ERROR: Relais answered"  << answer << " (" << answerBS << ")" << std::endl;
+      this->relais.setValue(answerBS);
+    }
 
-    
+/*    
     std::bitset<8> helper;
     helper.reset();
     std::string debugString;
@@ -106,34 +124,34 @@ std::string Relais::write_channels(std::string channels)
     
  std::cout << "Relais: SET COMMAND: " << s << " = " << debugString << " (" << channels << " = "  << channel_bench.to_string() << " = " << static_cast<char>(this->channel_bench.to_ulong()) << ")" << std::endl;
  //return  read_channels();
- return channel_bench.to_string();
+ return channel_bench.to_string();*/
 }
 
-std::string Relais::write_channel(int channel, bool onoff)
-{
-    int input_int=0; 
-//     string::iterator i;
-//     int counter=0;
-//     for (int i=1; i<9; i++)
+// std::string Relais::write_channel(int channel, bool onoff)
+// {
+//     int input_int=0; 
+// //     string::iterator i;
+// //     int counter=0;
+// //     for (int i=1; i<9; i++)
+// //     {
+// //        if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
+// //        else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
+// //        else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
+// //     }
+//     if (channel < 8 && channel > -1)
 //     {
-//        if (i!=channel) input_int+= std::pow(2,channel_bench[i]);
-//        else if (i==channel && onoff == true &&int(onoff)!=channel_bench[i])input_int+= std::pow(2,i-1);
-//        else if (i==channel&&int(onoff)==channel_bench[i]) input_int+= std::pow(2,channel_bench[i]);
+//       this->channel_bench[7-channel] = onoff; //reversed logic!
+//       
+//       std::string s;
+//       s.clear();
+//       s = "\xf0";
+//       s += static_cast<char>(this->channel_bench.to_ulong());
+//       std::string  answer=this->inputOutput(s);
+//       if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answerd"  <<answer << std::endl;
+// 
 //     }
-    if (channel < 8 && channel > -1)
-    {
-      this->channel_bench[7-channel] = onoff; //reversed logic!
-      
-      std::string s;
-      s.clear();
-      s = "\xf0";
-      s += static_cast<char>(this->channel_bench.to_ulong());
-      std::string  answer=this->inputOutput(s);
-      if(!answer.c_str()==static_cast<char>(this->channel_bench.to_ulong()))  std::cout << "Relais: SET ERROR: Relais answerd"  <<answer << std::endl;
-
-    }
- return    read_channels();
-}
+//  return    read_channels();
+// }
 
 std::string Relais::interpretAnswer(std::string s)
 {  

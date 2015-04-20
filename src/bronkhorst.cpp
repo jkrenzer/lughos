@@ -10,13 +10,25 @@
 #define Bronkhorst_signed_Int16_Max 41942
 #define Bronkhorst_unsigned_Int16_Max 65535
 
-bronkhorst::bronkhorst()
+bronkhorst::bronkhorst() : capacity("capacity"), flow("flow"), setpoint("setpoint")
 {
+  this->capacity.getter(boost::bind(&bronkhorst::getMaxCapacity,this));
+  this->capacity.expires(false);
+  this->flow.getter(boost::bind(&bronkhorst::get_flow,this));
+  this->setpoint.getter(boost::bind(&bronkhorst::get_setpoint,this));
+  this->setpoint.setter(boost::bind(&bronkhorst::set_setpoint,this,_1));
 }
 
 bronkhorst::~bronkhorst(void)
 {
 
+}
+
+void bronkhorst::memberDeclaration()
+{
+  this->addMember(this->capacity);
+  this->addMember(this->flow);
+  this->addMember(this->setpoint);
 }
 
 
@@ -71,8 +83,8 @@ measuredValue<double> bronkhorst::get_setpoint()
     {
       int iSetpoint = 0;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
-      setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->maxCapacity;
-      std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
+      setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->capacity;
+      std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString() << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
@@ -90,9 +102,22 @@ measuredValue<double> bronkhorst::get_setpoint()
   
 }
 
-float bronkhorst::getMaxCapacity()
+measuredValue<double> bronkhorst::getMaxCapacity()
 {
-  return this->maxCapacity;
+  bronkhorstMessage m1,a1;
+  m1.setNode(3);
+  m1.setType(4);
+  m1.setProcess(1);
+  m1.setParameter(bronkhorstMessage::Parameter::Capacity);
+  m1.setParameterType(bronkhorstMessage::ParameterType::Float);
+  a1(this->inputOutput(m1));
+  measuredValue<double> tmp;
+  tmp.setUnit("sccm");
+  if(a1.hasValue())
+    tmp.setValueFromString(a1.getValueString());
+  else
+    tmp.setValue(0.0); //TODO Throw exception which can beevaluated to connection status;
+  return tmp;
 }
 
 
@@ -119,8 +144,8 @@ measuredValue<double> bronkhorst::get_flow()
       int32_t iSetpoint = 0;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
-      setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->maxCapacity;
-      std::cout << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->maxCapacity << std::endl;
+      setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->capacity;
+      std::cout << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString() << std::endl;
     }
     else
       std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
@@ -139,12 +164,13 @@ measuredValue<double> bronkhorst::get_flow()
 }
 
 
-std::string bronkhorst::set_setpoint(float value)
+void bronkhorst::set_setpoint(measuredValue<double> value)
 {
-  if(value == std::numeric_limits<float>::infinity())return "Bad flow request.";
-  else if (value > this->maxCapacity) value = this->maxCapacity;
+  if(value == std::numeric_limits<float>::infinity())
+    return ;
+  else if (value > this->capacity) value = this->capacity;
   else if (value < 0) value = 0;
-  int iSetpoint = (value/this->maxCapacity)*Bronkhorst_100Percent;
+  int iSetpoint = (value/this->capacity)*Bronkhorst_100Percent;
   bronkhorstMessage m1, a1;
   std::string s;
   m1.setNode(3);
@@ -157,8 +183,6 @@ std::string bronkhorst::set_setpoint(float value)
     a1(s);
     std::cout << "I told the bronkhorst to set flow to " << iSetpoint << " (" << m1.toString() << ")" << std::endl;
     std::cout << "He replied: " << a1.toString() << " = " << s << std::endl;
-  return s;
-  
 }
 
 void bronkhorst::initImplementation()
@@ -169,39 +193,15 @@ void bronkhorst::initImplementation()
   std::cout << "INIT 3: " << this->inputOutput(":050301000A52") << std::endl; //Reset processes
   std::cout << "INIT 4: " << this->inputOutput(":050302010412") << std::endl; //Set to RS232 Control
 //   this->inputOutput(":070304006000600F");
-  this->maxCapacity = 0.0;
-  bronkhorstMessage m1,a1;
-  m1.setNode(3);
-    m1.setType(4);
-    m1.setProcess(1);
-    m1.setParameter(bronkhorstMessage::Parameter::Capacity);
-    m1.setParameterType(bronkhorstMessage::ParameterType::Float);
-    a1(this->inputOutput(m1));
-    if(a1.hasValue())
-    {
-      std::stringstream(a1.getValueString()) >> this->maxCapacity;
-      std::cout << "MAXCAPACITY: " << this->maxCapacity;
-    }
-    else
-      std::cout << "UNABLE TO SET CAPACITY! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-    
 
 }
 
 bool bronkhorst::isConnectedImplementation()
 {
-  bronkhorstMessage m1,a1;
-  m1.setNode(3);
-    m1.setType(4);
-    m1.setProcess(1);
-    m1.setParameter(bronkhorstMessage::Parameter::Capacity);
-    m1.setParameterType(bronkhorstMessage::ParameterType::Float);
-    a1(this->inputOutput(m1));
-    if(a1.hasValue())
-    {
-      std::stringstream(a1.getValueString()) >> this->maxCapacity;
-      return true;
-    }
+  this->capacity.refresh();
+  if(this->capacity.getValue() > 0)
+    return true;
+  else
     return false;
 }
 

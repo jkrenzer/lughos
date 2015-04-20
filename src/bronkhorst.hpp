@@ -35,8 +35,7 @@ class bronkhorst : public Device
 	bronkhorst(const bronkhorst &p);
 	bronkhorst &operator=(const bronkhorst &p);
 	
-	
-public:
+protected:
 	bronkhorst();
 	virtual ~bronkhorst(void);
 
@@ -45,13 +44,19 @@ public:
 	bool isConnectedImplementation();
 	measuredValue<double> get_setpoint();
 	measuredValue<double> get_flow();
-	float getMaxCapacity();
-	std::string set_setpoint(float value);
-protected:
+	measuredValue<double> getMaxCapacity();
+	void set_setpoint(measuredValue<double> value);
+
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	float maxCapacity;
 	measuredValue<double> storedMeasure;
+	
+	void memberDeclaration();
+	
+  public:
+	exposedMeasurement<double> setpoint;
+	exposedMeasurement<double> flow;
+	exposedMeasurement<double> capacity;
 };
 
 

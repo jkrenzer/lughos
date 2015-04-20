@@ -51,15 +51,13 @@ namespace lughos
 
 {
 
- template <> class DeviceUI<bronkhorst> : public DeviceUIInterface
+ template <> class DeviceUI<bronkhorst> : public DeviceUITemplate<bronkhorst>
   {
   protected:
 
-    boost::shared_ptr<bronkhorst> horst;
-    Wt::WLineEdit* flowF1;
-    Wt::WLabel* flowL1;
-    Wt::WLabel* flowL2;
-    Wt::WLineEdit *flowMeasurementField1;
+    Wt::WLabel* flowLabel;
+    Wt::WLabel* setpointLabel;
+    ui::Measurement<Wt::WLineEdit>* flow;
     ui::Setting<Wt::WDoubleSpinBox>* setpoint;
 
     boost::shared_ptr<Wt::Dbo::Session> session;
@@ -69,92 +67,93 @@ namespace lughos
     
   public:
     
-    DeviceUI< bronkhorst >(boost::shared_ptr<Device> horst) : horst(boost::dynamic_pointer_cast<bronkhorst>(horst))
+    DeviceUI< bronkhorst >(boost::shared_ptr<Device> device_) : DeviceUITemplate< bronkhorst >(device_)
     {
-      this->init();
-    }
-    
-    DeviceUI<bronkhorst>(boost::shared_ptr<bronkhorst> horst) : horst(horst)
-    {
-      this->init();
-    }
-    
-    void checkConnected()
-    {
-      if(horst->isConnected())
-      {
-        this->setpoint->field()->setMaximum(this->horst->getMaxCapacity());
-	this->setpoint->field()->setMinimum(0);
-	this->setpoint->setDisabled(false);
-        this->setpoint->button()->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
-        this->led->setState<Connected>();
-        this->refresh();
-      }
-      else
-      {
-        this->led->setState<Disconnected>();
-        this->setpoint->setDisabled(true);
-      }
-    }
-  
-      void init()
-    {
-     this->name=horst->getName();
-     this->refreshMeasurements.connect(boost::bind(&DeviceUI< bronkhorst >::getFlow,this));
-     this->refreshSettings.connect(boost::bind(&DeviceUI< bronkhorst >::getSetpoint,this));
-//      this->setWidth(500);
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-     this->flowL1 = new Wt::WLabel("Set Flow:");
+     this->flowLabel = new Wt::WLabel("Set Flow:");
      this->setpoint =  new  ui::Setting<Wt::WDoubleSpinBox>();
-     this->flowL2 = new Wt::WLabel("Measured Flow:");
-     this->flowMeasurementField1 = new Wt::WLineEdit("0.0");
-     this->flowMeasurementField1->setDisabled(true);
-     this->addWidget(flowL2);
-     this->addWidget(flowMeasurementField1);
-     this->addWidget(flowL1);
+     this->setpointLabel = new Wt::WLabel("Measured Flow:");
+     this->flow = new ui::Setting<Wt::WLineEdit>();
+     this->device();
+     this->addWidget(setpointLabel);
+     this->addWidget(flow);
+     this->addWidget(flowLabel);
      this->addWidget(setpoint);
-     this->setpoint->setDisabled(true);
-     this->checkConnected();
-
+     this->disable.connect(boost::bind(&DeviceUI< bronkhorst >::disable_,this));
+     this->enable.connect(boost::bind(&DeviceUI< bronkhorst >::disable_,this));
+     this->setpoint->attach(device()->setpoint);
+     this->flow->attach(device()->flow);
     }
     
-     
-    void setFlow()
+    void disable_()
     {
-//       
-      stringstream sstr; 
-      string str = setpoint->field()->text().toUTF8(); 
-      float f = lughos::save_lexical_cast<float>(str,0.0);
-      this->getSetpoint();
-      this->getFlow();
+      this->setpoint->setDisabled(true);
+    }
+    
+    void enable_()
+    {
+      this->setpoint->setDisabled(false);
+    }
+    
+//     DeviceUI<bronkhorst>(boost::shared_ptr<bronkhorst> horst) : horst(horst)
+//     {
+//       this->init();
+//     }
+    
+//     void checkConnected()
+//     {
+//       if(device()->isConnected())
+//       {
+//         this->setpoint->field()->setMaximum(this->devic->getMaxCapacity());
+// 	this->setpoint->field()->setMinimum(0);
+// 	this->setpoint->setDisabled(false);
+//         this->setpoint->button()->clicked().connect(this,&DeviceUI<bronkhorst>::setFlow);
+//         this->led->setState<Connected>();
+//         this->refresh();
+//       }
+//       else
+//       {
+//         this->led->setState<Disconnected>();
+//         this->setpoint->setDisabled(true);
+//       }
+//     }
+
+//     void setFlow()
+//     {
+// //       
+//       stringstream sstr; 
+//       string str = setpoint->field()->text().toUTF8(); 
+//       float f = lughos::save_lexical_cast<float>(str,0.0);
+//       this->getSetpoint();
+//       this->getFlow();
 //     
       
-    }
+//     }
     
-    void setFlow(boost::shared_ptr<bronkhorst> horst)
-    {
-      stringstream sstr; 
-      string str = setpoint->field()->text().toUTF8(); 
-      float f; 
-      sstr<<str; 
-      sstr>>f;
-
-      this->getSetpoint();
-      this->getFlow();
-    }
+//     void setFlow(boost::shared_ptr<bronkhorst> horst)
+//     {
+//       stringstream sstr; 
+//       string str = setpoint->field()->text().toUTF8(); 
+//       float f; 
+//       sstr<<str; 
+//       sstr>>f;
+// 
+//       this->getSetpoint();
+//       this->getFlow();
+//     }
     
-    void getSetpoint()
-    {
-      measuredValue<double> v = horst->get_setpoint();
-      this->setpoint->field()->setText(std::string(v.getValueAsString()));
-    }
+//     void getSetpoint()
+//     {
+//       measuredValue<double> v = device()->get_setpoint();
+//       this->setpoint->field()->setText(std::string(v.getValueAsString()));
+//     }
     
-    void getFlow()
-    {
-      measuredValue<double> v = horst->get_flow();
-      this->flowMeasurementField1->setText(std::string(v.getValueAsString()));
-    }
-    
+//     void getFlow()
+//     {
+//       measuredValue<double> v = device()->get_flow();
+//       this->flowMeasurementField1->setText(std::string(v.getValueAsString()));
+//     }
+/*    
     void start()
     {
 
@@ -163,7 +162,7 @@ namespace lughos
     void stop()
     {
 
-    }
+    }*/
     
     
     

@@ -38,16 +38,23 @@ class PSAPowersupply : public Device
 	PSAPowersupply();
 	virtual ~PSAPowersupply(void);
 	
+	exposedMeasurement<double> current;
+	exposedMeasurement<double> voltage;
+	exposedMeasurement<double> temperature;
+	exposedMeasurement<bool> state;
+	
+protected:	
 	void initImplementation();
 	bool isConnectedImplementation();
 	void shutdownImplementation();
-	void off();
-	void on();
+	measuredValue<bool> get_state();
+	void set_state(bool state);
 	measuredValue<double> get_current();
 	measuredValue<double> get_voltage();
 	measuredValue<double> get_temperature();
+	void memberDeclaration();
 // 	bool is_on;
-protected:
+
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);};
 

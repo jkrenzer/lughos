@@ -18,7 +18,7 @@ namespace lughos
     virtual void setSensorName(std::string sensorName);
     virtual std::string getSensorName();
     
-    measuredValueInterface(boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName = std::string("N/A")): timeStamp(timestamp), sensorName(sensorName)
+    measuredValueInterface(boost::posix_time::ptime timestamp = boost::posix_time::microsec_clock::local_time(), std::string sensorName = std::string("N/A")): timeStamp(timestamp), sensorName(sensorName)
     {
       
     }
@@ -30,7 +30,7 @@ namespace lughos
   {
 
   public:
-      measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::second_clock::local_time(), std::string sensorName ="N/A");
+      measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::microsec_clock::local_time(), std::string sensorName ="N/A");
       
       measuredValue(void);
       

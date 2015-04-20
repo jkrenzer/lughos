@@ -7,7 +7,8 @@
 #include <boost/regex.hpp>
 #include <boost/asio/io_service.hpp>
 #include "connectionImpl.hpp"
-#include "BasicObject.hpp"
+#include "exposedClasses.hpp"
+#include "exposedMeasuredValues.hpp"
 #include "basicTypes.hpp"
 #include "threadSafety.hpp"
 #include "errorHandling.hpp"
@@ -71,7 +72,7 @@ namespace lughos
    * @brief Template-class which deklares the basic interface of a device
    * 
    */
-  class DeviceImpl : public BasicObject
+  class DeviceImpl : public ExposedClass
   {
   public:
   

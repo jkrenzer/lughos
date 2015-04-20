@@ -37,25 +37,34 @@ class Relais :public Device
   public:
 	Relais();
 	virtual ~Relais(void);
+	
+	exposedMeasurement<std::bitset<8> > relais;
+	exposedMeasurement<std::bitset<8> > sensors;
+	
+protected:
+	
+	void memberDeclaration();
+	enum Module {RelaisModule = 0, SensorModule = 1};
 
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
 	
-	virtual std::string read_channels();
-	virtual std::string write_channels(std::string channels);
-	virtual std::string write_channel(int i,bool onoff);
-	
+	virtual measuredValue<std::bitset<8> > get_relais();
+	virtual void set_relais(measuredValue<std::bitset<8> > relais_);
+	virtual measuredValue<std::bitset<8> > get_sensors();
+	std::bitset<8> get_state_of(Module module);
+/*	
 	bool input_status(int sensor);
 	bool input_on(int sensor);
 	bool input_off(int sensor);
-	std::string input_read();
+	std::string input_read();*/
 	
-protected:
+
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	std::bitset<8> channel_bench;
-	std::bitset<8> sensor_bench;
+// 	std::bitset<8> channel_bench;
+// 	std::bitset<8> sensor_bench;
 };
 
 

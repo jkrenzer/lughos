@@ -10,6 +10,7 @@
 #include <Wt/WTimer>
 #include <functional>
 #include "StatusLEDWtWidget.hpp"
+#include "device.hpp"
 
 
 
@@ -19,16 +20,17 @@ namespace lughos
   class DeviceUIInterface : public Wt::WPanel
   {
   protected:
+        boost::shared_ptr<DeviceImpl> device_;
         boost::shared_ptr<Wt::WTimer> intervalTimer;
   public:
     std::string name;
     Wt::WContainerWidget * container;
     StatusLEDWtWidget * led;
     
-    boost::signals2::signal<void ()> refreshMeasurements;
-    boost::signals2::signal<void ()> refreshSettings;
-    boost::signals2::signal<void ()> refreshState;
+    boost::signals2::signal<void ()> reset;
     boost::signals2::signal<void ()> refresh;
+    boost::signals2::signal<void ()> disable;
+    boost::signals2::signal<void ()> enable;
     
     class Disconnected : public StatusLEDState
     {
@@ -87,16 +89,6 @@ namespace lughos
       this->container->addWidget (widget);
     }
     
-    virtual void checkConnected() = 0;
-    
-    virtual void fireTimerSignals()
-    {
-      std::cout << "Fireing refresh..." << std::endl;
-      this->refreshMeasurements();
-      this->refreshState();
-    }
-    
-
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
       this->intervalTimer.reset(new Wt::WTimer());
@@ -109,27 +101,44 @@ namespace lughos
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
-      reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected);
+//       reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1000);
-      this->intervalTimer->timeout().connect(this,&DeviceUIInterface::fireTimerSignals); // Reload measurements every second
+      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refresh,this)); // Reload measurements every second
       this->intervalTimer->start();
-      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshMeasurements,this));
-      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshSettings,this));
-      this->refresh.connect(boost::bind(&DeviceUIInterface::refreshState,this));
+
     }
 
     virtual ~ DeviceUIInterface ()
     {
       delete this->container;
-//       this->intervalTimer->stop();
+      this->intervalTimer->stop();
     }
 
   };
 
+template <class D> class DeviceUITemplate : public DeviceUIInterface
+{
+  public:
+    boost::shared_ptr<D> device()
+    {
+      return boost::dynamic_pointer_cast<D>(this->device_);
+    }
+    
+    DeviceUITemplate<D>(boost::shared_ptr<Device> device_)
+    {
+      this->device(device_);
+      this->name = device_->getName();
+    }
+    
+    void device(boost::shared_ptr<Device> device_)
+    {
+      this->device_ = device_;
+    }
+};
 
-template < class D > class DeviceUI:public DeviceUIInterface
+template < class D > class DeviceUI : public DeviceUITemplate<D>
   {
   public:
     DeviceUI < D > ()

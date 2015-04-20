@@ -6,10 +6,23 @@
 #include <cmath>
 
 
-PSAPowersupply::PSAPowersupply()
+PSAPowersupply::PSAPowersupply() : state("state"), current("current"), voltage("voltage"), temperature("temperature")
 {
- 
+  this->state.getter(boost::bind(&PSAPowersupply::get_state,this));
+  this->state.setter(boost::bind(&PSAPowersupply::set_state,this,_1));
+  this->current.getter(boost::bind(&PSAPowersupply::get_current,this));
+  this->voltage.getter(boost::bind(&PSAPowersupply::get_voltage,this));
+  this->temperature.getter(boost::bind(&PSAPowersupply::get_temperature,this));
 }
+
+void PSAPowersupply::memberDeclaration()
+{
+  addMember(this->state);
+  addMember(this->current);
+  addMember(this->voltage);
+  addMember(this->temperature);
+}
+
 
 template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 {
@@ -52,21 +65,21 @@ std::string PSAPowersupply::composeRequest(std::string query)
   
 }
 
-void PSAPowersupply::off()
+measuredValue<bool> PSAPowersupply::get_state()
 {
-
-  this->inputOutput("\x11");
-//     is_on=false;
-  
+  measuredValue<bool> tmp;
+  tmp.setValue(this->get_voltage() > 0.5);
+  return tmp ;
 }
 
-void PSAPowersupply::on()
+void PSAPowersupply::set_state(bool state = 1)
 {
-
-  this->inputOutput("\x10");
-//     is_on=true;
-  
+  if(state)
+    this->inputOutput("\x10");
+  else
+    this->inputOutput("\x11");
 }
+
 
 measuredValue<double> PSAPowersupply::get_current()
 {

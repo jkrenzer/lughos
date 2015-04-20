@@ -133,9 +133,14 @@ typedef ExposerRegistryTemplate<ExposedObject> ExposerRegistry;
 class ExposedValueInterface :  public ExposedObject
 {
 public:
-   
+  
+  boost::signals2::signal<void ()> beforeValueChange;
+  boost::signals2::signal<void ()> onValueChange;
+  boost::signals2::signal<void ()> beforeReadValue;
+  
   virtual std::string showStructure() = 0;
   virtual bool setValueFromString(std::string& str) = 0;
+  virtual std::string getValueAsString() = 0;
   virtual std::string parse(std::string command) = 0;
 };
 
@@ -152,10 +157,6 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     Mutex mutex;
    
   public:
-    
-    boost::signals2::signal<void (ExposedValue<T>&)> beforeValueChange;
-    boost::signals2::signal<void (ExposedValue<T>&)> onValueChange;
-    boost::signals2::signal<void (ExposedValue<T>&)> beforeReadValue;
 
     ExposedValue(T& value, std::string name, std::string description = std::string("N/A")) : Value<T>(value)
     {
@@ -187,7 +188,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     T getValue()
     {
       SharedLock lock(this->mutex);
-      this->beforeReadValue(*this);
+      this->beforeReadValue();
       if(this->valuePointer)
         return *this->valuePointer;
       else
@@ -198,7 +199,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     {
       try
       {
-	this->beforeValueChange(*this);
+	this->beforeValueChange();
       }
       catch(std::exception& e)
       {
@@ -207,7 +208,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       try
       {
 	Value<T>::setValue(newValue);
-	this->onValueChange(*this);
+	this->onValueChange();
 	return true;
       }
       catch(std::exception& e)
@@ -222,6 +223,11 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     {
       T t = this->type.fromString(str);
       return this->setValue(t);
+    }
+    
+    std::string getValueAsString()
+    {
+      return this->type.toString(this->getValue());
     }
     
     operator T()
