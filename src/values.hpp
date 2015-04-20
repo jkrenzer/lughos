@@ -220,7 +220,7 @@ public:
   
   operator T()
   {
-    return *this->valuePointer;
+    return this->getValue();
   }
   
   

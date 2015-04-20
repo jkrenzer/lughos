@@ -4,14 +4,36 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG()
+RFG::RFG() : voltage("voltage"), current("current"), power("power"), voltageLimitMax("voltageLimitMax"), voltageLimitMin("voltageLimitMin"), currentLimitMax("currentLimitMax"), mode("mode"), output("output"), controller("controller"), resistanceCorrection("resistanceCorrection"), target("target")
 {
+  this->voltage.getter(boost::bind(&RFG::get_channel,this,0,true));
+  this->current.getter(boost::bind(&RFG::get_channel,this,1,true));
+  this->power.getter(boost::bind(&RFG::get_channel,this,2,true));
+  this->voltageLimitMax.getter(boost::bind(&RFG::getLimitMaxVoltage,this));
+  this->voltageLimitMax.setter(boost::bind(&RFG::set_voltage_max,this,_1));
+  this->voltageLimitMin.getter(boost::bind(&RFG::getLimitMinVoltage,this));
+  this->voltageLimitMin.setter(boost::bind(&RFG::set_voltage_min,this,_1));
+  this->currentLimitMax.getter(boost::bind(&RFG::getLimitMaxCurrent,this));
+  this->currentLimitMax.setter(boost::bind(&RFG::set_current_lim,this,_1));
+  this->target.getter(boost::bind(&RFG::getTargetValue,this));
+  this->target.setter(boost::bind(&RFG::set_target_value,this,_1));
+  this->mode.setter(boost::bind(&RFG::set_mode,this,_1));
+  this->mode.setValue(RFG::Mode::Powersupply);
+  this->mode.expires(false);
+  this->output.setter(boost::bind(&RFG::set_output,this,_1));
+  this->output.expires(false);
+  this->output.setValue(false);
+  this->controller.setter(boost::bind(&RFG::set_controller,this,_1));
+  this->controller.setValue(RFG::Controller::Voltage);
+  this->controller.expires(false);
+  this->resistanceCorrection.setValue(0.139);
+  this->resistanceCorrection.setUnit("Ohm");
+  this->resistanceCorrection.expires(false);
+  
   for (int i=0;i<8;i++)
     {
       channel_output[i].setValueAndUnit(0,"");
     }
-    
-  this->internalResistance = 0.139; //Ohms
     
   unitsToVoltageReg.fromFile("calibration_voltage_DAC.csv");
 
@@ -204,41 +226,30 @@ std::string RFG::interpretAnswer(std::string s)
   return s;
 }
 
-void RFG::power_supply_mode()
+void RFG::set_mode(RFG::Mode mode)
 {
- if(bccMode==false)this->inputOutput("A"); 
+  if(mode == RFG::Mode::Powersupply)
+    this->inputOutput("A");
+  else
+    this->inputOutput("B");
 }
 
-void RFG::bcc_mode()
+void RFG::set_controller(RFG::Controller controller)
 {
- if(bccMode==true)this->inputOutput("B"); 
+  switch (controller)
+  {
+    case RFG::Controller::Current: this->inputOutput("G"); break;
+    case RFG::Controller::Power: this->inputOutput("H"); break;
+    default:
+    case RFG::Controller::Voltage: this->inputOutput("F"); break;
+  }
 }
 
-void RFG::use_voltage_controler()
+void RFG::set_output(bool state)
 {
- this->inputOutput("F");
- this->controllerMode = ControllerMode::Voltage;
-}
-
-void RFG::use_current_controler()
-{
- this->inputOutput("G");
- this->controllerMode = ControllerMode::Current;
-}
-
-void RFG::use_power_controler()
-{
- this->inputOutput("H");
- this->controllerMode = ControllerMode::Power;
-}
-
-void RFG::switch_on()
-{
-  this->inputOutput("N");
-}
-
-void RFG::switch_off()
-{
+  if(state)
+    this->inputOutput("N");
+  else
   this->inputOutput("O");
 }
 
@@ -279,7 +290,7 @@ std::string RFG::intToBinaryStr(uint16_t i)
   return request;
 }
 
-int RFG::set_voltage_max_raw(int i)
+void RFG::set_voltage_max_raw(int i)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"U"+intToBinaryStr(i)+"\r",boost::regex("A\\w\\w\\w\\w"));
@@ -289,11 +300,11 @@ int RFG::set_voltage_max_raw(int i)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value;
+  //TODO
 }
 
 
-float RFG::set_voltage_max(float f)
+void RFG::set_voltage_max(float f)
 {
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
@@ -307,10 +318,10 @@ float RFG::set_voltage_max(float f)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value; 
+  //TODO
 }
 
-int RFG::set_voltage_min_raw(int i)
+void RFG::set_voltage_min_raw(int i)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"M"+intToBinaryStr(i)+"\r",boost::regex("B\\w\\w\\w\\w"));
@@ -320,11 +331,11 @@ int RFG::set_voltage_min_raw(int i)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value;
+  //TODO
 }
 
 
-float RFG::set_voltage_min(float  f)
+void RFG::set_voltage_min(float  f)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"M"+floatToBinaryStr(f,unitsToVoltageLimMin)+"\r",boost::regex("B\\w\\w\\w\\w"));
@@ -334,10 +345,10 @@ float RFG::set_voltage_min(float  f)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value; 
+ //TODO
 }
 
-int RFG::set_current_lim_raw(int i)
+void RFG::set_current_lim_raw(int i)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"I"+intToBinaryStr(i)+"\r",boost::regex("C\\w\\w\\w\\w"));
@@ -347,11 +358,11 @@ int RFG::set_current_lim_raw(int i)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
-  return value;
+  //TODO
 }
 
 
-float RFG::set_current_lim(float  f)
+void RFG::set_current_lim(double f)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"I"+floatToBinaryStr(f,unitsToCurrentLim)+"\r",boost::regex("C\\w\\w\\w\\w"));
@@ -361,28 +372,13 @@ float RFG::set_current_lim(float  f)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
-  return value; 
+  //TODO 
 }
 
-int RFG::set_target_value_raw(int i)
+void RFG::set_target_value_raw(int i)
 {
   std::stringstream stream;
-  SplineTransformation* trafo;
-  switch (this->controllerMode)
-  {
-    case ControllerMode::Voltage:
-      trafo = &this->unitsToVoltageReg;
-      break;
-    case ControllerMode::Current:
-      trafo = &this->unitsToCurrentReg;
-      break;
-    case ControllerMode::Power:
-      trafo = &this->unitsToPowerReg;
-      break;
-    default:
-      trafo = &this->unitsToVoltageReg;
-      break;
-  }
+
   std::string answer = this->inputOutput(std::string("\x00")+"P"+intToBinaryStr(i)+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
   boost::cmatch res1;
@@ -390,37 +386,37 @@ int RFG::set_target_value_raw(int i)
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value;
+  //TODO
 }
 
 
-float RFG::set_target_value(float f)
+void RFG::set_target_value(double setpoint)
 {
   std::stringstream stream;
-  SplineTransformation* trafo;
-  switch (this->controllerMode)
+   SplineTransformation* trafo;
+  switch (this->controller.getValue())
   {
-    case ControllerMode::Voltage:
+    case Controller::Voltage:
       trafo = &this->unitsToVoltageReg;
       break;
-    case ControllerMode::Current:
+    case Controller::Current:
       trafo = &this->unitsToCurrentReg;
       break;
-    case ControllerMode::Power:
+    case Controller::Power:
       trafo = &this->unitsToPowerReg;
       break;
     default:
       trafo = &this->unitsToVoltageReg;
       break;
   }
-  std::string answer = this->inputOutput(std::string("\x00")+"P"+floatToBinaryStr(f,*trafo)+"\r",boost::regex("D\\w\\w\\w\\w"));
+  std::string answer = this->inputOutput(std::string("\x00")+"P"+floatToBinaryStr(setpoint,*trafo)+"\r",boost::regex("D\\w\\w\\w\\w"));
   boost::regex exp1("D(\\w\\w\\w\\w)");
   boost::cmatch res1;
   boost::regex_search(answer.c_str(), res1, exp1);
   int value;
   stream << res1[1];
   stream >> std::hex >> value;
- return value; 
+  //TODO Throw when unable to set.
 }
 
 bool RFG::readoutChannels()
@@ -466,11 +462,8 @@ bool RFG::readoutChannels()
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
   channel_output[0].setValueAndUnit(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
-//   channel_output[1].setUnitvalue(unitsToCurrentReg.xToY(results[1]),"A");
-//   channel_output[2].setUnitvalue(unitsToPowerReg.xToY(results[2]),"W");
-//   channel_output[0].setUnitvalue(results[0],"Voltage");
   channel_output[1].setValueAndUnit(rawCurrent,"A");
-  channel_output[2].setValueAndUnit(results[2],"Power");
+  channel_output[2].setValueAndUnit(results[2],"W");
   channel_output[3].setValueAndUnit(results[3],"ReglerOut");
   channel_output[4].setValueAndUnit(results[4],"ReglerFb");
   channel_output[5].setValueAndUnit(results[5],"Aux1");

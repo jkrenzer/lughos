@@ -36,51 +36,67 @@ class RFG :public Device
 	
 	
   public:
-	enum ControllerMode {Voltage, Current, Power};
+	enum class Mode {Powersupply, BeamCurrentController};
     
 	RFG(void);
 	virtual ~RFG(void);
-
-	void initImplementation();
-	bool isConnectedImplementation();
-	void shutdownImplementation();
-	void power_supply_mode();
-	void bcc_mode();
-	void use_voltage_controler();
-	void use_current_controler();
-	void use_power_controler();
-	void switch_on();
-	void switch_off();
-	float set_voltage_max(float f);
-	float set_voltage_min(float f);
-	float set_current_lim(float f);
-	float set_target_value(float f);
+	  
+	 enum class Controller {Voltage,  Current,  Power};
+	 
+	 
+	 exposedMeasurement<double> target;
+	 exposedMeasurement<double> voltage;
+	 exposedMeasurement<double> power;
+	 exposedMeasurement<double> current;
+	 exposedMeasurement<double> currentLimitMax;
+	 exposedMeasurement<double> voltageLimitMax;
+	 exposedMeasurement<double> voltageLimitMin;
+	 exposedMeasurement<bool> output;
+	 exposedMeasurement<Mode> mode;
+	 exposedMeasurement<Controller> controller;
+	 exposedMeasurement<double> resistanceCorrection;
+	 
+	 
 	int set_voltage_max_raw(int i);
 	int set_voltage_min_raw(int i);
 	int set_current_lim_raw(int i);
 	int set_target_value_raw(int i);
-	measuredValue<double> get_channel(int i, bool force=false);
 	int get_channel_raw(int i, bool force=false);
-	float getLimitMaxVoltage();
-	float getLimitMaxCurrent();
-	float getLimitMinVoltage();
-	float getTargetValue();
+	 
+  protected:
+	void initImplementation();
+	bool isConnectedImplementation();
+	void shutdownImplementation();
+	void set_mode(Mode mode);
+	void set_controller(Controller controller);
+	void set_output(bool mode);
+	float set_voltage_max(float f);
+	float set_voltage_min(float f);
+	float set_current_lim(float f);
+	float set_target_value(float f);
+
+	measuredValue<double> get_channel(int i, bool force=false);
+	
+	measuredValue<double> getLimitMaxVoltage();
+	measuredValue<double> getLimitMaxCurrent();
+	measuredValue<double> getLimitMinVoltage();
+	measuredValue<double> getTargetValue();
 	bool readout(bool raw = false);
 	double getInteralResistance();
 	void setInternalResistance(double resistance);
 	
-protected:
+
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-	bool bccMode;
-	double internalResistance;
-	ControllerMode controllerMode;
+// 	bool bccMode;
+// 	double internalResistance;
+// 	Controller controllerMode;
 	measuredValue<double> channel_output[8];
 	int channel_output_raw[8];
-	measuredValue<double> maxVoltage;
-	measuredValue<double> minVoltage;
-	measuredValue<double> maxCurrent;
-	measuredValue<double> maxPower;
+// 	measuredValue<double> maxVoltage;
+// 	measuredValue<double> minVoltage;
+// 	measuredValue<double> maxCurrent;
+// 	measuredValue<double> maxPower;
 	SplineTransformation unitsToVoltageReg;
  	SplineTransformation unitsToCurrentReg;
  	SplineTransformation unitsToPowerReg;
