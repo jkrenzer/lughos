@@ -217,9 +217,6 @@ namespace lughos
     std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);
-      if (!this->connected)
-	if(!this->isConnected())
-	  BOOST_THROW_EXCEPTION(exception() << errorName("could_not_connect_for_query_exec") << errorDescription("The device was unable to connect for execution of the query."));
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
