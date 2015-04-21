@@ -29,8 +29,6 @@ namespace lughos
     
     boost::signals2::signal<void ()> reset;
     boost::signals2::signal<void ()> refresh;
-    boost::signals2::signal<void ()> disable;
-    boost::signals2::signal<void ()> enable;
     
     class Disconnected : public StatusLEDState
     {
@@ -89,6 +87,11 @@ namespace lughos
       this->container->addWidget (widget);
     }
     
+      
+    virtual void enable() = 0;
+    
+    virtual void disable() = 0;
+    
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
       this->intervalTimer.reset(new Wt::WTimer());
@@ -101,7 +104,7 @@ namespace lughos
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
-//       reconnect->triggered().connect(this,&DeviceUIInterface::checkConnected); //TODO Reimplement good device reconnection
+      reconnect->triggered().connect(boost::bind(&DeviceImpl::isConnected,this->device_)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1000);
@@ -109,6 +112,7 @@ namespace lughos
       this->intervalTimer->start();
       
     }
+  
 
     virtual ~ DeviceUIInterface ()
     {
@@ -132,9 +136,15 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       this->name = device_->getName();
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
       this->device_->onConnect.connect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
+      this->device_->onConnect.connect(boost::bind(&DeviceUITemplate< D >::enable,this));
       this->device_->onDisconnect.connect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
+      this->device_->onDisconnect.connect(boost::bind(&DeviceUITemplate< D >::disable,this));
       this->device_->onError.connect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
     }
+    
+    virtual void enable() = 0;
+    
+    virtual void disable() = 0;
     
     void device(boost::shared_ptr<Device> device_)
     {

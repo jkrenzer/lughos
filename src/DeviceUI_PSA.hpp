@@ -93,17 +93,15 @@ namespace lughos
      this->voltageF->attach(device()->voltage);
      this->currentF->attach(device()->current);
      this->temperaturF->attach(device()->temperature);
-     this->device()->onConnect.connect(boost::bind(&DeviceUI< PSAPowersupply >::enable_,this));
-     this->device()->onDisconnect.connect(boost::bind(&DeviceUI< PSAPowersupply >::disable_,this));
     }
 
-    void enable_()
+    void enable()
     {
       this->onB->setDisabled(false);
 	this->offB->setDisabled(false);
     }
     
-    void disable_()
+    void disable()
     {
               this->onB->setDisabled(true);
         this->offB->setDisabled(true);

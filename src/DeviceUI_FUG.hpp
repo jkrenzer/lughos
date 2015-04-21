@@ -107,7 +107,7 @@ namespace lughos
       this->addWidget(resetOCB);
     }
     
-    void enable_()
+    void enable()
     {
 	this->onB->setDisabled(false);
 	this->offB->setDisabled(false);
@@ -116,7 +116,7 @@ namespace lughos
 	this->currentSetpoint->setDisabled(false);
     }
     
-    void disable_()
+    void disable()
     {
 	this->voltageSetpoint->setDisabled(false);
 	this->currentSetpoint->setDisabled(true);

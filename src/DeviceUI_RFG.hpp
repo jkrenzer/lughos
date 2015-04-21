@@ -167,12 +167,9 @@ this->name=device()->getName();
       this->addWidget(sendOnB);
       this->addWidget(sendOffB);
       
-      this->device()->onConnect.connect(boost::bind(&DeviceUI< RFG >::enable_,this));
-      this->device()->onDisconnect.connect(boost::bind(&DeviceUI< RFG >::disable_,this));
-      
     }
     
-    void disable_()
+    void disable()
     {
       this->currentMax->setDisabled(true);
 	this->voltageMax->setDisabled(true);
@@ -186,7 +183,7 @@ this->name=device()->getName();
 	this->powerControl->setDisabled(true);
     }
     
-    void enable_()
+    void enable()
     {
 	this->currentMax->setDisabled(false);
 	this->voltageMax->setDisabled(false);

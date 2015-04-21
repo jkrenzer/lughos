@@ -72,6 +72,7 @@ namespace lughos
       Setting (Wt::WContainerWidget * parent = 0) : Measurement<F>(parent)
       {
         this->button_ = new Wt::WPushButton("Set");
+        this->field_->setReadOnly(false);
         this->field_->setDisabled(false);
         this->layout()->addWidget(this->button_);
       }

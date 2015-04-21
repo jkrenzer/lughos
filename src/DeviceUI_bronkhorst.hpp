@@ -79,18 +79,16 @@ namespace lughos
      this->addWidget(flow);
      this->addWidget(flowLabel);
      this->addWidget(setpoint);
-     this->disable.connect(boost::bind(&DeviceUI< bronkhorst >::disable_,this));
-     this->enable.connect(boost::bind(&DeviceUI< bronkhorst >::disable_,this));
      this->setpoint->attach(device()->setpoint);
      this->flow->attach(device()->flow);
     }
     
-    void disable_()
+    void disable()
     {
       this->setpoint->setDisabled(true);
     }
     
-    void enable_()
+    void enable()
     {
       this->setpoint->setDisabled(false);
     }

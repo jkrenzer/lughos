@@ -70,7 +70,7 @@ namespace lughos
             this->init();
     }
     
-    void enable_()
+    void enable()
     {
       for (unsigned i = 0; i < 8; ++i) 
       {
@@ -79,7 +79,7 @@ namespace lughos
       }
     }
     
-    void disable_()
+    void disable()
     {
       for (unsigned i = 0; i < 8; ++i) 
       {
@@ -124,8 +124,6 @@ namespace lughos
 //       
       this->addWidget(table);
       this->addWidget(changeChannelsB);
-
-
     }
     
 
