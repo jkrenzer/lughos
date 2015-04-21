@@ -104,7 +104,7 @@ namespace lughos
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
-      reconnect->triggered().connect(boost::bind(&DeviceImpl::isConnected,this->device_)); //TODO Reimplement good device reconnection
+      reconnect->triggered().connect(boost::bind(&DeviceImpl::isConnected,this->device_.get())); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1000);
