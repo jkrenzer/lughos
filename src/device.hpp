@@ -160,28 +160,31 @@ namespace lughos
     bool isConnected()
     {
       std::stringstream tmp;
-      if(!this->connection)
-	return false;
-      bool currentlyConnected = this->connection->test();
-      tmp << "Connection test state: " << currentlyConnected << " ";
-      UpgradeLock lock(this->mutex);
-      if (!currentlyConnected && this->connected)
+      if(this->connection)
       {
-	upgradeLockToExclusive llock(lock);
-	this->connected = false;
-      }
-      {
-	lock.unlock();
-	bool isConnected = this->isConnectedImplementation();
-        tmp << "Device test state: " << isConnected << " ";
-	lock.lock();
-	upgradeLockToExclusive llock(lock);
-	this->connected = currentlyConnected ? isConnected  : false;
-      }
-      tmp << "Overall state: " << this->connected.getValue();
-      debugLog(std::string("Device checked connection. Connection: ") + tmp.str() );
+	bool currentlyConnected = this->connection->test();
+	tmp << "Connection test state: " << currentlyConnected << " ";
+	UpgradeLock lock(this->mutex);
+	if (!currentlyConnected && this->connected)
+	{
+	  upgradeLockToExclusive llock(lock);
+	  this->connected = false;
+	}
+	{
+	  lock.unlock();
+	  bool isConnected = this->isConnectedImplementation();
+	  tmp << "Device test state: " << isConnected << " ";
+	  lock.lock();
+	  upgradeLockToExclusive llock(lock);
+	  this->connected = currentlyConnected ? isConnected  : false;
+	}
+	tmp << "Overall state: " << this->connected.getValue();
+	debugLog(std::string("Device checked connection. Connection: ") + tmp.str() );
 
-      return this->connected;
+	return this->connected;
+      }
+      else 
+	return false;
     }
     
     void emitConnectionSignals()
