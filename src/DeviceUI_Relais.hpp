@@ -52,10 +52,9 @@
 
 namespace lughos
 {
-  template <> class DeviceUI<Relais> : public DeviceUIInterface
+  template <> class DeviceUI<Relais> : public DeviceUITemplate<Relais>
   {
   protected:
-    boost::shared_ptr<Relais> relais;
     Wt::WRadioButton *rbOn[8];
     Wt::WRadioButton *rbOff[8];
     Wt::WButtonGroup *group[8];
@@ -66,53 +65,36 @@ namespace lughos
     
   public:
     
-    DeviceUI< Relais >(boost::shared_ptr<Device> relais) : relais(boost::dynamic_pointer_cast<Relais>(relais))
+    DeviceUI< Relais >(boost::shared_ptr<Device> relais) : DeviceUITemplate<Relais>(relais)
     {
             this->init();
     }
     
-    DeviceUI<Relais>(boost::shared_ptr<Relais> relais) : relais(relais)
+    void enable_()
     {
-      this->init();
+      for (unsigned i = 0; i < 8; ++i) 
+      {
+	rbOn[i]->setDisabled(false);
+	rbOff[i]->setDisabled(false);
+      }
     }
     
-    void checkConnected()
+    void disable_()
     {
-      if(relais->isConnected())
+      for (unsigned i = 0; i < 8; ++i) 
       {
-        this->led->setState<Connected>();
-        this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
-	this->refresh();
-
+	rbOn[i]->setDisabled(true);
+	rbOff[i]->setDisabled(true);
       }
-      else
-      {
-
-	this->led->setState<Connected>();
+    }
+    
         
-	std::cout<<"not f*cking connected!"<<std::endl;
-	this->changeChannelsB->setDisabled(true);
-	
-	    for (unsigned i = 0; i < 8; ++i) 
-	    {
-	      rbOn[i]->setDisabled(true);
-	      rbOff[i]->setDisabled(true);
-	    }
-// 	this->sendUB->setDisabled(true);
-// 	this->uMinField->setDisabled(true);
-// 	this->uMaxField->setDisabled(true);
-
-      }
-    }
-    
     void init()
     {
       
-     this->name=relais->getName();
-//      this->setWidth(500);
-      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
+      
       this->changeChannelsB = new Wt::WPushButton("Set");
-      this->refreshState.connect(boost::bind(&DeviceUI< Relais >::getChannels,this));
+      this->changeChannelsB->clicked().connect(this,&DeviceUI<Relais>::changeChannels);
     
       
       Wt::WTable *table = new Wt::WTable();
@@ -144,15 +126,13 @@ namespace lughos
       this->addWidget(changeChannelsB);
 
 
-      this->checkConnected();
-
     }
     
 
     
     void getChannels()
     {
-	std::string ss = this->relais->read_channels();
+	std::string ss = this->device()->relais.getValueAsString();
 	std::bitset<8> relais(ss);
 	
 	for (int i = 0; i < 8; i++)
@@ -183,10 +163,8 @@ namespace lughos
 	  if(rbOn[i]->isChecked())channelSequence+=std::to_string(1);
 	  else channelSequence+=std::to_string(0);
 	}
-	ss = this->relais->write_channels(channelSequence);
-// 	ss << "Channel " << i << ": " << v.getStringValue() << v.getunit() << std::endl;
-
-	this->refresh();
+	std::bitset<8> newstate(channelSequence);
+	this->device()->relais.setValue(newstate);
     }
     
 //     void start()

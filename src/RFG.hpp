@@ -57,10 +57,10 @@ class RFG :public Device
 	 exposedMeasurement<double> resistanceCorrection;
 	 
 	 
-	int set_voltage_max_raw(int i);
-	int set_voltage_min_raw(int i);
-	int set_current_lim_raw(int i);
-	int set_target_value_raw(int i);
+	void set_voltage_max_raw(int i);
+	void set_voltage_min_raw(int i);
+	void set_current_lim_raw(int i);
+	void set_target_value_raw(int i);
 	int get_channel_raw(int i, bool force=false);
 	 
   protected:
@@ -70,10 +70,10 @@ class RFG :public Device
 	void set_mode(Mode mode);
 	void set_controller(Controller controller);
 	void set_output(bool mode);
-	float set_voltage_max(float f);
-	float set_voltage_min(float f);
-	float set_current_lim(float f);
-	float set_target_value(float f);
+	void set_voltage_max(double f);
+	void set_voltage_min(double f);
+	void set_current_lim(double f);
+	void set_target_value(double f);
 
 	measuredValue<double> get_channel(int i, bool force=false);
 	
@@ -84,6 +84,8 @@ class RFG :public Device
 	bool readout(bool raw = false);
 	double getInteralResistance();
 	void setInternalResistance(double resistance);
+	
+	void memberDeclaration();
 	
 
 	std::string interpretAnswer(std::string query);
@@ -103,10 +105,10 @@ class RFG :public Device
 	SplineTransformation unitsToVoltageLimMax;
 	SplineTransformation unitsToVoltageLimMin;
  	SplineTransformation unitsToCurrentLim;
- 	SplineTransformation unitsToPowerLim;
+ 	SplineTransformation unitsToPowerMeas;
 	SplineTransformation unitsToVoltageMeas;
 	SplineTransformation unitsToCurrentMeas;
-	bool readoutSetting(measuredValue<double>& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw = false);
+	unsigned int readoutSetting(std::string controlChar, std::string answerChar);
 	bool readoutChannels();
 	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
 	std::string intToBinaryStr(uint16_t i);

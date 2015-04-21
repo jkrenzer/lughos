@@ -14,6 +14,7 @@ namespace lughos
    protected:
      bool markedExpired_;
      bool expires_;
+     bool alwaysRefresh_;
      boost::posix_time::time_duration timeToLive_;
      boost::function<measuredValue<T>()> getter_;
      boost::function<void(measuredValue<T>)> setter_;
@@ -21,6 +22,14 @@ namespace lughos
      
    public:
    
+    exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
+    {
+      markedExpired_ = other.markedExpired_;
+      expires_ = other.expires_;
+      timeToLive_ = other.timeToLive_;
+      this->getter_ = other.getter_;
+      this->setter_ = other.setter_;
+    }
    
     exposedMeasurement(std::string name) : measuredValue<T>() , ExposedValue<T>(name)
     {
@@ -43,7 +52,10 @@ namespace lughos
       if(getter_)
       {
 	ExclusiveLock lock(mutex);
+	T tmp = *(this->valuePointer);
 	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
+	if(tmp != *(this->valuePointer))
+	  this->onValueChange();
       }
     }
     
@@ -59,7 +71,7 @@ namespace lughos
     bool hasExpired()
     {
       SharedLock lock(mutex);
-      if(markedExpired_)
+      if(markedExpired_ || alwaysRefresh_)
 	return true;
       if(expires_)
       {
@@ -70,10 +82,11 @@ namespace lughos
       return false;
     }
     
-    void expires(bool expires_ = true)
+    void expires(bool expires_ = true, bool always_ = false)
     {
       ExclusiveLock lock(mutex);
       this->expires_ = expires_;
+      this->alwaysRefresh_ = always_;
     }
     
     bool expires()

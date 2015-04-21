@@ -35,10 +35,9 @@ class bronkhorst : public Device
 	bronkhorst(const bronkhorst &p);
 	bronkhorst &operator=(const bronkhorst &p);
 	
-protected:
-	bronkhorst();
-	virtual ~bronkhorst(void);
 
+	
+protected:
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
@@ -54,6 +53,8 @@ protected:
 	void memberDeclaration();
 	
   public:
+        bronkhorst();
+	virtual ~bronkhorst(void);
 	exposedMeasurement<double> setpoint;
 	exposedMeasurement<double> flow;
 	exposedMeasurement<double> capacity;

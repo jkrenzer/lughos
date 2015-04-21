@@ -7,6 +7,7 @@
 #include <boost/regex.hpp>
 #include <boost/asio/io_service.hpp>
 #include "connectionImpl.hpp"
+#include "exposedValues.hpp"
 #include "exposedClasses.hpp"
 #include "exposedMeasuredValues.hpp"
 #include "basicTypes.hpp"
@@ -91,7 +92,8 @@ namespace lughos
 
     boost::shared_ptr<ConnectionImpl> connection;
     bool initialized;
-    bool connected;
+    
+    ExposedValue<bool> connected;
     
     std::vector<boost::shared_ptr<StateMessage> > stateMessages;
     
@@ -158,6 +160,8 @@ namespace lughos
     bool isConnected()
     {
       std::stringstream tmp;
+      if(!this->connection)
+	return false;
       bool currentlyConnected = this->connection->test();
       tmp << "Connection test state: " << currentlyConnected << " ";
       UpgradeLock lock(this->mutex);
@@ -174,9 +178,18 @@ namespace lughos
 	upgradeLockToExclusive llock(lock);
 	this->connected = currentlyConnected ? isConnected  : false;
       }
-      tmp << "Overall state: " << this->connected;
+      tmp << "Overall state: " << this->connected.getValue();
       debugLog(std::string("Device checked connection. Connection: ") + tmp.str() );
+
       return this->connected;
+    }
+    
+    void emitConnectionSignals()
+    {
+      if(this->connected)
+	this->onConnect(*this);
+      else
+	this->onDisconnect(*this);
     }
     
     bool isInitialized()
@@ -204,8 +217,9 @@ namespace lughos
     std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);
-//       if(this->connected)
-//       {
+      if (!this->connected)
+	if(!this->isConnected())
+	  BOOST_THROW_EXCEPTION(exception() << errorName("could_not_connect_for_query_exec") << errorDescription("The device was unable to connect for execution of the query."));
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
@@ -217,14 +231,9 @@ namespace lughos
 	}
 	catch(...)
 	{
+	  this->connected = false;
 	  return std::string("");
 	}
-//       }
-//       else
-// 	return std::string("");
-//       else
-//  	BOOST_THROW_EXCEPTION( exception() << errorName(std::string("inputOutput_without_connection")) << errorTitle("InputOutput was tried without active connection to device.") << errorSeverity(severity::ShouldNot) );
-//         return std::string("");
     }
     
     void input(std::string query, boost::regex regExpr = boost::regex())
@@ -247,10 +256,11 @@ namespace lughos
       return this->ioService;
     }
     
-    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService))
+    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService)) , connected("connected")
     {
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
+      this->connected.onValueChange.connect(boost::bind(&DeviceImpl::emitConnectionSignals,this));
     }
     
     virtual ~DeviceImpl()

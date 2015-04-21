@@ -10,7 +10,8 @@ using namespace std;
 using namespace lughos;
 namespace dbo = Wt::Dbo;
 
-class measuredDBValue : public measuredValue
+template <class T>
+class measuredDBValue : public measuredValue<T>
 {
 public:
   

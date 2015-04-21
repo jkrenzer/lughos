@@ -97,7 +97,7 @@ namespace lughos
       this->led->setInline(true);
       this->led->setState<Disconnected>();
       this->setStyleClass ("DeviceContainer");
-      this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
+      this->setTitle (Wt::WString::fromUTF8 ("Loading..."));
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
@@ -107,7 +107,7 @@ namespace lughos
       this->intervalTimer->setInterval(1000);
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refresh,this)); // Reload measurements every second
       this->intervalTimer->start();
-
+      
     }
 
     virtual ~ DeviceUIInterface ()
@@ -130,6 +130,10 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
     {
       this->device(device_);
       this->name = device_->getName();
+      this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
+      this->device_->onConnect.connect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
+      this->device_->onDisconnect.connect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
+      this->device_->onError.connect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
     }
     
     void device(boost::shared_ptr<Device> device_)

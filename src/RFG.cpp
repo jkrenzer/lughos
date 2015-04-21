@@ -156,10 +156,10 @@ RFG::RFG() : voltage("voltage"), current("current"), power("power"), voltageLimi
   
   unitsToCurrentReg.fromFile("calibration_current_DAC.txt");
     
-  SplineTransformation::XToYMap& x2y4 = unitsToPowerLim.valueMap.left;
+  SplineTransformation::XToYMap& x2y4 = unitsToPowerMeas.valueMap.left;
   x2y4.insert(SplineTransformation::XYPair(0, 0));
   x2y4.insert(SplineTransformation::XYPair(3100, 190));
-  unitsToPowerLim.init();
+  unitsToPowerMeas.init();
   
   SplineTransformation::XToYMap& x2y5 = unitsToPowerReg.valueMap.left;
   x2y5.insert(SplineTransformation::XYPair(0, 0));
@@ -185,6 +185,20 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
   
 }
 
+void RFG::memberDeclaration()
+{
+  addMember(voltage);
+  addMember(current);
+  addMember(power);
+  addMember(target);
+  addMember(currentLimitMax);
+  addMember(voltageLimitMax);
+  addMember(voltageLimitMin);
+  addMember(controller);
+  addMember(mode);
+  addMember(output);
+  addMember(resistanceCorrection);
+}
 
 
 RFGConnection::RFGConnection()
@@ -253,24 +267,41 @@ void RFG::set_output(bool state)
   this->inputOutput("O");
 }
 
-float RFG::getLimitMaxVoltage()
+measuredValue<double> RFG::getLimitMaxVoltage()
 {
-  return this->maxVoltage.getValue();
+  measuredValue<double> value;
+  unsigned int valueTemp = readoutSetting("U","A");
+  value.setValue(unitsToVoltageLimMax.xToY(valueTemp));
+  return value;
 }
 
-float RFG::getLimitMinVoltage()
+measuredValue<double> RFG::getLimitMinVoltage()
 {
-  return this->minVoltage.getValue();
+  measuredValue<double> value;
+  unsigned int valueTemp = readoutSetting("M","B");
+  value.setValue(unitsToVoltageLimMin.xToY(valueTemp));
+  return value;
 }
 
-float RFG::getLimitMaxCurrent()
+measuredValue<double> RFG::getLimitMaxCurrent()
 {
-  return this->maxCurrent.getValue();
+  measuredValue<double> value;
+  unsigned int valueTemp = readoutSetting("I","C");
+  value.setValue(unitsToCurrentLim.xToY(valueTemp));
+  return value;
 }
 
-float RFG::getTargetValue()
+measuredValue<double> RFG::getTargetValue()
 {
-  return this->maxPower.getValue();
+  measuredValue<double> value;
+  unsigned int valueTemp = readoutSetting("P","D");
+  switch (this->controller)
+  {
+    case Controller::Voltage: value.setValue(unitsToVoltageReg.xToY(valueTemp)); value.setUnit("V"); break;
+    case Controller::Current: value.setValue(unitsToCurrentReg.xToY(valueTemp)); value.setUnit("A"); break;
+    case Controller::Power:   value.setValue(unitsToPowerReg.xToY(valueTemp)); value.setUnit("W"); break;
+  }
+  return value;
 }
 
 std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
@@ -304,7 +335,7 @@ void RFG::set_voltage_max_raw(int i)
 }
 
 
-void RFG::set_voltage_max(float f)
+void RFG::set_voltage_max(double f)
 {
 //   if(voltage_min>f) return 0;
   std::stringstream stream;
@@ -335,7 +366,7 @@ void RFG::set_voltage_min_raw(int i)
 }
 
 
-void RFG::set_voltage_min(float  f)
+void RFG::set_voltage_min(double  f)
 {
   std::stringstream stream;
   std::string answer = this->inputOutput(std::string("\x00")+"M"+floatToBinaryStr(f,unitsToVoltageLimMin)+"\r",boost::regex("B\\w\\w\\w\\w"));
@@ -461,7 +492,7 @@ bool RFG::readoutChannels()
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
-  channel_output[0].setValueAndUnit(rawVoltage - ( this->internalResistance * rawCurrent),"V"); //Voltage thevenin-correction
+  channel_output[0].setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
   channel_output[1].setValueAndUnit(rawCurrent,"A");
   channel_output[2].setValueAndUnit(results[2],"W");
   channel_output[3].setValueAndUnit(results[3],"ReglerOut");
@@ -479,7 +510,7 @@ bool RFG::readoutChannels()
   return true;
 }
 
-bool RFG::readoutSetting(measuredValue<double>& value, std::string unit, std::string controlChar, std::string answerChar, SplineTransformation& transformation, bool raw)
+unsigned int RFG::readoutSetting(std::string controlChar, std::string answerChar)
 {
   std::string s = this->inputOutput(std::string("\x00")+controlChar+controlChar+controlChar+controlChar+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w"))); //Provoke Error to get setting
   boost::regex exp1(answerChar + std::string("(\\w\\w\\w\\w)"));
@@ -491,54 +522,11 @@ bool RFG::readoutSetting(measuredValue<double>& value, std::string unit, std::st
   {
     stream << res1[1];
     stream >> std::hex >> valueTemp;
-    if(raw)
-      value.setValue(valueTemp);
-    else
-      value.setValue(transformation.xToY(valueTemp));
-    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp << " -- " << exp1.str() << " - " << answerChar << " === " << value.getValueAsString() << unit <<  std::endl;
+    std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp <<  std::endl;
     s = this->inputOutput(std::string("\x00")+controlChar+intToBinaryStr(valueTemp)+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w")));
-    value.setUnit(unit);
   }
 }
 
-bool RFG::readout(bool raw)
-{
-  bool result;
-  try
-  {
-    SplineTransformation* trafo;
-    std::string targetUnit;
-    switch (this->controllerMode)
-  {
-    case ControllerMode::Voltage:
-      trafo = &this->unitsToVoltageReg;
-      targetUnit = std::string("V");
-      break;
-    case ControllerMode::Current:
-      trafo = &this->unitsToCurrentReg;
-      targetUnit = std::string("A");
-      break;
-    case ControllerMode::Power:
-      trafo = &this->unitsToPowerReg;
-      targetUnit = std::string("W");
-      break;
-    default:
-      trafo = &this->unitsToVoltageReg;
-      targetUnit = std::string("V");
-      break;
-  }
-    result = this->readoutChannels() && result;
-    result = this->readoutSetting(this->maxVoltage,"V","U","A",this->unitsToVoltageLimMax,raw) && result;
-    result = this->readoutSetting(this->minVoltage,"V","M","B",this->unitsToVoltageLimMin,raw) && result;
-    result = this->readoutSetting(this->maxCurrent,"A","I","C",this->unitsToCurrentLim,raw) && result;
-    result = this->readoutSetting(this->maxPower,targetUnit,"P","D",*trafo,raw) && result;
-  }
-  catch(...)
-  {
-    return false;
-  }
-  return result;
-}
 
 
 measuredValue<double> RFG::get_channel(int i, bool force)
@@ -568,9 +556,6 @@ void RFG::initImplementation()
 {
 if(isConnected())
   std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
-this->bccMode=true;
-this->controllerMode=ControllerMode::Voltage;
-  
 }
     
 bool RFG::isConnectedImplementation()
@@ -583,15 +568,5 @@ bool RFG::isConnectedImplementation()
 
 void RFG::shutdownImplementation()
 {
-}
-
-void RFG::setInternalResistance(double resistance)
-{
-  this->internalResistance = resistance >= 0 ? resistance : -resistance;
-}
-
-double RFG::getInteralResistance()
-{
-  return this->internalResistance;
 }
 

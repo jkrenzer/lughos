@@ -28,7 +28,7 @@ namespace lughos
     Measurement(WContainerWidget * parent = 0) : WContainerWidget(parent)
       {
         this->field_ = new F();
-        this->field_->setDisabled(true);
+        this->field_->setReadOnly(true);
         this->setLayout(new Wt::WHBoxLayout());
         this->layout()->addWidget(this->field_);
         this->setPadding(0);
@@ -102,7 +102,7 @@ namespace lughos
       
       void push()
       {
-	this->asignee_->setValueFromString(this->field_->text());
+	this->asignee_->setValueFromString(this->field_->text().toUTF8());
       }
       
     };

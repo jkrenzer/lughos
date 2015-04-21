@@ -43,307 +43,255 @@
 #include "jobQueue.hpp"
 #include "FUGNetzteil.hpp"
 #include "DeviceUI.hpp"
+#include "basicUIElements.hpp"
 
 namespace lughos 
 {
-  template <> class DeviceUI<FUGNetzteil> : public DeviceUIInterface
+  template <> class DeviceUI<FUGNetzteil> : public DeviceUITemplate<FUGNetzteil>
   {
   protected:
-    boost::shared_ptr<FUGNetzteil> fug;
-    Wt::WLineEdit* flowF;
     Wt::WLabel* uL;
     Wt::WLabel* iL;
-    Wt::WLabel* measFlowL;
-    Wt::WPushButton *sendIB;
     Wt::WLabel* iOutL;
     Wt::WLabel* uOutL;
-    Wt::WLabel* pOutL;
-    Wt::WLineEdit *iOutField;
-    Wt::WLineEdit *uOutField;
-    Wt::WLineEdit *pOutField;
-    Wt::WDoubleSpinBox *iField;
-    Wt::WPushButton *sendUB;
-    Wt::WDoubleSpinBox *uMinField;
-    Wt::WDoubleSpinBox *uMaxField;
-//     Wt::WPushButton * startB;
-    std::string LastError;
+    ui::Measurement<Wt::WLineEdit> *current;
+    ui::Measurement<::Wt::WLineEdit> *voltage;
+    ui::Setting<Wt::WDoubleSpinBox> *currentSetpoint;
+    ui::Setting<Wt::WDoubleSpinBox> *voltageSetpoint;
     Wt::WPushButton * onB;
     Wt::WPushButton * offB;
     Wt::WPushButton * resetOCB;
 
-//     Wt::WPushButton * stopB;
     
   public:
     
-    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : fug(boost::dynamic_pointer_cast<FUGNetzteil>(fug))
+    DeviceUI< FUGNetzteil >(boost::shared_ptr<Device> fug) : DeviceUITemplate< FUGNetzteil >(fug)
     {
-
-      this->init();
-    }
-    
-    DeviceUI<FUGNetzteil>(boost::shared_ptr<FUGNetzteil> fug) : fug(fug)
-    {
-      this->init();
-    }
-    
-    void checkConnected()
-    {
-      if(fug->isConnected())
-      {
-	this->led->setState<Connected>();
-	this->sendIB->setDisabled(false);
-	this->iField->setDisabled(false);
-	this->sendUB->setDisabled(false);
-	this->uMinField->setDisabled(false);
-	this->uMaxField->setDisabled(false);
-        this->sendUB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setU);
-        this->sendIB->clicked().connect(this,&DeviceUI<FUGNetzteil>::setI);
-	this->onB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOn);
-	this->offB->clicked().connect(this,&DeviceUI< FUGNetzteil >::switchOff);
-	this->resetOCB->clicked().connect(this,&DeviceUI< FUGNetzteil >::resetOC);
-	this->refresh();
-      }
-      else
-      {
-	this->led->setState<Disconnected>();
-	this->sendIB->setDisabled(true);
-	this->iField->setDisabled(true);
-	this->sendUB->setDisabled(true);
-	this->onB->setDisabled(true);
-	this->offB->setDisabled(true);
-	this->resetOCB->setDisabled(true);
-	this->uMinField->setDisabled(true);
-	this->uMaxField->setDisabled(true);
-
-      }
-    }
-    
-    void init()
-    {
-     this->name=fug->getName();
-//      this->setWidth(500);
-      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
-      this->refreshMeasurements.connect(boost::bind(&DeviceUI< FUGNetzteil >::getU,this));
-      this->refreshMeasurements.connect(boost::bind(&DeviceUI< FUGNetzteil >::getI,this));
-      this->refreshSettings.connect(boost::bind(&DeviceUI< FUGNetzteil >::getSetpointU,this));
-      this->refreshSettings.connect(boost::bind(&DeviceUI< FUGNetzteil >::getSetpointI,this));
-      this->refreshState.connect(boost::bind(&DeviceUI< FUGNetzteil >::getOC,this));
-      this->refreshState.connect(boost::bind(&DeviceUI< FUGNetzteil >::getRemoteState,this));
-      
-      this->uL = new Wt::WLabel("Set U min and max:");
-      this->iL = new Wt::WLabel("Set I:");
+      this->uL = new Wt::WLabel("Set voltage [V]:");
+      this->iL = new Wt::WLabel("Set current [A]:");
       this->iOutL = new Wt::WLabel("I[A]:");
       this->uOutL = new Wt::WLabel("U[V]:");
-      this->pOutL = new Wt::WLabel("P[Watt]:");
-
-      this->iOutField =  new  Wt::WLineEdit("");
-      this->iOutField->setReadOnly(true);      
-      this->uOutField =  new  Wt::WLineEdit("");
-      this->uOutField->setReadOnly(true);  
-      this->pOutField =  new  Wt::WLineEdit("");
-      this->pOutField->setReadOnly(true);  
+      this->voltage = new ui::Measurement<Wt::WLineEdit>();
+      this->current = new ui::Measurement<Wt::WLineEdit>();
+      this->voltageSetpoint = new ui::Setting<Wt::WDoubleSpinBox>();
+      this->currentSetpoint = new ui::Setting<Wt::WDoubleSpinBox>();
+      this->current->attach(this->device()->current);
+      this->voltage->attach(this->device()->voltage);
+      this->currentSetpoint->attach(this->device()->targetCurrent);
+      this->voltageSetpoint->attach(this->device()->targetVoltage);
+      this->uL->setBuddy(this->voltageSetpoint->field());
+      this->iL->setBuddy(this->currentSetpoint->field());
+      this->uOutL->setBuddy(this->voltage->field());
+      this->iOutL->setBuddy(this->current->field());
       
-      this->iField =  new  Wt::WDoubleSpinBox(0);
 
-      this->uMinField =  new  Wt::WDoubleSpinBox(0);
-
-      this->uMaxField =  new  Wt::WDoubleSpinBox(0);
-
-      this->sendIB = new Wt::WPushButton("Set");
-      this->sendUB = new Wt::WPushButton("Set");
       this->onB = new Wt::WPushButton("On");
       this->offB = new Wt::WPushButton("Off");
       this->resetOCB = new Wt::WPushButton("Reset OC");
+      this->onB->clicked().connect(boost::bind(&exposedMeasurement<bool>::setValue,&(device()->outputState),true));
+      this->offB->clicked().connect(boost::bind(&exposedMeasurement<bool>::setValue,&(device()->outputState),false));
+      this->resetOCB->clicked().connect(boost::bind(&exposedMeasurement<bool>::setValue,&(device()->overcurrent),false));
 
       this->addWidget(iOutL);      
-      this->addWidget(iOutField);
+      this->addWidget(current);
       this->addWidget(iL);
-      this->addWidget(iField);
-      this->addWidget(sendIB);
+      this->addWidget(currentSetpoint);
       this->addWidget(new Wt::WBreak); 
       this->addWidget(uOutL);    
-      this->addWidget(uOutField);
+      this->addWidget(voltage);
       this->addWidget(uL);
-//       this->addWidget(uMinField);
-      this->addWidget(uMaxField);
-      this->addWidget(sendUB); 
+      this->addWidget(voltageSetpoint);
       this->addWidget(new Wt::WBreak);
-      this->addWidget(pOutL);    
-      this->addWidget(pOutField);
       this->addWidget(onB);
       this->addWidget(offB);
       this->addWidget(resetOCB);
-      this->checkConnected();
-
     }
     
-    void setU()
+    void enable_()
     {
+	this->onB->setDisabled(false);
+	this->offB->setDisabled(false);
+	this->resetOCB->setDisabled(false);
+	this->voltageSetpoint->setDisabled(false);
+	this->currentSetpoint->setDisabled(false);
+    }
+    
+    void disable_()
+    {
+	this->voltageSetpoint->setDisabled(false);
+	this->currentSetpoint->setDisabled(true);
+	this->onB->setDisabled(true);
+	this->offB->setDisabled(true);
+	this->resetOCB->setDisabled(true);
+    }
+    
+//     void setU()
+//     {
+// //       
+// 
+//       stringstream sstr; 
+// //       string str = uMinField->text().toUTF8(); 
+//       float f; 
+// //       sstr<<str; 
+// //       sstr>>f;
 //       
-
-      stringstream sstr; 
-//       string str = uMinField->text().toUTF8(); 
-      float f; 
+//       std::string str = uMaxField->text().toUTF8();
 //       sstr<<str; 
 //       sstr>>f;
-      
-      std::string str = uMaxField->text().toUTF8();
-      sstr<<str; 
-      sstr>>f;
-      fug->setU(f);
-      
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-	LastError=Error;
-      }
-      this->refresh();
-      
-    }
-    
-        void setI()
-    {
+//       fug->setU(f);
 //       
-      
-      stringstream sstr; 
-      string str = iField->text().toUTF8(); 
-      double f; 
-      sstr<<str; 
-      sstr>>f;
-
-      fug->setI(f);
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+// 	LastError=Error;
+//       }
+//       this->refresh();
+//       
+//     }
 //     
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-	LastError=Error;
-      }
-      
-      this->refresh();
-    }
-    
-        void getU()
-    {
-   
-
-      string str = std::to_string(fug->getU());
-      this->uOutField->setText(str);
+//         void setI()
+//     {
+// //       
+//       
+//       stringstream sstr; 
+//       string str = iField->text().toUTF8(); 
+//       double f; 
+//       sstr<<str; 
+//       sstr>>f;
+// 
+//       fug->setI(f);
+// //     
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+// 	LastError=Error;
+//       }
+//       
+//       this->refresh();
+//     }
 //     
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-	LastError=Error;
-      }  
-    }
-    
-    void getSetpointU()
-    {
-      std::string str = std::to_string(fug->getSetpointU());
-      this->uMaxField->setText(str);
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-        LastError=Error;
-      }
-    }
-    
-        void getI()
-    {
-      
-      string str = std::to_string(fug->getI());
-      this->iOutField->setText(str);
-
-//       this->stateF->setText("Current set:"+iField->text().toUTF8());
+//         void getU()
+//     {
+//    
+// 
+//       string str = std::to_string(fug->getU());
+//       this->uOutField->setText(str);
+// //     
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+// 	LastError=Error;
+//       }  
+//     }
 //     
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-	LastError=Error;
-      } 
-    }
-    
-    void getSetpointI()
-    {
-      string str = std::to_string(fug->getSetpointI());
-      this->iField->setText(str);
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-        LastError=Error;
-      } 
-    }
-    
-     void getRemoteState()
-     {
-       bool analogue = this->fug->getAnalogueRemote();
-       bool digital = this->fug->getDigitalRemote();
-       bool local = !analogue && !digital;
-       if (digital)
-	 return;
-       else if(analogue)
-       {
-	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
-         this->led->setToolTip(Wt::WString("Analogue control mode. Cannot command device!"));
-         this->led->setStatusMessage(Wt::WString("Analogue control mode. Cannot command device!"));
-       }
-       else
-       {
-	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
-         this->led->setToolTip(Wt::WString("Local control mode. Cannot command device!"));
-         this->led->setStatusMessage(Wt::WString("Local control mode. Cannot command device!"));
-       }
-     }
-     
-     void getOC()
-     {
-       if(this->fug->getOvercurrent())
-       {
-         std::cout << std::endl << std::endl << "############>>>>>>>>>>>> Overcurrent!" << std::endl << std::endl;
-         this->led->setColor(lughos::StatusLEDWtWidget::Orange);
-         this->led->setToolTip(Wt::WString("Overcurrent detected!"));
-         this->led->setStatusMessage(Wt::WString("Overcurrent detected!"));
-       }
-     }
-     
-     void resetOC()
-     {
-       this->fug->resetOvercurrent();
-       this->refresh();
-     }
-    
-    void getMeasure()
-    {
-      measuredValue<double> v;
-      std::stringstream ss;
-      for (int i; i<8;i++)
-      {
-	v = this->fug->getMeasure();
-	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
-      }
-      std::string Error;
-      Error = fug->getLastError();
-      if(Error!=this->LastError)
-      {
-	LastError=Error;
-      }
-    }
-    
-    void switchOn()
-    {
-      this->fug->switchVoltage(1);
-    }
-    
-    void switchOff()
-    {
-      this->fug->switchVoltage(0);
-    }
-    
+//     void getSetpointU()
+//     {
+//       std::string str = std::to_string(fug->getSetpointU());
+//       this->uMaxField->setText(str);
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+//         LastError=Error;
+//       }
+//     }
+//     
+//         void getI()
+//     {
+//       
+//       string str = std::to_string(fug->getI());
+//       this->iOutField->setText(str);
+// 
+// //       this->stateF->setText("Current set:"+iField->text().toUTF8());
+// //     
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+// 	LastError=Error;
+//       } 
+//     }
+//     
+//     void getSetpointI()
+//     {
+//       string str = std::to_string(fug->getSetpointI());
+//       this->iField->setText(str);
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+//         LastError=Error;
+//       } 
+//     }
+//     
+//      void getRemoteState()
+//      {
+//        bool analogue = this->fug->getAnalogueRemote();
+//        bool digital = this->fug->getDigitalRemote();
+//        bool local = !analogue && !digital;
+//        if (digital)
+// 	 return;
+//        else if(analogue)
+//        {
+// 	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
+//          this->led->setToolTip(Wt::WString("Analogue control mode. Cannot command device!"));
+//          this->led->setStatusMessage(Wt::WString("Analogue control mode. Cannot command device!"));
+//        }
+//        else
+//        {
+// 	 this->led->setColor(lughos::StatusLEDWtWidget::Red);
+//          this->led->setToolTip(Wt::WString("Local control mode. Cannot command device!"));
+//          this->led->setStatusMessage(Wt::WString("Local control mode. Cannot command device!"));
+//        }
+//      }
+//      
+//      void getOC()
+//      {
+//        if(this->fug->getOvercurrent())
+//        {
+//          std::cout << std::endl << std::endl << "############>>>>>>>>>>>> Overcurrent!" << std::endl << std::endl;
+//          this->led->setColor(lughos::StatusLEDWtWidget::Orange);
+//          this->led->setToolTip(Wt::WString("Overcurrent detected!"));
+//          this->led->setStatusMessage(Wt::WString("Overcurrent detected!"));
+//        }
+//      }
+//      
+//      void resetOC()
+//      {
+//        this->fug->resetOvercurrent();
+//        this->refresh();
+//      }
+//     
+//     void getMeasure()
+//     {
+//       measuredValue<double> v;
+//       std::stringstream ss;
+//       for (int i; i<8;i++)
+//       {
+// 	v = this->fug->getMeasure();
+// 	ss << "Channel " << i << ": " << v.getValueAsString() << v.getUnit() << std::endl;
+//       }
+//       std::string Error;
+//       Error = fug->getLastError();
+//       if(Error!=this->LastError)
+//       {
+// 	LastError=Error;
+//       }
+//     }
+//     
+//     void switchOn()
+//     {
+//       this->fug->switchVoltage(1);
+//     }
+//     
+//     void switchOff()
+//     {
+//       this->fug->switchVoltage(0);
+//     }
+//     
 //     void getMeasurements()
 //     {
 //       this->getU();

@@ -139,7 +139,7 @@ public:
   boost::signals2::signal<void ()> beforeReadValue;
   
   virtual std::string showStructure() = 0;
-  virtual bool setValueFromString(std::string& str) = 0;
+  virtual bool setValueFromString(std::string str) = 0;
   virtual std::string getValueAsString() = 0;
   virtual std::string parse(std::string command) = 0;
 };
@@ -168,6 +168,11 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     {
       this->name = name;
       this->description = std::string("N/A");
+    }
+    
+    ExposedValue(ExposedValue<T>& other) : ExposedValueTemplate<T>(other), Value<T>(other)
+    {
+      
     }
     
     std::string showStructure()
@@ -203,7 +208,8 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       }
       catch(std::exception& e)
       {
-// 	lughos::debuglog(std::string("beforeValueChange-function threw exception."));
+//  	lughos::debuglog(std::string("beforeValueChange-function threw exception."));
+ 	return false;
       }
       try
       {
@@ -213,13 +219,13 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       }
       catch(std::exception& e)
       {
-// 	lughos::debuglog(std::string("Setting of value threw exception."));
+//  	lughos::debuglog(std::string("Setting of value threw exception."));
       }
       
       return false;
     }
     
-    bool setValueFromString(std::string& str)
+    bool setValueFromString(std::string str)
     {
       T t = this->type.fromString(str);
       return this->setValue(t);

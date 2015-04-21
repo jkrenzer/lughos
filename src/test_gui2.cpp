@@ -9,7 +9,7 @@
 #include "bronkhorst.hpp"
 #include "FUGNetzteil.hpp"
 #include "PSAPowersupply.hpp"
-#include "test_gui_monitoring2.hpp"
+// #include "test_gui_monitoring2.hpp"
 #include "RFG.hpp"
 #include "Relais.hpp"
 #include <boost/thread/thread.hpp>
