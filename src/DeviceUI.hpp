@@ -22,13 +22,13 @@ namespace lughos
   protected:
         boost::shared_ptr<DeviceImpl> device_;
         boost::shared_ptr<Wt::WTimer> intervalTimer;
+        
+        
+        
   public:
     std::string name;
     Wt::WContainerWidget * container;
     StatusLEDWtWidget * led;
-    
-    boost::signals2::signal<void ()> reset;
-    boost::signals2::signal<void ()> refresh;
     
     class Disconnected : public StatusLEDState
     {
@@ -87,6 +87,13 @@ namespace lughos
       this->container->addWidget (widget);
     }
     
+    virtual void reset()
+    {
+      if(this->device_)
+      {
+	this->device_->isConnected();
+      }
+    }
       
     virtual void enable() = 0;
     
@@ -104,7 +111,7 @@ namespace lughos
       this->titleBarWidget()->insertWidget(0,this->led);
       this->setCentralWidget (container);
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
-      reconnect->triggered().connect(boost::bind(&DeviceImpl::isConnected,this->device_.get())); //TODO Reimplement good device reconnection
+      reconnect->triggered().connect(boost::bind(&DeviceUIInterface::reset,this)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
       this->intervalTimer->setInterval(1000);
