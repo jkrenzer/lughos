@@ -49,21 +49,27 @@ namespace lughos
     
     void refresh()
     {
+      ExclusiveLock lock(mutex);
       if(getter_)
       {
-	ExclusiveLock lock(mutex);
 	T tmp = *(this->valuePointer);
+	lock.unlock();
 	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
+	lock.lock();
 	if(tmp != *(this->valuePointer))
+	{
+	  lock.unlock();
 	  this->onValueChange();
+	}
       }
     }
     
     void sync()
     {
+      SharedLock lock(mutex);
       if(setter_)
       {
-	SharedLock lock(mutex);
+	lock.unlock();
 	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
       }
     }
