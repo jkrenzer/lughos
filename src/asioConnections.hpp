@@ -64,6 +64,22 @@ protected:
   typedef typename C::SocketPointer SocketPointer;
 
   SocketPointer socket;
+  
+  std::vector<boost::shared_ptr<Query>> queryStash;
+  
+  void stashQuery(boost::shared_ptr<Query> query)
+  {
+    ExclusiveLock lock(mutex);
+    this->queryStash.push_back(query);
+  }
+  
+  void unstashQuery(boost::shared_ptr<Query> query)
+  {
+    ExclusiveLock lock(mutex);
+    auto it = std::find_if(queryStash.begin(), queryStash.end(), [&](boost::shared_ptr<Query> const& p) {
+    return p == query;});
+    this->queryStash.erase(it);
+  }
 
   void handle_write_request ( boost::shared_ptr<Query> query, const boost::system::error_code& err );
 
@@ -172,12 +188,14 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err  )
 {
+  this->stashQuery(query); //Handlers DO NOT keep an smart_ptr alive!! BEWARE! How about signals, functors...?!
   if (!query)
     return;
   if (err)
   {
     lughos::debugLog ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
     query->setError(std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+    this->unstashQuery(query);
     return;
   }
   
@@ -195,6 +213,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
       query->setError(std::string ( "Unable to initialize for sending." ));
+      this->unstashQuery(query);
       return;
     }
   }
@@ -228,6 +247,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
+      this->unstashQuery(query);
       this->abort();
       return;
     }
@@ -237,6 +257,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
+      this->unstashQuery(query);
       this->abort();
       return;
     }
@@ -245,6 +266,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
+      this->unstashQuery(query);
       this->abort();
       return;
     }
@@ -274,6 +296,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
       query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
+      this->unstashQuery(query);
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
       this->timeoutTimer->cancel();
@@ -290,6 +313,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       // Write all of the data that has been read so far.
       query->ready();
+      this->unstashQuery(query);
       lughos::debugLog ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
       return;
     }
@@ -297,6 +321,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       lughos::debugLog ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
       query->setError(err.message());
+      this->unstashQuery(query);
       return;
     }
     else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err == boost::asio::error::connection_reset)
@@ -314,6 +339,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       lughos::debugLog ( std::string ( "Unable to read. Got error: " ) +err.message() );
       query->setError(err.message());
+      this->unstashQuery(query);
       return;
     }
 
@@ -325,6 +351,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
   {
     lughos::debugLog ( std::string ( "Timed out while waiting for reply of device." ));
     this->abort();
+    this->unstashQuery(query);
     query->setError(std::string("Timed out."));           // TODO signal error states in query
     return;
   }
