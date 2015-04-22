@@ -30,10 +30,9 @@ namespace lughos
         
   public:
     std::string name;
-    Wt::WContainerWidget * container;
-    StatusLEDWtWidget* led;
-    boost::signals2::scoped_connection ledC;
-    
+    boost::shared_ptr<Wt::WContainerWidget> container;
+    boost::shared_ptr<StatusLEDWtWidget> led;
+        
     class Disconnected : public StatusLEDState
     {
     public:
@@ -107,14 +106,14 @@ namespace lughos
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
       this->intervalTimer.reset(new Wt::WTimer());
-      this->container = new Wt::WContainerWidget ();
-      this->led = new StatusLEDWtWidget();
+      this->container.reset(new Wt::WContainerWidget());
+      this->led.reset(new StatusLEDWtWidget());
       this->led->setInline(true);
       this->led->setState<Disconnected>();
       this->setStyleClass ("DeviceContainer");
       this->setTitle (Wt::WString::fromUTF8 ("Loading..."));
-      this->titleBarWidget()->insertWidget(0,this->led);
-      this->setCentralWidget (container);
+      this->titleBarWidget()->insertWidget(0,this->led.get());
+      this->setCentralWidget (container.get());
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
       reconnect->triggered().connect(boost::bind(&DeviceUIInterface::reset,this)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
@@ -125,8 +124,6 @@ namespace lughos
 
     virtual ~ DeviceUIInterface ()
     {
-      delete this->container;
-      delete this->led;
       this->intervalTimer->stop();
     }
 
