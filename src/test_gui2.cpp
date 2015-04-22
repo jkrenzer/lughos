@@ -247,17 +247,17 @@ int main(int argc, char **argv)
         }
         
         DataAcquisition data(ioService,session);
-        data.acquire(flowcontroll1->flow.get());
-        data.acquire(flowcontroll1->setpoint.get());
-        data.acquire(flowcontroll2->flow.get());
-        data.acquire(flowcontroll2->setpoint.get());
-        data.acquire(RFG1->voltage.get());
-        data.acquire(RFG1->current.get());
-        data.acquire(RFG1->power.get());
-        data.acquire(fug1->voltage.get());
-        data.acquire(fug1->current.get());
-        data.acquire(fug2->voltage.get());
-        data.acquire(fug2->current.get());
+        data.acquire(&flowcontroll1->flow);
+        data.acquire(&flowcontroll1->setpoint);
+        data.acquire(&flowcontroll2->flow);
+        data.acquire(&flowcontroll2->setpoint);
+        data.acquire(&RFG1->voltage);
+        data.acquire(&RFG1->current);
+        data.acquire(&RFG1->power);
+        data.acquire(&fug1->voltage);
+        data.acquire(&fug1->current);
+        data.acquire(&fug2->voltage);
+        data.acquire(&fug2->current);
 	data.start();
         std::cout << "Starting Acquisition!" << std::endl;
         

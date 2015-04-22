@@ -1,7 +1,7 @@
 #ifndef DEVICEUI_HPP
 #define DEVICEUI_HPP
 
-#include <boost/signals2/signal.hpp>
+#include <boost/signals2.hpp>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WPanel>
@@ -31,7 +31,8 @@ namespace lughos
   public:
     std::string name;
     Wt::WContainerWidget * container;
-    StatusLEDWtWidget * led;
+    StatusLEDWtWidget* led;
+    boost::signals2::scoped_connection ledC;
     
     class Disconnected : public StatusLEDState
     {
@@ -125,6 +126,7 @@ namespace lughos
     virtual ~ DeviceUIInterface ()
     {
       delete this->container;
+      delete this->led;
       this->intervalTimer->stop();
     }
 
@@ -150,6 +152,13 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       this->device_->onError.connect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
       this->device_->emitConnectionSignals();
       this->intervalTimer->start();
+    }
+    
+    ~DeviceUITemplate<D>()
+    {
+      this->device_->onConnect.disconnect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
+      this->device_->onDisconnect.disconnect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
+      this->device_->onError.disconnect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
     }
     
     void device(boost::shared_ptr<Device> device_)

@@ -1,6 +1,7 @@
 #ifndef DATA_ACQUISITION_HPP
 #define DATA_ACQUISITION_HPP
 #include "measuredDBValue.hpp"
+#include "exposedMeasuredValues.hpp"
 #include "log.hpp"
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/placeholders.hpp>
@@ -27,9 +28,9 @@ namespace lughos
 	  { (*this->queue_)();
 	    debugLog(std::string("Acquired data sucessfully."));
 	  }
-	  catch(...)
+	  catch(std::exception& e)
 	  {
-	    debugLog(std::string("Error in data acquisition"));
+	    debugLog(std::string("Error in data acquisition. Message: ") + e.what());
 	  }
 	  this->start();
 	}
@@ -38,10 +39,11 @@ namespace lughos
       }
       
       template <class T>
-      void acquire_(measuredValue<T>& value)
+      void acquire_(exposedMeasurement<T>* value)
       {
 	typedef Wt::Dbo::ptr<measuredDBValue<T> > valuePtr;
-	valuePtr ptr(new measuredDBValue<T>(value));
+	value->refreshIfExpired();
+	measuredDBValue<T>* ptr (new measuredDBValue<T>(*value));
 	Wt::Dbo::Transaction transaction(*this->databaseSession);
 	this->databaseSession->add(ptr);
 	transaction.commit();
@@ -66,7 +68,7 @@ namespace lughos
       }
 
       template <class T>
-      void acquire(measuredValue<T>& value)
+      void acquire(exposedMeasurement<T>* value)
       {
 	this->queue_->connect(boost::bind(&DataAcquisition::acquire_<T>,this,value));
       }

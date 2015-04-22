@@ -3,6 +3,7 @@
 #include <Wt/WStackedWidget>
 #include <Wt/WPopupMenu>
 #include <Wt/WPushButton>
+#include "threadSafety.hpp"
 
 namespace lughos
 {
@@ -21,6 +22,8 @@ namespace lughos
 
   class StatusLEDWtWidget : public Wt::WStackedWidget
   {
+  private:
+    Mutex mutex;
   public:
     enum Color {Off, Red, Green, Blue, Yellow, Orange};
   protected:
@@ -75,51 +78,63 @@ namespace lughos
 
   void setState(boost::shared_ptr<StatusLEDStateInterface> state)
   {
+    ExclusiveLock lock(mutex);
     this->state = state;
+    lock.unlock();
     this->state->set(this);
   }
   
   void setState(StatusLEDStateInterface* state)
   {
+    ExclusiveLock lock(mutex);
     this->state.reset(state);
+    lock.unlock();
     this->state->set(this);
   }
   
   template <class T>
   void setState()
   {
+    
     this->setState(new T());
   }
 
   void unsetState()
   {
+    ExclusiveLock lock(mutex);
     this->state.reset();
+    lock.unlock();
     this->switchOff();
   }
 
   void switchOff()
   {
+    ExclusiveLock lock(mutex);
     this->setCurrentIndex(Off);
   }
 
   void switchOn()
   {
+    ExclusiveLock lock(mutex);
     this->setCurrentIndex(color);
   }
 
   void setColor(Color color)
   {
+    ExclusiveLock lock(mutex);
     this->color = color;
     this->setCurrentIndex(color);  
   }
   
   Wt::WPopupMenu* popupMenu()
   {
+    SharedLock lock(mutex);
     return this->popup;
   }
   
   void setStatusMessage(Wt::WString message)
   {
+    ExclusiveLock lock(mutex);
     this->statusMessage = message;
     this->setToolTip(this->statusMessage,Wt::TextFormat::PlainText);
     this->popupState->setText(message);
@@ -129,6 +144,8 @@ namespace lughos
   
   class StatusLEDState : public StatusLEDStateInterface
   {
+  private:
+    Mutex mutex;
   public:
     typedef StatusLEDWtWidget::Color Color;
     Color color;
@@ -138,6 +155,7 @@ namespace lughos
     
     virtual void set(StatusLEDWtWidget* statusLED) 
     {
+      ExclusiveLock lock(mutex);
       statusLED->setColor(this->color);
       statusLED->setStatusMessage(this->message);
     }
