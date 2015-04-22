@@ -223,6 +223,7 @@ namespace lughos
       {}
 
       lughos::ExclusiveLock lock(this->mutex);
+      this->answer.reset();
       this->promise.reset(new boost::promise<std::string>());
       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
       this->request.reset(new boost::asio::streambuf());
