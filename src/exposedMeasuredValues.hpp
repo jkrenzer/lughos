@@ -47,6 +47,12 @@ namespace lughos
 	this->refresh();
     }
     
+    operator measuredValue<T>()
+    {
+      this->refreshIfExpired();
+      return static_cast<measuredValue<T> >(*this);
+    }
+    
     void refresh()
     {
       ExclusiveLock lock(mutex);

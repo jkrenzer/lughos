@@ -42,6 +42,7 @@ namespace lughos
       {
 	typedef Wt::Dbo::ptr<measuredDBValue<T> > valuePtr;
 	valuePtr ptr(new measuredDBValue<T>(value));
+	Wt::Dbo::Transaction transaction(*this->databaseSession);
 	this->databaseSession->add(ptr);
       }
 
