@@ -59,10 +59,10 @@ namespace lughos
 	lock.lock();
 	if(tmp != *(this->valuePointer))
 	{
+	  lock.unlock();
 	  std::stringstream ss;
 	  ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
 	  lughos::debugLog(ss.str());
-	  lock.unlock();
 	  this->onValueChange();
 	}
       }
