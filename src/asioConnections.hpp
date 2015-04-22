@@ -306,6 +306,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       query->reset();
       this->isConnected = false;
       lock.unlock();
+      query->retry();
       this->execute(query);
       return;
     }

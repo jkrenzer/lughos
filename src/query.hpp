@@ -32,6 +32,8 @@ namespace lughos
     bool continous;
     bool doneBit;
     bool error;
+    static const unsigned int mayRetries = 3;
+    int retryCounter;
     
     boost::signals2::signal<void (std::vector<std::string>&)> onReceived;
     boost::signals2::signal<void (void)> onSent;
@@ -68,6 +70,17 @@ namespace lughos
     ~QueryImpl()
     {
       this->reset();
+    }
+    
+    void retry()
+    {
+      lughos::ExclusiveLock lock(this->mutex);
+      if(this->retryCounter >= this->mayRetries)
+      {
+	this->setError(std::string("The query was aborted as the maximum retries were reached."));
+	BOOST_THROW_EXCEPTION(lughos::exception() << errorName("max_retries_reached_query_cancel") << errorDescription("The query was aborted as the maximum retries were reached.") << errorSeverity(severity::Informative));
+      }
+      ++this->retryCounter;
     }
     
     boost::regex getEORPattern()
