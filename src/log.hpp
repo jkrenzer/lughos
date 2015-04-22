@@ -53,11 +53,11 @@ namespace lughos
     boost::shared_ptr< boost::log::sinks::synchronous_sink< boost::log::sinks::text_file_backend > > fileSink;
     boost::shared_ptr< boost::log::sinks::synchronous_sink< boost::log::sinks::text_ostream_backend > > consoleSink;
     
-    boost::shared_ptr<boost::log::sources::severity_channel_logger<log::SeverityLevel>> logger;
+    boost::shared_ptr<boost::log::sources::severity_channel_logger_mt<log::SeverityLevel>> logger;
     
     LoggingService()
     {
-       this->logger.reset(new boost::log::sources::severity_channel_logger<log::SeverityLevel>(log::SeverityLevel::informative));
+       this->logger.reset(new boost::log::sources::severity_channel_logger_mt<log::SeverityLevel>());
        fileSink = boost::log::add_file_log
        (
         boost::log::keywords::file_name = "lughos_%N.log",                                        
@@ -67,7 +67,8 @@ namespace lughos
        );
        consoleSink = boost::log::add_console_log
        (
-          boost::log::keywords::format = "[%TimeStamp%][%ThreadID%]: <%Severity%>  %Message%"
+         std::cout,
+         boost::log::keywords::format = "[%LineID%:%TimeStamp%][%ThreadID%@%Scope%]: <%Severity%>  %Message%"
        );
 //        consoleSink->set_filter(boost::log::attributes::expr::attr< int >("Severity") >= 3);
        consoleSink->locked_backend()->auto_flush(true);
@@ -77,10 +78,10 @@ namespace lughos
        core->add_global_attribute("ThreadID", boost::log::attributes::current_thread_id());
        core->add_global_attribute("Scope", boost::log::attributes::named_scope());
        core->add_global_attribute("TimeStamp", boost::log::attributes::local_clock());
-       core->add_global_attribute("Severity", boost::log::attributes::seve);
+//        core->add_global_attribute("Severity", boost::log::trivial::severity());
     }
     
-    boost::log::sources::severity_channel_logger<log::SeverityLevel>& operator()()
+    boost::log::sources::severity_channel_logger_mt<log::SeverityLevel>& operator()()
     {
       return *this->logger;
     }
