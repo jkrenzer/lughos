@@ -63,6 +63,7 @@ namespace lughos
     {
       this->reset();
       this->setQuestion(question);
+      lughos::ExclusiveLock lock(this->mutex);
       this->EndOfSendingPattern = std::string("\n");
       this->EndOfReadingPattern = boost::regex("\n");
     }
@@ -227,14 +228,14 @@ namespace lughos
     
     void reset()
     {
-      if (promise)
-      try 
-      {
-        this->promise->set_exception(make_exception_ptr(exception() << errorName("query_reset_abort") << errorSeverity(severity::Informative) << errorDescription("Query was reset so the waiting operations are aborted.") ));
-        this->answer->timed_wait(boost::posix_time::seconds(3));
-      }
-      catch(...)
-      {}
+//       if (promise)
+//       try 
+//       {
+//         this->promise->set_exception(make_exception_ptr(exception() << errorName("query_reset_abort") << errorSeverity(severity::Informative) << errorDescription("Query was reset so the waiting operations are aborted.") ));
+//         this->answer->timed_wait(boost::posix_time::seconds(3));
+//       }
+//       catch(...)
+//       {}
 
       lughos::ExclusiveLock lock(this->mutex);
       this->answer.reset();
