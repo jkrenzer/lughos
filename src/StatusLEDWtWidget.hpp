@@ -84,19 +84,10 @@ namespace lughos
     this->state->set(this);
   }
   
-  void setState(StatusLEDStateInterface* state)
-  {
-    ExclusiveLock lock(mutex);
-    this->state.reset(state);
-    lock.unlock();
-    this->state->set(this);
-  }
-  
   template <class T>
   void setState()
   {
-    
-    this->setState(new T());
+    this->setState(boost::shared_ptr<StatusLEDStateInterface>(new T()));
   }
 
   void unsetState()

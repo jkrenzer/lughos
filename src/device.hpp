@@ -77,10 +77,10 @@ namespace lughos
   {
   public:
   
-    boost::signals2::signal<void (DeviceImpl&)> onStateChange;
-    boost::signals2::signal<void (DeviceImpl&)> onConnect;
-    boost::signals2::signal<void (DeviceImpl&)> onDisconnect;
-    boost::signals2::signal<void (DeviceImpl&)> onError;
+    boost::signals2::signal<void ()> onStateChange;
+    boost::signals2::signal<void ()> onConnect;
+    boost::signals2::signal<void ()> onDisconnect;
+    boost::signals2::signal<void ()> onError;
     
   protected:
     
@@ -181,9 +181,9 @@ namespace lughos
     void emitConnectionSignals()
     {
       if(this->connected)
-	this->onConnect(*this);
+	this->onConnect();
       else
-	this->onDisconnect(*this);
+	this->onDisconnect();
     }
     
     bool isInitialized()

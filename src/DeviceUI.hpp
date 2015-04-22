@@ -24,7 +24,8 @@ namespace lughos
         boost::shared_ptr<DeviceImpl> device_;
         boost::shared_ptr<Wt::WTimer> intervalTimer;
         
-        boost::signals2::signal<void ()> refreshSignal;
+        typedef boost::signals2::signal<void ()> RefreshSignal;
+        RefreshSignal refreshSignal;
         boost::signals2::signal<void (bool)> setDisabledSignal;
         
         
@@ -142,20 +143,18 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       this->device(device_);
       this->name = device_->getName();
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
-      this->device_->onConnect.connect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
+      this->device_->onConnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Connected>,this->led.get()).track(this->led));
 //       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
-      this->device_->onDisconnect.connect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
+      this->device_->onDisconnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Disconnected>,this->led.get()).track(this->led));
 //       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
-      this->device_->onError.connect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
+      this->device_->onError.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Error>,this->led.get()).track(this->led));
       this->device_->emitConnectionSignals();
       this->intervalTimer->start();
     }
     
     ~DeviceUITemplate<D>()
     {
-      this->device_->onConnect.disconnect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
-      this->device_->onDisconnect.disconnect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
-      this->device_->onError.disconnect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
+
     }
     
     void device(boost::shared_ptr<Device> device_)
