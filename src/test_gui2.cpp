@@ -58,12 +58,12 @@ int main(int argc, char **argv)
     try {
 
         lughos::ioService= boost::shared_ptr<boost::asio::io_service>(new boost::asio::io_service);
-        boost::shared_ptr<boost::asio::io_service> taskExecutor(new boost::asio::io_service);
+//         boost::shared_ptr<boost::asio::io_service> taskExecutor(new boost::asio::io_service);
 
-        boost::asio::io_service::work work(*lughos::ioService);
-        boost::asio::io_service::work work2(*taskExecutor);
+        boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*lughos::ioService));
+//         boost::asio::io_service::work work2(*taskExecutor);
         boost::thread thread(boost::bind(&boost::asio::io_service::run, lughos::ioService));
-        boost::thread thread2(boost::bind(&boost::asio::io_service::run, taskExecutor));
+//         boost::thread thread2(boost::bind(&boost::asio::io_service::run, taskExecutor));
 
 
         std::cout << "IOService started and running..." << std::endl;
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
         boost::shared_ptr<Wt::Dbo::Session> session(new Wt::Dbo::Session);
         boost::shared_ptr<Wt::Dbo::Session> session1(new Wt::Dbo::Session);
 //   boost::shared_ptr<Wt::Dbo::Session> session2(new Wt::Dbo::Session);
-        boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
+//         boost::shared_ptr<boost::asio::io_service> ioServiceDB(new boost::asio::io_service);
 //   boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*ioService));
         boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
         session->setConnection(sqlite3);
@@ -318,6 +318,7 @@ int main(int argc, char **argv)
 
         std::cout << "Shutting down Webserver" << std::endl;
         data.stop();
+        work.reset();
         lughos::ioService->stop();
 //    ofs<< "IOService stopping..." << std::endl;
         std::cout << "IOService stopping..." << std::endl;

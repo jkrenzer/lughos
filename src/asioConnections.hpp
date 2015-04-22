@@ -65,12 +65,13 @@ protected:
 
   SocketPointer socket;
   
-  std::vector<boost::shared_ptr<Query>> queryStash;
+  std::list<boost::shared_ptr<Query>> queryStash;
   
   void stashQuery(boost::shared_ptr<Query> query)
   {
     ExclusiveLock lock(mutex);
     this->queryStash.push_back(query);
+    this->queryStash.unique();
   }
   
   void unstashQuery(boost::shared_ptr<Query> query)
@@ -213,6 +214,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
       query->setError(std::string ( "Unable to initialize for sending." ));
+      lock.unlock();
       this->unstashQuery(query);
       return;
     }
@@ -247,6 +249,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
+      lock.unlock();
       this->unstashQuery(query);
       this->abort();
       return;
@@ -257,6 +260,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
+      lock.unlock();
       this->unstashQuery(query);
       this->abort();
       return;
@@ -266,6 +270,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     {
       lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
+      lock.unlock();
       this->unstashQuery(query);
       this->abort();
       return;
@@ -296,6 +301,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
       query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
+      
       this->unstashQuery(query);
       ExclusiveLock lock(this->mutex);
       this->isConnected = false;
@@ -339,6 +345,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     {
       lughos::debugLog ( std::string ( "Unable to read. Got error: " ) +err.message() );
       query->setError(err.message());
+      
       this->unstashQuery(query);
       return;
     }
