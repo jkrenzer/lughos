@@ -1,10 +1,11 @@
 #include "log.hpp"
 #include <boost/thread/thread.hpp>
+#include <boost/thread/lock_guard.hpp>
 
 namespace lughos
 {
 
-    boost::mutex soutMutex;
+    
     boost::mutex logMutex;
     soutObj sout;
     
@@ -12,6 +13,7 @@ namespace lughos
   void debugLogImpl(std::string functionName, boost::filesystem::path filePath, long int lineNumber, std::string message, double severity)
   {
       //TODO Implement simultanious output to FILE, DB and CERR
+      boost::lock_guard<boost::mutex> lock(logMutex);
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
       
       std::stringstream ss;
@@ -23,18 +25,20 @@ namespace lughos
 
   template <class T> lughos::soutObj& lughos::soutObj::operator<<(T val)
   {
-      lughos::soutMutex.lock();
+    boost::lock_guard<boost::mutex> lock(soutMutex);
       std::cout << val;
-      lughos::soutMutex.unlock();
       return *this;
   }
 
   lughos::soutObj& lughos::soutObj::operator<< (std::ostream& (*pfun) (std::ostream&))
   {
-	  pfun(std::cout);
-	  return *this;
+    boost::lock_guard<boost::mutex> lock(soutMutex);
+    pfun(std::cout);
+    return *this;
 
   }
+  
+  boost::mutex lughos::soutObj::soutMutex;
 
   
 }

@@ -19,7 +19,7 @@
 namespace lughos 
 {
   
-    extern boost::mutex soutMutex;
+//     extern boost::mutex soutMutex;
     extern boost::mutex logMutex;
   
   /** 
@@ -29,6 +29,8 @@ namespace lughos
 
   class soutObj
   {
+  protected:
+    static boost::mutex soutMutex;
     public:
 
 
