@@ -68,12 +68,15 @@ namespace lughos
 
   virtual ~StatusLEDWtWidget()
   {
+    ExclusiveLock lock(mutex);
     delete this->off;
     delete this->red;
     delete this->green;
     delete this->blue;
     delete this->yellow;
     delete this->orange;
+    delete this->popup;
+    delete this->popupState;
   }
 
   void setState(boost::shared_ptr<StatusLEDStateInterface> state)

@@ -159,6 +159,7 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
     
     void device(boost::shared_ptr<Device> device_)
     {
+
       this->device_ = device_;
       this->device_->emitConnectionSignals();
     }
