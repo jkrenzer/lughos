@@ -41,6 +41,7 @@ serialConnection::~serialConnection ( void )
 
 void serialConnection::initialize()
 {
+  LUGHOS_LOG_FUNCTION();
   /*
    	std::cout <<  "### Starting connection! ###" << std::endl;
    	std::cout << "baud_rate: "<<baud_rate.value() << std::endl;
@@ -54,10 +55,10 @@ void serialConnection::initialize()
 
   ExclusiveLock lock(this->mutex);
   this->isInitialized = true;
-  lughos::debugLog ( std::string ( "initializing serial connection on port" ) + this->port_name );
+  LUGHOS_LOG(log::SeverityLevel::informative) << "initializing serial connection on port" << this->port_name ;
   if ( port_name.empty() )
     {
-      lughos::debugLog ( std::string ( "Serial connection not initialized. No port-name set." ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  "Serial connection not initialized. No port-name set.";
       lock.unlock();
       shutdown();
       return;
@@ -65,7 +66,7 @@ void serialConnection::initialize()
 
   if ( !io_service )
     {
-      lughos::debugLog ( std::string ( "Serial connection not initialized. No valid io_service." ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Serial connection not initialized. No valid io_service." ;
       lock.unlock();
       shutdown();
       return;
@@ -76,7 +77,7 @@ void serialConnection::initialize()
   this->socket->open( this->port_name,  ec);
   if (ec)
   {
-    debugLog(std::string("Error while trying to open port ") + this->port_name + std::string(" for initialization. Error-message: ") + ec.message());
+    LUGHOS_LOG(log::SeverityLevel::informative) << "Error while trying to open port " << this->port_name << " for initialization. Error-message: " << ec.message();
     this->isInitialized = false;
     return;
   }
@@ -87,7 +88,7 @@ void serialConnection::initialize()
     }
   catch ( std::exception& e )
     {
-	lughos::debugLog ( std::string ( "Could not set baud rate. Error: " ) + e.what() );
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Could not set baud rate. Error: "  << e.what();
     }
 
   try
@@ -96,7 +97,7 @@ void serialConnection::initialize()
     }
   catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set character size. Error: " ) + e.what() );
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Could not set character size. Error: "  << e.what();
     }
 
   try
@@ -106,7 +107,7 @@ void serialConnection::initialize()
     }
   catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set stop bits. Error: " ) + e.what() );
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Could not set stop bits. Error: "  << e.what();
     }
 
   try
@@ -116,7 +117,7 @@ void serialConnection::initialize()
     }
   catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set parity. Error: " ) + e.what() );
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Could not set parity. Error: "  << e.what();
     }
 
   try
@@ -125,7 +126,7 @@ void serialConnection::initialize()
     }
   catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Could not set flow control. Error: " ) + e.what() );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Could not set flow control. Error: " ) + e.what() );
     }
   return;
 
@@ -141,12 +142,12 @@ void serialConnection::connect ( boost::function<void(const boost::system::error
     {
       if (this->socket && !this->socket->is_open())
       {
-        debugLog(std::string("Trying to connect to port ") + this->port_name);
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Trying to connect to port ") + this->port_name) ;
          boost::system::error_code ec;
         this->socket->open ( this->port_name,  ec);
         if (ec)
         {
-          debugLog(std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message());
+          LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Error while trying to connect to port ") + this->port_name + std::string(" . Error-message: ") + ec.message()) ;
         }
         else
         {
@@ -155,7 +156,7 @@ void serialConnection::connect ( boost::function<void(const boost::system::error
       }
       else if (this->socket && this->socket->is_open())
       {
-        debugLog(std::string("Already connected to port ") + this->port_name + std::string(". Calling callback function."));
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Already connected to port ") + this->port_name + std::string(". Calling callback function.")) ;
         this->isConnected = true;
         boost::system::error_code ec;
         lock.unlock();
@@ -165,32 +166,32 @@ void serialConnection::connect ( boost::function<void(const boost::system::error
       }
       else if (!this->socket)
       {
-        debugLog(std::string("Port is not initialized,  so wie cannot connect.") + this->port_name);
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Port is not initialized,  so wie cannot connect.") + this->port_name) ;
         this->isInitialized = false;
         return;
       }
       else
       {
-        debugLog(std::string("Unable to connect to port ") + this->port_name);
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Unable to connect to port ") + this->port_name) ;
         return;
       }
     }
   catch ( std::exception& e )
     {
-      debugLog(std::string("Exception while trying to access port ") + this->port_name + std::string(". Exception-Message: ") + e.what());
+      LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Exception while trying to access port ") + this->port_name + std::string(". Exception-Message: ") + e.what()) ;
       return;
     }
     if (this->socket && this->socket->is_open())
     {
       this->isConnected = true;
-      debugLog(std::string("Port ") + this->port_name + std::string(" sucessfully opened."));
+      LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Port ") + this->port_name + std::string(" sucessfully opened.")) ;
     }
     else
-      debugLog(std::string("Port ") + this->port_name + std::string(" did not open up."));
+      LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Port ") + this->port_name + std::string(" did not open up.")) ;
     
   if ( callback && this->isConnected )
     {
-      debugLog(std::string("Calling callback function."));
+      LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Calling callback function.")) ;
       lock.unlock();
       callback(boost::system::error_code());
     }

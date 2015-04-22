@@ -170,9 +170,9 @@ protected:
 
 template <class C> asioConnection<C>::asioConnection()
 {
-  if ( this->endOfLineRegExpr_== boost::regex ( "\r" ) )  lughos::debugLog ( "End of line char: CR" );
-  else if ( this->endOfLineRegExpr_==boost::regex ( "\n" ) ) lughos::debugLog( "End of line char: NL" );
-  else lughos::debugLog ( "End of line char: " + this->endOfLineRegExpr_.str() );
+  if ( this->endOfLineRegExpr_== boost::regex ( "\r" ) )  LUGHOS_LOG(log::SeverityLevel::informative) <<  ( "End of line char: CR" );
+  else if ( this->endOfLineRegExpr_==boost::regex ( "\n" ) ) LUGHOS_LOG(log::SeverityLevel::informative) << ( "End of line char: NL" ) ;
+  else LUGHOS_LOG(log::SeverityLevel::informative) <<  ( "End of line char: " + this->endOfLineRegExpr_.str() );
   this->isConnected = false;
   this->isInitialized = false;
 }
@@ -195,7 +195,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     return;
   if (err)
   {
-    lughos::debugLog ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
     query->setError(std::string ( "Unable to connect for sending. Error: " ) + err.message() );
     this->unstashQuery(query);
     return;
@@ -208,12 +208,12 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if ( !this->initialized())
   {
     lock.unlock();
-    lughos::debugLog ( std::string ( "Initalizing for sending." ) );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Initalizing for sending." ) );
     this->initialize();
     lock.lock();
     if (!this->initialized() || !socket)
     {
-      lughos::debugLog ( std::string ( "Unable to initialize for sending." ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to initialize for sending." ) );
       query->setError(std::string ( "Unable to initialize for sending." ));
       lock.unlock();
       this->unstashQuery(query);
@@ -223,7 +223,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   if (!this->connected())
   {
     lock.unlock();
-    lughos::debugLog ( std::string ( "Connecting for sending." ) );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Connecting for sending." ) );
     this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
     return;
   }
@@ -240,7 +240,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
                              this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error )) );
 
-  lughos::debugLog ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
+  LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
   lock.unlock();
   try
     {
@@ -248,7 +248,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     }
   catch ( ... )
     {
-      lughos::debugLog ( std::string ( "I/O-Service exception while polling." ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service exception while polling." ) );
       query->setError(std::string ( "I/O-Service exception while polling." ));
       lock.unlock();
       this->unstashQuery(query);
@@ -259,7 +259,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
   if ( !socket || !socket->is_open() )
     {
-      lughos::debugLog ( std::string ( "Socket is closed despite writing?!" ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Socket is closed despite writing?!" ) );
       query->setError(std::string ( "Socket is closed despite writing?!" ));
       lock.unlock();
       this->unstashQuery(query);
@@ -269,7 +269,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
   if ( this->io_service->stopped() )
     {
-      lughos::debugLog ( std::string ( "I/O-Service was stopped after or during writing." ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service was stopped after or during writing." ) );
       query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
       lock.unlock();
       this->unstashQuery(query);
@@ -295,12 +295,12 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
       boost::asio::async_read_until ( *socket, query->input(), query->getEORPattern(),
                                       this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_read_content, this, query,
                                           boost::asio::placeholders::error )) );
-      lughos::debugLog ( std::string ( "Reading until \"" ) + query->getEORPattern().str() );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Reading until \"" ) + query->getEORPattern().str() );
       return;
     }
   else
     {
-      lughos::debugLog ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
       query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
       
       this->unstashQuery(query);
@@ -321,12 +321,12 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       // Write all of the data that has been read so far.
       query->ready();
       this->unstashQuery(query);
-      lughos::debugLog ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
       return;
     }
     else if (err == boost::asio::error::operation_aborted)
     {
-      lughos::debugLog ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
       query->setError(err.message());
       this->unstashQuery(query);
       return;
@@ -334,7 +334,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err == boost::asio::error::connection_reset)
     {
       ExclusiveLock lock(this->mutex);
-      lughos::debugLog ( std::string ( "Connection lost? Error while reading: " ) + err.message());
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Connection lost? Error while reading: " ) + err.message());
       query->reset();
       this->isConnected = false;
       lock.unlock();
@@ -344,7 +344,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     }
   else
     {
-      lughos::debugLog ( std::string ( "Unable to read. Got error: " ) +err.message() );
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to read. Got error: " ) +err.message() );
       query->setError(err.message());
       
       this->unstashQuery(query);
@@ -357,7 +357,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
 {
   if(!error)
   {
-    lughos::debugLog ( std::string ( "Timed out while waiting for reply of device." ));
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timed out while waiting for reply of device." ));
     this->abort();
     this->unstashQuery(query);
     query->setError(std::string("Timed out."));           // TODO signal error states in query
@@ -366,12 +366,12 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
   else if ( error == boost::asio::error::operation_aborted)
   {
     // Data was read and this timeout was canceled
-    lughos::debugLog ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
     return;
   }
   else
   {
-    lughos::debugLog ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
     return;
   }
 }
@@ -384,11 +384,11 @@ template <class C> void asioConnection<C>::abort()
       if (socket)
         socket->cancel();
       lock.unlock();
-      lughos::debugLog ( std::string ( "Aborting." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Aborting." ));
     }
   catch ( std::exception& e )
     {
-      lughos::debugLog ( std::string ( "Error while trying to perform requested abort: ") + e.what());
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Error while trying to perform requested abort: ") + e.what());
     }
 }
 
@@ -412,7 +412,7 @@ template <class C> bool asioConnection<C>::test()
 {
   try
     {
-      lughos::debugLog ( std::string ( "Testing connection." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Testing connection." ));
       this->initialize(); //TODO we need to connect, for better or for worse...
       bool success = this->initialized();
       this->shutdown();
@@ -427,7 +427,7 @@ template <class C> bool asioConnection<C>::test()
 
 template <class C> void asioConnection<C>::shutdown()
 {
-
+  LUGHOS_LOG_FUNCTION();
   try
     {
       ExclusiveLock lock(this->mutex);
@@ -435,7 +435,7 @@ template <class C> void asioConnection<C>::shutdown()
       this->isConnected = false;
       if ( socket )
         {
-          debugLog ( std::string ( "Shutting connection down." ) );
+          LUGHOS_LOG(log::SeverityLevel::informative) << "Shutting connection down.";
           if (this->socket->is_open())
           {
             lock.unlock();

@@ -58,7 +58,7 @@ namespace lughos
       ExclusiveLock lock(mutex);
       if(getter_)
       {
-	lughos::debugLog(std::string("Fetching new value for ") + this->name);
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Fetching new value for ") + this->name) ;
 	T tmp = *(this->valuePointer);
 	lock.unlock();
 	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
@@ -68,7 +68,7 @@ namespace lughos
 	  lock.unlock();
 	  std::stringstream ss;
 	  ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
-	  lughos::debugLog(ss.str());
+	  LUGHOS_LOG(log::SeverityLevel::informative) << (ss.str()) ;
 	  this->onValueChange();
 	}
       }

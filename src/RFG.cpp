@@ -561,7 +561,7 @@ if(isConnected())
 bool RFG::isConnectedImplementation()
 {
   std::string initStr = this->inputOutput(std::string("\x00")+std::string("AF")+std::string("\r"),boost::regex("@"));
-  lughos::debugLog(std::string("RFG is testing connection. Answer was: ") + initStr);
+  LUGHOS_LOG(log::SeverityLevel::informative) << std::string("RFG is testing connection. Answer was: ") << initStr;
   return initStr.substr(0,1) == std::string("@");
 }
 

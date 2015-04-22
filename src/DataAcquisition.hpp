@@ -23,19 +23,19 @@ namespace lughos
       {
 	if(!error)
 	{
-	  debugLog(std::string("Acquiring data..."));
+	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Acquiring data...")) ;
 	  try
 	  { (*this->queue_)();
-	    debugLog(std::string("Acquired data sucessfully."));
+	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Acquired data sucessfully.")) ;
 	  }
 	  catch(std::exception& e)
 	  {
-	    debugLog(std::string("Error in data acquisition. Message: ") + e.what());
+	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Error in data acquisition. Message: ") + e.what()) ;
 	  }
 	  this->start();
 	}
 	else
-	  debugLog(std::string("Aborting acquisition loop. Cause: ") + error.message());
+	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Aborting acquisition loop. Cause: ") + error.message()) ;
       }
       
       template <class T>

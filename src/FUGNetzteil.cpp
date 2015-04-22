@@ -305,6 +305,7 @@ measuredValue<double> FUGNetzteil::readSetpointU()
 
 measuredValue<bool> FUGNetzteil::readOvercurrent()
 {
+  LUGHOS_LOG_FUNCTION();
   int success=0;
   std::string answer="";
 
@@ -315,7 +316,7 @@ measuredValue<bool> FUGNetzteil::readOvercurrent()
    answer= answer.erase(0, 4);
    if (std::stod(answer) == 1)
    {
-    lughos::debugLog(std::string("FUG Powersupply ") + this->name + std::string(" reports overcurrent!"));
+    LUGHOS_LOG(log::SeverityLevel::informative) << std::string("FUG Powersupply ") << this->name << std::string(" reports overcurrent!");
     tmp.setValue(true);
     return tmp;
    }

@@ -121,10 +121,10 @@ namespace lughos
       if(this->promise && !this->answer->has_value() && !this->answer->has_exception())
       {
         this->promise->set_value(answer);
-        debugLog(std::string("Query ")+ idString + std::string(" received: ") + answer);
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" received: ") + answer) ;
         return;
       }
-      debugLog(std::string("Query ")+ idString + std::string(" ignored: ") + answer);
+      LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" ignored: ") + answer) ;
       this->doneBit = true;
     }
     
@@ -137,11 +137,11 @@ namespace lughos
       {
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
 	this->lastErrorMessage = errorMessage;
-	debugLog(std::string("Query ")+ idString + std::string(" got error: ") + errorMessage);
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" got error: ") + errorMessage) ;
       }
       catch(boost::promise_already_satisfied& e)
       {
-	debugLog(std::string("Query ")+ idString + std::string(" promise already satisfied and new error:") + errorMessage);
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" promise already satisfied and new error:") + errorMessage) ;
       }
       this->doneBit = true;
     }
@@ -157,7 +157,7 @@ namespace lughos
       lughos::SharedLock lock(this->mutex);
       if(!answer->has_value() && !answer->has_exception())
       {
-        debugLog(std::string("Waiting on query ")+ idString + std::string(" for answer..."));
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Waiting on query ")+ idString + std::string(" for answer...")) ;
         lock.unlock();
         this->answer->timed_wait(boost::posix_time::seconds(3)); //Never wait locked!
         lock.lock();
@@ -166,17 +166,17 @@ namespace lughos
       if(answer->has_value())
       {
         std::string tmp = this->answer->get();
-        debugLog(std::string("Query ")+ idString + std::string(" has answer: ") + tmp);
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" has answer: ") + tmp) ;
         return tmp;
       }
       else if (answer->has_exception())
       {
-        debugLog(std::string("Query ")+ idString + std::string(" got exception. Rethrowing. "));
+        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" got exception. Rethrowing. ")) ;
         this->answer->get();
       }
       else
       {
-	debugLog(std::string("Waiting for answer on Query ")+ idString + std::string("timed out!"));
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Waiting for answer on Query ")+ idString + std::string("timed out!")) ;
 	BOOST_THROW_EXCEPTION( exception() << errorName("query_answer_timed_out") << errorDescription(idString + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
 	}
     }
@@ -188,7 +188,7 @@ namespace lughos
 	return *this->response;
       else
       {
-	debugLog(std::string("Query ")+ idString + std::string(": Not in busy mode! Call disallowed."));
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(": Not in busy mode! Call disallowed.")) ;
 	BOOST_THROW_EXCEPTION( exception() << errorName("call_not_allowed") << errorDescription(idString + std::string(": Not in busy mode! Call disallowed.")) << errorSeverity(severity::MustNot) );
       }
     }
@@ -264,7 +264,7 @@ namespace lughos
 //       this->promise.reset(new boost::promise<std::string>());
 //       this->answer.reset(new boost::shared_future<std::string>(this->promise->get_future()));
 //       this->sent = true;
-//       debugLog(std::string("Query sent: ") + this->question);
+//       LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query sent: ") + this->question) ;
 //       return this->question;
 //     }
   };

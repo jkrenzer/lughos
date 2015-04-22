@@ -123,6 +123,7 @@ measuredValue<double> bronkhorst::getMaxCapacity()
 
 measuredValue<double> bronkhorst::get_flow()
 {
+  LUGHOS_LOG_FUNCTION();
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
@@ -145,14 +146,14 @@ measuredValue<double> bronkhorst::get_flow()
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
       setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->capacity;
-      std::cout << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString() << std::endl;
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString();
     }
     else
-      std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Could not cast string to value! Setting value to zero.";
   }
   catch(std::exception& e)
   {
-    std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
+    LUGHOS_LOG(log::SeverityLevel::informative) << "Could not cast string to value! Setting value to zero.";
     setpoint=0.0;
   }
   

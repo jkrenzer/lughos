@@ -114,7 +114,7 @@ endif()
 
 ### Find needed Packages
 
-find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random log chrono REQUIRED)
 find_package(Doxygen)
 find_package(Libharu)
 find_package(Wt)
@@ -199,6 +199,7 @@ add_library(exposedValues src/exposedValues.cpp)
 add_library(errorHandling src/errorHandling.cpp)
 
 add_library(log src/log.cpp)
+target_link_libraries(log ${Boost_LOG_LIBRARY_DEBUG} boost_log_setup)
 
 add_library(connections src/serialConnections.cpp src/tcpConnections.cpp)
 
@@ -280,9 +281,9 @@ add_executable(test_gui2 src/test_gui2.cpp)#  src/coolpak6000.cpp src/serialConn
 add_dependencies(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply connections)
 
 if(${Windows})
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Boost_log_LIBRARY_DEBUG} connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} ws2_32 mswsock mingw32 gsl gslcblas)
 else()
-target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
+target_link_libraries(test_gui2 bronkhorst Relais RFG FUGNetzteil PSAPowersupply measuredValue boost_chrono ${Boost_log_LIBRARY_DEBUG} connections ${Wt_DEBUG_LIBRARY} ${Wt_HTTP_DEBUG_LIBRARY} ${Boost_LIBRARIES}  ${Wt_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} boost_signals pthread gsl gslcblas)
 endif()
 
 ### Test for wt-plots
