@@ -44,6 +44,7 @@ namespace lughos
     
   StatusLEDWtWidget(WContainerWidget* parent = 0) : WStackedWidget(parent) , statusMessage("State undetermined")
   {
+    ExclusiveLock lock(mutex);
     this->off = new Wt::WImage("./resources/LED_off.png");
     this->red = new Wt::WImage("./resources/LED_red.png");
     this->green = new Wt::WImage("./resources/LED_green.png");
