@@ -218,6 +218,7 @@ namespace lughos
       try 
       {
         this->promise->set_exception(make_exception_ptr(exception() << errorName("query_reset_abort") << errorSeverity(severity::Informative) << errorDescription("Query was reset so the waiting operations are aborted.") ));
+        this->answer->timed_wait(boost::posix_time::seconds(3));
       }
       catch(...)
       {}
