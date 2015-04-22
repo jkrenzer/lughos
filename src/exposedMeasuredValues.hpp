@@ -47,10 +47,10 @@ namespace lughos
 	this->refresh();
     }
     
-    operator measuredValue<T>()
+    measuredValue<T>& get()
     {
       this->refreshIfExpired();
-      return static_cast<measuredValue<T> >(*this);
+      return static_cast<measuredValue<T> &>(*this);
     }
     
     void refresh()

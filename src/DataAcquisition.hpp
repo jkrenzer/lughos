@@ -44,6 +44,7 @@ namespace lughos
 	valuePtr ptr(new measuredDBValue<T>(value));
 	Wt::Dbo::Transaction transaction(*this->databaseSession);
 	this->databaseSession->add(ptr);
+	transaction.commit();
       }
 
     public:
