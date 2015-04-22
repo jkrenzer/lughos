@@ -164,15 +164,15 @@ int main(int argc, char **argv)
 	connection8->port_name = std::string(config.get<std::string>("devices.psa2.connection.port"));
 	connection9->port_name = std::string(config.get<std::string>("devices.psa3.connection.port"));
 
-        boost::shared_ptr<Device> flowcontroll1(new bronkhorst);
-        boost::shared_ptr<Device> flowcontroll2(new bronkhorst);
-        boost::shared_ptr<Device> RFG1(new RFG);
-        boost::shared_ptr<Device> relais1(new Relais);
-	boost::shared_ptr<Device> fug1(new FUGNetzteil);
-        boost::shared_ptr<Device> fug2(new FUGNetzteil);
-	boost::shared_ptr<Device> psa1(new PSAPowersupply);
-	boost::shared_ptr<Device> psa2(new PSAPowersupply);
-        boost::shared_ptr<Device> psa3(new PSAPowersupply);
+        boost::shared_ptr<bronkhorst> flowcontroll1(new bronkhorst);
+        boost::shared_ptr<bronkhorst> flowcontroll2(new bronkhorst);
+        boost::shared_ptr<RFG> RFG1(new RFG);
+        boost::shared_ptr<Relais> relais1(new Relais);
+	boost::shared_ptr<FUGNetzteil> fug1(new FUGNetzteil);
+        boost::shared_ptr<FUGNetzteil> fug2(new FUGNetzteil);
+	boost::shared_ptr<PSAPowersupply> psa1(new PSAPowersupply);
+	boost::shared_ptr<PSAPowersupply> psa2(new PSAPowersupply);
+        boost::shared_ptr<PSAPowersupply> psa3(new PSAPowersupply);
 	
 
         flowcontroll1->setName(config.get<std::string>("devices.flowcontroll1.name"));
@@ -231,8 +231,8 @@ int main(int argc, char **argv)
         boost::thread workerThread(boost::bind(&boost::asio::io_service::run, ioService));
         session->setConnection(sqlite3);
         session->mapClass<measuredDBValue<double>>("measuredValue_double");
-        session1->setConnection(sqlite3);
-        session1->mapClass<measuredDBValue<double>>("measuredValue_double");
+//         session1->setConnection(sqlite3);
+//         session1->mapClass<measuredDBValue<double>>("measuredValue_double");
 //   session1->setConnection(sqlite3);
 //   session1->mapClass<measuredDBValue>("measuredValue");
         try
@@ -245,8 +245,24 @@ int main(int argc, char **argv)
         {
             std::cout << "Tables already created." << endl;
         }
-
-        std::cout << "Starting task-execution" << std::endl;
+        
+        DataAcquisition data(ioService,session);
+        data.acquire(flowcontroll1->flow);
+        data.acquire(flowcontroll1->setpoint);
+        data.acquire(flowcontroll2->flow);
+        data.acquire(flowcontroll2->setpoint);
+        data.acquire(RFG1->voltage);
+        data.acquire(RFG1->current);
+        data.acquire(RFG1->power);
+        data.acquire(fug1->voltage);
+        data.acquire(fug1->current);
+        data.acquire(fug2->voltage);
+        data.acquire(fug2->current);
+	data.start();
+        std::cout << "Starting Acquisition!" << std::endl;
+        
+        
+        
 
 //   RFGTest rfg(session1,taskExecutor,RFG1,1);
 //   rfg.setEvery(boost::posix_time::seconds(5));
@@ -301,6 +317,7 @@ int main(int argc, char **argv)
 //   ofs<< "Shutting down Webserver" << std::endl;
 
         std::cout << "Shutting down Webserver" << std::endl;
+        data.stop();
         lughos::ioService->stop();
 //    ofs<< "IOService stopping..." << std::endl;
         std::cout << "IOService stopping..." << std::endl;

@@ -2,6 +2,7 @@
 #define MEASURED_VALUE_HPP
 #include "makros.hpp"
 #include "unitValue.hpp"
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace lughos
@@ -10,7 +11,13 @@ namespace lughos
   {
   protected:
     boost::posix_time::ptime timeStamp;
+    int64_t timeStampTicks;
     std::string sensorName;
+    
+    int64_t timeStampToTicks(boost::posix_time::ptime timestamp)
+    {
+      return boost::posix_time::time_duration(timeStamp - boost::posix_time::ptime(boost::gregorian::date(1970,boost::gregorian::Jan,1))).total_milliseconds();
+    }
     
   public:
     virtual void setTimeStamp(boost::posix_time::ptime timeStamp);
@@ -20,7 +27,7 @@ namespace lughos
     
     measuredValueInterface(boost::posix_time::ptime timestamp = boost::posix_time::microsec_clock::local_time(), std::string sensorName = std::string("N/A")): timeStamp(timestamp), sensorName(sensorName)
     {
-      
+      this->timeStampTicks = timeStampToTicks(timestamp);
     }
     
   };
@@ -49,6 +56,7 @@ namespace lughos
   void measuredValueInterface::setTimeStamp(boost::posix_time::ptime timeStamp)
   {
     this->timeStamp = timeStamp;
+    this->timeStampTicks = timeStampToTicks(timeStamp);
   }
   
   boost::posix_time::ptime measuredValueInterface::getTimeStamp()

@@ -11,6 +11,7 @@
 #include <functional>
 #include "StatusLEDWtWidget.hpp"
 #include "device.hpp"
+#include "basicUIElements.hpp"
 
 
 
@@ -23,6 +24,8 @@ namespace lughos
         boost::shared_ptr<DeviceImpl> device_;
         boost::shared_ptr<Wt::WTimer> intervalTimer;
         
+        boost::signals2::signal<void ()> refreshSignal;
+        boost::signals2::signal<void (bool)> setDisabledSignal;
         
         
   public:
@@ -87,17 +90,18 @@ namespace lughos
       this->container->addWidget (widget);
     }
     
+        template <class T>
+    void addWidget(ui::Measurement<T>* widget)
+    {
+      this->container->addWidget(widget);
+      this->refreshSignal.connect(boost::bind(&ui::Measurement<T>::pull,widget));
+      this->setDisabledSignal.connect(boost::bind(&ui::Measurement<T>::setDisabled,widget,_1));
+    }
+    
     virtual void reset()
     {
-      if(this->device_)
-      {
-	this->device_->isConnected();
-      }
+
     }
-      
-    virtual void enable() = 0;
-    
-    virtual void disable() = 0;
     
   DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
@@ -113,13 +117,10 @@ namespace lughos
       Wt::WPopupMenuItem* reconnect = this->led->popupMenu()->addItem("Reset Device");
       reconnect->triggered().connect(boost::bind(&DeviceUIInterface::reset,this)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
-      state->triggered().connect(boost::bind(&DeviceUIInterface::refresh,this));
+      state->triggered().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
       this->intervalTimer->setInterval(1000);
-      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refresh,this)); // Reload measurements every second
-      this->intervalTimer->start();
-      
+      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
     }
-  
 
     virtual ~ DeviceUIInterface ()
     {
@@ -143,19 +144,18 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       this->name = device_->getName();
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
       this->device_->onConnect.connect(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led));
-      this->device_->onConnect.connect(boost::bind(&DeviceUITemplate< D >::enable,this));
+//       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
       this->device_->onDisconnect.connect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led));
-      this->device_->onDisconnect.connect(boost::bind(&DeviceUITemplate< D >::disable,this));
+//       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
       this->device_->onError.connect(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led));
+      this->device_->emitConnectionSignals();
+      this->intervalTimer->start();
     }
-    
-    virtual void enable() = 0;
-    
-    virtual void disable() = 0;
     
     void device(boost::shared_ptr<Device> device_)
     {
       this->device_ = device_;
+      this->device_->emitConnectionSignals();
     }
 };
 

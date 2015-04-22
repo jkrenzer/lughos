@@ -126,6 +126,7 @@ this->name=device()->getName();
       this->voltageMin->attach(this->device()->voltageLimitMin);
       this->device()->controller.onValueChange.connect(boost::bind(&DeviceUI< RFG >::determinTarget,this));
 
+
             
       this->sendOnB = new Wt::WPushButton("On");
       this->sendOffB = new Wt::WPushButton("Off");

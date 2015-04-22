@@ -139,22 +139,13 @@ namespace lughos
     {
       {
 	ExclusiveLock lock(this->mutex);
-        lughos::debugLog ( std::string ( "Device is connecting." ));
+        lughos::debugLog ( std::string ( "Device has now a connection." ));
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
 	this->connection->ioService(this->ioService);
-	this->connected = this->connection->test();
       }
-      SharedLock lock(this->mutex);
-      if(this->connected)
-      {
-	lock.unlock();
-        lughos::debugLog ( std::string ( "Device successfully connected." ));
-	this->init();
-	lock.lock();
-      }
-      else
-        lughos::debugLog ( std::string ( "Device could not connect!" ));
-      return this->connected;
+      lughos::debugLog ( std::string ( "Device starts connection test." ));
+     
+      return this->isConnected();
     }
     
     bool isConnected()

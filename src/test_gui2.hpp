@@ -58,6 +58,7 @@
 #include "ScatterPlot_bronkhorst.hpp"
 #include "ScatterPlot_dummy.hpp"
 #include "WtSession.hpp"
+#include "DataAcquisition.hpp"
 
 // template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 // {
@@ -292,6 +293,8 @@ virtual ~ConnectionStatusWidget()
 
 
       this->useStyleSheet("resources/lughos.css");
+      this->enableUpdates(true); //Allow push from server
+      
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
       bootstrapTheme->setResponsive(true);

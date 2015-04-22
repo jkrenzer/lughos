@@ -22,6 +22,7 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, this->timeStamp,     "timestamp");
+    dbo::field(a, this->timeStampTicks, "ticks");
     dbo::field(a, this->sensorName, "sensorName");
     dbo::field(a, this->unit,     "unit");
     if(this->isSet() && a.getsValue())

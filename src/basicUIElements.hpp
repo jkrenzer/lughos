@@ -6,6 +6,7 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WGridLayout>
 #include <Wt/WPushButton>
+#include <Wt/WApplication>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
@@ -17,11 +18,19 @@ namespace lughos
   {
     template <class F> class Measurement : public Wt::WContainerWidget
     {
+    private:
+      Mutex mutex;
     protected:
       F* field_;
       ExposedValueInterface* asignee_;
       boost::signals2::connection onValueChangeConnection;
       boost::signals2::connection buttonClickedConnection;
+      
+      
+      Wt::WApplication* app()
+      {
+	return Wt::WApplication::instance();
+      }
       
     public:
       
@@ -36,34 +45,44 @@ namespace lughos
       
       F* field()
       {
+	SharedLock lock(mutex);
         return dynamic_cast<F*>(this->field_);
       }
       
       void setDisabled(bool disabled = true)
       {
+	ExclusiveLock lock(mutex);
         this->field_->setDisabled(true);
       }
       
       virtual void attach(ExposedValueInterface& asignee_)
       {
+	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement<F>::pull,this));
       }
       
       virtual void detach()
       {
+	ExclusiveLock lock(mutex);
+	this->asignee_ = nullptr;
 	this->onValueChangeConnection.disconnect();
       }
       
       virtual void pull()
       {
+	ExclusiveLock lock(mutex);
+	Wt::WApplication::UpdateLock uiLock(app());
 	this->field_->setText(this->asignee_->getValueAsString());
+	app()->triggerUpdate();
       }
       
     };
   
     template <class F> class Setting : public Measurement<F>
     {
+    private:
+      Mutex mutex;
     protected:
       Wt::WPushButton* button_;
      
@@ -79,17 +98,22 @@ namespace lughos
       
       Wt::WPushButton* button()
       {
+	SharedLock lock(mutex);
         return this->button_;
       }
       
       void setDisabled(bool disabled = true)
       {
+	ExclusiveLock lock(mutex);
+	Wt::WApplication::UpdateLock uiLock(this->app());
         this->field_->setDisabled(disabled);
         this->button_->setDisabled(disabled);
+        this->app()->triggerUpdate();
       }
       
       void attach(ExposedValueInterface& asignee_)
       {
+	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
@@ -97,12 +121,15 @@ namespace lughos
       
       void detach()
       {
+	ExclusiveLock lock(mutex);
+	this->asignee_ = nullptr;
 	this->onValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
       }
       
       void push()
       {
+	SharedLock lock(mutex);
 	this->asignee_->setValueFromString(this->field_->text().toUTF8());
       }
       
