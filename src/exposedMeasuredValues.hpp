@@ -52,12 +52,16 @@ namespace lughos
       ExclusiveLock lock(mutex);
       if(getter_)
       {
+	lughos::debugLog(std::string("Fetching new value for ") + this->name);
 	T tmp = *(this->valuePointer);
 	lock.unlock();
 	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
 	lock.lock();
 	if(tmp != *(this->valuePointer))
 	{
+	  std::stringstream ss;
+	  ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
+	  lughos::debugLog(ss.str());
 	  lock.unlock();
 	  this->onValueChange();
 	}
