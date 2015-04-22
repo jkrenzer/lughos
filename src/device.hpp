@@ -216,14 +216,15 @@ namespace lughos
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
-	this->connection->execute(q);
 	try
 	{
+	  this->connection->execute(q);
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
 	catch(...)
 	{
+	  debugLog(std::string("Exception while communication over port!"));
 	  this->connected = false;
 	  return std::string("");
 	}
