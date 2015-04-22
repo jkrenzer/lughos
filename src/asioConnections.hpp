@@ -79,7 +79,8 @@ protected:
     ExclusiveLock lock(mutex);
     auto it = std::find_if(queryStash.begin(), queryStash.end(), [&](boost::shared_ptr<Query> const& p) {
     return p == query;});
-    this->queryStash.erase(it);
+    if(it != queryStash.end())
+      this->queryStash.erase(it);
   }
 
   void handle_write_request ( boost::shared_ptr<Query> query, const boost::system::error_code& err );
