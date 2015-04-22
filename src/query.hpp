@@ -134,7 +134,9 @@ namespace lughos
       this->error = true;
       try //TODO why don't we end up here on connection-timeout?
       {
+	lock.unlock();
 	this->promise->set_exception(make_exception_ptr(exception() << errorName("query_got_error") << errorSeverity(severity::Informative) << errorDescription(errorMessage) ));
+	lock.lock();
 	this->lastErrorMessage = errorMessage;
 	debugLog(std::string("Query ")+ idString + std::string(" got error: ") + errorMessage);
       }
