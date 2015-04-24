@@ -57,6 +57,7 @@ namespace lughos
     
     LoggingService()
     {
+       std::cout.sync_with_stdio(true);
        this->logger.reset(new boost::log::sources::severity_channel_logger_mt<log::SeverityLevel>());
        fileSink = boost::log::add_file_log
        (

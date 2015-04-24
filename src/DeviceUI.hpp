@@ -26,9 +26,7 @@ namespace lughos
         
         typedef boost::signals2::signal<void ()> RefreshSignal;
         RefreshSignal refreshSignal;
-        boost::signals2::signal<void (bool)> setDisabledSignal;
-        
-        
+       
   public:
     std::string name;
     boost::shared_ptr<Wt::WContainerWidget> container;
@@ -86,17 +84,16 @@ namespace lughos
     
     typedef boost::shared_ptr<StatusLEDState> StatePointer;
 
-    void addWidget (Wt::WWidget * widget)
+    void addWidget (Wt::WWidget* widget)
     {
-      this->container->addWidget (widget);
+      this->container->addWidget(widget);
     }
     
         template <class T>
-    void addWidget(ui::Measurement<T>* widget)
+    void addWidget(boost::shared_ptr<ui::Measurement<T> > widget)
     {
       this->container->addWidget(widget);
-      this->refreshSignal.connect(boost::bind(&ui::Measurement<T>::pull,widget));
-      this->setDisabledSignal.connect(boost::bind(&ui::Measurement<T>::setDisabled,widget,_1));
+      this->refreshSignal.connect(RefreshSignal::slot_type(&ui::Measurement<T>::pull,widget).track(widget));
     }
     
     virtual void reset()

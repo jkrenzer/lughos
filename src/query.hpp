@@ -272,6 +272,10 @@ namespace lughos
   class Query : public QueryImpl
   {
   public:
+    
+    Query (const char* questionCStr) : QueryImpl(std::string(questionCStr))
+    {
+    }
   
     Query ( std::string question ) : QueryImpl(question)
     {

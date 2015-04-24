@@ -208,6 +208,13 @@ namespace lughos
       return this->connection.get();
     }
     
+    template <size_t N>
+    std::string inputOutput(char const cstrQuery[N], boost::regex regExpr = boost::regex())
+    {
+      std::string str(cstrQuery,N);
+      return this->inputOutput(str, regExpr);
+    }
+    
     std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
       SharedLock lock(this->mutex);

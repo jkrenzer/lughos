@@ -294,7 +294,7 @@ virtual ~ConnectionStatusWidget()
 
       this->useStyleSheet("resources/lughos.css");
       this->enableUpdates(true); //Allow push from server
-//       env.server()->logger().setStream();
+      env.server()->logger().setStream(std::cout);
       
       Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(this);
       bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);

@@ -61,10 +61,11 @@ namespace lughos
     this->addWidget(orange);
     
     this->color = Green;
-    this->switchOff();
     this->popupState = this->popup->addItem(this->statusMessage);
     this->popup->addSeparator();
     this->clicked().connect(boost::bind(&Wt::WPopupMenu::popup,this->popup,this,Wt::Orientation::Vertical));
+    lock.unlock();
+    this->switchOff();
   }
 
   virtual ~StatusLEDWtWidget()

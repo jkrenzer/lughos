@@ -26,12 +26,6 @@ namespace lughos
       boost::signals2::connection onValueChangeConnection;
       boost::signals2::connection buttonClickedConnection;
       
-      
-      Wt::WApplication* app()
-      {
-	return Wt::WApplication::instance();
-      }
-      
     public:
       
     Measurement(WContainerWidget * parent = 0) : WContainerWidget(parent)
@@ -72,9 +66,7 @@ namespace lughos
       virtual void pull()
       {
 	ExclusiveLock lock(mutex);
-	Wt::WApplication::UpdateLock uiLock(app());
 	this->field_->setText(this->asignee_->getValueAsString());
-	app()->triggerUpdate();
       }
       
     };
@@ -105,10 +97,8 @@ namespace lughos
       void setDisabled(bool disabled = true)
       {
 	ExclusiveLock lock(mutex);
-	Wt::WApplication::UpdateLock uiLock(this->app());
         this->field_->setDisabled(disabled);
         this->button_->setDisabled(disabled);
-        this->app()->triggerUpdate();
       }
       
       void attach(ExposedValueInterface& asignee_)
