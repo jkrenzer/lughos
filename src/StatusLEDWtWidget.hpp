@@ -15,12 +15,12 @@ namespace lughos
   protected:
     friend class StatusLEDWtWidget;
     
-    virtual void set(StatusLEDWtWidget* statusLED) = 0;
+    virtual void set(boost::shared_ptr<StatusLEDWtWidget> statusLED) = 0;
   public:
         Wt::WString message;
   };
 
-  class StatusLEDWtWidget : public Wt::WStackedWidget
+  class StatusLEDWtWidget : public Wt::WStackedWidget, public boost::enable_shared_from_this<StatusLEDWtWidget>
   {
   private:
     Mutex mutex;
@@ -86,7 +86,7 @@ namespace lughos
     ExclusiveLock lock(mutex);
     this->state = state;
     lock.unlock();
-    this->state->set(this);
+    this->state->set(shared_from_this());
   }
   
   template <class T>
@@ -119,7 +119,7 @@ namespace lughos
   {
     ExclusiveLock lock(mutex);
     this->color = color;
-    this->setCurrentIndex(color);  
+    this->setCurrentIndex(color);
   }
   
   Wt::WPopupMenu* popupMenu()
@@ -149,7 +149,7 @@ namespace lughos
     
     friend class StatusLEDWtWidget;
     
-    virtual void set(StatusLEDWtWidget* statusLED) 
+    virtual void set(boost::shared_ptr<StatusLEDWtWidget> statusLED) 
     {
       ExclusiveLock lock(mutex);
       statusLED->setColor(this->color);

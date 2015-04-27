@@ -66,7 +66,10 @@ namespace lughos
       virtual void pull()
       {
 	ExclusiveLock lock(mutex);
-	this->field_->setText(this->asignee_->getValueAsString());
+        if(this->asignee_ != nullptr)
+          this->field_->setText(this->asignee_->getValueAsString());
+        else
+          BOOST_THROW_EXCEPTION( exception() << errorName("pull_invalid_ptr") << errorDescription("A pull was emitted but the object from which we shoul pull is a null-pointer!") << errorSeverity(severity::MustNot) );
       }
       
     };
