@@ -67,6 +67,11 @@ namespace lughos
     lock.unlock();
     this->switchOff();
   }
+  
+//   StatusLEDWtWidget(StatusLEDWtWidget& other) : WStackedWidget(other)
+//   {
+//     this->color = other.color;
+//   }
 
   virtual ~StatusLEDWtWidget()
   {
