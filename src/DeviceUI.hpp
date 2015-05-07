@@ -101,13 +101,23 @@ namespace lughos
 
     }
     
-  DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
+  DeviceUIInterface (boost::shared_ptr<Device> device_, Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
+      LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Constructing object at " << this;
+      this->device_ = device_;
+      this->name = device_->getName();
       this->intervalTimer.reset(new Wt::WTimer());
       this->container.reset(new Wt::WContainerWidget());
       this->led.reset(new StatusLEDWtWidget());
       this->led->setInline(true);
       this->led->setState<Disconnected>();
+      this->device_->onConnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Connected>,this->led.get()).track(this->led));
+//       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
+      this->device_->onDisconnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Disconnected>,this->led.get()).track(this->led));
+//       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
+      this->device_->onError.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Error>,this->led.get()).track(this->led));
+      this->device_->emitConnectionSignals();
       this->setStyleClass ("DeviceContainer");
       this->setTitle (Wt::WString::fromUTF8 ("Loading..."));
       this->titleBarWidget()->insertWidget(0,this->led.get());
@@ -122,7 +132,10 @@ namespace lughos
 
     virtual ~ DeviceUIInterface ()
     {
+      LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Deconstructing object at " << this;
       this->intervalTimer->stop();
+      this->led.reset();
     }
 
   };
@@ -135,17 +148,9 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       return boost::dynamic_pointer_cast<D>(this->device_);
     }
     
-    DeviceUITemplate<D>(boost::shared_ptr<Device> device_)
+    DeviceUITemplate<D>(boost::shared_ptr<Device> device_) : DeviceUIInterface(device_)
     {
-      this->device(device_);
-      this->name = device_->getName();
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
-      this->device_->onConnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Connected>,this->led.get()).track(this->led));
-//       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
-      this->device_->onDisconnect.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Disconnected>,this->led.get()).track(this->led));
-//       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
-      this->device_->onError.connect(RefreshSignal::slot_type(&StatusLEDWtWidget::setState<Error>,this->led.get()).track(this->led));
-      this->device_->emitConnectionSignals();
       this->intervalTimer->start();
     }
     
