@@ -105,10 +105,14 @@ namespace lughos
 
     }
     
-  DeviceUIInterface (Wt::WContainerWidget * parent = 0):WPanel (parent)
+  DeviceUIInterface (boost::shared_ptr<Device> device_, Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
       this->wtApp_ = Wt::WApplication::instance();
       this->wtServer_ = Wt::WServer::instance();
+      LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Constructing object at " << this;
+      this->device_ = device_;
+      this->name = device_->getName();
       this->intervalTimer.reset(new Wt::WTimer());
       this->container.reset(new Wt::WContainerWidget());
       this->led.reset(new StatusLEDWtWidget());
@@ -128,7 +132,10 @@ namespace lughos
 
     virtual ~ DeviceUIInterface ()
     {
+      LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Deconstructing object at " << this;
       this->intervalTimer->stop();
+      this->led.reset();
     }
     
     virtual RefreshSignal::slot_type postedSlot(const boost::function< void()> & function, const boost::function< void()> & fallBackFunction = boost::function<void ()>() )
@@ -146,10 +153,8 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       return boost::dynamic_pointer_cast<D>(this->device_);
     }
     
-    DeviceUITemplate<D>(boost::shared_ptr<Device> device_)
+    DeviceUITemplate<D>(boost::shared_ptr<Device> device_) : DeviceUIInterface(device_)
     {
-      this->device(device_);
-      this->name = device_->getName();
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
       boost::function<void()> onConnect();
       boost::function<void()> onDisonnect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get()));

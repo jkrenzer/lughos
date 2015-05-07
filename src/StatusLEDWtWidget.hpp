@@ -3,6 +3,7 @@
 #include <Wt/WStackedWidget>
 #include <Wt/WPopupMenu>
 #include <Wt/WPushButton>
+#include <Wt/WApplication>
 #include "threadSafety.hpp"
 
 namespace lughos
@@ -13,20 +14,22 @@ namespace lughos
   class StatusLEDStateInterface
   {
   protected:
+    Mutex mutex;
     friend class StatusLEDWtWidget;
     
-    virtual void set(StatusLEDWtWidget* statusLED) = 0;
+    virtual void set(boost::shared_ptr<StatusLEDWtWidget> statusLED) = 0;
   public:
         Wt::WString message;
   };
 
-  class StatusLEDWtWidget : public Wt::WStackedWidget
+  class StatusLEDWtWidget : public Wt::WStackedWidget, public boost::enable_shared_from_this<StatusLEDWtWidget>
   {
-  private:
-    Mutex mutex;
   public:
     enum Color {Off, Red, Green, Blue, Yellow, Orange};
+ 
   protected:
+    Mutex mutex;
+    
     Wt::WImage* off;
     Wt::WImage* red;
     Wt::WImage* green;
@@ -91,7 +94,7 @@ namespace lughos
     ExclusiveLock lock(mutex);
     this->state = state;
     lock.unlock();
-    this->state->set(this);
+    this->state->set(shared_from_this());
   }
   
   template <class T>
@@ -124,7 +127,12 @@ namespace lughos
   {
     ExclusiveLock lock(mutex);
     this->color = color;
-    this->setCurrentIndex(color);  
+    if(color < this->count())
+    {
+//       Wt::WApplication::UpdateLock lock(Wt::WApplication::instance());
+      this->setCurrentIndex(color);
+//       Wt::WApplication::instance()->triggerUpdate();
+    }
   }
   
   Wt::WPopupMenu* popupMenu()
@@ -145,8 +153,6 @@ namespace lughos
   
   class StatusLEDState : public StatusLEDStateInterface
   {
-  private:
-    Mutex mutex;
   public:
     typedef StatusLEDWtWidget::Color Color;
     Color color;
@@ -154,11 +160,14 @@ namespace lughos
     
     friend class StatusLEDWtWidget;
     
-    virtual void set(StatusLEDWtWidget* statusLED) 
+    virtual void set(boost::shared_ptr<StatusLEDWtWidget> statusLED) 
     {
-      ExclusiveLock lock(mutex);
-      statusLED->setColor(this->color);
-      statusLED->setStatusMessage(this->message);
+      ExclusiveLock lock(this->mutex);
+      if(statusLED)
+      {
+        statusLED->setColor(this->color);
+        statusLED->setStatusMessage(this->message);
+      }
     }
   };
   
