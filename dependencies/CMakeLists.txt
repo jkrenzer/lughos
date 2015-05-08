@@ -76,15 +76,35 @@ ExternalProject_Add(
 )
 
 
+ExternalProject_Add(
+      zeromq
+      PREFIX ${CMAKE_SYSTEM_NAME}
+      PATCH_COMMAND git reset --hard && git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/zmq.patch
+      INSTALL_DIR ${INSTALL_PREFIX}
+      LIST_SEPARATOR , 
+      INSTALL_COMMAND ${CPACK_COMMANDLINE}
+        -P libzmq
+	--config <BINARY_DIR>/CPackConfig.cmake
+      GIT_REPOSITORY https://github.com/zeromq/zeromq4-1.git #Comment-out when cmake keeps buggin you with rebuilds
+      CMAKE_ARGS 
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_CURRENT_TOOLCHAIN_FILE}
+	-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> 
+	-DCONFIGDIR:STRING=<INSTALL_DIR>/etc
+# 	-DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a"
+)
 
-# ExternalProject_Add(
-#  boost
-#  PREFIX ${CMAKE_SYSTEM_NAME}
-#  INSTALL_DIR ${INSTALL_PREFIX}
-#  LIST_SEPARATOR ,
-#  INSTALL_COMMAND ""
-#  GIT_REPOSITORY https://github.com/boostorg/boost.git
-# )
+ ExternalProject_Add(
+  cppzmq
+  DEPENDS zeromq
+  PREFIX ${CMAKE_SYSTEM_NAME}
+  PATCH_COMMAND git reset --hard && git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/cppzmq.patch
+  INSTALL_DIR ${INSTALL_PREFIX}
+  LIST_SEPARATOR ,
+  INSTALL_COMMAND ${CPACK_COMMANDLINE}
+        -P cppzmq
+	--config <BINARY_DIR>/CPackConfig.cmake
+  GIT_REPOSITORY https://github.com/zeromq/cppzmq.git
+ )
 
 
 ExternalProject_Add(
@@ -123,3 +143,6 @@ ExternalProject_Add(
 #       -DCMAKE_FIND_LIBRARY_SUFFIXES:STRING=".a;.dll.a"
 
  )
+
+ 
+ 

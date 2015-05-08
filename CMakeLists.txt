@@ -343,6 +343,10 @@ target_link_libraries(test_interpolation gsl gslcblas)
 ### Test for parser
 add_executable(test_parser src/test_parser.cpp)
 
+### Test for ZMQ
+add_executable(test_zmq src/test_zmq.cpp)
+target_link_libraries(test_zmq zmq ${Boost_LIBRARIES})
+
 #### Installation
 
 ### Installation directives
