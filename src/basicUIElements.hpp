@@ -7,6 +7,7 @@
 #include <Wt/WGridLayout>
 #include <Wt/WPushButton>
 #include <Wt/WApplication>
+#include <Wt/WServer>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
@@ -25,6 +26,8 @@ namespace lughos
       ExposedValueInterface* asignee_;
       boost::signals2::connection onValueChangeConnection;
       boost::signals2::connection buttonClickedConnection;
+      Wt::WServer* wtServer_;
+      Wt::WApplication* wtApp_;
       
     public:
       
@@ -35,6 +38,8 @@ namespace lughos
         this->setLayout(new Wt::WHBoxLayout());
         this->layout()->addWidget(this->field_);
         this->setPadding(0);
+        this->wtApp_ = Wt::WApplication::instance();
+        this->wtServer_ = Wt::WServer::instance();
       }
       
       F* field()
@@ -53,7 +58,8 @@ namespace lughos
       {
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
-	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement<F>::pull,this));
+        boost::function<void ()> function(boost::bind(&Measurement<F>::pull,this));
+	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Wt::WServer::post,this->wtServer_,this->wtApp_->sessionId(),function,boost::function<void ()>()));
       }
       
       virtual void detach()
