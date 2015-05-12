@@ -35,6 +35,31 @@ public:
   
 };
 
+template <> class Type<long int> : public TypeImplementation<int>
+{
+public:
+  std::string getName()
+  {
+    return std::string("long int");
+  }
+  
+  std::string getShortDescription()
+  {
+    return std::string("Simple, long integer value.");
+  }
+  
+  std::string getDescription()
+  {
+    return std::string("Simple, long integer value.");
+  }
+  
+  bool verify(int value)
+  {
+    return true;
+  }
+  
+};
+
 template <> class Type<std::string>  : public TypeImplementation<std::string>
 {
 public:

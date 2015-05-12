@@ -58,23 +58,17 @@ namespace lughos
     Wt::WLabel* iOutL;
     Wt::WLabel* uOutL;
     Wt::WLabel* pOutL;
-//     Wt::WLineEdit *iOutField;
-//     Wt::WLineEdit *uOutField;
-//     Wt::WLineEdit *pOutField;
     ui::Measurement<Wt::WLineEdit>* current;
     ui::Measurement<Wt::WLineEdit>* voltage;
     ui::Measurement<Wt::WLineEdit>* power;
-//     Wt::WDoubleSpinBox *iField;
+    ui::Measurement<Wt::WLineEdit>* bccOutputSignal;
+    ui::Measurement<Wt::WLineEdit>* bccFeedbackSignal;
+    ui::Measurement<Wt::WLineEdit>* power;
     ui::Setting<Wt::WDoubleSpinBox>* currentMax;
-//     Wt::WPushButton *sendUB;
-//     Wt::WDoubleSpinBox *uMinField;
-//     Wt::WDoubleSpinBox *uMaxField;
     ui::Setting<Wt::WDoubleSpinBox>* voltageMin;
     ui::Setting<Wt::WDoubleSpinBox>* voltageMax;
     Wt::WLabel* targetFieldL;
-//     Wt::WDoubleSpinBox *targetField;
     ui::Setting<Wt::WDoubleSpinBox>* target;
-//     Wt::WPushButton *sendPB;
     Wt::WPushButton *sendOnB;
     Wt::WPushButton *sendOffB;
     Wt::WLabel* modesL;
@@ -82,12 +76,12 @@ namespace lughos
     Wt::WPushButton *currentControl;
     Wt::WPushButton *powerControl;
     
+    
   public:
     
     DeviceUI< RFG >(boost::shared_ptr<Device> rfg) : DeviceUITemplate< RFG >(rfg)
     {
 this->name=device()->getName();
-//      this->setWidth(500);
 
       this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
       
@@ -105,6 +99,8 @@ this->name=device()->getName();
       this->voltageMax = new ui::Setting<Wt::WDoubleSpinBox>();
       this->voltageMin = new ui::Setting<Wt::WDoubleSpinBox>();
       this->target = new ui::Setting<Wt::WDoubleSpinBox>();
+      this->bccOutputSignal = new ui::Measurement<Wt::WLineEdit>();
+      this->bccFeedbackSignal = new ui::Measurement<Wt::WLineEdit>();
       
       this->currentMax->field()->setMaximum(5);
       this->currentMax->field()->setMinimum(0);
@@ -121,6 +117,8 @@ this->name=device()->getName();
       this->current->attach(this->device()->current);
       this->target->attach(this->device()->target);
       this->power->attach(this->device()->power);
+      this->bccOutputSignal->attach(this->device()->bccOutputSignal);
+      this->bccFeedbackSignal->attach(this->device()->bccFeedbackSignal);
       this->currentMax->attach(this->device()->currentLimitMax);
       this->voltageMax->attach(this->device()->voltageLimitMax);
       this->voltageMin->attach(this->device()->voltageLimitMin);
@@ -161,6 +159,9 @@ this->name=device()->getName();
       this->addWidget(target);
       this->addWidget(new Wt::WBreak);
       
+      this->addWidget(bccOutputSignal);
+      this->addWidget(bccFeedbackSignal);
+      this->addWidget(new Wt::WBreak);
       this->addWidget(voltageControl);
       this->addWidget(currentControl);
       this->addWidget(powerControl);

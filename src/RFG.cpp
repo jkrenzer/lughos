@@ -4,7 +4,11 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG() : voltage("voltage"), current("current"), power("power"), voltageLimitMax("voltageLimitMax"), voltageLimitMin("voltageLimitMin"), currentLimitMax("currentLimitMax"), mode("mode"), output("output"), controller("controller"), resistanceCorrection("resistanceCorrection"), target("target")
+RFG::RFG() :  voltage("voltage"), current("current"), power("power"), 
+              voltageLimitMax("voltageLimitMax"), voltageLimitMin("voltageLimitMin"), 
+              currentLimitMax("currentLimitMax"), mode("mode"), output("output"), 
+              controller("controller"), resistanceCorrection("resistanceCorrection"), 
+              target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal")
 {
   this->voltage.getter(boost::bind(&RFG::get_channel,this,0,true));
   this->current.getter(boost::bind(&RFG::get_channel,this,1,true));
@@ -29,6 +33,8 @@ RFG::RFG() : voltage("voltage"), current("current"), power("power"), voltageLimi
   this->resistanceCorrection.setValue(0.139);
   this->resistanceCorrection.setUnit("Ohm");
   this->resistanceCorrection.expires(false);
+  this->bccFeedbackSignal.getter(boost::bind(&RFG::get_channel,this,4,true));
+  this->bccOutputSignal.getter(boost::bind(&RFG::get_channel,this,3,true));
   
   for (int i=0;i<8;i++)
     {
@@ -495,8 +501,8 @@ bool RFG::readoutChannels()
   channel_output[0].setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
   channel_output[1].setValueAndUnit(rawCurrent,"A");
   channel_output[2].setValueAndUnit(results[2],"W");
-  channel_output[3].setValueAndUnit(results[3],"ReglerOut");
-  channel_output[4].setValueAndUnit(results[4],"ReglerFb");
+  channel_output[3].setValueAndUnit(results[3],""); //Regler Out
+  channel_output[4].setValueAndUnit(results[4],""); //Regler Feedback
   channel_output[5].setValueAndUnit(results[5],"Aux1");
   channel_output[6].setValueAndUnit(results[6],"Aux2");
   channel_output[7].setValueAndUnit(results[7],"°C");

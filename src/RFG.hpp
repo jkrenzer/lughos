@@ -52,6 +52,8 @@ class RFG :public Device
 	 exposedMeasurement<double> voltageLimitMax;
 	 exposedMeasurement<double> voltageLimitMin;
 	 exposedMeasurement<bool> output;
+         exposedMeasurement<long int> bccFeedbackSignal;
+         exposedMeasurement<long int> bccOutputSignal;
 	 exposedMeasurement<Mode> mode;
 	 exposedMeasurement<Controller> controller;
 	 exposedMeasurement<double> resistanceCorrection;
