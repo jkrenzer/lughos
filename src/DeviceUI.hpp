@@ -153,6 +153,12 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       return boost::dynamic_pointer_cast<D>(this->device_);
     }
     
+    void log(std::string str)
+    {
+      LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << str;
+    }
+    
     DeviceUITemplate<D>(boost::shared_ptr<Device> device_) : DeviceUIInterface(device_)
     {
       this->setTitle (Wt::WString::fromUTF8 (this->name.c_str ()));
@@ -160,8 +166,11 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       boost::function<void()> onDisonnect(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get()));
       boost::function<void()> onError(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get()));
       this->device_->onConnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led.get())).track(this->led));
-      this->device_->onConnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
-      this->device_->onConnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
+      this->device_->onDisconnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
+      this->device_->onError.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
+//       this->device_->onConnect.connect(this->postedSlot(boost::bind(&DeviceUITemplate< D >::log,this,std::string("Connect fired.")));
+//       this->device_->onDisconnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
+//       this->device_->onError.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
 //       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
 //       this->device_->onDisconnect.connect(RefreshSignal::slot_type(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
 //       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
