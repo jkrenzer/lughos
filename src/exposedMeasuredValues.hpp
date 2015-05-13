@@ -63,7 +63,10 @@ namespace lughos
 	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing refresh-function for ") + this->name);
 	try
 	{
+	  lock.unlock();
 	  refresher_(static_cast<measuredValue<T> &>(*this));
+	  lock.lock();
+	  return;
 	}
 	catch(exception& e)
 	{
