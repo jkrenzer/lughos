@@ -1,6 +1,7 @@
 #include <iostream>
 #include <zmq.hpp>
 #include <boost/program_options.hpp>
+#include <boost/timer/timer.hpp>
 using namespace std;
 
 void server()
@@ -15,11 +16,6 @@ void server()
 
   // Wait for next request from client
   socket.recv (&request);
-  std::cout << "Received Hello" << std::endl;
-
-  // Do some 'work'
-  sleep(1);
-
   // Send reply back to client
   zmq::message_t reply (5);
   memcpy ((void *) reply.data (), "World", 5);
@@ -27,7 +23,7 @@ void server()
   }
 }
 
-void client()
+void client(long int target_nbr)
 {
   // Prepare our context and socket
   zmq::context_t context (1);
@@ -36,18 +32,20 @@ void client()
   std::cout << "Connecting to hello world server…" << std::endl;
   socket.connect ("tcp://localhost:5555");
 
-  // Do 10 requests, waiting each time for a response
-  for (int request_nbr = 0; request_nbr != 10; request_nbr++) {
+  // Do requests, waiting each time for a response
+  boost::timer::cpu_timer timer;
+  timer.start();
+  for (long int request_nbr = 0; request_nbr < target_nbr; request_nbr++) {
   zmq::message_t request (6);
   memcpy ((void *) request.data (), "Hello", 5);
-  std::cout << "Sending Hello " << request_nbr << "…" << std::endl;
   socket.send (request);
 
   // Get the reply.
   zmq::message_t reply;
   socket.recv (&reply);
-  std::cout << "Received World " << request_nbr << std::endl;
   }
+  timer.stop();
+  std::cout << "For " << target_nbr << " requests we needed: " << timer.elapsed().wall << std::endl;
 }
 
 /* Function used to check that 'opt1' and 'opt2' are not specified
@@ -63,11 +61,13 @@ void conflicting_options(const boost::program_options::variables_map& vm,
 
 int main(int argc, char **argv)
 {
+  long int target_loops = 1000;
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
       ("help", "produce help message")
       ("server,s" , "run as server")
-      ("client,c" , "run as client");
+      ("client,c" , "run as client")
+      ("measurements,t", boost::program_options::value<long int>(&target_loops)->default_value(1000), "set how many measurements to take");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
   }
   else if (vm.count("client"))
   {
-    client();
+    client(target_loops);
     return 0;
   }
   else

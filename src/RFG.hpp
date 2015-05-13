@@ -48,12 +48,15 @@ class RFG :public Device
 	 exposedMeasurement<double> voltage;
 	 exposedMeasurement<double> power;
 	 exposedMeasurement<double> current;
+	 exposedMeasurement<double> temperature;
 	 exposedMeasurement<double> currentLimitMax;
 	 exposedMeasurement<double> voltageLimitMax;
 	 exposedMeasurement<double> voltageLimitMin;
 	 exposedMeasurement<bool> output;
          exposedMeasurement<long int> bccFeedbackSignal;
          exposedMeasurement<long int> bccOutputSignal;
+         exposedMeasurement<long int> aux1;
+         exposedMeasurement<long int> aux2;
 	 exposedMeasurement<Mode> mode;
 	 exposedMeasurement<Controller> controller;
 	 exposedMeasurement<double> resistanceCorrection;

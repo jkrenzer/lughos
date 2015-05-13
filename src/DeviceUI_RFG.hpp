@@ -63,7 +63,6 @@ namespace lughos
     ui::Measurement<Wt::WLineEdit>* power;
     ui::Measurement<Wt::WLineEdit>* bccOutputSignal;
     ui::Measurement<Wt::WLineEdit>* bccFeedbackSignal;
-    ui::Measurement<Wt::WLineEdit>* power;
     ui::Setting<Wt::WDoubleSpinBox>* currentMax;
     ui::Setting<Wt::WDoubleSpinBox>* voltageMin;
     ui::Setting<Wt::WDoubleSpinBox>* voltageMax;

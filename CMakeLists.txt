@@ -114,7 +114,7 @@ endif()
 
 ### Find needed Packages
 
-find_package(Boost COMPONENTS system filesystem thread program_options regex date_time random log chrono REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread program_options regex date_time timer random log chrono REQUIRED)
 find_package(Doxygen)
 find_package(Libharu)
 find_package(Wt)

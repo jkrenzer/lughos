@@ -4,15 +4,19 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG() :  voltage("voltage"), current("current"), power("power"), 
+RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperature("temperature"),
               voltageLimitMax("voltageLimitMax"), voltageLimitMin("voltageLimitMin"), 
               currentLimitMax("currentLimitMax"), mode("mode"), output("output"), 
               controller("controller"), resistanceCorrection("resistanceCorrection"), 
-              target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal")
+              target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal"),
+              aux1("aux1"),aux2("aux2")
 {
-  this->voltage.getter(boost::bind(&RFG::get_channel,this,0,true));
-  this->current.getter(boost::bind(&RFG::get_channel,this,1,true));
-  this->power.getter(boost::bind(&RFG::get_channel,this,2,true));
+  this->voltage.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->current.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->power.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->temperature.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->aux1.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->aux2.refresher(boost::bind(&RFG::readoutChannels,this));
   this->voltageLimitMax.getter(boost::bind(&RFG::getLimitMaxVoltage,this));
   this->voltageLimitMax.setter(boost::bind(&RFG::set_voltage_max,this,_1));
   this->voltageLimitMin.getter(boost::bind(&RFG::getLimitMinVoltage,this));
@@ -33,8 +37,8 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"),
   this->resistanceCorrection.setValue(0.139);
   this->resistanceCorrection.setUnit("Ohm");
   this->resistanceCorrection.expires(false);
-  this->bccFeedbackSignal.getter(boost::bind(&RFG::get_channel,this,4,true));
-  this->bccOutputSignal.getter(boost::bind(&RFG::get_channel,this,3,true));
+  this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   
   for (int i=0;i<8;i++)
     {
@@ -498,20 +502,29 @@ bool RFG::readoutChannels()
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
-  channel_output[0].setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
-  channel_output[1].setValueAndUnit(rawCurrent,"A");
-  channel_output[2].setValueAndUnit(results[2],"W");
-  channel_output[3].setValueAndUnit(results[3],""); //Regler Out
-  channel_output[4].setValueAndUnit(results[4],""); //Regler Feedback
-  channel_output[5].setValueAndUnit(results[5],"Aux1");
-  channel_output[6].setValueAndUnit(results[6],"Aux2");
-  channel_output[7].setValueAndUnit(results[7],"°C");
-  std::cout << "RFG Channel Measurements:" << std::endl;
-  for (int i = 0; i < 8; i++)
-  {
-    std::cout << "Channel " << i << ": " << channel_output[i].getValueAsString() << " (" << results[i] << ") " << std::endl;
-  }
-  std::cout << "-------------------------" << std::endl << std::endl;
+  double rawPower = unitsToPowerMeas.xToY(results[2]);
+  this->voltage.setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
+  this->current.setValueAndUnit(rawCurrent,"A");
+  this->power.setValueAndUnit(rawPower,"W");
+  this->bccOutputSignal.setValueAndUnit(results[3],""); //Regler Out
+  this->bccFeedbackSignal.setValueAndUnit(results[4],""); //Regler Feedback
+  this->aux1.setValueAndUnit(results[5],"Aux1");
+  this->aux2.setValueAndUnit(results[6],"Aux2");
+  this->temperature.setValueAndUnit(results[7],"°C");
+//   channel_output[0].setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
+//   channel_output[1].setValueAndUnit(rawCurrent,"A");
+//   channel_output[2].setValueAndUnit(results[2],"W");
+//   channel_output[3].setValueAndUnit(results[3],""); //Regler Out
+//   channel_output[4].setValueAndUnit(results[4],""); //Regler Feedback
+//   channel_output[5].setValueAndUnit(results[5],"Aux1");
+//   channel_output[6].setValueAndUnit(results[6],"Aux2");
+//   channel_output[7].setValueAndUnit(results[7],"°C");
+//   std::cout << "RFG Channel Measurements:" << std::endl;
+//   for (int i = 0; i < 8; i++)
+//   {
+//     std::cout << "Channel " << i << ": " << channel_output[i].getValueAsString() << " (" << results[i] << ") " << std::endl;
+//   }
+//   std::cout << "-------------------------" << std::endl << std::endl;
   
   return true;
 }

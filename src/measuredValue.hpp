@@ -37,7 +37,7 @@ namespace lughos
   {
 
   public:
-      measuredValue(T value, std::string unit, boost::posix_time::ptime timestamp = boost::posix_time::microsec_clock::local_time(), std::string sensorName ="N/A");
+      measuredValue(T value, std::string unit = std::string("") , boost::posix_time::ptime timestamp = boost::posix_time::microsec_clock::local_time(), std::string sensorName ="N/A");
       
       measuredValue(void);
       
@@ -47,8 +47,7 @@ namespace lughos
       
       measuredValue& operator=(unitValue<T> other);
       
-      using Value<T>::operator=;
-    
+      using Value<T>::operator=;    
   };
   
   //Definition of template class

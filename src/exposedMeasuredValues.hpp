@@ -4,6 +4,7 @@
 #include "exposedValues.hpp"
 #include "measuredValue.hpp"
 #include <boost/signals2/shared_connection_block.hpp>
+#include <boost/optional/optional.hpp>
 
 namespace lughos
 {
@@ -16,8 +17,9 @@ namespace lughos
      bool expires_;
      bool alwaysRefresh_;
      boost::posix_time::time_duration timeToLive_;
+     boost::function<void(measuredValue<T>&)> refresher_;
      boost::function<measuredValue<T>()> getter_;
-     boost::function<void(measuredValue<T>)> setter_;
+     boost::function<void(measuredValue<T>&)> setter_;
      boost::signals2::connection syncConnection;
      
    public:
@@ -56,20 +58,38 @@ namespace lughos
     void refresh()
     {
       ExclusiveLock lock(mutex);
-      if(getter_)
+      if (refresher_)
+      {
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing refresh-function for ") + this->name);
+	try
+	{
+	  refresher_(static_cast<measuredValue<T> &>(*this));
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Exception thrown by refresh-function for ") + this->name) << ". What: " << e.what();
+	}
+      }
+      else if(getter_)
       {
 	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Fetching new value for ") + this->name) ;
-	T tmp = *(this->valuePointer);
-	lock.unlock();
-	*( dynamic_cast<measuredValue<T>* >(this)) = getter_();
-	lock.lock();
-	if(tmp != *(this->valuePointer))
+	measuredValue<T> newValue = getter_();
+	if(newValue.isSet())
 	{
+	  T tmp = *(this->valuePointer);
 	  lock.unlock();
-	  std::stringstream ss;
-	  ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
-	  LUGHOS_LOG(log::SeverityLevel::informative) << (ss.str()) ;
-	  this->onValueChange();
+	  *( dynamic_cast<measuredValue<T>* >(this)) = newValue;
+	  lock.lock();
+	  if(tmp != *(this->valuePointer))
+	  {
+	    lock.unlock();
+	    std::stringstream ss;
+	    ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
+	    LUGHOS_LOG(log::SeverityLevel::informative) << (ss.str()) ;
+	    this->onValueChange();
+	  }
+	  else
+	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("No new value given for ") + this->name) ;
 	}
       }
     }
@@ -111,6 +131,12 @@ namespace lughos
     {
       SharedLock lock(mutex);
       return this->expires_;
+    }
+    
+    void refresher(boost::function<void(measuredValue<T>&)> refresher_)
+    {
+      ExclusiveLock lock(mutex);
+      this->refresher_ = refresher_;
     }
     
     void getter(boost::function<measuredValue<T>()> getter_)

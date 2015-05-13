@@ -116,7 +116,7 @@ public:
     
  ValueImplementation() : mutex()
  {
-   this->valuePointer.reset(new T());
+   this->valuePointer.reset();
  }
  
   ~ValueImplementation()
@@ -209,14 +209,12 @@ public:
     
   Value<T>& operator=(Value<T> &other)
   {
-    this->setValue(other.getValue());
+    if(other.isSet())
+      this->setValue(other.getValue());
+    else
+      this->unset();
     return *this;
   }
-/*  
-  operator T()
-  {
-    return this->getValue();
-  }*/
   
   operator T()
   {
