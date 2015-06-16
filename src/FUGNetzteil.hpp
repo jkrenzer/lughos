@@ -91,8 +91,8 @@ public:
 	  void memberDeclaration();
    
 	  measuredValue<double> getMeasure(bool force=false);	
-	  bool setI(const double I );
-	  bool setU(const double I );
+	  bool setI(double I );
+	  bool setU(double I );
 // 	  cachedFunction<double> getSetpointU;
 // 	  cachedFunction<double> getSetpointI;
 // 	  cachedFunction<double> getI;

@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -26,7 +25,7 @@ class MaxiGauge : public Device
   private:
 	MaxiGauge(const MaxiGauge &p);
 	MaxiGauge &operator=(const MaxiGauge &p);
-	measuredValue storedPressure;
+	measuredValue<double> storedPressure;
 	
 	
   public:
@@ -40,7 +39,7 @@ class MaxiGauge : public Device
 	
 	bool sensor_on(int sensor);
 	bool sensor_off(int sensor);
-	measuredValue getPressure(int sensor, bool force = false);
+	measuredValue<double> getPressure(int sensor, bool force = false);
 	std::string get_status(int sensor);
 	
 protected:

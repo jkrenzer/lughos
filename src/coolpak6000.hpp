@@ -12,8 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "serialConnections.hpp"
-#include "serialSync.hpp"
-#include "serialAsync.hpp"
 
 #include <iostream>
 #include <boost/array.hpp>
@@ -51,15 +49,15 @@ class coolpak6000 : public Device
 	int get_number_of_errors();
 	std::string get_errorstring();
 	int get_number_of_saved_errors();
-	unitValue get_delay();
-	unitValue get_operating_hours();
+	unitValue<double> get_delay();
+	unitValue<double> get_operating_hours();
 
 		
 protected:
   
 	std::string software_version;
-	unitValue operating_hours;
-	unitValue delay;
+	unitValue<double> operating_hours;
+	unitValue<double> delay;
 	int compressor_state;
 	int command_state;
 	int coolhead1_state;
