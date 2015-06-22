@@ -1,0 +1,44 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2cdbf22..1587f05 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -215,8 +215,12 @@ IF (NOT DEFINED CMAKE_INSTALL_LIBDIR)
+     SET(CMAKE_INSTALL_LIBDIR lib)
+ ENDIF ()
+ 
++IF (NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
++    SET(CMAKE_INSTALL_INCLUDEDIR include)
++ENDIF ()
++
+ INSTALL (TARGETS msgpack msgpack-static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+-INSTALL (DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
++INSTALL (DIRECTORY include DESTINATION .)
+ INSTALL (FILES ${CMAKE_CURRENT_BINARY_DIR}/msgpack.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+ 
+ # Doxygen
+@@ -265,3 +269,25 @@ IF (DOXYGEN_FOUND)
+         DEPENDS doxygen_c doxygen_cpp
+     )
+ ENDIF ()
++
++set(CPACK_NSIS_DISPLAY_NAME "C/C++-Bindings for MessagePack ${VERSION} (${arch_name})")
++set(CPACK_PACKAGE_FILE_NAME "msgpack-${VERSION}-${arch_name}")
++
++set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
++set(CPACK_GENERATOR "NSIS")
++set(CPACK_PACKAGE_NAME "MessagePack-C")
++set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C/C++-Bindings for MessagePack ${VERSION} (${arch_name})")
++set(CPACK_PACKAGE_VENDOR "msgpack.org")
++set(CPACK_NSIS_CONTACT "http://msgpack.org/")
++set(CPACK_PACKAGE_CONTACT ${CPACK_NSIS_CONTACT})
++# set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
++# set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README")
++#set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_SOURCE_DIR}/WELCOME.txt")
++# There is a bug in NSI that does not handle full unix paths properly. Make
++# sure there is at least one set of four(4) backslashes.
++set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
++set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
++set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_REVISION}")
++set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
++include(CPack)
++

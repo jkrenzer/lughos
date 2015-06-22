@@ -101,7 +101,9 @@ namespace lughos
     
     virtual bool isConnectedImplementation() = 0;
     
-    virtual void shutdownImplementation() = 0;
+    virtual void shutdownImplementation()
+    {
+    }
     
   public:
     
@@ -114,7 +116,7 @@ namespace lughos
      */
     void init()
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Device is initializing." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  "Device " << this->name << " is initializing." ;
       this->initImplementation();
       ExclusiveLock lock(this->mutex);
       this->initialized = true;
@@ -129,7 +131,7 @@ namespace lughos
      */
     void shutdown()
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Device is shutting down." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  "Device " << this->name << " is shutting down.";
       this->shutdownImplementation();
       ExclusiveLock lock(this->mutex);
       this->initialized = false;
@@ -139,11 +141,11 @@ namespace lughos
     {
       {
 	ExclusiveLock lock(this->mutex);
-        LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Device has now a connection." ));
+        LUGHOS_LOG(log::SeverityLevel::informative) <<  "Device " << this->name << " has now a connection.";
 	this->connection = boost::shared_ptr<ConnectionImpl>(connection);
 	this->connection->ioService(this->ioService);
       }
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Device starts connection test." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " starts connection test.";
      
       return this->isConnected();
     }
@@ -170,7 +172,7 @@ namespace lughos
 	  this->connected = currentlyConnected ? isConnected  : false;
 	}
 	tmp << "Overall state: " << this->connected.getValue();
-	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Device checked connection. Connection: ") + tmp.str() ) ;
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " checked connection. Connection: " << tmp.str() ;
 
 	return this->connected;
       }
@@ -194,7 +196,7 @@ namespace lughos
     
     void disconnect()
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Device is disconnecting." ));
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  "Device " << this->name << " is disconnecting.";
       this->shutdown();
       ExclusiveLock lock(this->mutex);
       if(this->connection)
@@ -231,7 +233,7 @@ namespace lughos
 	}
 	catch(...)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Exception while communication over port!")) ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communication over port!" ;
 	  this->connected = false;
 	  return std::string("");
 	}
@@ -267,6 +269,9 @@ namespace lughos
     
     virtual ~DeviceImpl()
     {
+      LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " is destructing." ;
+      this->disconnect();
+      ioService->stop();
       for(std::vector<boost::shared_ptr<boost::thread> >::iterator it = this->threadPool.begin(); it != this->threadPool.end(); it++)
       {
 	(*it)->join();

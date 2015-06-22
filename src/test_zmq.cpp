@@ -1,7 +1,11 @@
 #include <iostream>
 #include <zmq.hpp>
 #include <boost/program_options.hpp>
-#include <boost/timer/timer.hpp>
+#include <vector>
+#include <string>
+
+typedef std::vector<std::string> Message;
+
 using namespace std;
 
 void server()
@@ -28,14 +32,12 @@ void client(long int target_nbr)
   // Prepare our context and socket
   zmq::context_t context (1);
   zmq::socket_t socket (context, ZMQ_REQ);
-
-  std::cout << "Connecting to hello world server…" << std::endl;
+  Message msg;
+  
+  std::cout << "Connecting to server…" << std::endl;
   socket.connect ("tcp://localhost:5555");
 
   // Do requests, waiting each time for a response
-  boost::timer::cpu_timer timer;
-  timer.start();
-  for (long int request_nbr = 0; request_nbr < target_nbr; request_nbr++) {
   zmq::message_t request (6);
   memcpy ((void *) request.data (), "Hello", 5);
   socket.send (request);
@@ -43,9 +45,6 @@ void client(long int target_nbr)
   // Get the reply.
   zmq::message_t reply;
   socket.recv (&reply);
-  }
-  timer.stop();
-  std::cout << "For " << target_nbr << " requests we needed: " << timer.elapsed().wall << std::endl;
 }
 
 /* Function used to check that 'opt1' and 'opt2' are not specified

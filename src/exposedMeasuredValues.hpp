@@ -26,6 +26,7 @@ namespace lughos
    
     exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
     {
+      ExclusiveLock lock(mutex);
       markedExpired_ = other.markedExpired_;
       expires_ = other.expires_;
       timeToLive_ = other.timeToLive_;
@@ -35,12 +36,18 @@ namespace lughos
    
     exposedMeasurement(std::string name) : measuredValue<T>() , ExposedValue<T>(name)
     {
+      ExclusiveLock lock(mutex);
       markedExpired_ = true;
       expires_ = true;
       timeToLive_ = boost::posix_time::seconds(1);
       this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
       this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
       this->beforeReadValue.connect(boost::bind(&exposedMeasurement<T>::refreshIfExpired,this));
+    }
+    
+    ~exposedMeasurement()
+    {
+      ExclusiveLock lock(mutex);
     }
     
     void refreshIfExpired()
@@ -64,13 +71,16 @@ namespace lughos
 	try
 	{
 	  lock.unlock();
-	  refresher_(static_cast<measuredValue<T> &>(*this));
-	  lock.lock();
+	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
 	  return;
 	}
 	catch(exception& e)
 	{
 	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Exception thrown by refresh-function for ") + this->name) << ". What: " << e.what();
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Unknown exception thrown by refresh-function for ") + this->name);
 	}
       }
       else if(getter_)

@@ -106,6 +106,21 @@ ExternalProject_Add(
   GIT_REPOSITORY https://github.com/zeromq/cppzmq.git
  )
 
+ ExternalProject_Add(
+  msgpack
+  PREFIX ${CMAKE_SYSTEM_NAME}
+  PATCH_COMMAND git reset --hard && git apply -v ${CMAKE_CURRENT_SOURCE_DIR}/msgpack.patch
+  INSTALL_DIR ${INSTALL_PREFIX}
+  LIST_SEPARATOR ,
+   INSTALL_COMMAND ${CPACK_COMMANDLINE}
+         -P msgpack
+ 	--config <BINARY_DIR>/CPackConfig.cmake
+  CMAKE_ARGS 
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_CURRENT_TOOLCHAIN_FILE}
+        -DMSGPACK_CXX11:BOOL=TRUE
+        -MSGPACK_BOOST:BOOL=TRUE
+  GIT_REPOSITORY https://github.com/msgpack/msgpack-c.git
+ )
 
 ExternalProject_Add(
     Wt

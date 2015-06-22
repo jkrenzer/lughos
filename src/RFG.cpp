@@ -39,7 +39,7 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
   this->resistanceCorrection.expires(false);
   this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
-  
+  ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)
     {
       channel_output[i].setValueAndUnit(0,"");
@@ -197,6 +197,7 @@ template <class T, class S> T save_lexical_cast(S& source, T saveDefault)
 
 void RFG::memberDeclaration()
 {
+  ExclusiveLock lock(mutex);
   addMember(voltage);
   addMember(current);
   addMember(power);
@@ -228,7 +229,7 @@ RFGConnection::RFGConnection()
 
 RFG::~RFG(void)
 {
-
+//   ExclusiveLock lock(mutex);
 }
 
 std::string RFG::composeRequest(std::string query)
@@ -497,12 +498,13 @@ bool RFG::readoutChannels()
     results.push_back(0);
     results[i] = 0;
     memcpy(&results[i],tmp.c_str(),tmp.size());
-    channel_output[i].setTimeStamp(now);
-    this->channel_output_raw[i] = results[i];
+//     channel_output[i].setTimeStamp(now);
+//     this->channel_output_raw[i] = results[i];
   }
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
   double rawPower = unitsToPowerMeas.xToY(results[2]);
+  ExclusiveLock lock(mutex);
   this->voltage.setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
   this->current.setValueAndUnit(rawCurrent,"A");
   this->power.setValueAndUnit(rawPower,"W");

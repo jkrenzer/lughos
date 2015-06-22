@@ -95,15 +95,8 @@ class RFG :public Device
 
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
-// 	bool bccMode;
-// 	double internalResistance;
-// 	Controller controllerMode;
 	measuredValue<double> channel_output[8];
 	int channel_output_raw[8];
-// 	measuredValue<double> maxVoltage;
-// 	measuredValue<double> minVoltage;
-// 	measuredValue<double> maxCurrent;
-// 	measuredValue<double> maxPower;
 	SplineTransformation unitsToVoltageReg;
  	SplineTransformation unitsToCurrentReg;
  	SplineTransformation unitsToPowerReg;

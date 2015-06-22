@@ -67,9 +67,9 @@ desc.add_options()
     ("current,c" , "calibrate current")
     ("limit,l",boost::program_options::value(&measureLimit)->default_value(0), "limit-value on keithley which will abort measurement" );
 
-boost::program_options::variables_map vm;
-boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
-boost::program_options::notify(vm);
+  boost::program_options::variables_map vm;
+  boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+  boost::program_options::notify(vm);
   try 
   {
     conflicting_options(vm, "voltage", "current");
