@@ -350,6 +350,9 @@ add_executable(test_parser src/test_parser.cpp)
 add_executable(test_zmq src/test_zmq.cpp)
 target_link_libraries(test_zmq zmq ${Boost_LIBRARIES})
 
+### Test for proxymodel
+add_executable(test_proxymodel src/test_proxymodel.cpp)
+target_link_libraries(test_proxymodel ${Boost_LIBRARIES} ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Wt_DBO_LIBRARY} ${Wt_DBOSQLITE3_LIBRARY} unitValue measuredValue)
 #### Installation
 
 ### Installation directives

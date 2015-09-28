@@ -2,6 +2,7 @@
 #define MEASURED_VALUE_HPP
 #include "makros.hpp"
 #include "unitValue.hpp"
+#include "basicTypes.hpp"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
