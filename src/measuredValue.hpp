@@ -83,7 +83,7 @@ namespace lughos
   }
   
   template <class T>
-  measuredValue<T>::measuredValue(void): unitValueTemplate<T>()
+  measuredValue<T>::measuredValue(void): measuredValueInterface()
   {
     
   }
