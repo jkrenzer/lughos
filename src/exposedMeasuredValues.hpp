@@ -164,7 +164,7 @@ namespace lughos
       return this->getter_;
     }
     
-    void setter(boost::function<void(measuredValue<T>)> setter_)
+    void setter(boost::function<void(T)> setter_)
     {
       ExclusiveLock lock(mutex);
       this->setter_ = setter_;
