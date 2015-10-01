@@ -56,7 +56,7 @@ template < class T > class unitValue: public unitValueTemplate<T>
 
   template <class T> unitValueTemplate<T>::unitValueTemplate(T putvalue, std::string putunit)
   {
-    this->value = putvalue;
+    *(this->valuepointer)  = putvalue;
     this->unit = putunit;
   }
 
