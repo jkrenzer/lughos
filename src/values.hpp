@@ -114,9 +114,9 @@ public:
   
   Type<T> type;
     
- ValueImplementation() : mutex(), valuePointer()
+ ValueImplementation() : mutex(), valuePointer(new T)
  {
-   this->valuePointer.reset();
+ 
  }
  
   ~ValueImplementation()
@@ -125,7 +125,6 @@ public:
   
   ValueImplementation<T>(const ValueImplementation<T>& other) : ValueInterface(other), mutex(), valuePointer()
   {
-    this->valuePointer.reset();
     this->valuePointer = other.valuePointer;
   }
      
