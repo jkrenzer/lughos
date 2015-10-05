@@ -62,7 +62,8 @@ namespace lughos
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
         boost::function<void ()> function(boost::bind(&Measurement<F>::pull,this));
-	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Wt::WServer::post,this->wtServer_,this->wtApp_->sessionId(),function,boost::function<void ()>()));
+// 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Wt::WServer::post,this->wtServer_,this->wtApp_->sessionId(),function,boost::function<void ()>()));
+	this->onValueChangeConnection = this->asignee_->onValueChange.connect([this,function](){this->wtServer_->post(this->wtApp_->sessionId(),function); this->wtApp_->triggerUpdate();});
       }
       
       virtual void detach()
