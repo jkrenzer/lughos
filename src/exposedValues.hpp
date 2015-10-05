@@ -203,9 +203,9 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     bool setValue(T newValue)
     {
       LUGHOS_LOG_FUNCTION();
-      ExclusiveLock lock(this->mutex);
       try
       {
+	SharedLock lock(this->mutex);
 	this->beforeValueChange();
       }
       catch(std::exception& e)
@@ -216,6 +216,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       try
       {
 	Value<T>::setValue(newValue);
+	SharedLock lock(this->mutex);
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Exposed Value \"" << this->name << "\" changed value to " << this->getValueAsString() << ".";
 	this->onValueChange();
 	return true;
