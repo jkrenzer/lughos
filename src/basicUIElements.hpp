@@ -43,6 +43,11 @@ namespace lughos
         this->wtServer_ = Wt::WServer::instance();
       }
       
+    virtual ~Measurement()
+    {
+      detach();
+    }
+      
       F* field()
       {
 	SharedLock lock(mutex);
@@ -108,6 +113,11 @@ namespace lughos
         this->field_->setReadOnly(false);
         this->field_->setDisabled(false);
         this->layout()->addWidget(this->button_);
+      }
+      
+      virtual ~Setting()
+      {
+	detach();
       }
       
       Wt::WPushButton* button()
