@@ -202,24 +202,26 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     
     bool setValue(T newValue)
     {
+      LUGHOS_LOG_FUNCTION();
       try
       {
 	this->beforeValueChange();
       }
       catch(std::exception& e)
       {
-//  	lughos::debuglog(std::string("beforeValueChange-function threw exception."));
+  	LUGHOS_LOG(log::SeverityLevel::error) << "Exception thrown by beforeValueChange-Handlers. What: " << e.what();
  	return false;
       }
       try
       {
 	Value<T>::setValue(newValue);
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Exposed Value \"" << this->name << "\" changed value to " << this->getValueAsString() << ".";
 	this->onValueChange();
 	return true;
       }
       catch(std::exception& e)
       {
-//  	lughos::debuglog(std::string("Setting of value threw exception."));
+  	LUGHOS_LOG(log::SeverityLevel::error) << "Exception thrown by onValueChange-Handlers. What: " << e.what();
       }
       
       return false;

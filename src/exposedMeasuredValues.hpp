@@ -64,6 +64,7 @@ namespace lughos
     
     void refresh()
     {
+      LUGHOS_LOG_FUNCTION();
       ExclusiveLock lock(mutex);
       if (refresher_)
       {

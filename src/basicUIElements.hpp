@@ -12,6 +12,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "exposedMeasuredValues.hpp"
+#include "log.hpp"
 
 namespace lughos
 {
@@ -56,26 +57,37 @@ namespace lughos
       
       virtual void attach(ExposedValueInterface& asignee_)
       {
+	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
         boost::function<void ()> function(boost::bind(&Measurement<F>::pull,this));
 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Wt::WServer::post,this->wtServer_,this->wtApp_->sessionId(),function,boost::function<void ()>()));
       }
       
       virtual void detach()
       {
+	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
 	this->onValueChangeConnection.disconnect();
       }
       
       virtual void pull()
       {
+	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
         if(this->asignee_ != nullptr)
+        {
           this->field_->setText(this->asignee_->getValueAsString());
+          LUGHOS_LOG(log::SeverityLevel::informative) << "Pulled new value \"" << this->field_->text().toUTF8() << "\" from value-object \"" << this->asignee_->getName() << "\"." ;
+        }
         else
+        {
           BOOST_THROW_EXCEPTION( exception() << errorName("pull_invalid_ptr") << errorDescription("A pull was emitted but the object from which we shoul pull is a null-pointer!") << errorSeverity(severity::MustNot) );
+          LUGHOS_LOG(log::SeverityLevel::error) << "Tried to pull from value-object but we have a null-pointer!" ;
+        }
       }
       
     };
@@ -112,15 +124,19 @@ namespace lughos
       
       void attach(ExposedValueInterface& asignee_)
       {
+        LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
       }
       
       void detach()
       {
+        LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
 	this->onValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
@@ -128,8 +144,18 @@ namespace lughos
       
       void push()
       {
+	LUGHOS_LOG_FUNCTION();
 	SharedLock lock(mutex);
-	this->asignee_->setValueFromString(this->field_->text().toUTF8());
+	if(this->asignee_ != nullptr)
+        {
+	  this->asignee_->setValueFromString(this->field_->text().toUTF8());
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
+	}
+	else
+	{
+	  BOOST_THROW_EXCEPTION( exception() << errorName("push_invalid_ptr") << errorDescription("A push was emitted but the object to which we should push is a null-pointer!") << errorSeverity(severity::MustNot) );
+          LUGHOS_LOG(log::SeverityLevel::error) << "Tried to push to value-object but we have a null-pointer!" ;
+	}
       }
       
     };
