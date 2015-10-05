@@ -38,7 +38,9 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
      * You could read information from the environment to decide whether
      * the user has permission to start a new application
      */
-    return new lughos::mainApplication(env);
+    Wt::WApplication *app = new lughos::mainApplication(env);
+    app->enableUpdates(true);
+    return app;
 }
 
 boost::shared_ptr<Device> makeInstance(std::string typeIdentifier)
