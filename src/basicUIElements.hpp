@@ -84,7 +84,7 @@ namespace lughos
 	ExclusiveLock lock(mutex);
         if(this->asignee_ != nullptr)
         {
-	  Wt::WApplication::UpdateLock(this->wtApp_);
+	  Wt::WApplication::UpdateLock lock(this->wtApp_);
           this->field_->setText(this->asignee_->getValueAsString());
           this->wtApp_->triggerUpdate();
           LUGHOS_LOG(log::SeverityLevel::informative) << "Pulled new value \"" << this->field_->text().toUTF8() << "\" from value-object \"" << this->asignee_->getName() << "\"." ;
