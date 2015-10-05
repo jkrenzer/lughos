@@ -27,8 +27,10 @@ namespace lughos
       ExposedValueInterface* asignee_;
       boost::signals2::connection onValueChangeConnection;
       boost::signals2::connection buttonClickedConnection;
+      boost::signals2::connection onFocusConnection;
       Wt::WServer* wtServer_;
       Wt::WApplication* wtApp_;
+      bool syncValueEnabled;
       
     public:
       
@@ -41,12 +43,19 @@ namespace lughos
         this->setPadding(0);
         this->wtApp_ = Wt::WApplication::instance();
         this->wtServer_ = Wt::WServer::instance();
+        this->syncValueEnabled = true;
       }
       
     virtual ~Measurement()
     {
       detach();
     }
+      
+      void setSyncValue(bool enable = true)
+      {
+	ExclusiveLock lock(mutex);
+	this->syncValueEnabled = enable;
+      }
       
       F* field()
       {
@@ -82,17 +91,21 @@ namespace lughos
       {
 	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
-        if(this->asignee_ != nullptr)
+        if(this->asignee_ != nullptr && this->syncValueEnabled)
         {
-	  Wt::WApplication::UpdateLock lock(this->wtApp_);
+	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
           this->field_->setText(this->asignee_->getValueAsString());
           this->wtApp_->triggerUpdate();
           LUGHOS_LOG(log::SeverityLevel::informative) << "Pulled new value \"" << this->field_->text().toUTF8() << "\" from value-object \"" << this->asignee_->getName() << "\"." ;
         }
-        else
+        else if(this->asignee_ == nullptr)
         {
           BOOST_THROW_EXCEPTION( exception() << errorName("pull_invalid_ptr") << errorDescription("A pull was emitted but the object from which we shoul pull is a null-pointer!") << errorSeverity(severity::MustNot) );
           LUGHOS_LOG(log::SeverityLevel::error) << "Tried to pull from value-object but we have a null-pointer!" ;
+        }
+        else if(!this->syncValueEnabled)
+        {
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Tried to pull from value-object but sync is disabled. Skipping." ;
         }
       }
       
@@ -104,6 +117,15 @@ namespace lughos
       Mutex mutex;
     protected:
       Wt::WPushButton* button_;
+      
+      void markTainted()
+      {
+	LUGHOS_LOG_FUNCTION();
+	ExclusiveLock lock(this->mutex);
+	this->syncValueEnabled = false;
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Marking field of \"" << this->objectName() << "\" tainted." ;
+	Wt::WApplication::UpdateLock wtlock(this->wtApp_);
+      }
      
     public:
       
@@ -139,9 +161,9 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
-// 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
-        this->pull();
+ 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
+	this->onFocusConnection = this->field_->selected().connect(boost::bind(&Setting<F>::markTainted,this));
       }
       
       void detach()
@@ -150,8 +172,9 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
-// 	this->onValueChangeConnection.disconnect();
+ 	this->onValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
+	this->onFocusConnection.disconnect();
       }
       
       void push()
