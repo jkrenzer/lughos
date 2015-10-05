@@ -203,6 +203,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     bool setValue(T newValue)
     {
       LUGHOS_LOG_FUNCTION();
+      ExclusiveLock lock(this->mutex);
       try
       {
 	this->beforeValueChange();
