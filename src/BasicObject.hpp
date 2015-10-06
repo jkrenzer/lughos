@@ -40,13 +40,13 @@ public:
   
   std::string getName()
   {
-    SharedLock lock(this->mutex);
+    SharedLock lock(BasicObject::mutex);
     return this->name;
   }
   
   void setName(std::string name)
   {
-    ExclusiveLock lock(this->mutex);
+    ExclusiveLock lock(BasicObject::mutex);
     this->name = name;
   }
   
