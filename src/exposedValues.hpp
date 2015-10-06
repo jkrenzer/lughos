@@ -217,7 +217,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       {
 	Value<T>::setValue(newValue);
 	SharedLock lock(this->mutex);
-	LUGHOS_LOG(log::SeverityLevel::informative) << "Exposed Value \"" << this->name << "\" changed value to " << this->getValueAsString() << ".";
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Exposed Value \"" << this->name << "\" changed value to " << this->type.toString(newValue) << ".";
 	this->onValueChange();
 	return true;
       }

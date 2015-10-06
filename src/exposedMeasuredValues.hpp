@@ -27,6 +27,7 @@ namespace lughos
     exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
     {
       ExclusiveLock lock(mutex);
+      alwaysRefresh_ = false;
       markedExpired_ = other.markedExpired_;
       expires_ = other.expires_;
       timeToLive_ = other.timeToLive_;
@@ -37,6 +38,7 @@ namespace lughos
     exposedMeasurement(std::string name) : measuredValue<T>() , ExposedValue<T>(name)
     {
       ExclusiveLock lock(mutex);
+      alwaysRefresh_ = false;
       markedExpired_ = true;
       expires_ = true;
       timeToLive_ = boost::posix_time::seconds(1);
@@ -97,13 +99,11 @@ namespace lughos
 	  if(tmp != *(this->valuePointer))
 	  {
 	    lock.unlock();
-	    std::stringstream ss;
-	    ss << "New value \"" << Value<T>::getValueAsString() << "\" for " << this->name;
-	    LUGHOS_LOG(log::SeverityLevel::informative) << (ss.str()) ;
+	    LUGHOS_LOG(log::SeverityLevel::informative) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
 	    this->onValueChange();
 	  }
 	  else
-	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("No new value given for ") + this->name) ;
+	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("No new value availible for ") + this->name) ;
 	}
       }
     }
@@ -112,11 +112,13 @@ namespace lughos
     
     void sync()
     {
+      LUGHOS_LOG_FUNCTION();
       SharedLock lock(mutex);
       if(setter_)
       {
 	lock.unlock();
 	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Firing setter for \"" << this->name << "\"." ;
       }
     }
     
