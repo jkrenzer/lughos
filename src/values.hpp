@@ -10,6 +10,7 @@
 #include <typeindex>
 #include "errorHandling.hpp"
 #include "threadSafety.hpp"
+#include "log.hpp"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 #define REGISTER_CLASS_FAMILY(name) template <class T> name<T>& get ## name (name<T> &d) { return d; }
@@ -130,15 +131,20 @@ public:
      
   virtual bool setValue(T value)
   {
+    LUGHOS_LOG_FUNCTION()
     if(this->type.verify((T) value))
     {
       ExclusiveLock lock(this->mutex);
       this->valuePointer.reset( new T(value));
+      LUGHOS_LOG(lughos::log::SeverityLevel::informative) << "Value changed to " << this->getValueAsString() << ".";
       lock.unlock();
       return true;
     }
     else
+    {
+      LUGHOS_LOG(lughos::log::SeverityLevel::error) << "New Value failed type-validation!";
       return false;
+    }
   }
   
   virtual ValueImplementation<T>& operator=(T value)
