@@ -127,7 +127,7 @@ namespace lughos
 	  this->syncValueEnabled = false;
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Marking field of \"" << this->objectName() << "\" tainted." ;
 	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
-	  this->field_->decorationStyle().setBackgroundColor(Wt::WColor(0,255,0));
+	  this->field_->decorationStyle().setBackgroundColor(Wt::WColor(255,255,0));
 	  this->wtApp_->triggerUpdate();
 	}
 	else
@@ -137,6 +137,17 @@ namespace lughos
 	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
 	  this->field_->decorationStyle().setBackgroundColor(Wt::WColor(255,255,255));
 	  this->wtApp_->triggerUpdate();
+	}
+      }
+      
+      void checkTainted()
+      {
+	if(this->asignee_ != nullptr)
+	{
+	  if(this->asignee_->getValueAsString() != this->field_->text().toUTF8())
+	    this->markTainted(true);
+	  else
+	   this->markTainted(false);
 	}
       }
      
@@ -179,7 +190,7 @@ namespace lughos
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
  	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
-	this->onFocusConnection = this->field_->changed().connect(boost::bind(&Setting<F>::markTainted,this,true));
+	this->onFocusConnection = this->field_->changed().connect(boost::bind(&Setting<F>::checkTainted,this));
       }
       
       void detach()
@@ -196,18 +207,19 @@ namespace lughos
       void push()
       {
 	LUGHOS_LOG_FUNCTION();
-	SharedLock lock(mutex);
+	
 	if(this->asignee_ != nullptr)
         {
+          SharedLock lock(mutex);
 	  this->asignee_->setValueFromString(this->field_->text().toUTF8());
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
-	  this->markTainted(false);
 	}
 	else
 	{
 	  BOOST_THROW_EXCEPTION( exception() << errorName("push_invalid_ptr") << errorDescription("A push was emitted but the object to which we should push is a null-pointer!") << errorSeverity(severity::MustNot) );
           LUGHOS_LOG(log::SeverityLevel::error) << "Tried to push to value-object but we have a null-pointer!" ;
 	}
+	this->checkTainted();
       }
       
     };
