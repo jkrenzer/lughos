@@ -11,8 +11,6 @@ class BasicObject
 {
 private:
   
-  Mutex mutex;
-  
   std::string getType_()
   {
     return std::string("BasicObject");
@@ -20,7 +18,7 @@ private:
   
 protected:
   std::string name;
-  
+  Mutex mutex;
 
   
 public:
