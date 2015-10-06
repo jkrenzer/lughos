@@ -93,10 +93,11 @@ namespace lughos
 	ExclusiveLock lock(mutex);
         if(this->asignee_ != nullptr && this->syncValueEnabled)
         {
+          std::string strValue = this->asignee_->getValueAsString();
 	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
-          this->field_->setText(this->asignee_->getValueAsString());
+          this->field_->setText(strValue);
           this->wtApp_->triggerUpdate();
-          LUGHOS_LOG(log::SeverityLevel::informative) << "Pulled new value \"" << this->field_->text().toUTF8() << "\" from value-object \"" << this->asignee_->getName() << "\"." ;
+          LUGHOS_LOG(log::SeverityLevel::informative) << "Pulled new value \"" << strValue << "\" from value-object \"" << this->asignee_->getName() << "\"." ;
         }
         else if(this->asignee_ == nullptr)
         {

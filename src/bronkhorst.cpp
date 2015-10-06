@@ -34,7 +34,6 @@ void bronkhorst::memberDeclaration()
 
 bronkhorstConnection::bronkhorstConnection()
 {
-    std::cout << "########################## Setting connection-parameters!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     this->baud_rate=boost::asio::serial_port_base::baud_rate(38400);
     this->flow_control=boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none);
     this->character_size=boost::asio::serial_port_base::character_size(8);

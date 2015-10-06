@@ -74,13 +74,12 @@ namespace lughos
      this->setpoint =  new  ui::Setting<Wt::WDoubleSpinBox>();
      this->setpointLabel = new Wt::WLabel("Measured Flow:");
      this->flow = new ui::Measurement<Wt::WLineEdit>();
-     this->device();
+     this->setpoint->attach(device()->setpoint);
+     this->flow->attach(device()->flow);
      this->addWidget(setpointLabel);
      this->addWidget(flow);
      this->addWidget(flowLabel);
      this->addWidget(setpoint);
-     this->setpoint->attach(device()->setpoint);
-     this->flow->attach(device()->flow);
     }
     
     void disable()
