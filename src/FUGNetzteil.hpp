@@ -93,16 +93,6 @@ public:
 	  measuredValue<double> getMeasure(bool force=false);	
 	  bool setI(double I );
 	  bool setU(double U );
-// 	  cachedFunction<double> getSetpointU;
-// 	  cachedFunction<double> getSetpointI;
-// 	  cachedFunction<double> getI;
-// 	  cachedFunction<double> getU;
-// 	  cachedFunction<bool> getOvercurrent;
-// 	  cachedFunction<bool> getCurrentLimitation;
-// 	  cachedFunction<bool> getVoltageLimitation;
-// 	  cachedFunction<bool> getDigitalRemote;
-// 	  cachedFunction<bool> getAnalogueRemote;
-// 	  cachedFunction<bool> getLocalControl;
 	  void setOvercurrent(bool state);
 	  std::string getLastError();
 	  measuredValue<std::string> getIDN();

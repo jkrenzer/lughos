@@ -118,13 +118,26 @@ namespace lughos
     protected:
       Wt::WPushButton* button_;
       
-      void markTainted()
+      void markTainted(bool isTainted = true)
       {
 	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(this->mutex);
-	this->syncValueEnabled = false;
-	LUGHOS_LOG(log::SeverityLevel::informative) << "Marking field of \"" << this->objectName() << "\" tainted." ;
-	Wt::WApplication::UpdateLock wtlock(this->wtApp_);
+	if (isTainted)
+	{
+	  this->syncValueEnabled = false;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Marking field of \"" << this->objectName() << "\" tainted." ;
+	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
+	  this->field_->decorationStyle().setBackgroundColor(Wt::WColor(0,255,0));
+	  this->wtApp_->triggerUpdate();
+	}
+	else
+	{
+	  this->syncValueEnabled = true;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Marking field of \"" << this->objectName() << "\" clean." ;
+	  Wt::WApplication::UpdateLock wtlock(this->wtApp_);
+	  this->field_->decorationStyle().setBackgroundColor(Wt::WColor(255,255,255));
+	  this->wtApp_->triggerUpdate();
+	}
       }
      
     public:
@@ -166,7 +179,7 @@ namespace lughos
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
  	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
-	this->onFocusConnection = this->field_->selected().connect(boost::bind(&Setting<F>::markTainted,this));
+	this->onFocusConnection = this->field_->changed().connect(boost::bind(&Setting<F>::markTainted,this,true));
       }
       
       void detach()
@@ -188,6 +201,7 @@ namespace lughos
         {
 	  this->asignee_->setValueFromString(this->field_->text().toUTF8());
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
+	  this->markTainted(false);
 	}
 	else
 	{
