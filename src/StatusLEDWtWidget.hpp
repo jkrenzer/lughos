@@ -81,7 +81,7 @@ namespace lughos
     delete this->yellow;
     delete this->orange;
     delete this->popup;
-    delete this->popupState;
+//     delete this->popupState;
   }
 
   void setState(boost::shared_ptr<StatusLEDStateInterface> state)
