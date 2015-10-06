@@ -48,7 +48,7 @@ namespace lughos
       
     virtual ~Measurement()
     {
-      detach();
+      this->onValueChangeConnection.disconnect();
     }
       
       void setSyncValue(bool enable = true)
@@ -139,7 +139,10 @@ namespace lughos
       
       virtual ~Setting()
       {
-	detach();
+	this->asignee_ = nullptr;
+ 	this->onValueChangeConnection.disconnect();
+	this->buttonClickedConnection.disconnect();
+	this->onFocusConnection.disconnect();
       }
       
       Wt::WPushButton* button()
