@@ -142,12 +142,19 @@ namespace lughos
       
       void checkTainted()
       {
+	SharedLock lock(this->mutex);
 	if(this->asignee_ != nullptr)
 	{
-	  if(this->asignee_->getValueAsString() != this->field_->text().toUTF8())
-	    this->markTainted(true);
+	  if(this->asignee_->compareStringValue(this->field_->text().toUTF8()))
+	  {
+	    lock.unlock();
+	    this->markTainted(false);
+	  }
 	  else
-	   this->markTainted(false);
+	  {
+	    lock.unlock();
+	    this->markTainted(true);
+	  }
 	}
       }
      

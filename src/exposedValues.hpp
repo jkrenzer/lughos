@@ -141,6 +141,7 @@ public:
   virtual std::string showStructure() = 0;
   virtual bool setValueFromString(std::string str) = 0;
   virtual std::string getValueAsString() = 0;
+  virtual bool compareStringValue(std::string str) = 0;
   virtual std::string parse(std::string command) = 0;
 };
 
@@ -238,6 +239,12 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
     std::string getValueAsString()
     {
       return this->type.toString(this->getValue());
+    }
+    
+    bool compareStringValue(std::string str)
+    {
+      T t = this->type.fromString(str);
+      return t == this->getValue();
     }
     
     operator T()
