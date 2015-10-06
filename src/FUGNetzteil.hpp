@@ -92,7 +92,7 @@ public:
    
 	  measuredValue<double> getMeasure(bool force=false);	
 	  bool setI(double I );
-	  bool setU(double I );
+	  bool setU(double U );
 // 	  cachedFunction<double> getSetpointU;
 // 	  cachedFunction<double> getSetpointI;
 // 	  cachedFunction<double> getI;

@@ -113,13 +113,13 @@ namespace lughos
     void sync()
     {
       LUGHOS_LOG_FUNCTION();
-      SharedLock lock(mutex);
+      this->expires(false);
       if(setter_)
       {
-	lock.unlock();
 	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Firing setter for \"" << this->name << "\"." ;
       }
+      this->expires(true);
     }
     
     bool hasExpired()
