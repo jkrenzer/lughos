@@ -136,7 +136,7 @@ public:
     {
       ExclusiveLock lock(this->mutex);
       this->valuePointer.reset( new T(value));
-      LUGHOS_LOG(lughos::log::SeverityLevel::informative) << "Value changed to " << this->getValueAsString() << ".";
+      LUGHOS_LOG(lughos::log::SeverityLevel::informative) << "Value changed to " << this->type.toString(value) << ".";
       lock.unlock();
       return true;
     }
