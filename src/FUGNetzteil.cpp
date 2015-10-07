@@ -7,29 +7,19 @@
 #include <string>     // std::string, std::stoi
 FUGNetzteil::FUGNetzteil() : voltage("voltage"), current("current"), targetVoltage("targetVoltage"), targetCurrent("targetCurrent"), limit("limit"), controlMode("controlMode"), outputState("outputState"), overcurrent("overcurrent"), model("model")
 {
-//   this->getI.setReadFunction(boost::bind(&FUGNetzteil::readI,this));
-//   this->getU.setReadFunction(boost::bind(&FUGNetzteil::readU,this));
-//   this->getSetpointI.setReadFunction(boost::bind(&FUGNetzteil::readSetpointI,this));
-//   this->getSetpointU.setReadFunction(boost::bind(&FUGNetzteil::readSetpointU,this));
-//   this->getOvercurrent.setReadFunction(boost::bind(&FUGNetzteil::readOvercurrent,this));
-//   this->getCurrentLimitation.setReadFunction(boost::bind(&FUGNetzteil::readCurrentLimitation,this));
-//   this->getVoltageLimitation.setReadFunction(boost::bind(&FUGNetzteil::readVoltageLimitation,this));
-//   this->getDigitalRemote.setReadFunction(boost::bind(&FUGNetzteil::readDigitalRemote,this));
-//   this->getAnalogueRemote.setReadFunction(boost::bind(&FUGNetzteil::readAnalogueRemote,this));
-//   this->getLocalControl.setReadFunction(boost::bind(&FUGNetzteil::readLocalControl,this));
-this->voltage.getter(boost::bind(&FUGNetzteil::readU,this));
-this->current.getter(boost::bind(&FUGNetzteil::readI,this));
-this->targetVoltage.getter(boost::bind(&FUGNetzteil::readSetpointU,this));
-this->targetVoltage.setter(boost::bind(&FUGNetzteil::setU,this,_1));
-this->targetCurrent.getter(boost::bind(&FUGNetzteil::readSetpointI,this));
-this->targetCurrent.setter(boost::bind(&FUGNetzteil::setI,this,_1));
-this->limit.getter(boost::bind(&FUGNetzteil::readLimit,this));
-this->controlMode.getter(boost::bind(&FUGNetzteil::readControlMode,this));
-this->outputState.getter(boost::bind(&FUGNetzteil::readSwitch,this));
-this->outputState.setter(boost::bind(&FUGNetzteil::switchVoltage,this,_1));
-this->overcurrent.getter(boost::bind(&FUGNetzteil::readOvercurrent,this));
-this->overcurrent.setter(boost::bind(&FUGNetzteil::setOvercurrent,this,_1));
-this->model.getter(boost::bind(&FUGNetzteil::getIDN,this));
+  this->voltage.getter(boost::bind(&FUGNetzteil::readU,this));
+  this->current.getter(boost::bind(&FUGNetzteil::readI,this));
+  this->targetVoltage.getter(boost::bind(&FUGNetzteil::readSetpointU,this));
+  this->targetVoltage.setter(boost::bind(&FUGNetzteil::setU,this,_1));
+  this->targetCurrent.getter(boost::bind(&FUGNetzteil::readSetpointI,this));
+  this->targetCurrent.setter(boost::bind(&FUGNetzteil::setI,this,_1));
+  this->limit.getter(boost::bind(&FUGNetzteil::readLimit,this));
+  this->controlMode.getter(boost::bind(&FUGNetzteil::readControlMode,this));
+  this->outputState.getter(boost::bind(&FUGNetzteil::readSwitch,this));
+  this->outputState.setter(boost::bind(&FUGNetzteil::switchVoltage,this,_1));
+  this->overcurrent.getter(boost::bind(&FUGNetzteil::readOvercurrent,this));
+  this->overcurrent.setter(boost::bind(&FUGNetzteil::setOvercurrent,this,_1));
+  this->model.getter(boost::bind(&FUGNetzteil::getIDN,this));
 }
 
 void FUGNetzteil::memberDeclaration()
@@ -108,46 +98,46 @@ bool FUGNetzteil::isConnectedImplementation()
 }
 
 
-measuredValue<double> FUGNetzteil::getMeasure(bool force)
-{
-  if(!force &&!storedMeasure.getTimeStamp().is_not_a_date_time()&& storedMeasure.getTimeStamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
-  {
-    return storedMeasure;
-   }
-    
-
-  std::string s = this->inputOutput("READ?");
-  boost::regex e("([\\d\\.+-]*[E][\\d\\.+-]*)([\\w]*)");
-
-  boost::cmatch res;
-  boost::regex_search(s.c_str(), res, e);
-  double number = save_lexical_cast<double>(res[1],-1);
-
-  s=res[2];
-  measuredValue<double> value;
-  if(!s.empty() && number == 0)
-  {
-    value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-    value.setUnit(s);
-    storedMeasure=value;
-  }
-    if(s.empty() && number == 0)
-  {
-    value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
-    value.setUnit("");
-    storedMeasure=value;    
-  }
-  else 
-  {
-    value.setValue(number);
-    value.setUnit(s);
-    value.setTimeStamp(boost::posix_time::second_clock::local_time());
-    storedMeasure=value;
-  }
-
-  return value;
-  
-}
+// measuredValue<double> FUGNetzteil::getMeasure(bool force)
+// {
+//   if(!force &&!storedMeasure.getTimeStamp().is_not_a_date_time()&& storedMeasure.getTimeStamp()>boost::posix_time::second_clock::local_time()+boost::posix_time::seconds(5))
+//   {
+//     return storedMeasure;
+//    }
+//     
+// 
+//   std::string s = this->inputOutput("READ?");
+//   boost::regex e("([\\d\\.+-]*[E][\\d\\.+-]*)([\\w]*)");
+// 
+//   boost::cmatch res;
+//   boost::regex_search(s.c_str(), res, e);
+//   double number = save_lexical_cast<double>(res[1],-1);
+// 
+//   s=res[2];
+//   measuredValue<double> value;
+//   if(!s.empty() && number == 0)
+//   {
+//     value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+//     value.setUnit(s);
+//     storedMeasure=value;
+//   }
+//     if(s.empty() && number == 0)
+//   {
+//     value.setValue(save_lexical_cast<double>(s,std::numeric_limits<double>::signaling_NaN()));
+//     value.setUnit("");
+//     storedMeasure=value;    
+//   }
+//   else 
+//   {
+//     value.setValue(number);
+//     value.setUnit(s);
+//     value.setTimeStamp(boost::posix_time::second_clock::local_time());
+//     storedMeasure=value;
+//   }
+// 
+//   return value;
+//   
+// }
 
 
 bool FUGNetzteil::switchVoltage(bool i)

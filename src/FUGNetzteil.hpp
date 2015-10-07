@@ -35,8 +35,8 @@ public:
 
   class FUGNetzteil : public Device
   {    
-    friend cachedFunction<double>;
-    friend cachedFunction<bool>;
+//     friend cachedFunction<double>;
+//     friend cachedFunction<bool>;
     
     public:
     
@@ -90,7 +90,7 @@ public:
     
 	  void memberDeclaration();
    
-	  measuredValue<double> getMeasure(bool force=false);	
+// 	  measuredValue<double> getMeasure(bool force=false);	
 	  bool setI(double I );
 	  bool setU(double U );
 	  void setOvercurrent(bool state);
