@@ -16,6 +16,7 @@ namespace lughos
      bool markedExpired_;
      bool expires_;
      bool alwaysRefresh_;
+     bool isInitialPull_;
      boost::posix_time::time_duration timeToLive_;
      boost::function<void(measuredValue<T>&)> refresher_;
      boost::function<measuredValue<T>()> getter_;
@@ -31,6 +32,7 @@ namespace lughos
       markedExpired_ = other.markedExpired_;
       expires_ = other.expires_;
       timeToLive_ = other.timeToLive_;
+      isInitialPull_ = other.isInitialPull_;
       this->getter_ = other.getter_;
       this->setter_ = other.setter_;
     }
@@ -41,6 +43,7 @@ namespace lughos
       alwaysRefresh_ = false;
       markedExpired_ = true;
       expires_ = true;
+      isInitialPull_ = true;
       timeToLive_ = boost::posix_time::seconds(1);
       this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
       this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
@@ -54,7 +57,7 @@ namespace lughos
     
     void refreshIfExpired()
     {
-      if(hasExpired())
+      if(hasExpired() || isInitialPull_)
 	this->refresh();
     }
     
@@ -73,6 +76,7 @@ namespace lughos
 	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing refresh-function for ") + this->name);
 	try
 	{
+	  this->isInitialPull_ = false;
 	  lock.unlock();
 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
 	  return;
@@ -96,6 +100,7 @@ namespace lughos
 	  lock.unlock();
 	  *( dynamic_cast<measuredValue<T>* >(this)) = newValue;
 	  lock.lock();
+	  this->isInitialPull_ = false;
 	  if(tmp != *(this->valuePointer))
 	  {
 	    lock.unlock();
@@ -125,7 +130,7 @@ namespace lughos
     bool hasExpired()
     {
       SharedLock lock(mutex);
-      if(markedExpired_ || alwaysRefresh_)
+      if(markedExpired_ || alwaysRefresh_ || isInitialPull_)
 	return true;
       if(expires_)
       {
