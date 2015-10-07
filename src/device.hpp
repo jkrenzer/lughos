@@ -173,8 +173,10 @@ namespace lughos
 	}
 	tmp << "Overall state: " << this->connected.getValue();
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " checked connection. Connection: " << tmp.str() ;
+	lock.unlock();
         if(this->connected.getValue())
 	  this->init();
+	lock.lock();
 	return this->connected;
       }
       else 
