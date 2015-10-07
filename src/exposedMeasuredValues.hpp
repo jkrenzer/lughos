@@ -70,7 +70,7 @@ namespace lughos
     void refresh()
     {
       LUGHOS_LOG_FUNCTION();
-      ExclusiveLock lock(mutex);
+      UpgradeLock lock(mutex);
       if (refresher_)
       {
 	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing refresh-function for ") + this->name);
@@ -100,12 +100,14 @@ namespace lughos
 	  lock.unlock();
 	  *( dynamic_cast<measuredValue<T>* >(this)) = newValue;
 	  lock.lock();
-	  this->isInitialPull_ = false;
+	  
 	  if(tmp != *(this->valuePointer))
 	  {
-	    LUGHOS_LOG(log::SeverityLevel::informative) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
 	    lock.unlock();
 	    this->onValueChange();
+	    LUGHOS_LOG(log::SeverityLevel::informative) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
+	    upgradeLockToExclusive llock(lock);
+	    this->isInitialPull_ = false;
 	    return;
 	  }
 	  else

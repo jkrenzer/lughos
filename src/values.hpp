@@ -36,7 +36,7 @@ public:
     
   }
    
-  virtual std::string getValueAsString() = 0;
+  virtual std::string getValueAsString() const = 0;
   
   virtual bool setValueFromString(std::string str) = 0;
   
@@ -64,7 +64,16 @@ public:
 //   
 // };
 
-template <class T, class C = void> class TypeImplementation : public TypeInterface
+template <class T, class C = void> class TypeTemplate : public TypeInterface
+{
+  public:
+    
+   virtual std::string toString(const T& t) = 0;
+   
+   virtual T fromString(const std::string& str) = 0;
+};
+
+template <class T, class C = void> class TypeImplementation : public TypeTemplate<T,C>
 {
 public:
   
@@ -72,14 +81,14 @@ public:
   
   virtual T initialValue() = 0;
   
-  virtual std::string toString(T t)
+  virtual std::string toString(const T& t)
   {
     std::stringstream ss;
     ss << t;
     return ss.str();
   }
   
-  virtual T fromString(std::string str)
+  virtual T fromString(const std::string& str)
   {
     std::stringstream ss(str);
     T t;
@@ -101,7 +110,7 @@ template <class T, class C = void> Type<T,C> getType(T t)
 template <class T> class ValueImplementation : public ValueInterface
 {
 private:
-  Mutex mutex;
+  mutable Mutex mutex;
 protected:
   
   boost::shared_ptr<T> valuePointer;
@@ -114,7 +123,7 @@ protected:
 
 public:
   
-  Type<T> type;
+  mutable Type<T> type; //TODO Should we be stricter?
     
  ValueImplementation() : mutex(), valuePointer(new T)
  {
@@ -154,7 +163,7 @@ public:
     return *this;
   }
   
-  virtual T getValue()
+  virtual T getValue() const
   {
     SharedLock lock(this->mutex);
     if(this->valuePointer)
@@ -163,7 +172,7 @@ public:
       BOOST_THROW_EXCEPTION(exception() << errorName("value_accessed_but_no_value_set") << errorSeverity(severity::ShouldNot));
   }
   
-  virtual std::string getValueAsString()
+  virtual std::string getValueAsString() const
   {
     return type.toString(this->getValue());
   }
