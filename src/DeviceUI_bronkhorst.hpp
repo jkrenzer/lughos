@@ -54,10 +54,11 @@ namespace lughos
  template <> class DeviceUI<bronkhorst> : public DeviceUITemplate<bronkhorst>
   {
   protected:
-
+    Wt::WLabel* capacityLabel;
     Wt::WLabel* flowLabel;
     Wt::WLabel* setpointLabel;
     ui::Measurement<Wt::WLineEdit>* flow;
+    ui::Measurement<Wt::WLineEdit>* capacity;
     ui::Setting<Wt::WDoubleSpinBox>* setpoint;
 
     boost::shared_ptr<Wt::Dbo::Session> session;
@@ -70,12 +71,17 @@ namespace lughos
     DeviceUI< bronkhorst >(boost::shared_ptr<Device> device_) : DeviceUITemplate< bronkhorst >(device_)
     {
      this->setTitle(Wt::WString::fromUTF8(this->name.c_str()));
+     this->capacityLabel = new Wt::WLabel("Capacity:");
+     this->capacity = new ui::Measurement<Wt::WLineEdit>();
      this->flowLabel = new Wt::WLabel("Set Flow:");
      this->setpoint =  new  ui::Setting<Wt::WDoubleSpinBox>();
      this->setpointLabel = new Wt::WLabel("Measured Flow:");
      this->flow = new ui::Measurement<Wt::WLineEdit>();
+     this->capacity->attach(device()->capacity);
      this->setpoint->attach(device()->setpoint);
      this->flow->attach(device()->flow);
+     this->addWidget(capacityLabel);
+     this->addWidget(capacity);
      this->addWidget(setpointLabel);
      this->addWidget(flow);
      this->addWidget(flowLabel);
