@@ -75,9 +75,10 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
- 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
- 	lock.unlock();
+	lock.unlock();
  	this->pull();
+ 	lock.lock();
+ 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
       }
       
       virtual void detach()
