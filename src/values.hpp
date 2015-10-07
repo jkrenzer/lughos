@@ -69,7 +69,8 @@ template <class T, class C = void> class TypeImplementation : public TypeInterfa
 public:
   
   virtual bool verify(T value) = 0;
-
+  
+  virtual T initialValue() = 0;
   
   virtual std::string toString(T t)
   {
@@ -117,7 +118,7 @@ public:
     
  ValueImplementation() : mutex(), valuePointer(new T)
  {
- 
+    *(this->valuePointer) = this->type.initialValue();
  }
  
   ~ValueImplementation()

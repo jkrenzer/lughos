@@ -13,6 +13,12 @@ namespace lughos
 template <> class Type<int> : public TypeImplementation<int>
 {
 public:
+  
+  int initialValue()
+  {
+    return 0;
+  }
+
   std::string getName()
   {
     return std::string("int");
@@ -38,6 +44,12 @@ public:
 template <> class Type<long int> : public TypeImplementation<int>
 {
 public:
+  
+  int initialValue()
+  {
+    return 0;
+  }
+
   std::string getName()
   {
     return std::string("long int");
@@ -63,6 +75,12 @@ public:
 template <> class Type<std::string>  : public TypeImplementation<std::string>
 {
 public:
+
+  std::string initialValue()
+  {
+    return std::string("");
+  }
+
   std::string getName()
   {
     return std::string("string");
@@ -88,6 +106,12 @@ public:
 template <> class Type<double>  : public TypeImplementation<double>
 {
 public:
+
+  double initialValue()
+  {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
   std::string getName()
   {
     return std::string("double");
@@ -113,6 +137,12 @@ public:
 template <> class Type<float>  : public TypeImplementation<float>
 {
 public:
+
+  float initialValue()
+  {
+    return std::numeric_limits<float>::quiet_NaN();
+  }
+
   std::string getName()
   {
     return std::string("float");
@@ -138,6 +168,12 @@ public:
 template <> class Type<bool>  : public TypeImplementation<bool>
 {
 public:
+
+  bool initialValue()
+  {
+    return false;
+  }
+
   std::string getName()
   {
     return std::string("bool");
@@ -163,6 +199,12 @@ public:
 template <size_t N> class Type<std::bitset<N> > : public TypeImplementation<std::bitset<N> >
 {
 public:
+
+  std::bitset<N> initialValue()
+  {
+    return std::bitset<N>();
+  }
+
   std::string getName()
   {
     return std::string("bitset");
@@ -217,6 +259,12 @@ public:
 template <class T> class Type<T, typename std::enable_if<std::is_enum<T>::value>::type> : public TypeImplementation<T, typename std::enable_if<std::is_enum<T>::value>::type>
 {
   public:
+  
+  T initialValue()
+  {
+    return (T) 0;
+  }
+  
   std::string getName()
   {
     return std::string("enum");
