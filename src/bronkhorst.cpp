@@ -55,9 +55,7 @@ std::string bronkhorst::composeRequest(std::string query)
 std::string bronkhorst::interpretAnswer(std::string s)
 {  
 
-	 return s;   
-    
-
+	 return s;
 }
 
 measuredValue<double> bronkhorst::get_setpoint()
@@ -134,8 +132,7 @@ measuredValue<double> bronkhorst::get_flow()
     
     a1(this->inputOutput(m1));
  
-  std::cout << "I asked: " << m1.toString() << std::endl;
-  std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
+  LUGHOS_LOG(log::SeverityLevel::debug) << "Sent: " << m1.toString() << "Received: " << a1.toString() << " Length:"<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
   double setpoint = 0.0;
   try
   {
@@ -145,14 +142,14 @@ measuredValue<double> bronkhorst::get_flow()
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
       setpoint = ((double)(iSetpoint)/Bronkhorst_100Percent)*this->capacity;
-      LUGHOS_LOG(log::SeverityLevel::informative) << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Measured flow is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString();
     }
     else
       LUGHOS_LOG(log::SeverityLevel::informative) << "Could not cast string to value! Setting value to zero.";
   }
   catch(std::exception& e)
   {
-    LUGHOS_LOG(log::SeverityLevel::informative) << "Could not cast string to value! Setting value to zero.";
+    LUGHOS_LOG(lughos::log::SeverityLevel::error) << "Exception while casting string to value! Setting value to zero.";
     setpoint=0.0;
   }
   
@@ -182,7 +179,7 @@ void bronkhorst::set_setpoint(measuredValue<double> value)
     m1.setValueString(iSetpoint);
     s = this->inputOutput(m1);
     a1(s);
-    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString();
+    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString() << "Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
 }
 
 void bronkhorst::initImplementation()
