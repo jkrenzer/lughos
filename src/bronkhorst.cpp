@@ -62,6 +62,7 @@ std::string bronkhorst::interpretAnswer(std::string s)
 
 measuredValue<double> bronkhorst::get_setpoint()
 {
+  LUGHOS_LOG_FUNCTION();
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
     measuredValue<double> returnvalue;
     bronkhorstMessage m1, a1;
@@ -72,9 +73,7 @@ measuredValue<double> bronkhorst::get_setpoint()
     m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
     
     a1(this->inputOutput(m1));
- 
-  std::cout << "I asked: " << m1.toString() << std::endl;
-  std::cout << "I understood: Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString() << std::endl;
+  LUGHOS_LOG(lughos::log::SeverityLevel::informative) << "Sent: " << m1.toString() << " Received: " << a1.toString() << " Length:" << a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
   double setpoint = 0.0;
   try
   {
@@ -86,11 +85,11 @@ measuredValue<double> bronkhorst::get_setpoint()
       std::cout << "Setpoint is: " << iSetpoint << " of " << Bronkhorst_100Percent << " which calculates to " << setpoint << " of " << this->capacity.getValueAsString() << std::endl;
     }
     else
-      std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
+      LUGHOS_LOG(lughos::log::SeverityLevel::informative) << "Could not cast string to value! Setting value to zero.";
   }
   catch(std::exception& e)
   {
-    std::cout << "Could not cast string to value! Setting value to zero." << std::endl;
+    LUGHOS_LOG(lughos::log::SeverityLevel::error) << "Exception while casting string to value! Setting value to zero.";
     setpoint=0.0;
   }
   
@@ -103,6 +102,7 @@ measuredValue<double> bronkhorst::get_setpoint()
 
 measuredValue<double> bronkhorst::getMaxCapacity()
 {
+  LUGHOS_LOG_FUNCTION();
   bronkhorstMessage m1,a1;
   m1.setNode(3);
   m1.setType(4);
