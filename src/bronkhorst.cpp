@@ -166,6 +166,7 @@ measuredValue<double> bronkhorst::get_flow()
 
 void bronkhorst::set_setpoint(measuredValue<double> value)
 {
+  LUGHOS_LOG_FUNCTION();
   if(value == std::numeric_limits<float>::infinity())
     return ;
   else if (value > this->capacity) value = this->capacity;
@@ -181,8 +182,7 @@ void bronkhorst::set_setpoint(measuredValue<double> value)
     m1.setValueString(iSetpoint);
     s = this->inputOutput(m1);
     a1(s);
-    std::cout << "I told the bronkhorst to set flow to " << iSetpoint << " (" << m1.toString() << ")" << std::endl;
-    std::cout << "He replied: " << a1.toString() << " = " << s << std::endl;
+    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString();
 }
 
 void bronkhorst::initImplementation()
