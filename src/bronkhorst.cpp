@@ -188,7 +188,7 @@ void bronkhorst::initImplementation()
   boost::this_thread::sleep(boost::posix_time::seconds(2));
   std::cout << "INIT 2: " << this->inputOutput(":050301000502") << std::endl; //Bus auto-control
   std::cout << "INIT 3: " << this->inputOutput(":050301000A52") << std::endl; //Reset processes
-  std::cout << "INIT 4: " << this->inputOutput(":050302010412") << std::endl; //Set to RS232 Control
+  std::cout << "INIT 4: " << this->inputOutput(":050301010412") << std::endl; //Set to RS232 Control
 //   this->inputOutput(":070304006000600F");
 
 }

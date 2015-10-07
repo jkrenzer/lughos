@@ -6,11 +6,19 @@
 #include <sstream>
 #include <bitset>
 #include <boost/regex.hpp>
+#include "log.hpp"
 
 namespace lughos
 {
   class bronkhorstMessage
   {
+  public:
+  
+    enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
+    enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
+    enum Parameter {Measure = 0, Setpoint = 1, Capacity = 13};
+    enum StatusMessage {NoError = '\x00', ProcessClaimed = '\x01', CommandError = '\x02', ProcessError = '\x03', ParameterError = '\x04', ParameterTypeError = '\x05', ParameterValueError = '\x06', NetworkNotAvailible = '\x07', TimeoutStartChar = '\x08', TimeOutSerialLine = '\x09', HardwareMemoryError = '\x0a', NodeNumberError = '\x0b', GeneralCommunicationError = '\x0c', ReadOnlyParameter = '\x0d', ErrorPcCommunication = '\x0e', NoRs232Connection = '\x0f', PcOutOfMemory = '\x10', WriteOnlyParameter = '\x11', SystemConfigurationUnknown = '\x12', NoFreeNodeAddress = '\x13', WrongInterfaceType = '\x14', ErrorSerialPortConnection = '\x15', ErrorOpeningCommunication = '\x16', CommunicationError = '\x17', ErrorInterfaceBusMaster = '\x18', TimeOutAnswer = '\x19', NoStartChar = '\x1a', ErrorFirstDigit = '\x1b', BufferOverflowInHost = '\x1c', BufferOverflow = '\x1d', NoAnswerFound = '\x1e', ErrorClosingCommunication = '\x1f', SynchronisationError = '\x20', SendError = '\x21', ProtocolError = '\x22', BufferOverflowInModule = '\x23'};
+  
   protected:
     unsigned int type;
     unsigned int node;
@@ -24,10 +32,12 @@ namespace lughos
     std::string message;
     std::string hexValue;
     std::string charValue;
-    unsigned int statusCode;
+    StatusMessage statusCode;
     unsigned int statusSubjectFirstByte;
     
   public:
+  
+    
     
     bronkhorstMessage()
     {
@@ -40,7 +50,7 @@ namespace lughos
       this->process = 0;
       this->parameter = 0;
       this->expectedStringLength = 0;
-      this->statusCode = 0;
+      this->statusCode = StatusMessage::NoError;
       this->statusSubjectFirstByte = 0;
       this->message.clear();
       this->hexValue.clear();
@@ -58,7 +68,7 @@ namespace lughos
       this->process = 0;
       this->parameter = 0;
       this->expectedStringLength = 0;
-      this->statusCode = 0;
+      this->statusCode = StatusMessage::NoError;
       this->statusSubjectFirstByte = 0;
       this->message.clear();
       this->hexValue.clear();
@@ -227,9 +237,54 @@ namespace lughos
       return this->isStatus && this->statusCode != '\x00';
     }
     
-     unsigned int getStatusCode() const
+     StatusMessage getStatusCode() const
      {
        return this->statusCode;
+     }
+     
+     std::string getStatusCodeAsString() const
+     {
+	switch(this->statusCode)
+	{
+	  case StatusMessage::NoError: return std::string("No error"); break;
+	  case StatusMessage::BufferOverflow: return std::string("Buffer overflow"); break;
+	  case StatusMessage::BufferOverflowInHost: return std::string("Buffer overflow in Host"); break;
+	  case StatusMessage::BufferOverflowInModule: return std::string("Buffer overflow in module"); break;
+	  case StatusMessage::CommandError: return std::string("Command error"); break;
+	  case StatusMessage::CommunicationError: return std::string("Communication error"); break;
+	  case StatusMessage::ErrorClosingCommunication: return std::string("Error closing communication"); break;
+	  case StatusMessage::ErrorFirstDigit: return std::string("Error first digit"); break;
+	  case StatusMessage::ErrorInterfaceBusMaster: return std::string("Error interface bus master"); break;
+	  case StatusMessage::ErrorOpeningCommunication: return std::string("Error opening communication"); break;
+	  case StatusMessage::ErrorPcCommunication: return std::string("Error PC communication"); break;
+	  case StatusMessage::ErrorSerialPortConnection: return std::string("Error serial port connection"); break;
+	  case StatusMessage::GeneralCommunicationError: return std::string("Serial communication error"); break;
+	  case StatusMessage::HardwareMemoryError: return std::string("Hardware memory error"); break;
+	  case StatusMessage::NetworkNotAvailible: return std::string("Network not availible"); break;
+	  case StatusMessage::NoAnswerFound: return std::string("No answer found"); break;
+	  case StatusMessage::NodeNumberError: return std::string("Node number Error"); break;
+	  case StatusMessage::NoFreeNodeAddress: return std::string("No free node address"); break;
+	  case StatusMessage::NoRs232Connection: return std::string("No RS232 connection"); break;
+	  case StatusMessage::NoStartChar: return std::string("No start character"); break;
+	  case StatusMessage::ParameterError: return std::string("Parameter error"); break;
+	  case StatusMessage::ParameterTypeError: return std::string("Parameter type error"); break;
+	  case StatusMessage::ParameterValueError: return std::string("Parameter value error"); break;
+	  case StatusMessage::PcOutOfMemory: return std::string("PC out of memory"); break;
+	  case StatusMessage::ProcessClaimed: return std::string("Process claimed"); break;
+	  case StatusMessage::ProcessError: return std::string("Process error"); break;
+	  case StatusMessage::ProtocolError: return std::string("Protocol error"); break;
+	  case StatusMessage::ReadOnlyParameter: return std::string("Read only parameter"); break;
+	  case StatusMessage::SendError: return std::string("Send error"); break;
+	  case StatusMessage::SynchronisationError: return std::string("Synchronisation error"); break;
+	  case StatusMessage::SystemConfigurationUnknown: return std::string("System configuration unknown"); break;
+	  case StatusMessage::TimeOutAnswer: return std::string("Timeout answer"); break;
+	  case StatusMessage::TimeOutSerialLine: return std::string("Timeout serial line"); break;
+	  case StatusMessage::TimeoutStartChar: return std::string("Timeout start character"); break;
+	  case StatusMessage::WriteOnlyParameter: return std::string("Write only parameter"); break;
+	  case StatusMessage::WrongInterfaceType: return std::string("Wrong interface type"); break;
+	  default: return std::string("Unknown error!"); break;
+	  
+	}
      }
      
      std::string getValueString() const
@@ -321,7 +376,9 @@ namespace lughos
       switch(this->type)
       {
 	case 0: this->isStatus = true;
-		std::stringstream(res2[3]) >> std::hex >> this->statusCode;
+		unsigned int tmp;
+		std::stringstream(res2[3]) >> std::hex >> tmp;
+		this->statusCode = (StatusMessage) tmp;
 		std::stringstream(res2[4]) >> std::hex >> this->statusSubjectFirstByte;
 		break;
 	case 2: unsigned int byte;
@@ -338,10 +395,6 @@ namespace lughos
 		break;
       }
     }
-    
-    enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
-    enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
-    enum Parameter {Measure = 0, Setpoint = 1, Capacity = 13};
   };
   
 }//namespace lughos
