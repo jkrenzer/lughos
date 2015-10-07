@@ -103,9 +103,10 @@ namespace lughos
 	  this->isInitialPull_ = false;
 	  if(tmp != *(this->valuePointer))
 	  {
-	    lock.unlock();
 	    LUGHOS_LOG(log::SeverityLevel::informative) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
+	    lock.unlock();
 	    this->onValueChange();
+	    return;
 	  }
 	  else
 	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("No new value availible for ") + this->name) ;
