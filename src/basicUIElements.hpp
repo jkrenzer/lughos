@@ -76,7 +76,7 @@ namespace lughos
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
 	lock.unlock();
- 	this->pull();
+ 	this->pull(); //Fetching initial value
  	lock.lock();
  	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
       }
@@ -203,6 +203,9 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
+         lock.unlock();
+ 	this->pull(); //Fetching initial value
+ 	lock.lock();
  	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
 	this->onFocusConnection = this->field_->changed().connect(boost::bind(&Setting<F>::checkTainted,this));
