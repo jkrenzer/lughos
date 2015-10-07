@@ -184,11 +184,12 @@ void bronkhorst::set_setpoint(measuredValue<double> value)
 
 void bronkhorst::initImplementation()
 {
-  std::cout << "INIT 1: " << this->inputOutput(":050301000A49") << std::endl; //Initialize device and wait 2 secs to settle
+  LUGHOS_LOG_FUNCTION();
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 1. Sent: :050301000A49 Received: " << this->inputOutput(":050301000A49"); //Initialize device and wait 2 secs to settle
   boost::this_thread::sleep(boost::posix_time::seconds(2));
-  std::cout << "INIT 2: " << this->inputOutput(":050301000502") << std::endl; //Bus auto-control
-  std::cout << "INIT 3: " << this->inputOutput(":050301000A52") << std::endl; //Reset processes
-  std::cout << "INIT 4: " << this->inputOutput(":050301010412") << std::endl; //Set to RS232 Control
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 2. Sent::050301000502 Received: " << this->inputOutput(":050301000502") << std::endl; //Bus auto-control
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 3. Sent: :050301000A52 Received: " << this->inputOutput(":050301000A52") << std::endl; //Reset processes
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 4. Sent: :050301010412 Received: " << this->inputOutput(":050301010412") << std::endl; //Set to RS232 Control
 //   this->inputOutput(":070304006000600F");
 
 }
