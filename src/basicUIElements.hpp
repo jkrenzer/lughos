@@ -69,6 +69,12 @@ namespace lughos
         this->field_->setDisabled(true);
       }
       
+      virtual void load()
+      {
+        this->pull();
+	this->field_->load();
+      }
+      
       virtual void attach(ExposedValueInterface& asignee_)
       {
 	LUGHOS_LOG_FUNCTION();
@@ -108,6 +114,10 @@ namespace lughos
         {
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Tried to pull from value-object but sync is disabled. Skipping." ;
         }
+        else
+        {
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Could not pull for unknown reason!" ;
+        }
       }
       
     };
@@ -118,6 +128,13 @@ namespace lughos
       Mutex mutex;
     protected:
       Wt::WPushButton* button_;
+      
+      virtual void load()
+      {
+        this->pull();
+	this->field_->load();
+	this->button_->load();
+      }
       
       void markTainted(bool isTainted = true)
       {
