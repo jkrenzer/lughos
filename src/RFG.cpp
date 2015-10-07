@@ -575,8 +575,6 @@ int RFG::get_channel_raw(int i, bool force)
 
 void RFG::initImplementation()
 {
-if(isConnected())
-  std::cout << "RFG answered correctly! YAY!!!!" << std::endl;
 }
     
 bool RFG::isConnectedImplementation()
