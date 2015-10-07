@@ -69,12 +69,6 @@ namespace lughos
         this->field_->setDisabled(true);
       }
       
-      virtual void load()
-      {
-        this->field_->load();
-        this->pull();
-      }
-      
       virtual void attach(ExposedValueInterface& asignee_)
       {
 	LUGHOS_LOG_FUNCTION();
@@ -82,6 +76,8 @@ namespace lughos
 	this->asignee_ = &asignee_;
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
  	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
+ 	lock.unlock();
+ 	this->pull();
       }
       
       virtual void detach()
@@ -128,13 +124,6 @@ namespace lughos
       Mutex mutex;
     protected:
       Wt::WPushButton* button_;
-      
-      virtual void load()
-      {
-        this->field_->load();
-	this->button_->load();
-        this->pull();
-      }
       
       void markTainted(bool isTainted = true)
       {
