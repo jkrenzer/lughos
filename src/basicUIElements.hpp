@@ -71,8 +71,8 @@ namespace lughos
       
       virtual void load()
       {
+        this->field_->load();
         this->pull();
-	this->field_->load();
       }
       
       virtual void attach(ExposedValueInterface& asignee_)
@@ -131,9 +131,9 @@ namespace lughos
       
       virtual void load()
       {
-        this->pull();
-	this->field_->load();
+        this->field_->load();
 	this->button_->load();
+        this->pull();
       }
       
       void markTainted(bool isTainted = true)
