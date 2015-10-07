@@ -110,7 +110,7 @@ namespace lughos
     /**
      * @brief Initialize device
      * 
-     * This method is called on construction time and should initialize the internal states of the device class. 
+     * This method is called as soon as connection to the device is established and should initialize the internal states of the device class. 
      * 
      * @return void
      */
@@ -173,7 +173,8 @@ namespace lughos
 	}
 	tmp << "Overall state: " << this->connected.getValue();
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " checked connection. Connection: " << tmp.str() ;
-
+        if(this->connected.getValue())
+	  this->init();
 	return this->connected;
       }
       else 
