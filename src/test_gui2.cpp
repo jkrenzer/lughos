@@ -248,20 +248,20 @@ int main(int argc, char **argv)
             std::cout << "Tables already created." << endl;
         }
         
-        DataAcquisition data(ioService,session);
-        data.acquire(&flowcontroll1->flow);
-        data.acquire(&flowcontroll1->setpoint);
-        data.acquire(&flowcontroll2->flow);
-        data.acquire(&flowcontroll2->setpoint);
-        data.acquire(&RFG1->voltage);
-        data.acquire(&RFG1->current);
-        data.acquire(&RFG1->power);
-        data.acquire(&fug1->voltage);
-        data.acquire(&fug1->current);
-        data.acquire(&fug2->voltage);
-        data.acquire(&fug2->current);
-	data.start();
-        std::cout << "Starting Acquisition!" << std::endl;
+//         DataAcquisition data(ioService,session);
+//         data.acquire(&flowcontroll1->flow);
+//         data.acquire(&flowcontroll1->setpoint);
+//         data.acquire(&flowcontroll2->flow);
+//         data.acquire(&flowcontroll2->setpoint);
+//         data.acquire(&RFG1->voltage);
+//         data.acquire(&RFG1->current);
+//         data.acquire(&RFG1->power);
+//         data.acquire(&fug1->voltage);
+//         data.acquire(&fug1->current);
+//         data.acquire(&fug2->voltage);
+//         data.acquire(&fug2->current);
+// 	data.start();
+//         std::cout << "Starting Acquisition!" << std::endl;
         
         
         
