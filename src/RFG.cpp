@@ -472,7 +472,9 @@ bool RFG::readoutChannels()
   int value=0;
   std::stringstream stream;
 //   std::cout<<"S: "<<s<<std::endl;
+  lock.unlock();
   std::string s = this->inputOutput("\x20");
+  lock.lock();
   boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 //   this->inputOutput("\r");
   std::cout << std::dec << "###>>> Answer Size: "<< s.size() <<std::endl;
