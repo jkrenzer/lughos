@@ -417,8 +417,10 @@ namespace lughos
 		break;
 	case 2: unsigned int byte;
 		this->isStatus = false;
+		lock.unlock();
 		std::stringstream(res2[3]) >> std::hex >> byte; setProcessByte(byte);
 		std::stringstream(res2[4]) >> std::hex >> byte; setParameterByte(byte);
+		lock.lock();
 		char c = '\x00';
 		for(std::vector<std::string>::const_iterator it = res2.begin() + 5; it != res2.end(); it++)
 		{
