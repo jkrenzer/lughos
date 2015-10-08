@@ -83,7 +83,7 @@ void PSAPowersupply::set_state(bool state = 1)
 
 measuredValue<double> PSAPowersupply::get_current()
 {
-//   exp_lenght=4; 
+//   exp_lenght=4;
  measuredValue<double> value;
  std::string answer = this->inputOutput("\x02");
   if (answer.size() < 3)

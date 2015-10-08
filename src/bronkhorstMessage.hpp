@@ -7,11 +7,14 @@
 #include <bitset>
 #include <boost/regex.hpp>
 #include "log.hpp"
+#include "threadSafety.hpp"
 
 namespace lughos
 {
   class bronkhorstMessage
   {
+  private:
+    mutable Mutex mutex;
   public:
   
     enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
@@ -88,84 +91,100 @@ namespace lughos
     
     unsigned int getType() const
     {
+      SharedLock lock(this->mutex);
       return this->type;
     }
     
     void setType(int type)
     {
+      ExclusiveLock lock(this->mutex);
       if(type > 0 && type < 10)
 	this->type = type;
     }
     
     unsigned int getParameterType() const
     {
+      SharedLock lock(this->mutex);
       return this->parameterType;
     }
     
     void setParameterType(int varType)
     {
+      ExclusiveLock lock(this->mutex);
       if (varType == '\x00' || varType == '\x20' || varType == '\x40' || varType == '\x60' )
 	this->parameterType = varType;
     }
     
     unsigned int getNode() const
     {
+      SharedLock lock(this->mutex);
       return this->node;
     }
     
     void setNode(int node)
     {
+      ExclusiveLock lock(this->mutex);
       this->node = node;
     }
     
     unsigned int getProcess() const
     {
+      SharedLock lock(this->mutex);
       return this->getProcess();
     }
     
     void setProcess(int process)
     {
+      ExclusiveLock lock(this->mutex);
       this->process = process;
     }
     
     unsigned int getParameter() const
     {
+      SharedLock lock(this->mutex);
       return this->parameter;
     }
     
     void setParameter(int parameter)
     {
+      ExclusiveLock lock(this->mutex);
       if (parameter > 0 && parameter < 32 )
 	this->parameter = parameter;
     }
     
     bool getProcessChained() const
     {
+      SharedLock lock(this->mutex);
       return this->processChained;
     }
     
     void setProcessChained(bool processChained)
     {
+      ExclusiveLock lock(this->mutex);
       this->processChained = processChained;
     }
     
     bool getParameterChained() const
     {
+      SharedLock lock(this->mutex);
       return this->parameterChained;
     }
     
     void setParameterChained(bool parameterChained)
     {
+      ExclusiveLock lock(this->mutex);
       this->parameterChained = parameterChained;
     }
     
     unsigned int getlength() const
     {
+      SharedLock lock(this->mutex);
       return (this->message.size() - 2)/2;
     }
     
     unsigned int getParameterByte(bool ommitChained = false) const
     {
+      SharedLock lock(this->mutex);
       std::bitset<8> bs(this->parameter);
       if(this->parameterChained && !ommitChained)
 	bs[7] = true;
@@ -177,6 +196,7 @@ namespace lughos
     
     void setParameterByte(int parameterType)
     {
+      ExclusiveLock lock(this->mutex);
       std::bitset<8> bs(parameterType);
       this->processChained = bs[7];
       bs[7] = false;
@@ -189,6 +209,7 @@ namespace lughos
     
     unsigned int getProcessByte(bool ommitChained = false) const
     {
+      SharedLock lock(this->mutex);
       std::bitset<8> bs(this->process);
       if(this->processChained && !ommitChained)
 	bs[7] = true;
@@ -199,6 +220,7 @@ namespace lughos
     
     void setProcessByte(int processType)
     {
+      ExclusiveLock lock(this->mutex);
       std::bitset<8> bs(processType);
       this->processChained = bs[7];
       bs[7] = false;
@@ -208,42 +230,50 @@ namespace lughos
     
     unsigned int getExpectedStringLength() const
     {
+      SharedLock lock(this->mutex);
       return this->expectedStringLength;
     }
     
     void setExpectedStringLength(int expectedStringLength)
     {
+      ExclusiveLock lock(this->mutex);
       if(expectedStringLength > 1)
 	this->expectedStringLength = expectedStringLength;
     }
     
     bool isEmpty() const
     {
+      SharedLock lock(this->mutex);
       return this->message.empty();
     }
     
     bool hasValue() const
     {
+      SharedLock lock(this->mutex);
       return !this->hexValue.empty();
     }
     
     bool isStatusMessage() const
     {
+      SharedLock lock(this->mutex);
       return this->isStatus;
     }
     
     bool isErrorMessage() const
     {
+      SharedLock lock(this->mutex);
       return this->isStatus && this->statusCode != '\x00';
     }
     
      StatusMessage getStatusCode() const
      {
+       SharedLock lock(this->mutex);
        return this->statusCode;
      }
      
      std::string getStatusCodeAsString() const
      {
+        SharedLock lock(this->mutex);
 	switch(this->statusCode)
 	{
 	  case StatusMessage::NoError: return std::string("No error"); break;
@@ -289,6 +319,7 @@ namespace lughos
      
      std::string getValueString() const
      {
+        SharedLock lock(this->mutex);
 	if(this->parameterType == ParameterType::String)
 	  return charValue;
 	std::stringstream returnStream;
@@ -309,6 +340,7 @@ namespace lughos
      
      template <class T> void setValueString(T newValue)
      {
+       ExclusiveLock lock(this->mutex);
        std::stringstream returnStream;
        long unsigned int value = 0;
        
@@ -330,6 +362,7 @@ namespace lughos
     
     std::string toString() const
     {
+      SharedLock lock(this->mutex);
       std::stringstream ss("");
       switch (this->type) 
       {
@@ -350,6 +383,7 @@ namespace lughos
     
     void fromString(std::string message)
     {
+      ExclusiveLock lock(this->mutex);
       boost::regex exp1(":(([a-fA-F0-9]{2})*)\r");
       boost::cmatch res1;
       if(!boost::regex_search(message.c_str(), res1, exp1))

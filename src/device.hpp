@@ -20,6 +20,8 @@ namespace lughos
   
   class StateMessage
     {
+    private:
+      mutable Mutex mutex;
     public:
       enum Type { Off, Save, Operational, Notice, Warning, Error, Special1 } type_;
     protected:
@@ -29,41 +31,49 @@ namespace lughos
     public:
       void advice(std::string advice)
       {
+        ExclusiveLock lock(mutex);
         this->advice_ = advice;
       }
       
       std::string advice()
       {
+        SharedLock lock(mutex);
         return this->advice_;
       }
       
       void description(std::string description)
-      {
+      { 
+        ExclusiveLock lock(mutex);
         this->description_ = description;
       }
       
       std::string description()
       {
+        SharedLock lock(mutex);
         return this->description_;
       }
       
       void name(std::string name)
       {
+        ExclusiveLock lock(mutex);
         this->name_ = name;
       }
       
       std::string name()
       {
+        SharedLock lock(mutex);
         return this->name_;
       }
       
       void type(Type type)
       {
+        ExclusiveLock lock(mutex);
         this->type_ = type;
       }
       
       Type type()
       {
+        SharedLock lock(mutex);
         return this->type_;
       }
       
@@ -152,12 +162,15 @@ namespace lughos
     
     bool isConnected()
     {
+      LUGHOS_LOG_FUNCTION();
+      UpgradeLock lock(this->mutex);
       std::stringstream tmp;
       if(this->connection)
       {
+        lock.unlock();
 	bool currentlyConnected = this->connection->test();
-	tmp << "Connection test state: " << currentlyConnected << " ";
-	UpgradeLock lock(this->mutex);
+	lock.lock();
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Connection test state: " << currentlyConnected << " ";
 	if (!currentlyConnected && this->connected)
 	{
 	  upgradeLockToExclusive llock(lock);
@@ -185,10 +198,17 @@ namespace lughos
     
     void emitConnectionSignals()
     {
+      SharedLock lock(this->mutex);
       if(this->connected)
+      {
+        lock.unlock();
 	this->onConnect();
+      }
       else
+      {
+        lock.unlock();
 	this->onDisconnect();
+      }
     }
     
     bool isInitialized()
@@ -199,6 +219,7 @@ namespace lughos
     
     void disconnect()
     {
+      LUGHOS_LOG_FUNCTION();
       LUGHOS_LOG(log::SeverityLevel::informative) <<  "Device " << this->name << " is disconnecting.";
       this->shutdown();
       ExclusiveLock lock(this->mutex);
@@ -222,7 +243,8 @@ namespace lughos
     
     std::string inputOutput(std::string query, boost::regex regExpr = boost::regex())
     {
-      SharedLock lock(this->mutex);
+      LUGHOS_LOG_FUNCTION();
+      UpgradeLock lock(this->mutex);
       if(this->connection)
       {
 	boost::shared_ptr<Query> q(new Query(query));
@@ -237,6 +259,7 @@ namespace lughos
 	catch(...)
 	{
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communication over port!" ;
+	  upgradeLockToExclusive llock(lock);
 	  this->connected = false;
 	  return std::string("");
 	}
@@ -260,6 +283,7 @@ namespace lughos
     
     boost::shared_ptr<boost::asio::io_service> getIoService()
     {
+      SharedLock lock(this->mutex);
       return this->ioService;
     }
     

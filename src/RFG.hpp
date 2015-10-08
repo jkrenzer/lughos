@@ -93,8 +93,8 @@ class RFG :public Device
 	void memberDeclaration();
 	
 
-	std::string interpretAnswer(std::string query);
-	std::string composeRequest(std::string query);
+	std::string interpretAnswer(std::string query) const;
+	std::string composeRequest(std::string query) const ;
 	measuredValue<double> channel_output[8];
 	int channel_output_raw[8];
 	SplineTransformation unitsToVoltageReg;
@@ -108,8 +108,8 @@ class RFG :public Device
 	SplineTransformation unitsToCurrentMeas;
 	unsigned int readoutSetting(std::string controlChar, std::string answerChar);
 	bool readoutChannels();
-	std::string floatToBinaryStr(float f, SplineTransformation& transformation);
-	std::string intToBinaryStr(uint16_t i);
+	std::string floatToBinaryStr(float f, SplineTransformation& transformation) const;
+	std::string intToBinaryStr(uint16_t i) const;
 
 	
   

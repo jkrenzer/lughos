@@ -491,6 +491,7 @@ void FUGNetzteil::setOvercurrent(bool state)
 
 void FUGNetzteil::setError(std::string command, std::string error)
 {
+  SharedLock lock(this->mutex);
   if (error=="E0") return;
   lastError ="";
   lastError += boost::posix_time::to_iso_extended_string(boost::posix_time::second_clock::local_time());

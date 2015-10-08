@@ -170,6 +170,7 @@ protected:
 
 template <class C> asioConnection<C>::asioConnection()
 {
+  SharedLock lock(mutex);
   if ( this->endOfLineRegExpr_== boost::regex ( "\r" ) )  LUGHOS_LOG(log::SeverityLevel::informative) <<  ( "End of line char: CR" );
   else if ( this->endOfLineRegExpr_==boost::regex ( "\n" ) ) LUGHOS_LOG(log::SeverityLevel::informative) << ( "End of line char: NL" ) ;
   else LUGHOS_LOG(log::SeverityLevel::informative) <<  ( "End of line char: " + this->endOfLineRegExpr_.str() );
@@ -190,6 +191,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
 template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> query, const boost::system::error_code& err  )
 {
+  LUGHOS_LOG_FUNCTION();
   this->stashQuery(query); //Handlers DO NOT keep an smart_ptr alive!! BEWARE! How about signals, functors...?!
   if (!query)
     return;

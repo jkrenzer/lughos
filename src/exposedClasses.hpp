@@ -8,6 +8,8 @@ namespace lughos
   
   class ExposedClass : public ExposedObject
   {
+  private:
+    mutable Mutex mutex;
   protected:
     ExposerRegistry members;
     
@@ -22,6 +24,7 @@ namespace lughos
     
     virtual void addMember(ExposedObject* object)
     {
+      ExclusiveLock lock(mutex);
       this->members.addObject(object);
     }
     
@@ -38,7 +41,8 @@ namespace lughos
   public:
     
     ExposedObject* operator[](std::string name)
-    {
+    { 
+      SharedLock lock(mutex);
       if(!this->declared)
 	this->memberDeclaration();
       return members[name];
@@ -56,6 +60,7 @@ namespace lughos
 
     ExposedObject* operator[](int i)
     {
+      SharedLock lock(mutex);
       if(!this->declared)
 	this->memberDeclaration();
       return members[i];
@@ -93,7 +98,8 @@ namespace lughos
     
     
     ExposedClass()
-    {
+    { 
+      ExclusiveLock lock(mutex);
       this->declared = false;
     }
        

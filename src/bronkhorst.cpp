@@ -46,6 +46,7 @@ bronkhorstConnection::bronkhorstConnection()
 
 std::string bronkhorst::composeRequest(std::string query)
 {
+   SharedLock lock(this->mutex);
     std::string requestString="";
     requestString+=query;
       requestString+=std::string("\r\n");
@@ -54,7 +55,7 @@ std::string bronkhorst::composeRequest(std::string query)
 
 std::string bronkhorst::interpretAnswer(std::string s)
 {  
-
+   SharedLock lock(this->mutex);
 	 return s;
 }
 
@@ -77,6 +78,7 @@ measuredValue<double> bronkhorst::get_setpoint()
   {
     if(!a1.isStatusMessage())
     {
+      SharedLock lock(this->mutex);
       int iSetpoint = 0;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       setpoint = ((float)iSetpoint/Bronkhorst_100Percent)*this->capacity;
@@ -138,6 +140,7 @@ measuredValue<double> bronkhorst::get_flow()
   {
     if(!a1.isStatusMessage())
     {
+      SharedLock lock(this->mutex);
       int32_t iSetpoint = 0;
       std::stringstream(a1.getValueString()) >>  iSetpoint;
       iSetpoint = iSetpoint > Bronkhorst_signed_Int16_Max ? iSetpoint - Bronkhorst_unsigned_Int16_Max : iSetpoint; //Calculate strange Bronkhorst signed-int16-definition o.0
@@ -164,6 +167,7 @@ measuredValue<double> bronkhorst::get_flow()
 void bronkhorst::set_setpoint(measuredValue<double> value)
 {
   LUGHOS_LOG_FUNCTION();
+  SharedLock lock(this->mutex);
   if(value == std::numeric_limits<float>::infinity())
     return ;
   else if (value > this->capacity) value = this->capacity;
@@ -177,6 +181,7 @@ void bronkhorst::set_setpoint(measuredValue<double> value)
     m1.setParameter(bronkhorstMessage::Parameter::Setpoint);
     m1.setParameterType(bronkhorstMessage::ParameterType::Integer);
     m1.setValueString(iSetpoint);
+    lock.unlock();
     s = this->inputOutput(m1);
     a1(s);
     LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString() << "Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
@@ -197,6 +202,7 @@ void bronkhorst::initImplementation()
 
 bool bronkhorst::isConnectedImplementation()
 {
+  SharedLock lock(this->mutex);
   this->capacity.refresh();
   if(this->capacity.getValue() > 0)
     return true;

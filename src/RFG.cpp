@@ -11,6 +11,7 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
               target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal"),
               aux1("aux1"),aux2("aux2")
 {
+  ExclusiveLock lock(mutex);
   this->voltage.refresher(boost::bind(&RFG::readoutChannels,this));
   this->current.refresher(boost::bind(&RFG::readoutChannels,this));
   this->power.refresher(boost::bind(&RFG::readoutChannels,this));
@@ -39,7 +40,6 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
   this->resistanceCorrection.expires(false);
   this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
-  ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)
     {
       channel_output[i].setValueAndUnit(0,"");
@@ -232,7 +232,7 @@ RFG::~RFG(void)
 //   ExclusiveLock lock(mutex);
 }
 
-std::string RFG::composeRequest(std::string query)
+std::string RFG::composeRequest(std::string query) const
 {
     std::string requestString="";
     requestString+=query;
@@ -243,7 +243,7 @@ std::string RFG::composeRequest(std::string query)
 
 
 
-std::string RFG::interpretAnswer(std::string s)
+std::string RFG::interpretAnswer(std::string s) const
 { 
 //   s.erase( std::remove(s.begin(), s.end(), '\r'), s.end() );
 //   s.erase( std::remove(s.begin(), s.end(), '\n'), s.end() );
@@ -282,6 +282,7 @@ measuredValue<double> RFG::getLimitMaxVoltage()
 {
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("U","A");
+  SharedLock lock(mutex);
   value.setValue(unitsToVoltageLimMax.xToY(valueTemp));
   return value;
 }
@@ -290,6 +291,7 @@ measuredValue<double> RFG::getLimitMinVoltage()
 {
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("M","B");
+  SharedLock lock(mutex);
   value.setValue(unitsToVoltageLimMin.xToY(valueTemp));
   return value;
 }
@@ -298,6 +300,7 @@ measuredValue<double> RFG::getLimitMaxCurrent()
 {
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("I","C");
+  SharedLock lock(mutex);
   value.setValue(unitsToCurrentLim.xToY(valueTemp));
   return value;
 }
@@ -306,6 +309,7 @@ measuredValue<double> RFG::getTargetValue()
 {
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("P","D");
+  SharedLock lock(mutex);
   switch (this->controller)
   {
     case Controller::Voltage: value.setValue(unitsToVoltageReg.xToY(valueTemp)); value.setUnit("V"); break;
@@ -315,7 +319,7 @@ measuredValue<double> RFG::getTargetValue()
   return value;
 }
 
-std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
+std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation) const
 {
   uint16_t tmp = transformation.yToX(f); //Convert between arbitrary units and volts
   std::string request = intToBinaryStr(tmp);
@@ -323,7 +327,7 @@ std::string RFG::floatToBinaryStr(float f, SplineTransformation& transformation)
   return request;
 }
 
-std::string RFG::intToBinaryStr(uint16_t i)
+std::string RFG::intToBinaryStr(uint16_t i) const
 {
   char buffer[sizeof(uint16_t)];
   memcpy(buffer,&i,sizeof(uint16_t)); //Transfer binary data to char-array
@@ -434,6 +438,7 @@ void RFG::set_target_value_raw(int i)
 
 void RFG::set_target_value(double setpoint)
 {
+  SharedLock lock(mutex);
   std::stringstream stream;
    SplineTransformation* trafo;
   switch (this->controller.getValue())
@@ -463,6 +468,7 @@ void RFG::set_target_value(double setpoint)
 
 bool RFG::readoutChannels()
 {
+  UpgradeLock lock(mutex);
   int value=0;
   std::stringstream stream;
 //   std::cout<<"S: "<<s<<std::endl;
@@ -504,7 +510,7 @@ bool RFG::readoutChannels()
   double rawVoltage = unitsToVoltageMeas.xToY(results[0]);
   double rawCurrent = unitsToCurrentMeas.xToY(results[1]);
   double rawPower = unitsToPowerMeas.xToY(results[2]);
-  ExclusiveLock lock(mutex);
+  upgradeLockToExclusive llock(lock);
   this->voltage.setValueAndUnit(rawVoltage - ( this->resistanceCorrection.getValue() * rawCurrent),"V"); //Voltage thevenin-correction
   this->current.setValueAndUnit(rawCurrent,"A");
   this->power.setValueAndUnit(rawPower,"W");
@@ -552,6 +558,7 @@ unsigned int RFG::readoutSetting(std::string controlChar, std::string answerChar
 
 measuredValue<double> RFG::get_channel(int i, bool force)
 {
+ SharedLock lock(mutex);
  if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output[i];
@@ -563,6 +570,7 @@ measuredValue<double> RFG::get_channel(int i, bool force)
 
 int RFG::get_channel_raw(int i, bool force)
 {
+  SharedLock lock(mutex);
   if(!force &&!channel_output[0].getTimeStamp().is_not_a_date_time()&& channel_output[0].getTimeStamp() > boost::posix_time::second_clock::local_time()-boost::posix_time::seconds(1))
   {
     return channel_output_raw[i];
