@@ -257,59 +257,66 @@ std::string RFG::interpretAnswer(std::string s) const
 void RFG::set_mode(RFG::Mode mode)
 {
   if(mode == RFG::Mode::Powersupply)
-    this->inputOutput("A");
+    this->input("A");
   else
-    this->inputOutput("B");
+    this->input("B");
 }
 
 void RFG::set_controller(RFG::Controller controller)
 {
   switch (controller)
   {
-    case RFG::Controller::Current: this->inputOutput("G"); break;
-    case RFG::Controller::Power: this->inputOutput("H"); break;
+    case RFG::Controller::Current: this->input("G"); break;
+    case RFG::Controller::Power: this->input("H"); break;
     default:
-    case RFG::Controller::Voltage: this->inputOutput("F"); break;
+    case RFG::Controller::Voltage: this->input("F"); break;
   }
 }
 
 void RFG::set_output(bool state)
 {
   if(state)
-    this->inputOutput("N");
+    this->input("N");
   else
-  this->inputOutput("O");
+  this->input("O");
 }
 
 measuredValue<double> RFG::getLimitMaxVoltage()
 {
+  LUGHOS_LOG_FUNCTION();
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("U","A");
   SharedLock lock(mutex);
   value.setValue(unitsToVoltageLimMax.xToY(valueTemp));
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Got from RFG: A" << valueTemp << " which calculates to: " << value.getString();
   return value;
 }
 
 measuredValue<double> RFG::getLimitMinVoltage()
 {
+  LUGHOS_LOG_FUNCTION();
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("M","B");
   SharedLock lock(mutex);
   value.setValue(unitsToVoltageLimMin.xToY(valueTemp));
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Got from RFG: B" << valueTemp << " which calculates to: " << value.getString();
   return value;
 }
 
 measuredValue<double> RFG::getLimitMaxCurrent()
 {
+  LUGHOS_LOG_FUNCTION();
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("I","C");
   SharedLock lock(mutex);
   value.setValue(unitsToCurrentLim.xToY(valueTemp));
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Got from RFG: C" << valueTemp << " which calculates to: " << value.getString();
   return value;
 }
 
 measuredValue<double> RFG::getTargetValue()
 {
+  LUGHOS_LOG_FUNCTION();
   measuredValue<double> value;
   unsigned int valueTemp = readoutSetting("P","D");
   SharedLock lock(mutex);
@@ -319,6 +326,7 @@ measuredValue<double> RFG::getTargetValue()
     case Controller::Current: value.setValue(unitsToCurrentReg.xToY(valueTemp)); value.setUnit("A"); break;
     case Controller::Power:   value.setValue(unitsToPowerReg.xToY(valueTemp)); value.setUnit("W"); break;
   }
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Got from RFG: D" << valueTemp << " which calculates to: " << value.getString();
   return value;
 }
 
