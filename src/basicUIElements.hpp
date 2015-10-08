@@ -38,6 +38,7 @@ namespace lughos
       {
         this->field_ = new F();
         this->field_->setReadOnly(true);
+        this->field_->setText("");
         this->setLayout(new Wt::WHBoxLayout());
         this->layout()->addWidget(this->field_);
         this->setPadding(0);
