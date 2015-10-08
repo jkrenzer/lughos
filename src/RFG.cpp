@@ -564,7 +564,10 @@ unsigned int RFG::readoutSetting(std::string controlChar, std::string answerChar
     stream >> std::hex >> valueTemp;
     std::cout << "RECEIVED: " << res1[1] << " - " << valueTemp <<  std::endl;
     s = this->inputOutput(std::string("\x00")+controlChar+intToBinaryStr(valueTemp)+std::string("\r"),boost::regex(answerChar + std::string("\\w\\w\\w\\w")));
+    return valueTemp;
   }
+  else
+    return 0;
 }
 
 
