@@ -11,10 +11,14 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 
+#include "threadSafety.hpp"
+
 namespace lughos
 {
   class SplineTransformation
   {
+  private:
+  mutable Mutex mutex;
   public:
     typedef boost::bimaps::bimap< boost::bimaps::set_of<double>, boost::bimaps::set_of<double> > ValueMap;
     typedef ValueMap::left_map XToYMap;
@@ -43,6 +47,7 @@ namespace lughos
     
     SplineTransformation()
     {
+      ExclusiveLock lock(mutex);
       this->isInitialized = false;
       this->xToYSplineAcc = nullptr;
       this->xToYSpline = nullptr;
@@ -67,6 +72,7 @@ namespace lughos
     
     bool fromFile(std::string filePath)
     {
+      ExclusiveLock lock(mutex);
       XToYMap& x2y = this->valueMap.left;
       int validPairsRead = 0;
 
@@ -114,6 +120,7 @@ namespace lughos
     
     bool init()
     {
+      ExclusiveLock lock(mutex);
       gsl_set_error_handler_off();
       XToYMap& x2y = this->valueMap.left;
       int count = x2y.size();
@@ -153,7 +160,7 @@ namespace lughos
       return true;
     }
     
-    double extrapolate(double value, double refValue,gsl_spline* spline, gsl_interp_accel* accel)
+    double extrapolate(double value, double refValue,gsl_spline* spline, gsl_interp_accel* accel) const
     {
       double firstDerivative = gsl_spline_eval_deriv(spline,refValue,accel) + (gsl_spline_eval_deriv2(spline,refValue,accel) * (value - refValue));
       double result = gsl_spline_eval(spline,refValue,accel) + (firstDerivative * (value - refValue));
@@ -163,6 +170,7 @@ namespace lughos
     
     double xToY(double x)
     {
+      SharedLock lock(mutex);
       double y = 0.0;
       if (isInitialized && x <= this->xMax && x >= this->xMin)
 	y = gsl_spline_eval (xToYSpline, x, xToYSplineAcc);
@@ -182,6 +190,7 @@ namespace lughos
     
     double yToX(double y)
     {
+      SharedLock lock(mutex);
       double x;
       if (isInitialized && y <= this->yMax && y >= this->yMin)
 	x = gsl_spline_eval (yToXSpline, y, yToXSplineAcc);

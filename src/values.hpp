@@ -134,9 +134,8 @@ public:
   {
   }
   
-  ValueImplementation<T>(const ValueImplementation<T>& other) : ValueInterface(other), mutex(), valuePointer()
+  ValueImplementation<T>(const ValueImplementation<T>& other) : ValueInterface(other), mutex(), valuePointer(other.valuePointer)
   {
-    this->valuePointer = other.valuePointer;
   }
      
   virtual bool setValue(T value)
@@ -184,7 +183,8 @@ public:
     
   void unset()
   {
-    this->valuePointer.reset();
+    this->valuePointer.reset(new T);
+    *(this->valuePointer) = this->type.initialValue();
   }
   
   bool isSet() const

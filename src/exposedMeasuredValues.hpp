@@ -64,7 +64,8 @@ namespace lughos
     measuredValue<T>& get()
     {
       this->refreshIfExpired();
-      return static_cast<measuredValue<T> &>(*this);
+      SharedLock lock(mutex);
+      return dynamic_cast<measuredValue<T> &>(*this);
     }
     
     void refresh()
@@ -92,7 +93,7 @@ namespace lughos
       }
       else if(getter_)
       {
-	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Fetching new value for ") + this->name) ;
+	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing getter-function for ") + this->name) ;
 	measuredValue<T> newValue = getter_();
 	if(newValue.isSet())
 	{
@@ -122,11 +123,13 @@ namespace lughos
     {
       LUGHOS_LOG_FUNCTION();
       this->expires(false);
+      SharedLock lock(mutex);
       if(setter_)
       {
 	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Firing setter for \"" << this->name << "\"." ;
       }
+      lock.unlock();
       this->expires(true);
     }
     
