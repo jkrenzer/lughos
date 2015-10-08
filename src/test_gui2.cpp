@@ -319,7 +319,7 @@ int main(int argc, char **argv)
 //   ofs<< "Shutting down Webserver" << std::endl;
 
         std::cout << "Shutting down Webserver" << std::endl;
-        data.stop();
+//         data.stop();
         work.reset();
         lughos::ioService->stop();
 //    ofs<< "IOService stopping..." << std::endl;
