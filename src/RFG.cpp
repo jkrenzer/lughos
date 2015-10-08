@@ -11,7 +11,6 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
               target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal"),
               aux1("aux1"),aux2("aux2")
 {
-  ExclusiveLock lock(mutex);
   this->voltage.refresher(boost::bind(&RFG::readoutChannels,this));
   this->current.refresher(boost::bind(&RFG::readoutChannels,this));
   this->power.refresher(boost::bind(&RFG::readoutChannels,this));
@@ -40,6 +39,7 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
   this->resistanceCorrection.expires(false);
   this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
+  ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)
     {
       channel_output[i].setValueAndUnit(0,"");
