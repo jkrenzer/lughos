@@ -85,6 +85,9 @@ namespace lughos
    */
   class DeviceImpl : public ExposedClass
   {
+  private:
+    mutable Mutex mutex;
+  
   public:
   
     boost::signals2::signal<void ()> onStateChange;
@@ -93,8 +96,6 @@ namespace lughos
     boost::signals2::signal<void ()> onError;
     
   protected:
-    
-    Mutex mutex;
     
     boost::shared_ptr<boost::asio::io_service> ioService;
     boost::shared_ptr<boost::asio::io_service::work> ioServiceWork;

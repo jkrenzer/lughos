@@ -44,6 +44,9 @@ public:
 	  enum class ControlMode {Local, AnalogueRemote, DigitalRemote};
     
     private:
+	  
+	  mutable Mutex mutex;
+     
 	  FUGNetzteil(const FUGNetzteil &p);
 	  FUGNetzteil &operator=(const FUGNetzteil &p);
 

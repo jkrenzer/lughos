@@ -34,6 +34,7 @@ class RFG :public Device
 	RFG(const RFG &p);
 	RFG &operator=(const RFG &p);
 	
+	mutable Mutex mutex;
 	
   public:
 	enum class Mode {Powersupply, BeamCurrentController};

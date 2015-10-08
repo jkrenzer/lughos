@@ -35,6 +35,7 @@ class bronkhorst : public Device
 	bronkhorst(const bronkhorst &p);
 	bronkhorst &operator=(const bronkhorst &p);
 	
+	mutable Mutex mutex;
 
 	
 protected:
