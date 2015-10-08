@@ -198,16 +198,18 @@ namespace lughos
     
     void emitConnectionSignals()
     {
-      SharedLock lock(this->mutex);
+      //No lock as connected is threadsafe and we risc deadlocks
       if(this->connected)
       {
         lock.unlock();
 	this->onConnect();
+	return;
       }
       else
       {
         lock.unlock();
 	this->onDisconnect();
+	return;
       }
     }
     
