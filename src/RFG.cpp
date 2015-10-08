@@ -11,34 +11,6 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
               target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal"),
               aux1("aux1"),aux2("aux2")
 {
-  this->voltage.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->current.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->power.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->temperature.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->aux1.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->aux2.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->voltageLimitMax.getter(boost::bind(&RFG::getLimitMaxVoltage,this));
-  this->voltageLimitMax.setter(boost::bind(&RFG::set_voltage_max,this,_1));
-  this->voltageLimitMin.getter(boost::bind(&RFG::getLimitMinVoltage,this));
-  this->voltageLimitMin.setter(boost::bind(&RFG::set_voltage_min,this,_1));
-  this->currentLimitMax.getter(boost::bind(&RFG::getLimitMaxCurrent,this));
-  this->currentLimitMax.setter(boost::bind(&RFG::set_current_lim,this,_1));
-  this->target.getter(boost::bind(&RFG::getTargetValue,this));
-  this->target.setter(boost::bind(&RFG::set_target_value,this,_1));
-  this->mode.setter(boost::bind(&RFG::set_mode,this,_1));
-  this->mode.setValue(RFG::Mode::Powersupply);
-  this->mode.expires(false);
-  this->output.setter(boost::bind(&RFG::set_output,this,_1));
-  this->output.expires(false);
-  this->output.setValue(false);
-  this->controller.setter(boost::bind(&RFG::set_controller,this,_1));
-  this->controller.setValue(RFG::Controller::Voltage);
-  this->controller.expires(false);
-  this->resistanceCorrection.setValue(0.139);
-  this->resistanceCorrection.setUnit("Ohm");
-  this->resistanceCorrection.expires(false);
-  this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
-  this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)
     {
@@ -179,6 +151,37 @@ RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperatur
   unitsToVoltageMeas.fromFile("calibration_voltage_ADC.csv");
   
   unitsToCurrentMeas.fromFile("calibration_current_ADC.csv");
+  
+  lock.unlock();
+  
+  this->voltage.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->current.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->power.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->temperature.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->aux1.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->aux2.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->voltageLimitMax.getter(boost::bind(&RFG::getLimitMaxVoltage,this));
+  this->voltageLimitMax.setter(boost::bind(&RFG::set_voltage_max,this,_1));
+  this->voltageLimitMin.getter(boost::bind(&RFG::getLimitMinVoltage,this));
+  this->voltageLimitMin.setter(boost::bind(&RFG::set_voltage_min,this,_1));
+  this->currentLimitMax.getter(boost::bind(&RFG::getLimitMaxCurrent,this));
+  this->currentLimitMax.setter(boost::bind(&RFG::set_current_lim,this,_1));
+  this->target.getter(boost::bind(&RFG::getTargetValue,this));
+  this->target.setter(boost::bind(&RFG::set_target_value,this,_1));
+  this->mode.setter(boost::bind(&RFG::set_mode,this,_1));
+  
+  this->mode.expires(false);
+  this->output.setter(boost::bind(&RFG::set_output,this,_1));
+  this->output.expires(false);
+  
+  this->controller.setter(boost::bind(&RFG::set_controller,this,_1));
+  
+  this->controller.expires(false);
+  
+  
+  this->resistanceCorrection.expires(false);
+  this->bccFeedbackSignal.refresher(boost::bind(&RFG::readoutChannels,this));
+  this->bccOutputSignal.refresher(boost::bind(&RFG::readoutChannels,this));
   
 }
 
@@ -585,6 +588,11 @@ int RFG::get_channel_raw(int i, bool force)
 
 void RFG::initImplementation()
 {
+  this->mode.setValue(RFG::Mode::Powersupply);
+  this->output.setValue(false);
+  this->controller.setValue(RFG::Controller::Voltage);
+  this->resistanceCorrection.setValue(0.139);
+  this->resistanceCorrection.setUnit("Ohm");
 }
     
 bool RFG::isConnectedImplementation()
