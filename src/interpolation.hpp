@@ -110,6 +110,7 @@ namespace lughos
 	return false;
       }
       std::cout << "Read " << validPairsRead << " value-pairs from file " << filePath << std::endl;
+      lock.unlock();
       return init();
     }
     
