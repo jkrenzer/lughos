@@ -118,12 +118,11 @@ namespace lughos
       refreshInterval->setMinimum(100);
       refreshInterval->setMaximum(60000);
       refreshInterval->setSingleStep(100);
+      refreshInterval->setValue(1000);
       refreshIntervalLabel->setBuddy(refreshInterval);
 
       Wt::WPushButton *ok = new Wt::WPushButton("OK", dialog->footer());
       ok->setDefault(true);
-      if (this->wtApp_->environment().ajax())
-	ok->disable();
 
       Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog->footer());
       dialog->rejectWhenEscapePressed();
