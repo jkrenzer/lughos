@@ -9,6 +9,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WText>
 #include <Wt/WTimer>
+#include <Wt/WSpinBox>
 #include <functional>
 #include "StatusLEDWtWidget.hpp"
 #include "device.hpp"
@@ -126,6 +127,17 @@ namespace lughos
       reconnect->triggered().connect(boost::bind(&DeviceUIInterface::reset,this)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
+      //Building a menu for controlling the refresh-Timer
+      Wt::WContainerWidget* menuContainer = new Wt::WContainerWidget();
+      Wt::WLabel* refreshIntervalLable = new Wt::WLabel(Wt::WString("Refresh interval"));
+      Wt::WSpinBox* refreshInterval = new Wt::WSpinBox();
+      refreshInterval->setMinimum(100);
+      refreshInterval->setMaximum(60000);
+      refreshInterval->setSingleStep(100);
+      refreshInterval->changed().connect(boost::bind(&Wt::WTimer::setInterval, this->intervalTimer, refreshInterval->value()));
+      menuContainer->addWidget(refreshIntervalLable);
+      menuContainer->addWidget(refreshInterval);
+      Wt::WPopupMenuItem* refreshIntervalMenu = this->led->popupMenu()->addItem(Wt::WString("Refresh settings"), menuContainer);
       this->intervalTimer->setInterval(1000); //TODO Make interval changable by GUI and config
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refresh,this));
@@ -171,13 +183,7 @@ template <class D> class DeviceUITemplate : public DeviceUIInterface
       this->device_->onConnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Connected>,this->led.get())).track(this->led));
       this->device_->onDisconnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
       this->device_->onError.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
-//       this->device_->onConnect.connect(this->postedSlot(boost::bind(&DeviceUITemplate< D >::log,this,std::string("Connect fired.")));
-//       this->device_->onDisconnect.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
-//       this->device_->onError.connect(this->postedSlot(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
-//       this->device_->onConnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal::,this,false));
-//       this->device_->onDisconnect.connect(RefreshSignal::slot_type(boost::bind(&StatusLEDWtWidget::setState<Disconnected>,this->led.get())).track(this->led));
-//       this->device_->onDisconnect.connect(boost::bind(&DeviceUIInterface::setDisabledSignal,this,true));
-//       this->device_->onError.connect(RefreshSignal::slot_type(boost::bind(&StatusLEDWtWidget::setState<Error>,this->led.get())).track(this->led));
+
       this->device_->emitConnectionSignals();
       this->intervalTimer->start();
     }
