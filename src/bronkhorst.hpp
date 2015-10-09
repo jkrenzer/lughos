@@ -31,6 +31,9 @@ public:
 
 class bronkhorst : public Device
 {
+ 
+  public:
+        enum ControlMode {BUSRS232 = '\x00', AnalogInput = '\x01', FLOWBusSlave = '\x02', ValveClose = '\x03', ControllerIdle = '\x04', TestingMode = '\x05', TuningMode = '\x06', Setpoint100percent = '\x07', ValveFullyOpen = '\x08', CalibrationMode = '\x09', AnalogSlave = '\x0a', Setpoint0percent = '\x0b', FLOWBusAnalogSlave = '\x0c', RS232 = '\x12', ValveStearing = '\x14', AnalogValveStearing = '\x15', ValveSaveState = '\x16'};
   private:
 	bronkhorst(const bronkhorst &p);
 	bronkhorst &operator=(const bronkhorst &p);
@@ -42,10 +45,13 @@ protected:
 	void initImplementation();
 	void shutdownImplementation();
 	bool isConnectedImplementation();
-	measuredValue<double> get_setpoint();
-	measuredValue<double> get_flow();
+	measuredValue<double> getSetpoint();
+	measuredValue<double> getFlow();
 	measuredValue<double> getMaxCapacity();
-	void set_setpoint(measuredValue<double> value);
+	measuredValue<ControlMode> getControlMode();
+	
+	void setSetpoint(measuredValue<double> value);
+	void setControlMode(measuredValue<ControlMode> mode);
 
 	std::string interpretAnswer(std::string query);
 	std::string composeRequest(std::string query);
@@ -54,11 +60,13 @@ protected:
 	void memberDeclaration();
 	
   public:
+
         bronkhorst();
 	virtual ~bronkhorst(void);
 	exposedMeasurement<double> setpoint;
 	exposedMeasurement<double> flow;
 	exposedMeasurement<double> capacity;
+	exposedMeasurement<ControlMode> controlMode;
 };
 
 

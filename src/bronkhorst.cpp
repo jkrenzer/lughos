@@ -10,13 +10,13 @@
 #define Bronkhorst_signed_Int16_Max 41942
 #define Bronkhorst_unsigned_Int16_Max 65535
 
-bronkhorst::bronkhorst() : capacity("capacity"), flow("flow"), setpoint("setpoint")
+bronkhorst::bronkhorst() : capacity("capacity"), flow("flow"), setpoint("setpoint"), controlMode("controlMode")
 {
   this->capacity.getter(boost::bind(&bronkhorst::getMaxCapacity,this));
   this->capacity.expires(false);
-  this->flow.getter(boost::bind(&bronkhorst::get_flow,this));
-  this->setpoint.getter(boost::bind(&bronkhorst::get_setpoint,this));
-  this->setpoint.setter(boost::bind(&bronkhorst::set_setpoint,this,_1));
+  this->flow.getter(boost::bind(&bronkhorst::getFlow,this));
+  this->setpoint.getter(boost::bind(&bronkhorst::getSetpoint,this));
+  this->setpoint.setter(boost::bind(&bronkhorst::setSetpoint,this,_1));
 }
 
 bronkhorst::~bronkhorst(void)
@@ -59,7 +59,7 @@ std::string bronkhorst::interpretAnswer(std::string s)
 	 return s;
 }
 
-measuredValue<double> bronkhorst::get_setpoint()
+measuredValue<double> bronkhorst::getSetpoint()
 {
   LUGHOS_LOG_FUNCTION();
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
@@ -119,8 +119,26 @@ measuredValue<double> bronkhorst::getMaxCapacity()
   return tmp;
 }
 
+measuredValue< bronkhorst::ControlMode > bronkhorst::getControlMode()
+{
+  LUGHOS_LOG_FUNCTION();
+  bronkhorstMessage m1,a1;
+  m1.setNode(3);
+  m1.setType(4);
+  m1.setProcess(1);
+  m1.setParameter(bronkhorstMessage::Parameter::ControlMode);
+  m1.setParameterType(bronkhorstMessage::ParameterType::Character);
+  a1(this->inputOutput(m1));
+  measuredValue<ControlMode> tmp;
+  tmp.setUnit("");
+  if(a1.hasValue())
+    tmp.setValueFromString(a1.getValueString());
+  else
+    tmp.unset(); //TODO Throw exception which can beevaluated to connection status;
+  return tmp;
+}
 
-measuredValue<double> bronkhorst::get_flow()
+measuredValue<double> bronkhorst::getFlow()
 {
   LUGHOS_LOG_FUNCTION();
     boost::posix_time::ptime now= boost::posix_time::second_clock::local_time();
@@ -164,7 +182,7 @@ measuredValue<double> bronkhorst::get_flow()
 }
 
 
-void bronkhorst::set_setpoint(measuredValue<double> value)
+void bronkhorst::setSetpoint(measuredValue<double> value)
 {
   LUGHOS_LOG_FUNCTION();
   SharedLock lock(this->mutex);
@@ -184,7 +202,25 @@ void bronkhorst::set_setpoint(measuredValue<double> value)
     lock.unlock();
     s = this->inputOutput(m1);
     a1(s);
-    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString() << "Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
+    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << iSetpoint << " Sent: " << m1.toString() << " Received: " << a1.toString() << "Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " statusCode:" << a1.getStatusCode() << " Corresponds to:" << a1.getStatusSubjectFirstByte();
+}
+
+void bronkhorst::setControlMode(measuredValue<ControlMode> value)
+{
+  LUGHOS_LOG_FUNCTION();
+  SharedLock lock(this->mutex);
+  bronkhorstMessage m1, a1;
+  std::string s;
+  m1.setNode(3);
+    m1.setType(1);
+    m1.setProcess(1);
+    m1.setParameter(bronkhorstMessage::Parameter::ControlMode);
+    m1.setParameterType(bronkhorstMessage::ParameterType::Character);
+    m1.setValueString(value);
+    lock.unlock();
+    s = this->inputOutput(m1);
+    a1(s);
+    LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Setting flow to " << value.getString() << " Sent: " << m1.toString() << " Received: " << a1.toString() << "Length" << ": "<< a1.getlength() << " Node:" << a1.getNode() << " Type:" << a1.getType() << " valueType:" << a1.getParameterType() << " value:" << a1.getValueString();
 }
 
 void bronkhorst::initImplementation()
@@ -195,7 +231,7 @@ void bronkhorst::initImplementation()
   LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 2. Sent: :050301000502 Received: " << this->inputOutput(":050301000502");
   LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 3. Sent: :050301000A52 Received: " << this->inputOutput(":050301000A52");
   this->input(":050302010412");
-  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 4. Sent: :050302010412 No answer expected."; //Set to RS232 Control
+  LUGHOS_LOG(lughos::log::SeverityLevel::debug) << "Init string 4. Sent: :050302010400 No answer expected."; //Set to RS232 Control
 //   this->inputOutput(":070304006000600F");
 
 }

@@ -19,7 +19,7 @@ namespace lughos
   
     enum Type {Status = 0, SendParamWithAnswer = 1, SendParamNoAnswer = 2, SendParamWithSourceAdr = 3, RequestParam = 4, Instruction = 5, StopProcess = 6, StartProcess = 7, ClaimProcess = 8, UnclaimProcess = 9};
     enum ParameterType {Character = '\x00', Integer = '\x20', Float = '\x40', Long = '\x40', String = '\x60'   };
-    enum Parameter {Measure = 0, Setpoint = 1, Capacity = 13};
+    enum Parameter {Measure = 0, Setpoint = 1, ControlMode = 4, Capacity = 13};
     enum StatusMessage {NoError = '\x00', ProcessClaimed = '\x01', CommandError = '\x02', ProcessError = '\x03', ParameterError = '\x04', ParameterTypeError = '\x05', ParameterValueError = '\x06', NetworkNotAvailible = '\x07', TimeoutStartChar = '\x08', TimeOutSerialLine = '\x09', HardwareMemoryError = '\x0a', NodeNumberError = '\x0b', GeneralCommunicationError = '\x0c', ReadOnlyParameter = '\x0d', ErrorPcCommunication = '\x0e', NoRs232Connection = '\x0f', PcOutOfMemory = '\x10', WriteOnlyParameter = '\x11', SystemConfigurationUnknown = '\x12', NoFreeNodeAddress = '\x13', WrongInterfaceType = '\x14', ErrorSerialPortConnection = '\x15', ErrorOpeningCommunication = '\x16', CommunicationError = '\x17', ErrorInterfaceBusMaster = '\x18', TimeOutAnswer = '\x19', NoStartChar = '\x1a', ErrorFirstDigit = '\x1b', BufferOverflowInHost = '\x1c', BufferOverflow = '\x1d', NoAnswerFound = '\x1e', ErrorClosingCommunication = '\x1f', SynchronisationError = '\x20', SendError = '\x21', ProtocolError = '\x22', BufferOverflowInModule = '\x23'};
   
   protected:
@@ -239,6 +239,13 @@ namespace lughos
       ExclusiveLock lock(this->mutex);
       if(expectedStringLength > 1)
 	this->expectedStringLength = expectedStringLength;
+    }
+    
+    unsigned int getStatusSubjectFirstByte() const
+    {
+      SharedLock lock(this->mutex);
+      if(this->statusSubjectFirstByte > 0)
+        return statusSubjectFirstByte;
     }
     
     bool isEmpty() const

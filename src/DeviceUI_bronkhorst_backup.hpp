@@ -195,7 +195,7 @@ using namespace lughos;
       sstr>>f;
 
       this->stateF->setText("Flow set:"+setpointField1->text().toUTF8());
-      responseField->setText(responseField->text().toUTF8()+horst1->set_setpoint(f));
+      responseField->setText(responseField->text().toUTF8()+horst1->setSetpoint(f));
       this->getSetpoint();
 //     
       
@@ -203,7 +203,7 @@ using namespace lughos;
     
     void getSetpoint()
     {
-      measuredValue v = this->horst1->get_setpoint();
+      measuredValue v = this->horst1->getSetpoint();
       this->responseField->setText(std::string(v.getStringValue())+std::string(v.getunit()));
       this->setpointField1->setText(std::string(v.getStringValue()));
     }
