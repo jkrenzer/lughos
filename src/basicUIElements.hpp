@@ -21,11 +21,11 @@ namespace lughos
     template <class F> class Measurement : public Wt::WContainerWidget
     {
     private:
-      Mutex mutex;
+      mutable Mutex mutex;
     protected:
       F* field_;
       ExposedValueInterface* asignee_;
-      boost::signals2::connection onValueChangeConnection;
+      boost::signals2::connection pull_OnValueChangeConnection;
       boost::signals2::connection buttonClickedConnection;
       boost::signals2::connection onFocusConnection;
       Wt::WServer* wtServer_;
@@ -49,7 +49,7 @@ namespace lughos
       
     virtual ~Measurement()
     {
-      this->onValueChangeConnection.disconnect();
+      this->pull_OnValueChangeConnection.disconnect();
     }
       
       void setSyncValue(bool enable = true)
@@ -79,7 +79,7 @@ namespace lughos
 	lock.unlock();
  	this->pull(); //Fetching initial value
  	lock.lock();
- 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
+ 	this->pull_OnValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Measurement::pull,this));
       }
       
       virtual void detach()
@@ -88,7 +88,7 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
-	this->onValueChangeConnection.disconnect();
+	this->pull_OnValueChangeConnection.disconnect();
       }
       
       virtual void refresh()
@@ -100,6 +100,7 @@ namespace lughos
       {
 	LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
+	boost::signals2::shared_connection_block block(this->pull_OnValueChangeConnection);
         if(this->asignee_ != nullptr && this->syncValueEnabled)
         {
           std::string strValue = this->asignee_->getValueAsString();
@@ -185,7 +186,7 @@ namespace lughos
       virtual ~Setting()
       {
 	this->asignee_ = nullptr;
- 	this->onValueChangeConnection.disconnect();
+ 	this->pull_OnValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
 	this->onFocusConnection.disconnect();
       }
@@ -222,7 +223,7 @@ namespace lughos
          lock.unlock();
  	this->pull(); //Fetching initial value
  	lock.lock();
- 	this->onValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
+ 	this->pull_OnValueChangeConnection = this->asignee_->onValueChange.connect(boost::bind(&Setting<F>::pull,this));
 	this->buttonClickedConnection = this->button_->clicked().connect(boost::bind(&Setting<F>::push,this));
 	this->onFocusConnection = this->field_->changed().connect(boost::bind(&Setting<F>::checkTainted,this));
       }
@@ -233,7 +234,7 @@ namespace lughos
 	ExclusiveLock lock(mutex);
 	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
- 	this->onValueChangeConnection.disconnect();
+ 	this->pull_OnValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
 	this->onFocusConnection.disconnect();
       }
