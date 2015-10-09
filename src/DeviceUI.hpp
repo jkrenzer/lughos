@@ -13,10 +13,12 @@
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WEnvironment>
+#include <Wt/WCheckBox>
 #include <functional>
 #include "StatusLEDWtWidget.hpp"
 #include "device.hpp"
 #include "basicUIElements.hpp"
+#include "threadSafety.hpp"
 
 
 
@@ -25,6 +27,8 @@ namespace lughos
 
   class DeviceUIInterface : public Wt::WPanel
   {
+  private:
+    mutable Mutex mutex;
   protected:
         boost::shared_ptr<DeviceImpl> device_;
         boost::shared_ptr<Wt::WTimer> intervalTimer;
@@ -39,6 +43,16 @@ namespace lughos
     std::string name;
     boost::shared_ptr<Wt::WContainerWidget> container;
     boost::shared_ptr<StatusLEDWtWidget> led;
+    
+    class Paused : public StatusLEDState
+    {
+    public:
+      Paused(std::string message = std::string("Paused"))
+      {
+        this->message = message;
+        this->color = Color::Blue;
+      }
+    };
     
     class Disconnected : public StatusLEDState
     {
@@ -118,9 +132,14 @@ namespace lughos
       refreshInterval->setMinimum(100);
       refreshInterval->setMaximum(60000);
       refreshInterval->setSingleStep(100);
-      refreshInterval->setValue(1000);
+      SharedLock lock(mutex);
+      refreshInterval->setValue(this->intervalTimer->interval());
       refreshIntervalLabel->setBuddy(refreshInterval);
-
+      
+      Wt::WLabel *autoRefreshStateLabel = new Wt::WLabel("Autorefresh on?",dialog->contents());
+      Wt::WCheckBox *autoRefreshState = new Wt::WCheckBox(dialog->contents());
+      autoRefreshState->setChecked(this->intervalTimer->isActive());
+      lock.unlock();
       Wt::WPushButton *ok = new Wt::WPushButton("OK", dialog->footer());
       ok->setDefault(true);
 
@@ -142,9 +161,11 @@ namespace lughos
       */
       dialog->finished().connect(std::bind([=] () {
 	  if (dialog->result() == Wt::WDialog::Accepted)
-	  {
-	      this->intervalTimer->stop();
-	      this->intervalTimer->setInterval(refreshInterval->value());
+	  {   
+	    ExclusiveLock lock(mutex);
+	    this->intervalTimer->stop();
+	    this->intervalTimer->setInterval(refreshInterval->value());
+	    if(autoRefreshState->isChecked())
 	      this->intervalTimer->start();
 	  }
 	  delete dialog;
@@ -155,6 +176,7 @@ namespace lughos
     
   DeviceUIInterface (boost::shared_ptr<Device> device_, Wt::WContainerWidget * parent = 0):WPanel (parent)
     {
+      ExclusiveLock lock(mutex);
       this->wtApp_ = Wt::WApplication::instance();
       this->wtServer_ = Wt::WServer::instance();
       LUGHOS_LOG_FUNCTION();
@@ -191,6 +213,7 @@ namespace lughos
     
     virtual RefreshSignal::slot_type postedSlot(const boost::function< void()> & function, const boost::function< void()> & fallBackFunction = boost::function<void ()>() )
     {
+      SharedLock lock(mutex);
       return RefreshSignal::slot_type(boost::bind(&Wt::WServer::post,this->wtServer_,wtApp_->sessionId(),function,fallBackFunction));
     }
     
