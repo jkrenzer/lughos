@@ -100,7 +100,7 @@ namespace lughos
       this->refreshSignal.connect(RefreshSignal::slot_type(&ui::Measurement<T>::pull,widget).track(widget));
     }
     
-    virtual void reset()
+    virtual void reset() //TODO Implement device-resetting
     {
 
     }
@@ -126,8 +126,9 @@ namespace lughos
       reconnect->triggered().connect(boost::bind(&DeviceUIInterface::reset,this)); //TODO Reimplement good device reconnection
       Wt::WPopupMenuItem* state = this->led->popupMenu()->addItem("Refresh State");
       state->triggered().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
-      this->intervalTimer->setInterval(1000);
+      this->intervalTimer->setInterval(1000); //TODO Make interval changable by GUI and config
       this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refreshSignal,this));
+      this->intervalTimer->timeout().connect(boost::bind(&DeviceUIInterface::refresh,this));
     }
 
     virtual ~ DeviceUIInterface ()
@@ -142,6 +143,8 @@ namespace lughos
     {
       return RefreshSignal::slot_type(boost::bind(&Wt::WServer::post,this->wtServer_,wtApp_->sessionId(),function,fallBackFunction));
     }
+    
+    virtual void refresh() = 0;
 
   };
 

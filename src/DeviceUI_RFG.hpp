@@ -170,6 +170,19 @@ this->name=device()->getName();
       
     }
     
+    void refresh()
+    {
+      this->current->refresh();
+      this->voltage->refresh();
+      this->power->refresh();
+      this->currentMax->refresh();
+      this->voltageMax->refresh();
+      this->voltageMin->refresh();
+      this->target->refresh();
+      this->bccOutputSignal->refresh();
+      this->bccFeedbackSignal->refresh();
+    }
+    
     void disable()
     {
       this->currentMax->setDisabled(true);

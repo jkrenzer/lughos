@@ -88,6 +88,14 @@ namespace lughos
      this->addWidget(setpoint);
     }
     
+    void refresh()
+    {
+      this->capacity->refresh();
+      this->setpoint->refresh();
+      this->flow->refresh();
+      
+    }
+    
     void disable()
     {
       this->setpoint->setDisabled(true);

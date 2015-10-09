@@ -70,6 +70,11 @@ namespace lughos
             this->init();
     }
     
+    void refresh()
+    {
+      
+    }
+    
     void enable()
     {
       for (unsigned i = 0; i < 8; ++i) 

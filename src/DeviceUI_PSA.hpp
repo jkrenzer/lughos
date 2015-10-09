@@ -94,6 +94,13 @@ namespace lughos
      this->currentF->attach(device()->current);
      this->temperaturF->attach(device()->temperature);
     }
+    
+    void refresh()
+    {
+      this->voltageF->refresh();
+      this->currentF->refresh();
+      this->temperaturF->refresh();
+    }
 
     void enable()
     {

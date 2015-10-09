@@ -91,6 +91,11 @@ namespace lughos
 	this->onValueChangeConnection.disconnect();
       }
       
+      virtual void refresh()
+      {
+	this->pull();
+      }
+      
       virtual void pull()
       {
 	LUGHOS_LOG_FUNCTION();
@@ -196,6 +201,16 @@ namespace lughos
 	ExclusiveLock lock(mutex);
         this->field_->setDisabled(disabled);
         this->button_->setDisabled(disabled);
+      }
+      
+      virtual void refresh()
+      {
+        SharedLock lock(this->mutex);
+	if(this->asignee_->compareStringValue(this->field_->text().toUTF8()))
+	  {
+	    lock.unlock();
+	    this->pull();
+	  }
       }
       
       void attach(ExposedValueInterface& asignee_)
