@@ -134,18 +134,36 @@ namespace lughos
     
     void refresh()
     {
+      LUGHOS_LOG_FUNCTION();
+      SharedLock lock(mutex);
       if(this->ioService)
+      {
+        LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " asynchronously.";
 	this->ioService->post(boost::bind(&exposedMeasurement::refresh_,this));
+      }
       else
+      {
+        LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " synchronously.";
+        lock.unlock();
 	this->refresh_();
+      }
     }
     
     void sync()
     {
+      LUGHOS_LOG_FUNCTION();
+      SharedLock lock(mutex);
       if(this->ioService)
+      {
+        LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " asynchronously.";
 	this->ioService->post(boost::bind(&exposedMeasurement::sync_,this));
+      }
       else
+      {
+        LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " synchronously.";
+        lock.unlock();
 	this->sync_();
+      }
     }
     
     measuredValue<T>& get()

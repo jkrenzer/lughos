@@ -292,6 +292,7 @@ namespace lughos
     {
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
+      this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
       this->connected.onValueChange.connect(boost::bind(&DeviceImpl::emitConnectionSignals,this));
       this->initialized = false;
     }
