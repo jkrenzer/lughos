@@ -254,7 +254,9 @@ namespace lughos
 	  q->setEORPattern(regExpr);
 	try
 	{
+	  lock.lock();
 	  this->connection->execute(q);
+	  lock.unlock();
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
@@ -305,6 +307,7 @@ namespace lughos
       ioService->stop();
       for(std::vector<boost::shared_ptr<boost::thread> >::iterator it = this->threadPool.begin(); it != this->threadPool.end(); it++)
       {
+        (*it)->interrupt();
 	(*it)->join();
       }
     }

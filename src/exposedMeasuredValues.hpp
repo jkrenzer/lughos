@@ -51,8 +51,20 @@ namespace lughos
       }
       else if(getter_)
       {
+        measuredValue<T> newValue;
 	LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("Firing getter-function for ") + this->name) ;
-	measuredValue<T> newValue = getter_();
+	try 
+	{
+	  newValue = getter_();
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown by getter-function for ") + this->name) << ". What: " << e.what();
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Unknown exception thrown by getter-function for ") + this->name);
+	}
 	if(newValue.isSet())
 	{
 	  T tmp = *(this->valuePointer);
