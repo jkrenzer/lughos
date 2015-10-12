@@ -254,9 +254,7 @@ namespace lughos
 	  q->setEORPattern(regExpr);
 	try
 	{
-	  lock.lock();
 	  this->connection->execute(q);
-	  lock.unlock();
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
