@@ -244,19 +244,19 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
 
   LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
   lock.unlock();
-  try
-    {
-      this->io_service->poll();
-    }
-  catch ( ... )
-    {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service exception while polling." ) );
-      query->setError(std::string ( "I/O-Service exception while polling." ));
-      lock.unlock();
-      this->unstashQuery(query);
-      this->abort();
-      return;
-    }
+//   try
+//     {
+//       this->io_service->poll();
+//     }
+//   catch ( ... )
+//     {
+//       LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service exception while polling." ) );
+//       query->setError(std::string ( "I/O-Service exception while polling." ));
+//       lock.unlock();
+//       this->unstashQuery(query);
+//       this->abort();
+//       return;
+//     }
 
 
   if ( !socket || !socket->is_open() )

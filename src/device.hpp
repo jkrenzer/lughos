@@ -248,12 +248,15 @@ namespace lughos
       UpgradeLock lock(this->mutex);
       if(this->connection)
       {
+        lock.unlock();
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
 	try
 	{
+	  lock.lock();
 	  this->connection->execute(q);
+	  lock.unlock();
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
