@@ -260,9 +260,13 @@ namespace lughos
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what() ;
+	}
 	catch(...)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communication over port!" ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicatiing!" ;
 	  upgradeLockToExclusive llock(lock);
 	  this->connected = false;
 	  return std::string("");
@@ -272,13 +276,26 @@ namespace lughos
     
     void input(std::string query, boost::regex regExpr = boost::regex())
     {
-      SharedLock lock(this->mutex);
+      UpgradeLock lock(this->mutex);
       if(this->connection)
       {
 	boost::shared_ptr<Query> q(new Query(query));
 	if(!regExpr.empty())
 	  q->setEORPattern(regExpr);
-	this->connection->execute(q);
+	try
+	{
+	  this->connection->execute(q);
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what() ;
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicatiing!" ;
+	  upgradeLockToExclusive llock(lock);
+	  this->connected = false;
+	}
 	return;
       }
       else
