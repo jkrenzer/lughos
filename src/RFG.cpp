@@ -4,12 +4,12 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG() :  voltage("voltage"), current("current"), power("power"), temperature("temperature"),
-              voltageLimitMax("voltageLimitMax"), voltageLimitMin("voltageLimitMin"), 
-              currentLimitMax("currentLimitMax"), mode("mode"), output("output"), 
-              controller("controller"), resistanceCorrection("resistanceCorrection"), 
-              target("target"), bccOutputSignal("bccOutputSignal"), bccFeedbackSignal("bccFeedbackSignal"),
-              aux1("aux1"),aux2("aux2")
+RFG::RFG() :  voltage("voltage",this->ioService), current("current",this->ioService), power("power",this->ioService), temperature("temperature",this->ioService),
+              voltageLimitMax("voltageLimitMax",this->ioService), voltageLimitMin("voltageLimitMin",this->ioService), 
+              currentLimitMax("currentLimitMax",this->ioService), mode("mode",this->ioService), output("output",this->ioService), 
+              controller("controller",this->ioService), resistanceCorrection("resistanceCorrection",this->ioService), 
+              target("target",this->ioService), bccOutputSignal("bccOutputSignal",this->ioService), bccFeedbackSignal("bccFeedbackSignal",this->ioService),
+              aux1("aux1",this->ioService),aux2("aux2",this->ioService)
 {
   ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)

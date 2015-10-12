@@ -10,7 +10,7 @@
 #define Bronkhorst_signed_Int16_Max 41942
 #define Bronkhorst_unsigned_Int16_Max 65535
 
-bronkhorst::bronkhorst() : capacity("capacity"), flow("flow"), setpoint("setpoint"), controlMode("controlMode")
+bronkhorst::bronkhorst() : capacity("capacity",this->ioService), flow("flow",this->ioService), setpoint("setpoint",this->ioService), controlMode("controlMode",this->ioService)
 {
   this->capacity.getter(boost::bind(&bronkhorst::getMaxCapacity,this));
   this->capacity.expires(false);

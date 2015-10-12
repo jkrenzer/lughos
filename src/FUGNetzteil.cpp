@@ -5,7 +5,7 @@
 #include "utils.hpp"
 
 #include <string>     // std::string, std::stoi
-FUGNetzteil::FUGNetzteil() : voltage("voltage"), current("current"), targetVoltage("targetVoltage"), targetCurrent("targetCurrent"), limit("limit"), controlMode("controlMode"), outputState("outputState"), overcurrent("overcurrent"), model("model")
+FUGNetzteil::FUGNetzteil() : voltage("voltage",this->ioService), current("current",this->ioService), targetVoltage("targetVoltage",this->ioService), targetCurrent("targetCurrent",this->ioService), limit("limit",this->ioService), controlMode("controlMode",this->ioService), outputState("outputState",this->ioService), overcurrent("overcurrent",this->ioService), model("model",this->ioService)
 {
   this->voltage.getter(boost::bind(&FUGNetzteil::readU,this));
   this->current.getter(boost::bind(&FUGNetzteil::readI,this));

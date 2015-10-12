@@ -6,7 +6,7 @@
 #include <math.h>  
 
 
-Relais::Relais() : relais("relais"), sensors("sensors")
+Relais::Relais() : relais("relais",this->ioService), sensors("sensors",this->ioService)
 {
   this->relais.getter(boost::bind(&Relais::get_relais,this));
   this->relais.setter(boost::bind(&Relais::set_relais,this,_1));

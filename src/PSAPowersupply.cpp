@@ -6,7 +6,7 @@
 #include <cmath>
 
 
-PSAPowersupply::PSAPowersupply() : state("state"), current("current"), voltage("voltage"), temperature("temperature")
+PSAPowersupply::PSAPowersupply() : state("state",this->ioService), current("current",this->ioService), voltage("voltage",this->ioService), temperature("temperature",this->ioService)
 {
   this->state.getter(boost::bind(&PSAPowersupply::get_state,this));
   this->state.setter(boost::bind(&PSAPowersupply::set_state,this,_1));

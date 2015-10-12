@@ -5,6 +5,7 @@
 #include "measuredValue.hpp"
 #include <boost/signals2/shared_connection_block.hpp>
 #include <boost/optional/optional.hpp>
+#include <boost/asio/io_service.hpp>
 
 namespace lughos
 {
@@ -22,53 +23,9 @@ namespace lughos
      boost::function<measuredValue<T>()> getter_;
      boost::function<void(measuredValue<T>&)> setter_;
      boost::signals2::connection syncConnection;
+     boost::shared_ptr<boost::asio::io_service> ioService;
      
-   public:
-   
-    exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
-    {
-      ExclusiveLock lock(mutex);
-      alwaysRefresh_ = false;
-      markedExpired_ = other.markedExpired_;
-      expires_ = other.expires_;
-      timeToLive_ = other.timeToLive_;
-      isInitialPull_ = other.isInitialPull_;
-      this->getter_ = other.getter_;
-      this->setter_ = other.setter_;
-    }
-   
-    exposedMeasurement(std::string name) : measuredValue<T>() , ExposedValue<T>(name)
-    {
-      ExclusiveLock lock(mutex);
-      alwaysRefresh_ = false;
-      markedExpired_ = true;
-      expires_ = true;
-      isInitialPull_ = true;
-      timeToLive_ = boost::posix_time::seconds(1);
-      this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
-      this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
-      this->beforeReadValue.connect(boost::bind(&exposedMeasurement<T>::refreshIfExpired,this));
-    }
-    
-    ~exposedMeasurement()
-    {
-      ExclusiveLock lock(mutex);
-    }
-    
-    void refreshIfExpired()
-    {
-      if(hasExpired() || isInitialPull_)
-	this->refresh();
-    }
-    
-    measuredValue<T>& get()
-    {
-      this->refreshIfExpired();
-      SharedLock lock(mutex);
-      return dynamic_cast<measuredValue<T> &>(*this);
-    }
-    
-    void refresh()
+    void refresh_()
     {
       LUGHOS_LOG_FUNCTION();
       UpgradeLock lock(mutex);
@@ -119,7 +76,7 @@ namespace lughos
     
       
     
-    void sync()
+    void sync_()
     {
       LUGHOS_LOG_FUNCTION();
       this->expires(false);
@@ -131,6 +88,71 @@ namespace lughos
       }
       lock.unlock();
       this->expires(true);
+    }
+     
+   public:
+   
+    exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
+    {
+      ExclusiveLock lock(mutex);
+      alwaysRefresh_ = false;
+      markedExpired_ = other.markedExpired_;
+      expires_ = other.expires_;
+      timeToLive_ = other.timeToLive_;
+      isInitialPull_ = other.isInitialPull_;
+      this->getter_ = other.getter_;
+      this->setter_ = other.setter_;
+      this->ioService = other.ioService;
+      this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
+      this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
+      this->beforeReadValue.connect(boost::bind(&exposedMeasurement<T>::refreshIfExpired,this));
+    }
+   
+    exposedMeasurement(std::string name, boost::shared_ptr<boost::asio::io_service>& ioService) : measuredValue<T>() , ExposedValue<T>(name), ioService(ioService)
+    {
+      ExclusiveLock lock(mutex);
+      alwaysRefresh_ = false;
+      markedExpired_ = true;
+      expires_ = true;
+      isInitialPull_ = true;
+      timeToLive_ = boost::posix_time::seconds(1);
+      this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
+      this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
+      this->beforeReadValue.connect(boost::bind(&exposedMeasurement<T>::refreshIfExpired,this));
+    }
+    
+    ~exposedMeasurement()
+    {
+      ExclusiveLock lock(mutex);
+    }
+    
+    void refreshIfExpired()
+    {
+      if(hasExpired() || isInitialPull_)
+	this->refresh();
+    }
+    
+    void refresh()
+    {
+      if(this->ioService)
+	this->ioService->post(boost::bind(&exposedMeasurement::refresh_,this));
+      else
+	this->refresh_();
+    }
+    
+    void sync()
+    {
+      if(this->ioService)
+	this->ioService->post(boost::bind(&exposedMeasurement::sync_,this));
+      else
+	this->sync_();
+    }
+    
+    measuredValue<T>& get()
+    {
+      this->refreshIfExpired();
+      SharedLock lock(mutex);
+      return dynamic_cast<measuredValue<T> &>(*this);
     }
     
     bool hasExpired()
