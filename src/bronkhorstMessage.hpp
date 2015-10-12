@@ -411,7 +411,7 @@ namespace lughos
 	std::cout << "Bronkhorst message corrupt or of unknown type!" << std::endl;
 	return;
       }
-      this->message = message;
+      this->message = res2[0];
       std::stringstream(res2[1]) >> std::hex >> this->node;
       std::stringstream(res2[2]) >> std::hex >> this->type;
       switch(this->type)
