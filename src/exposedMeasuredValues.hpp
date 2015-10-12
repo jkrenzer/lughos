@@ -28,10 +28,11 @@ namespace lughos
     void refresh_()
     {
       LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Starting refresh of " << this->name;
       UpgradeLock lock(mutex);
       if (refresher_)
       {
-	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing refresh-function for ") + this->name);
+	LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("Firing refresh-function for ") + this->name);
 	try
 	{
 	  this->isInitialPull_ = false;
@@ -41,16 +42,16 @@ namespace lughos
 	}
 	catch(exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Exception thrown by refresh-function for ") + this->name) << ". What: " << e.what();
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown by refresh-function for ") + this->name) << ". What: " << e.what();
 	}
 	catch(...)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Unknown exception thrown by refresh-function for ") + this->name);
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Unknown exception thrown by refresh-function for ") + this->name);
 	}
       }
       else if(getter_)
       {
-	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Firing getter-function for ") + this->name) ;
+	LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("Firing getter-function for ") + this->name) ;
 	measuredValue<T> newValue = getter_();
 	if(newValue.isSet())
 	{
@@ -63,15 +64,17 @@ namespace lughos
 	  {
 	    lock.unlock();
 	    this->onValueChange();
-	    LUGHOS_LOG(log::SeverityLevel::informative) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
+	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
 	    return;
 	  }
 	  else
-	    LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("No new value availible for ") + this->name) ;
+	    LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("No new value availible for ") + this->name) ;
 	}
       }
+      else
+	LUGHOS_LOG(log::SeverityLevel::error) << "No getter or refresher for " << this->name << " set!"  ;
     }
     
       
