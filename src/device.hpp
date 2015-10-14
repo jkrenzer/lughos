@@ -263,6 +263,7 @@ namespace lughos
 	catch(exception& e)
 	{
 	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what() ;
+	  return std::string("");
 	}
 	catch(...)
 	{
