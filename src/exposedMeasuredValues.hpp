@@ -84,6 +84,8 @@ namespace lughos
 	  else
 	    LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("No new value availible for ") + this->name) ;
 	}
+	else
+	  LUGHOS_LOG(log::SeverityLevel::error) << "Did not get a new value to compare with old value for " << this->name;
       }
       else
 	LUGHOS_LOG(log::SeverityLevel::error) << "No getter or refresher for " << this->name << " set!"  ;
