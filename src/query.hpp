@@ -25,6 +25,8 @@ namespace lughos
 
   class QueryImpl
   {
+  private:
+        mutable Mutex mutex;
   protected:
     
     bool sentBit;
@@ -45,8 +47,6 @@ namespace lughos
     boost::shared_ptr<boost::asio::streambuf> request;
     
     bool busyBit;
-    
-    Mutex mutex;
     
     boost::regex EndOfReadingPattern;
     std::string EndOfSendingPattern;
