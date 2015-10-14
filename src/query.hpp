@@ -213,11 +213,13 @@ namespace lughos
     
     void busy(bool busy = true)
     {
+      ExclusiveLock lock(mutex);
       this->busyBit = busy;
     }
     
     bool busy() const
     {
+      SharedLock lock(mutex);
       return this->busyBit;
     }
     
