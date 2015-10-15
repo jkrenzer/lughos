@@ -235,7 +235,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error )));
   }
-  query->busy();
+  query->busy(true);
   boost::asio::async_write ( *socket, query->output(),
                              this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
                                  boost::asio::placeholders::error )) );
