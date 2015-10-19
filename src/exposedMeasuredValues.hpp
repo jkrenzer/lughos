@@ -37,9 +37,18 @@ namespace lughos
 	LUGHOS_LOG(log::SeverityLevel::debug) << (std::string("Firing refresh-function for ") + this->name);
 	try
 	{
-	  this->isInitialPull_ = false;
+	  T oldValue = *(this->valuePointer);
 	  lock.unlock();
 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
+	  T newValue = *(this->valuePointer);
+	  if (newValue != oldValue )
+	  {
+	    this->onValueChange();
+	    lock.lock();
+	    LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshed to new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
+	    upgradeLockToExclusive llock(lock);
+	    this->isInitialPull_ = false;
+	  }
 	  return;
 	}
 	catch(exception& e)
@@ -69,16 +78,16 @@ namespace lughos
 	}
 	if(newValue.isSet())
 	{
-	  T tmp = *(this->valuePointer);
+	  T oldValue = *(this->valuePointer);
 	  lock.unlock();
 	  *( dynamic_cast<measuredValue<T>* >(this)) = newValue;
 	  lock.lock();
 	  
-	  if(tmp != *(this->valuePointer))
+	  if(oldValue != *(this->valuePointer))
 	  {
 	    lock.unlock();
 	    this->onValueChange();
-	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(tmp);
+	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
 	    return;
