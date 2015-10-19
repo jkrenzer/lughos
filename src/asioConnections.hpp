@@ -234,14 +234,13 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
     this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error )));
-  }
-  query->busy(true);
-  boost::asio::async_write ( *socket, query->output(),
-                             this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
-                                 boost::asio::placeholders::error )) );
+    query->busy(true);
+    boost::asio::async_write ( *socket, query->output(),
+			      this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
+				  boost::asio::placeholders::error )) );
 
-  LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
-  lock.unlock();
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
+  }
 //   try
 //     {
 //       this->io_service->poll();
