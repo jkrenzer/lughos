@@ -297,15 +297,31 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
       LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Reading until \"" ) + query->getEORPattern().str() );
       return;
     }
+    else if (err == boost::asio::error::operation_aborted)
+    {
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Query " << query->idString  << " was aborted: " << err.message();
+      query->setError(err.message());
+      this->unstashQuery(query);
+      return;
+    }
+    else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err == boost::asio::error::connection_reset)
+    {
+      ExclusiveLock lock(this->mutex);
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Connection lost? Error while reading response status: " << err.message();
+      query->reset();
+      this->isConnected = false;
+      lock.unlock();
+      query->retry();
+      this->execute(query);
+      return;
+    }
   else
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Error while writing twoway. Error: " +err.message() ) );
-      query->setError(std::string ( "Error while writing twoway. Error: " +err.message()));
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Unable to read response status. Got error: " << err.message();
+      query->setError(err.message());
       
       this->unstashQuery(query);
-      ExclusiveLock lock(this->mutex);
-      this->isConnected = false;
-      this->timeoutTimer->cancel();
+      return;
     }
 }
 
@@ -320,12 +336,12 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
       // Write all of the data that has been read so far.
       query->ready();
       this->unstashQuery(query);
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  ( std::string ( "Query " ) + query->idString + std::string(" completed successfully."));
       return;
     }
     else if (err == boost::asio::error::operation_aborted)
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Query ")+ query->idString + std::string(" was aborted: " ) + err.message());
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Query " << query->idString  << " was aborted: " << err.message();
       query->setError(err.message());
       this->unstashQuery(query);
       return;
@@ -333,7 +349,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     else if ( err == boost::asio::error::connection_aborted || err == boost::asio::error::not_connected || err == boost::asio::error::connection_reset)
     {
       ExclusiveLock lock(this->mutex);
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Connection lost? Error while reading: " ) + err.message());
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Connection lost? Error while reading response: " << err.message();
       query->reset();
       this->isConnected = false;
       lock.unlock();
@@ -343,7 +359,7 @@ template <class C> void asioConnection<C>::handle_read_content ( boost::shared_p
     }
   else
     {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to read. Got error: " ) +err.message() );
+      LUGHOS_LOG(log::SeverityLevel::debug) <<  "Unable to read response. Got error: " << err.message();
       query->setError(err.message());
       
       this->unstashQuery(query);
@@ -356,7 +372,7 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
 {
   if(!error)
   {
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timed out while waiting for reply of device." ));
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  "Timed out while waiting for reply of device for query "  << query->idString ;
     this->abort();
     this->unstashQuery(query);
     query->setError(std::string("Timed out."));           // TODO signal error states in query
@@ -365,12 +381,12 @@ template <class C> void asioConnection<C>::handle_timeout ( boost::shared_ptr<Qu
   else if ( error == boost::asio::error::operation_aborted)
   {
     // Data was read and this timeout was canceled
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timeout cancelled for ") + query->idString + std::string("." ) );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  "Timeout cancelled for " << query->idString;
     return;
   }
   else
   {
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Timeout cancelled because of error. Error-message: " ) + error.message() );
+    LUGHOS_LOG(log::SeverityLevel::informative) <<  "Timeout cancelled because of error. Error-message: " << error.message();
     return;
   }
 }
