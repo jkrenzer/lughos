@@ -262,7 +262,12 @@ namespace lughos
 	}
 	catch(exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what() ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Lughos-exception while communicatiing! What: " << boost::diagnostic_information(e) ;
+	  return std::string("");
+	}
+	catch(boost::exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Boost::Asio-exception while communicatiing! What: " << boost::diagnostic_information(e) ;
 	  return std::string("");
 	}
 	catch(...)
