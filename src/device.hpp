@@ -98,6 +98,7 @@ namespace lughos
   protected:
     
     boost::shared_ptr<boost::asio::io_service> ioService;
+    boost::shared_ptr<boost::asio::io_service::strand> ioStrand;
     boost::shared_ptr<boost::asio::io_service::work> ioServiceWork;
     std::vector<boost::shared_ptr<boost::thread> > threadPool;
 
@@ -314,7 +315,7 @@ namespace lughos
       return this->ioService;
     }
     
-    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService)) , connected("connected")
+    DeviceImpl() : connection(), ioService(new boost::asio::io_service), ioServiceWork(new boost::asio::io_service::work(*ioService)) , ioStrand(new boost::asio::io_service::strand(*ioService)), connected("connected")
     {
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));
       this->threadPool.push_back(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, this->ioService))));

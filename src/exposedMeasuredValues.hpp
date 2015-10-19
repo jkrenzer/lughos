@@ -6,6 +6,7 @@
 #include <boost/signals2/shared_connection_block.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 
 namespace lughos
 {
@@ -24,6 +25,7 @@ namespace lughos
      boost::function<void(measuredValue<T>&)> setter_;
      boost::signals2::connection syncConnection;
      boost::shared_ptr<boost::asio::io_service> ioService;
+     boost::shared_ptr<boost::asio::io_service::strand> ioStrand;
      
     void refresh_()
     {
@@ -120,12 +122,13 @@ namespace lughos
       this->getter_ = other.getter_;
       this->setter_ = other.setter_;
       this->ioService = other.ioService;
+      this->ioStrand = other.ioStrand;
       this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
       this->syncConnection = this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::sync,this));
       this->beforeReadValue.connect(boost::bind(&exposedMeasurement<T>::refreshIfExpired,this));
     }
    
-    exposedMeasurement(std::string name, boost::shared_ptr<boost::asio::io_service>& ioService) : measuredValue<T>() , ExposedValue<T>(name), ioService(ioService)
+    exposedMeasurement(std::string name, boost::shared_ptr<boost::asio::io_service>& ioService, boost::shared_ptr<boost::asio::io_service::strand>& ioStrand) : measuredValue<T>() , ExposedValue<T>(name), ioService(ioService), ioStrand(ioStrand)
     {
       ExclusiveLock lock(mutex);
       alwaysRefresh_ = false;
@@ -156,7 +159,7 @@ namespace lughos
       if(this->ioService)
       {
         LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " asynchronously.";
-	this->ioService->post(boost::bind(&exposedMeasurement::refresh_,this));
+	this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::refresh_,this)));
       }
       else
       {
@@ -173,7 +176,7 @@ namespace lughos
       if(this->ioService)
       {
         LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " asynchronously.";
-	this->ioService->post(boost::bind(&exposedMeasurement::sync_,this));
+	this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::sync_,this)));
       }
       else
       {

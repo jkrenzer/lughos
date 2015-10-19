@@ -4,12 +4,22 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG() :  voltage("voltage",this->ioService), current("current",this->ioService), power("power",this->ioService), temperature("temperature",this->ioService),
-              voltageLimitMax("voltageLimitMax",this->ioService), voltageLimitMin("voltageLimitMin",this->ioService), 
-              currentLimitMax("currentLimitMax",this->ioService), mode("mode",this->ioService), output("output",this->ioService), 
-              controller("controller",this->ioService), resistanceCorrection("resistanceCorrection",this->ioService), 
-              target("target",this->ioService), bccOutputSignal("bccOutputSignal",this->ioService), bccFeedbackSignal("bccFeedbackSignal",this->ioService),
-              aux1("aux1",this->ioService),aux2("aux2",this->ioService)
+RFG::RFG() :  voltage("voltage",this->ioService, this->ioStrand), 
+              current("current",this->ioService, this->ioStrand), 
+              power("power",this->ioService, this->ioStrand), 
+              temperature("temperature",this->ioService, this->ioStrand),
+              voltageLimitMax("voltageLimitMax",this->ioService, this->ioStrand), 
+              voltageLimitMin("voltageLimitMin",this->ioService, this->ioStrand), 
+              currentLimitMax("currentLimitMax",this->ioService, this->ioStrand), 
+              mode("mode",this->ioService, this->ioStrand), 
+              output("output",this->ioService, this->ioStrand), 
+              controller("controller",this->ioService, this->ioStrand), 
+              resistanceCorrection("resistanceCorrection",this->ioService, this->ioStrand), 
+              target("target",this->ioService, this->ioStrand), 
+              bccOutputSignal("bccOutputSignal",this->ioService, this->ioStrand), 
+              bccFeedbackSignal("bccFeedbackSignal",this->ioService, this->ioStrand),
+              aux1("aux1",this->ioService, this->ioStrand), 
+              aux2("aux2",this->ioService, this->ioStrand)
 {
   ExclusiveLock lock(mutex);
   for (int i=0;i<8;i++)
