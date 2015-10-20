@@ -14,9 +14,40 @@ namespace lughos
    {
    private:
      Mutex mutex;
+   public:
+   
+     class syncLock
+    {
+      public:
+      syncLock()
+      {
+	  synchronizes(false);
+      }
+      
+      virtual ~syncLock()
+      {
+	  synchronizes(true);
+      }
+    };
+    
+    class expiresLock
+    {
+      public:
+      expiresLock()
+      {
+	  expires(false);
+      }
+      
+      virtual ~expiresLock()
+      {
+	  expires(true);
+      }
+    };
+     
    protected:
      bool markedExpired_;
      bool expires_;
+     bool synchronizes_;
      bool alwaysRefresh_;
      bool isInitialPull_;
      boost::posix_time::time_duration timeToLive_;
@@ -31,6 +62,7 @@ namespace lughos
     {
       LUGHOS_LOG_FUNCTION();
       LUGHOS_LOG(log::SeverityLevel::debug) << "Starting refresh of " << this->name;
+      syncLock sLock();
       UpgradeLock lock(mutex);
       if (refresher_)
       {
@@ -107,7 +139,7 @@ namespace lughos
     void sync_()
     {
       LUGHOS_LOG_FUNCTION();
-      this->expires(false);
+      expiresLock eLock();
       SharedLock lock(mutex);
       if(setter_)
       {
@@ -120,7 +152,6 @@ namespace lughos
 	BOOST_THROW_EXCEPTION(exception() << errorName("fired_setter_not_set") << errorSeverity(severity::MustNot) << errorDescription("Tried to fire a setter but no setter was given in advance! Most probably programming error.")); 
       }
       lock.unlock();
-      this->expires(true);
     }
      
    public:
@@ -131,6 +162,7 @@ namespace lughos
       alwaysRefresh_ = false;
       markedExpired_ = other.markedExpired_;
       expires_ = other.expires_;
+      synchronizes_ = other.synchronizes_;
       timeToLive_ = other.timeToLive_;
       isInitialPull_ = other.isInitialPull_;
       this->getter_ = other.getter_;
@@ -148,6 +180,7 @@ namespace lughos
       alwaysRefresh_ = false;
       markedExpired_ = true;
       expires_ = true;
+      synchronizes_ = true;
       isInitialPull_ = true;
       timeToLive_ = boost::posix_time::seconds(1);
       this->onValueChange.connect(boost::bind(&exposedMeasurement<T>::markedExpired,this,false));
@@ -221,17 +254,31 @@ namespace lughos
       return false;
     }
     
-    void expires(bool expires_ = true, bool always_ = false)
+    void expires(bool expires_, bool always_ = false)
     {
       ExclusiveLock lock(mutex);
       this->expires_ = expires_;
       this->alwaysRefresh_ = always_;
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Set expires_ to " << expires_ << " and alwaysRefresh_ to " << always_ << " on " << this->name;
     }
     
     bool expires()
     {
       SharedLock lock(mutex);
       return this->expires_;
+    }
+    
+    void synchronizes(bool synchronizes_)
+    {
+      ExclusiveLock lock(mutex);
+      this->synchronizes_ = synchronizes_;
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Set synchronizes_ to " << synchronizes_ << " on " << this->name;
+    }
+    
+    bool synchronizes()
+    {
+      SharedLock lock(mutex);
+      return this->synchronizes_;
     }
     
     void refresher(boost::function<void(measuredValue<T>&)> refresher_)
