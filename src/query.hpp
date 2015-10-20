@@ -52,6 +52,8 @@ namespace lughos
     std::string EndOfSendingPattern;
     std::string lastErrorMessage;
     
+    boost::posix_time::time_duration timeToLive_;
+    
     
   public:
   
@@ -59,7 +61,7 @@ namespace lughos
     
     const std::string idString = boost::lexical_cast<std::string>(id);
     
-    QueryImpl(std::string question)
+    QueryImpl(std::string question) : timeToLive_(boost::posix_time::seconds(1))
     {
       this->reset();
       this->setQuestion(question);
@@ -88,6 +90,18 @@ namespace lughos
     {
       lughos::SharedLock lock(this->mutex);
       return this->EndOfReadingPattern;
+    }
+    
+    boost::posix_time::time_duration timeToLive()
+    {
+      lughos::SharedLock lock(this->mutex);
+      return this->timeToLive_;
+    }
+    
+    void timeToLive(boost::posix_time::time_duration timeToLive_)
+    {
+      lughos::ExclusiveLock lock(this->mutex);
+      this->timeToLive_ = timeToLive_;
     }
     
     void setEORPattern(boost::regex EOLPattern)
