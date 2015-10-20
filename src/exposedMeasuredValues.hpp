@@ -14,7 +14,7 @@ namespace lughos
    {
    private:
      Mutex mutex;
-   
+
    protected:
      bool markedExpired_;
      bool expires_;

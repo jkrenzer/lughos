@@ -219,7 +219,7 @@ namespace lughos
         LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
 	this->asignee_ = &asignee_;
-	LUGHOS_LOG(log::SeverityLevel::informative) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
+	LUGHOS_LOG(log::SeverityLevel::debug) << "Attaching UI-Element to value-object \"" << this->asignee_->getName() << "\"." ;
          lock.unlock();
  	this->pull(); //Fetching initial value
  	lock.lock();
@@ -232,7 +232,7 @@ namespace lughos
       {
         LUGHOS_LOG_FUNCTION();
 	ExclusiveLock lock(mutex);
-	LUGHOS_LOG(log::SeverityLevel::informative) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
+	LUGHOS_LOG(log::SeverityLevel::debug) << "Detaching UI-Element from value-object \"" << this->asignee_->getName() << "\"." ;
 	this->asignee_ = nullptr;
  	this->pull_OnValueChangeConnection.disconnect();
 	this->buttonClickedConnection.disconnect();
@@ -246,8 +246,9 @@ namespace lughos
 	if(this->asignee_ != nullptr)
         {
           SharedLock lock(mutex);
+          boost::signals2::shared_connection_block block(this->pull_OnValueChangeConnection);
 	  this->asignee_->setValueFromString(this->field_->text().toUTF8());
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
+	  LUGHOS_LOG(log::SeverityLevel::debug) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
 	}
 	else
 	{
