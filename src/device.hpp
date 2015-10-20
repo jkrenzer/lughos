@@ -261,19 +261,24 @@ namespace lughos
 	  std::string answer = q->getAnswer();
 	  return answer;
 	}
-	catch(exception& e)
+	catch(lughos::exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Lughos-exception while communicatiing! What: " << boost::diagnostic_information(e) ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Lughos-exception while communicating! What: " << makeErrorReport(e) ;
 	  return std::string("");
 	}
 	catch(boost::exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Boost::Asio-exception while communicatiing! What: " << boost::diagnostic_information(e) ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got Boost::Asio-exception while communicating! What: " << boost::diagnostic_information(e) ;
+	  return std::string("");
+	}
+	catch(std::exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got std::exception while communicating! What: " << e.what() ;
 	  return std::string("");
 	}
 	catch(...)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicatiing!" ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicating!" ;
 	  upgradeLockToExclusive llock(lock);
 	  this->connected = false;
 	  return std::string("");
