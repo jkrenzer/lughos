@@ -51,7 +51,9 @@ namespace lughos
       
       measuredValue& operator=(unitValue<T> other);
       
-      using Value<T>::operator=;    
+      using Value<T>::operator=;
+      
+      virtual bool setValue(T value);
   };
   
   //Definition of template class
@@ -127,6 +129,13 @@ namespace lughos
     return *this;
   }
   
+  template <class T>
+  bool measuredValue<T>::setValue(T value)
+  {
+    this->setTimeStamp();
+    ExclusiveLock lock(this->mutex);
+    *this->valuePointer = value;
+  }
 }
 #endif
 

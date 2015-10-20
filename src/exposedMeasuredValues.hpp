@@ -142,6 +142,12 @@ namespace lughos
      
    public:
    
+    virtual bool setValue(T value)
+    {
+      this->setTimeStamp();
+      return ExposedValue<T>::setValue(value);
+    }
+   
     exposedMeasurement<T>(exposedMeasurement<T>& other) : measuredValue<T>(other), ExposedValue<T>(other)
     {
       ExclusiveLock lock(mutex);
