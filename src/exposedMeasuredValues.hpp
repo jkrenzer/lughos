@@ -113,6 +113,7 @@ namespace lughos
     void sync_()
     {
       LUGHOS_LOG_FUNCTION();
+      LUGHOS_LOG(log::SeverityLevel::debug) << "Starting sync of " << this->name;
       SharedLock lock(mutex);
       if(setter_)
       {
