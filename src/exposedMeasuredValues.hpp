@@ -18,8 +18,10 @@ namespace lughos
    
      class syncLock
     {
+      private:
+	boost::signals2::shared_connection_block block;
       public:
-      syncLock()
+      syncLock() : block(this->syncConnection)
       {
 	  synchronizes(false);
       }
