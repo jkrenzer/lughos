@@ -10,7 +10,7 @@
 
 namespace lughos
 {
-   template <class T> class exposedMeasurement : public ExposedValue<T>, public measuredValue<T>
+   template <class T> class exposedMeasurement : public measuredValue<T>, public ExposedValue<T>
    {
    private:
      Mutex mutex;

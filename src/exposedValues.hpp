@@ -191,7 +191,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
       return *this;
     }
     
-    T getValue()
+    virtual T getValue()
     {
       SharedLock lock(this->mutex);
       this->beforeReadValue();
@@ -201,7 +201,7 @@ template <class T> class ExposedValue : public ExposedValueTemplate<T>, virtual 
         BOOST_THROW_EXCEPTION(exception() << errorName("value_accessed_but_no_value_set") << errorSeverity(severity::ShouldNot));
     }
     
-    bool setValue(T newValue)
+    virtual bool setValue(T newValue)
     {
       LUGHOS_LOG_FUNCTION();
       try
