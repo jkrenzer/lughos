@@ -43,6 +43,7 @@ namespace lughos
 	  lock.unlock();
 	  boost::signals2::shared_connection_block block(this->syncConnection);
 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
+	  this->setTimeStamp(); //TODO Nasty hack until we have time to redo class-inheritance and virtual functions
 	  T newValue = *(this->valuePointer);
 	  if (newValue != oldValue )
 	  {
@@ -71,6 +72,7 @@ namespace lughos
 	try 
 	{
 	  newValue = getter_();
+	  this->setTimeStamp(); //TODO Nasty hack until we have time to redo class-inheritance and virtual functions
 	}
 	catch(exception& e)
 	{

@@ -56,7 +56,7 @@ namespace lughos
   
   //Definition of template class
   
-  void measuredValueInterface::setTimeStamp(boost::posix_time::ptime timeStamp)
+  void measuredValueInterface::setTimeStamp(boost::posix_time::ptime timeStamp = boost::posix_time::microsec_clock::local_time())
   {
     this->timeStamp = timeStamp;
     this->timeStampTicks = timeStampToTicks(timeStamp);
