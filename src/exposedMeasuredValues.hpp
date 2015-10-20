@@ -186,10 +186,21 @@ namespace lughos
     {
       LUGHOS_LOG_FUNCTION();
       SharedLock lock(mutex);
-      if(this->ioService)
+      if(this->ioService && this->ioStrand)
       {
         LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " asynchronously.";
-	this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::refresh_,this)));
+        try
+        {
+	  this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::refresh_,this)));
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown while posting refresh_ for ") + this->name) << ". What: " << makeErrorReport(e);
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Unknown exception thrown while posting refresh_ for ") + this->name);
+	}
       }
       else
       {
@@ -203,10 +214,21 @@ namespace lughos
     {
       LUGHOS_LOG_FUNCTION();
       SharedLock lock(mutex);
-      if(this->ioService)
+      if(this->ioService && this->ioStrand)
       {
         LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " asynchronously.";
-	this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::sync_,this)));
+        try 
+        {
+	  this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::sync_,this)));
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown while posting sync_ for ") + this->name) << ". What: " << makeErrorReport(e);
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Unknown exception thrown while posting sync_ for ") + this->name);
+	}
       }
       else
       {

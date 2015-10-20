@@ -157,7 +157,7 @@ namespace lughos
       lughos::SharedLock lock(this->mutex);
       if(!answer->has_value() && !answer->has_exception())
       {
-        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Waiting on query ")+ idString + std::string(" for answer...")) ;
+        LUGHOS_LOG(log::SeverityLevel::informative) << "Query " << idString << " with question " << this->question << " is waiting for answer..." ;
         lock.unlock();
         this->answer->timed_wait(boost::posix_time::seconds(3)); //Never wait locked!
         lock.lock();
@@ -166,18 +166,18 @@ namespace lughos
       if(answer->has_value())
       {
         std::string tmp = this->answer->get();
-        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" has answer: ") + tmp) ;
+        LUGHOS_LOG(log::SeverityLevel::informative) << "Query " << idString << " with question " << this->question << " has answer: " << tmp ;
         return tmp;
       }
       else if (answer->has_exception())
       {
-        LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Query ")+ idString + std::string(" got exception. Rethrowing. ")) ;
+        LUGHOS_LOG(log::SeverityLevel::informative) << "Query " << idString << " with question " << this->question << " got exception. Rethrowing. " ;
         this->answer->get();
       }
       else
       {
-	LUGHOS_LOG(log::SeverityLevel::informative) << (std::string("Waiting for answer on Query ")+ idString + std::string("timed out!")) ;
-	BOOST_THROW_EXCEPTION( exception() << errorName("query_answer_timed_out") << errorDescription(idString + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
+	LUGHOS_LOG(log::SeverityLevel::informative) << "Query " << idString << " with question " << this->question << " timed out on client side!" ;
+	BOOST_THROW_EXCEPTION( exception() << errorName("query_answer_timed_out") << errorDescription(idString + std::string(" with question ") + question + std::string(" timed out.")) << errorSeverity(severity::MustNot) );
 	}
     }
     
