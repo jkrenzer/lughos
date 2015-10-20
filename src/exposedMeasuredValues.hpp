@@ -14,38 +14,7 @@ namespace lughos
    {
    private:
      Mutex mutex;
-   public:
    
-     class syncLock
-    {
-      private:
-	boost::signals2::shared_connection_block block;
-      public:
-      syncLock() : block(this->syncConnection)
-      {
-	  synchronizes(false);
-      }
-      
-      virtual ~syncLock()
-      {
-	  synchronizes(true);
-      }
-    };
-    
-    class expiresLock
-    {
-      public:
-      expiresLock()
-      {
-	  expires(false);
-      }
-      
-      virtual ~expiresLock()
-      {
-	  expires(true);
-      }
-    };
-     
    protected:
      bool markedExpired_;
      bool expires_;
@@ -64,7 +33,6 @@ namespace lughos
     {
       LUGHOS_LOG_FUNCTION();
       LUGHOS_LOG(log::SeverityLevel::debug) << "Starting refresh of " << this->name;
-      syncLock sLock();
       UpgradeLock lock(mutex);
       if (refresher_)
       {
@@ -77,6 +45,7 @@ namespace lughos
 	  T newValue = *(this->valuePointer);
 	  if (newValue != oldValue )
 	  {
+	    boost::signals2::shared_connection_block block(this->syncConnection);
 	    this->onValueChange();
 	    lock.lock();
 	    LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshed to new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
@@ -120,6 +89,7 @@ namespace lughos
 	  if(oldValue != *(this->valuePointer))
 	  {
 	    lock.unlock();
+	    boost::signals2::shared_connection_block block(this->syncConnection);
 	    this->onValueChange();
 	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
 	    upgradeLockToExclusive llock(lock);
@@ -141,7 +111,6 @@ namespace lughos
     void sync_()
     {
       LUGHOS_LOG_FUNCTION();
-      expiresLock eLock();
       SharedLock lock(mutex);
       if(setter_)
       {
