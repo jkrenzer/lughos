@@ -41,17 +41,18 @@ namespace lughos
 	{
 	  T oldValue = *(this->valuePointer);
 	  lock.unlock();
+	  boost::signals2::shared_connection_block block(this->syncConnection);
 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
 	  T newValue = *(this->valuePointer);
 	  if (newValue != oldValue )
 	  {
-	    boost::signals2::shared_connection_block block(this->syncConnection);
 	    this->onValueChange();
 	    lock.lock();
 	    LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshed to new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
 	  }
+	  block.unblock();
 	  return;
 	}
 	catch(exception& e)
@@ -73,7 +74,7 @@ namespace lughos
 	}
 	catch(exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown by getter-function for ") + this->name) << ". What: " << e.what();
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown by getter-function for ") + this->name) << ". What: " << makeErrorReport(e);
 	}
 	catch(...)
 	{
@@ -91,6 +92,7 @@ namespace lughos
 	    lock.unlock();
 	    boost::signals2::shared_connection_block block(this->syncConnection);
 	    this->onValueChange();
+	    block.unblock();
 	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
@@ -105,17 +107,27 @@ namespace lughos
       else
 	LUGHOS_LOG(log::SeverityLevel::error) << "No getter or refresher for " << this->name << " set!"  ;
     }
-    
-      
-    
+
     void sync_()
     {
       LUGHOS_LOG_FUNCTION();
       SharedLock lock(mutex);
       if(setter_)
       {
-	this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
-	LUGHOS_LOG(log::SeverityLevel::debug) << "Firing setter for \"" << this->name << "\"." ;
+        try 
+        {
+          LUGHOS_LOG(log::SeverityLevel::debug) << "Firing setter for \"" << this->name << "\"." ;
+	  this->setter_(*( dynamic_cast<measuredValue<T>* >(this)));
+	}
+	catch(exception& e)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Exception thrown by setter-function for ") + this->name) << ". What: " << makeErrorReport(e);
+	}
+	catch(...)
+	{
+	  LUGHOS_LOG(log::SeverityLevel::error) << (std::string("Unknown exception thrown by setter-function for ") + this->name);
+	}
+	
       }
       else
       {
