@@ -135,8 +135,7 @@ namespace lughos
       }
       else
       {
-	LUGHOS_LOG(log::SeverityLevel::error) << "Tried to fire non-set setter for \"" << this->name << "\"!" ;
-	BOOST_THROW_EXCEPTION(exception() << errorName("fired_setter_not_set") << errorSeverity(severity::MustNot) << errorDescription("Tried to fire a setter but no setter was given in advance! Most probably programming error.")); 
+	LUGHOS_LOG(log::SeverityLevel::error) << "Tried to fire setter for \"" << this->name << "\" but not set!" ;
       }
       lock.unlock();
     }
