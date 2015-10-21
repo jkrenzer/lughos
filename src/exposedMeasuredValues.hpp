@@ -53,7 +53,7 @@ namespace lughos
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
 	  }
-	  block.unblock();
+// 	  block.unblock();
 	  return;
 	}
 	catch(exception& e)

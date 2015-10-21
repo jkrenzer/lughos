@@ -240,7 +240,7 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     lock.lock();
     {
       upgradeLockToExclusive llock(lock);
-      this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
+      this->timeoutTimer->expires_from_now(boost::posix_time::millisec(100));
       this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
 				  boost::asio::placeholders::error )));
       query->busy(true);
@@ -282,7 +282,7 @@ template <class C> void asioConnection<C>::handle_write_request ( boost::shared_
     {
       // Read the response status line.
       SharedLock lock(this->mutex);
-      this->timeoutTimer->expires_from_now(query->timeToLive());
+      this->timeoutTimer->expires_from_now(boost::posix_time::millisec(100));
       this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error )));
       boost::asio::async_read_until ( *socket, query->input(), query->getEORPattern(),
