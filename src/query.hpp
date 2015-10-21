@@ -37,8 +37,8 @@ namespace lughos
     static const unsigned int mayRetries = 3;
     int retryCounter;
     
-    boost::signals2::signal<void (std::vector<std::string>&)> onReceived;
-    boost::signals2::signal<void (void)> onSent;
+//     boost::signals2::signal<void (std::vector<std::string>&)> onReceived;
+//     boost::signals2::signal<void (void)> onSent;
     
     std::string question;
     boost::shared_ptr<boost::shared_future<std::string> > answer;
@@ -56,6 +56,8 @@ namespace lughos
     
     
   public:
+
+    boost::signals2::signal<void (void)> onCancel;
   
     const boost::uuids::uuid id = boost::uuids::random_generator()();
     
@@ -173,9 +175,8 @@ namespace lughos
       {
         LUGHOS_LOG(log::SeverityLevel::informative) << "Query " << idString << " with question " << this->question << " is waiting for answer..." ;
         lock.unlock();
-        this->answer->timed_wait(boost::posix_time::seconds(3)); //Never wait locked!
+        this->answer->timed_wait(timeToLive_); //Never wait locked!
         lock.lock();
-        
       }
       if(answer->has_value())
       {
@@ -225,7 +226,7 @@ namespace lughos
       this->receive(sstream.str());
     }
     
-    void busy(bool busy = true)
+    void busy(bool busy)
     {
       ExclusiveLock lock(mutex);
       this->busyBit = busy;
@@ -240,6 +241,15 @@ namespace lughos
     std::string getAnswer()
     {
       return this->spyAnswer();
+    }
+    
+    void cancel()
+    {
+      this->onCancel();
+      this->busyBit = false;
+      this->sentBit = false;
+      this->doneBit = false;
+      this->error = false;
     }
     
     void reset()
@@ -260,10 +270,7 @@ namespace lughos
       *this->answer = this->promise->get_future();
       this->request.reset(new boost::asio::streambuf());
       this->response.reset(new boost::asio::streambuf());
-      this->busyBit = false;
-      this->sentBit = false;
-      this->doneBit = false;
-      this->error = false;
+      this->cancel();
       this->lastErrorMessage.clear();
     }
     

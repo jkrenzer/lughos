@@ -65,22 +65,24 @@ protected:
 
   SocketPointer socket;
   
-  std::list<boost::shared_ptr<Query>> queryStash;
+  std::map<std::string,boost::shared_ptr<Query>> queryStash;
   
   void stashQuery(boost::shared_ptr<Query> query)
   {
     ExclusiveLock lock(mutex);
-    this->queryStash.push_back(query);
-    this->queryStash.unique();
+    this->queryStash.insert(std::pair<std::string,boost::shared_ptr<Query>>(query->getQuestion(),query));
+    query->onCancel.connect(boost::bind(&asioConnection::unstashQuery,this,query));
   }
   
   void unstashQuery(boost::shared_ptr<Query> query)
   {
     ExclusiveLock lock(mutex);
-    auto it = std::find_if(queryStash.begin(), queryStash.end(), [&](boost::shared_ptr<Query> const& p) {
-    return p == query;});
-    if(it != queryStash.end())
+    std::map<std::string,boost::shared_ptr<Query>>::iterator it = queryStash.find(query->getQuestion());
+    if( it != queryStash.end())
+    {
       this->queryStash.erase(it);
+      query->onCancel.disconnect(boost::bind(&asioConnection::unstashQuery,this,query));
+    }
   }
 
   void handle_write_request ( boost::shared_ptr<Query> query, const boost::system::error_code& err );
@@ -229,8 +231,10 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
     this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
     return;
   }
+  if ( !this->queryStash.empty() && !this->queryStash.begin()->second->busy()) 
   {
     upgradeLockToExclusive llock(lock);
+    boost::shared_ptr <lughos::Query > query = this->queryStash.begin()->second;
     this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
     this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
                                  boost::asio::placeholders::error )));
