@@ -70,8 +70,11 @@ protected:
   void stashQuery(boost::shared_ptr<Query> query)
   {
     ExclusiveLock lock(mutex);
-    this->queryStash.insert(std::pair<std::string,boost::shared_ptr<Query>>(query->getQuestion(),query));
-    query->onCancel.connect(boost::bind(&asioConnection::unstashQuery,this,query));
+    std::pair< std::map<std::string,boost::shared_ptr<Query>>::iterator, bool > it = this->queryStash.insert(std::pair<std::string,boost::shared_ptr<Query>>(query->getQuestion(),query));
+    if(it.second)
+      query->onCancel.connect(boost::bind(&asioConnection::unstashQuery,this,query));
+    else
+      query->setError("duplicate_already_in_queue");
   }
   
   void unstashQuery(boost::shared_ptr<Query> query)
