@@ -4,21 +4,21 @@
 // #pragma comment(lib, "Setupapi.lib")
 #include "RFG.hpp"
 
-RFG::RFG() :  voltage("voltage",this->ioService, this->ioStrand), 
-              current("current",this->ioService, this->ioStrand), 
-              power("power",this->ioService, this->ioStrand), 
+RFG::RFG() :  voltage("voltage",this->ioService, this->ioStrand),
+              current("current",this->ioService, this->ioStrand),
+              power("power",this->ioService, this->ioStrand),
               temperature("temperature",this->ioService, this->ioStrand),
-              voltageLimitMax("voltageLimitMax",this->ioService, this->ioStrand), 
-              voltageLimitMin("voltageLimitMin",this->ioService, this->ioStrand), 
-              currentLimitMax("currentLimitMax",this->ioService, this->ioStrand), 
-              mode("mode",this->ioService, this->ioStrand), 
-              output("output",this->ioService, this->ioStrand), 
-              controller("controller",this->ioService, this->ioStrand), 
-              resistanceCorrection("resistanceCorrection",this->ioService, this->ioStrand), 
-              target("target",this->ioService, this->ioStrand), 
-              bccOutputSignal("bccOutputSignal",this->ioService, this->ioStrand), 
+              voltageLimitMax("voltageLimitMax",this->ioService, this->ioStrand),
+              voltageLimitMin("voltageLimitMin",this->ioService, this->ioStrand),
+              currentLimitMax("currentLimitMax",this->ioService, this->ioStrand),
+              mode("mode",this->ioService, this->ioStrand),
+              output("output",this->ioService, this->ioStrand),
+              controller("controller",this->ioService, this->ioStrand),
+              resistanceCorrection("resistanceCorrection",this->ioService, this->ioStrand),
+              target("target",this->ioService, this->ioStrand),
+              bccOutputSignal("bccOutputSignal",this->ioService, this->ioStrand),
               bccFeedbackSignal("bccFeedbackSignal",this->ioService, this->ioStrand),
-              aux1("aux1",this->ioService, this->ioStrand), 
+              aux1("aux1",this->ioService, this->ioStrand),
               aux2("aux2",this->ioService, this->ioStrand)
 {
   ExclusiveLock lock(mutex);
@@ -171,15 +171,18 @@ RFG::RFG() :  voltage("voltage",this->ioService, this->ioStrand),
   this->aux1.refresher(boost::bind(&RFG::readoutChannels,this));
   this->aux2.refresher(boost::bind(&RFG::readoutChannels,this));
   this->voltageLimitMax.getter(boost::bind(&RFG::getLimitMaxVoltage,this));
+  this->voltageLimitMax.expires(false);
   this->voltageLimitMax.setter(boost::bind(&RFG::set_voltage_max,this,_1));
   this->voltageLimitMin.getter(boost::bind(&RFG::getLimitMinVoltage,this));
+  this->voltageLimitMin.expires(false);
   this->voltageLimitMin.setter(boost::bind(&RFG::set_voltage_min,this,_1));
   this->currentLimitMax.getter(boost::bind(&RFG::getLimitMaxCurrent,this));
+  this->currentLimitMax.expires(false);
   this->currentLimitMax.setter(boost::bind(&RFG::set_current_lim,this,_1));
   this->target.getter(boost::bind(&RFG::getTargetValue,this));
+  this->target.expires(false);
   this->target.setter(boost::bind(&RFG::set_target_value,this,_1));
   this->mode.setter(boost::bind(&RFG::set_mode,this,_1));
-  
   this->mode.expires(false);
   this->output.setter(boost::bind(&RFG::set_output,this,_1));
   this->output.expires(false);

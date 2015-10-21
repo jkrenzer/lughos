@@ -300,11 +300,11 @@ namespace lughos
 	}
 	catch(exception& e)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what() ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got exception while communicatiing! What: " << e.what();
 	}
 	catch(...)
 	{
-	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicatiing!" ;
+	  LUGHOS_LOG(log::SeverityLevel::informative) << "Device " << this->name << " got unknown exception while communicatiing!";
 	  upgradeLockToExclusive llock(lock);
 	  this->connected = false;
 	}
