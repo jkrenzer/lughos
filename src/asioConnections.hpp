@@ -197,90 +197,77 @@ template <class C> void asioConnection<C>::execute ( boost::shared_ptr<Query> qu
   this->stashQuery(query); //Handlers DO NOT keep an smart_ptr alive!! BEWARE! How about signals, functors...?!
   if (!query)
     return;
-  if (err)
-  {
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
-    query->setError(std::string ( "Unable to connect for sending. Error: " ) + err.message() );
-    this->unstashQuery(query);
-    return;
-  }
   
-  if ( query->getEORPattern().empty() )
-    query->setEORPattern ( endOfLineRegExpr_ );
-  boost::system::error_code ec;
-  UpgradeLock lock(this->mutex);
-  if ( !this->initialized())
-  {
-    lock.unlock();
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Initalizing for sending." ) );
-    this->initialize();
-    lock.lock();
-    if (!this->initialized() || !socket)
-    {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to initialize for sending." ) );
-      query->setError(std::string ( "Unable to initialize for sending." ));
-      lock.unlock();
-      this->unstashQuery(query);
-      return;
-    }
-  }
-  if (!this->connected())
-  {
-    lock.unlock();
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Connecting for sending." ) );
-    this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
-    return;
-  }
   if ( !this->queryStash.empty() && !this->queryStash.begin()->second->busy()) 
   {
-    upgradeLockToExclusive llock(lock);
+    UpgradeLock lock(this->mutex);
     boost::shared_ptr <lughos::Query > query = this->queryStash.begin()->second;
-    this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
-    this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
-                                 boost::asio::placeholders::error )));
-    query->busy(true);
-    boost::asio::async_write ( *socket, query->output(),
-			      this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
-				  boost::asio::placeholders::error )) );
+    lock.unlock();
+    if (err)
+    {
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+      query->setError(std::string ( "Unable to connect for sending. Error: " ) + err.message() );
+      this->unstashQuery(query);
+      return;
+    }
+    
+    if ( query->getEORPattern().empty() )
+    query->setEORPattern ( endOfLineRegExpr_ );
+    boost::system::error_code ec;
+    
+    if ( !this->initialized())
+    {
+      
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Initalizing for sending." ) );
+      this->initialize();
+      if (!this->initialized() || !socket)
+      {
+	LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Unable to initialize for sending." ) );
+	query->setError(std::string ( "Unable to initialize for sending." ));
+	this->unstashQuery(query);
+	return;
+      }
+    }
+    if (!this->connected())
+    {
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Connecting for sending." ) );
+      this->connect(boost::bind(&asioConnection<C>::execute, this, query, boost::asio::placeholders::error));
+      return;
+    }
+    lock.lock();
+    {
+      upgradeLockToExclusive llock(lock);
+      this->timeoutTimer->expires_from_now(boost::posix_time::seconds(1));
+      this->timeoutTimer->async_wait(this->timingStrand->wrap(boost::bind ( &asioConnection<C>::handle_timeout, this, query,
+				  boost::asio::placeholders::error )));
+      query->busy(true);
+      boost::asio::async_write ( *socket, query->output(),
+				this->ioStrand->wrap(boost::bind ( &asioConnection<C>::handle_write_request, this, query,
+				    boost::asio::placeholders::error )) );
 
-    LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
+      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Sent \"" ) + query->getQuestion() + query->getEOSPattern() + std::string ( "\" from " ) + query->idString);
+    }
+    
+    if ( !socket || !socket->is_open() )
+      {
+	LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Socket is closed despite writing?!" ) );
+	query->setError(std::string ( "Socket is closed despite writing?!" ));
+	lock.unlock();
+	this->unstashQuery(query);
+	this->abort();
+	return;
+      }
+      
+      if ( this->io_service->stopped() )
+      {
+	LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service was stopped after or during writing." ) );
+	query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
+	lock.unlock();
+	this->unstashQuery(query);
+	this->abort();
+	return;
+      }
   }
-//   try
-//     {
-//       this->io_service->poll();
-//     }
-//   catch ( ... )
-//     {
-//       LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service exception while polling." ) );
-//       query->setError(std::string ( "I/O-Service exception while polling." ));
-//       lock.unlock();
-//       this->unstashQuery(query);
-//       this->abort();
-//       return;
-//     }
-
-
-  if ( !socket || !socket->is_open() )
-    {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "Socket is closed despite writing?!" ) );
-      query->setError(std::string ( "Socket is closed despite writing?!" ));
-      lock.unlock();
-      this->unstashQuery(query);
-      this->abort();
-      return;
-    }
-
-  if ( this->io_service->stopped() )
-    {
-      LUGHOS_LOG(log::SeverityLevel::informative) <<  ( std::string ( "I/O-Service was stopped after or during writing." ) );
-      query->setError(std::string ( "I/O-Service was stopped after or during writing." ));
-      lock.unlock();
-      this->unstashQuery(query);
-      this->abort();
-      return;
-    }
-
-
   return;
 }
 
