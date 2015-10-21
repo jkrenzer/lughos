@@ -41,8 +41,8 @@ namespace lughos
 	{
 	  T oldValue = *(this->valuePointer);
 	  lock.unlock();
-	  boost::signals2::shared_connection_block block(this->syncConnection);
-// 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
+//	  boost::signals2::shared_connection_block block(this->syncConnection);
+ 	  refresher_(dynamic_cast<measuredValue<T> &>(*this));
 	  this->setTimeStamp(); //TODO Nasty hack until we have time to redo class-inheritance and virtual functions
 	  T newValue = *(this->valuePointer);
 	  if (newValue != oldValue )
@@ -88,13 +88,14 @@ namespace lughos
 	  lock.unlock();
 	  *( dynamic_cast<measuredValue<T>* >(this)) = newValue;
 	  lock.lock();
-	  
 	  if(oldValue != *(this->valuePointer))
 	  {
-	    lock.unlock();
-	    boost::signals2::shared_connection_block block(this->syncConnection);
-	    this->onValueChange();
-	    block.unblock();
+	    {
+	      lock.unlock();
+	      boost::signals2::shared_connection_block block(this->syncConnection);
+	      this->onValueChange();
+	      lock.lock();
+	    }
 	    LUGHOS_LOG(log::SeverityLevel::debug) << "Fetched new value \"" << this->type.toString(newValue) << "\" for " << this->name << ". Old value was: " << this->type.toString(oldValue);
 	    upgradeLockToExclusive llock(lock);
 	    this->isInitialPull_ = false;
@@ -197,10 +198,11 @@ namespace lughos
       SharedLock lock(mutex);
       if(this->ioService && this->ioStrand)
       {
-        LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " asynchronously.";
         try
         {
 	  this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::refresh_,this)));
+	  LUGHOS_LOG(log::SeverityLevel::debug) << "Refreshing " << this->name << " asynchronously.";
+	  return;
 	}
 	catch(exception& e)
 	{
@@ -225,10 +227,11 @@ namespace lughos
       SharedLock lock(mutex);
       if(this->ioService && this->ioStrand)
       {
-        LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " asynchronously.";
         try 
         {
 	  this->ioService->post(ioStrand->wrap(boost::bind(&exposedMeasurement::sync_,this)));
+	  LUGHOS_LOG(log::SeverityLevel::debug) << "Syncing " << this->name << " asynchronously.";
+	  return;
 	}
 	catch(exception& e)
 	{

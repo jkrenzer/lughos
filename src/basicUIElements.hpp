@@ -249,13 +249,13 @@ namespace lughos
           boost::signals2::shared_connection_block block(this->pull_OnValueChangeConnection);
 	  this->asignee_->setValueFromString(this->field_->text().toUTF8());
 	  LUGHOS_LOG(log::SeverityLevel::debug) << "Pushing new value \"" << this->field_->text().toUTF8() << "\" from UI-Element to underlying value-object \"" << this->asignee_->getName() << "\"." ;
+	  this->checkTainted();
 	}
 	else
 	{
 	  BOOST_THROW_EXCEPTION( exception() << errorName("push_invalid_ptr") << errorDescription("A push was emitted but the object to which we should push is a null-pointer!") << errorSeverity(severity::MustNot) );
           LUGHOS_LOG(log::SeverityLevel::error) << "Tried to push to value-object but we have a null-pointer!" ;
 	}
-	this->checkTainted();
       }
       
     };
